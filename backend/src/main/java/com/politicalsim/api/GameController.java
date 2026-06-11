@@ -1,0 +1,74 @@
+package com.politicalsim.api;
+
+import com.politicalsim.game.GameNotFoundException;
+import com.politicalsim.game.GameService;
+import com.politicalsim.game.GameSession;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/games")
+public class GameController {
+
+    private final GameService gameService;
+
+    public GameController(GameService gameService) {
+        this.gameService = gameService;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public GameSession createGame(@Valid @RequestBody CreateGameRequest request) {
+        return gameService.createGame(request);
+    }
+
+    @GetMapping("/{gameId}")
+    public GameSession getGame(@PathVariable String gameId) {
+        return gameService.getGame(gameId);
+    }
+
+    @GetMapping
+    public List<GameSession> listGames(@org.springframework.web.bind.annotation.RequestParam(required = false) String userId) {
+        if (userId != null && !userId.isBlank()) {
+            return gameService.listGames(userId);
+        }
+        return gameService.listGames();
+    }
+
+    @GetMapping("/{gameId}/turn-view")
+    public TurnView getTurnView(@PathVariable String gameId) {
+        return gameService.getTurnView(gameId);
+    }
+
+    @PostMapping("/{gameId}/turn/advance")
+    public TurnView advanceTurn(@PathVariable String gameId, @RequestBody TurnAdvanceRequest request) {
+        return gameService.advanceTurn(gameId, request);
+    }
+
+    @PostMapping("/{gameId}/forfeit")
+    public GameSession forfeitGame(@PathVariable String gameId) {
+        return gameService.forfeitGame(gameId);
+    }
+
+    @ExceptionHandler(GameNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleGameNotFound(GameNotFoundException exception) {
+        return Map.of("error", exception.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleBadRequest(IllegalArgumentException exception) {
+        return Map.of("error", exception.getMessage());
+    }
+}

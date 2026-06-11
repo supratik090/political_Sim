@@ -1,0 +1,14 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: political-sim-backend
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/political_sim}
+
+server:
+  port: ${PORT:8080}
+
+political-sim:
+  default-state-name: West Bengal
