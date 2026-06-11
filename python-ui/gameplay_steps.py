@@ -421,6 +421,57 @@ def render_kbc_review(turn_view):
         st.session_state["bid_amount"] = 0
 
 
+@st.dialog("Campaign Successful! 🏆")
+def show_victory_dialog(state_name, last_results):
+    st.balloons()
+    st.markdown(
+        f"""
+        <div style="text-align: center; font-family: 'Montserrat', sans-serif;">
+            <div style="font-size: 60px; margin-bottom: 10px;">👑</div>
+            <h2 style="color: #fbbf24; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;">Congratulations!</h2>
+            <p style="font-size: 15px; color: #e2e8f0; line-height: 1.6; margin-bottom: 20px;">
+                The <b>No-Confidence Motion</b> successfully passed! You have overthrown the incumbent government 
+                and officially formed the new government in <b>{state_name}</b>.
+            </p>
+            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; border-radius: 8px; padding: 12px; margin-bottom: 20px; text-align: left;">
+                <span style="font-size: 11px; font-weight: 700; color: #22c55e; display: block; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">Verdict</span>
+                <span style="font-size: 13px; color: #ffffff;">{" ".join(last_results) if last_results else "You won the election campaign!"}</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    if st.button("Return to Start Screen", key="victory_dialog_btn", type="primary", use_container_width=True):
+        st.session_state["game_id"] = None
+        st.session_state.pop("victory_dialog_shown", None)
+        st.session_state.pop("defeat_dialog_shown", None)
+        st.rerun()
+
+@st.dialog("Campaign Defeated ❌")
+def show_defeat_dialog(state_name, last_results):
+    st.markdown(
+        f"""
+        <div style="text-align: center; font-family: 'Montserrat', sans-serif;">
+            <div style="font-size: 60px; margin-bottom: 10px;">❌</div>
+            <h2 style="color: #ef4444; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;">Campaign Failed</h2>
+            <p style="font-size: 15px; color: #e2e8f0; line-height: 1.6; margin-bottom: 20px;">
+                You were unable to secure enough voter support to form the government in <b>{state_name}</b>.
+            </p>
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; padding: 12px; margin-bottom: 20px; text-align: left;">
+                <span style="font-size: 11px; font-weight: 700; color: #ef4444; display: block; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">Verdict</span>
+                <span style="font-size: 13px; color: #ffffff;">{" ".join(last_results) if last_results else "The opposition failed to form the government."}</span>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    if st.button("Return to Start Screen", key="defeat_dialog_btn", type="primary", use_container_width=True):
+        st.session_state["game_id"] = None
+        st.session_state.pop("victory_dialog_shown", None)
+        st.session_state.pop("defeat_dialog_shown", None)
+        st.rerun()
+
+
 def render_turn_view(turn_view):
     inject_game_css()
     
@@ -523,6 +574,81 @@ def render_turn_view(turn_view):
         unsafe_allow_html=True
     )
     
+    status_label = turn_view.get("status", "ACTIVE")
+    is_game_over = (status_label == "GAME_OVER")
+    gov_party = turn_view.get("governmentParty")
+    active_human_party_id = turn_view.get("activeHumanPartyId")
+    human_won = bool(gov_party and active_human_party_id and gov_party.get("id") == active_human_party_id)
+
+    if is_game_over:
+        if human_won:
+            if not st.session_state.get("victory_dialog_shown"):
+                st.session_state["victory_dialog_shown"] = True
+                show_victory_dialog(state_name, turn_view.get("lastResults", []))
+        else:
+            if not st.session_state.get("defeat_dialog_shown"):
+                st.session_state["defeat_dialog_shown"] = True
+                show_defeat_dialog(state_name, turn_view.get("lastResults", []))
+
+        # Show final results banner
+        if human_won:
+            st.markdown(
+                f"""
+                <div style="background: linear-gradient(135deg, #15803d 0%, #166534 100%); padding: 25px; border-radius: 12px; border: 2px solid #22c55e; margin-bottom: 25px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-family: 'Montserrat', sans-serif;">
+                    <div style="font-size: 50px; margin-bottom: 10px;">🏆</div>
+                    <h2 style="color: #ffffff; font-weight: 800; margin: 0;">CAMPAIGN SUCCESSFUL!</h2>
+                    <p style="font-size: 14px; color: #f0fdf4; margin-top: 8px; margin-bottom: 15px;">
+                        Congratulations! You have successfully won the campaign and formed the government in {state_name}.
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+                f"""
+                <div style="background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%); padding: 25px; border-radius: 12px; border: 2px solid #ef4444; margin-bottom: 25px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-family: 'Montserrat', sans-serif;">
+                    <div style="font-size: 50px; margin-bottom: 10px;">❌</div>
+                    <h2 style="color: #ffffff; font-weight: 800; margin: 0;">CAMPAIGN FAILED</h2>
+                    <p style="font-size: 14px; color: #fef2f2; margin-top: 8px; margin-bottom: 15px;">
+                        You were unable to win the election in {state_name}.
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            
+        # Display the Standings
+        st.subheader("Final Party Standings")
+        party_columns = st.columns(3)
+        for index, party in enumerate(turn_view.get("parties", [])):
+            with party_columns[index % 3]:
+                render_party_panel(
+                    party["role"].replace("_", " ").title(),
+                    party,
+                    turn_view.get("lastMetricDeltas", {}).get(party["id"], {}),
+                )
+                
+        # Display final results and commentary logs
+        st.write("")
+        with st.expander("Final Logs & Verdict", expanded=True):
+            st.write("**Final Election/Motion Results:**")
+            for result in turn_view.get("lastResults", []):
+                st.write(f"- {result}")
+            st.write("**Campaign Commentary Log:**")
+            for line in turn_view.get("lastRoundCommentary", []):
+                st.write(f"- {line}")
+                
+        # Large return button
+        st.write("")
+        if st.button("Return to Start Screen", key="game_over_return_btn", type="primary", use_container_width=True):
+            st.session_state["game_id"] = None
+            st.session_state.pop("victory_dialog_shown", None)
+            st.session_state.pop("defeat_dialog_shown", None)
+            st.rerun()
+            
+        return
+
     human_parties = [party for party in turn_view.get("parties", []) if party["playerControlled"]]
     active_party = next(
         (party for party in turn_view.get("parties", []) if party["id"] == turn_view.get("activeHumanPartyId")),
