@@ -158,9 +158,40 @@ You can access the rule-building interface by clicking the **🛠️ Admin Conso
 ```text
 http://localhost:8501/admin
 ```
-The Admin Console allows you to edit:
-* **Scenarios**: Define starting roles, starting party resources, and public mood configs.
-* **Action Cards**: Edit card costs, risk weights, and statistical effects.
-* **News Events**: Configure breaking news templates and party reaction scores.
 * **Monthly Governance Issues**: Define policy challenges and demographic outcomes.
 
+---
+
+## 🚀 Deploying the Backend to Railway
+
+Railway provides native support for Spring Boot projects. Follow these steps to deploy the backend service:
+
+### 1. Pre-deployment Verification
+* Make sure your latest changes (including any directory reorganizations) are pushed to your GitHub repository.
+* The Spring Boot backend dynamically binds to the `$PORT` environment variable via the `server.port: ${PORT:8080}` property configured in `application.yml`. No code changes are needed.
+
+### 2. Create a Railway Service
+1. Log in to your [Railway Dashboard](https://railway.app/).
+2. Click **New Project** -> **Deploy from GitHub repo**.
+3. Select your repository (`political_Sim`).
+
+### 3. Configure Subdirectory (Root Directory)
+Because the codebase is structured as a monorepo, you must tell Railway to build the Java code from the `backend` subdirectory:
+1. In the Railway dashboard, select the newly created service.
+2. Go to the **Settings** tab.
+3. Scroll down to the **General** section and locate **Root Directory**.
+4. Set the **Root Directory** to `/backend`.
+5. Railway will automatically detect the `pom.xml` configuration, build the project with Nixpacks, and deploy it.
+
+### 4. Setup Environment Variables
+1. Go to the **Variables** tab of the service.
+2. Add your database connection string:
+   * **Key**: `MONGODB_URI`
+   * **Value**: Your MongoDB Atlas connection string (or reference a Railway MongoDB database instance using `${{MongoDB.MONGODB_URI}}`).
+3. Railway automatically injects the `$PORT` variable; you do not need to add it manually.
+4. Click **Deploy** to rebuild the application with the new variables.
+
+### 5. Expose the Public URL
+1. Go to the **Settings** tab of the service.
+2. Under **Networking**, click **Generate Domain** (or set up a custom domain) to expose the service to the internet.
+3. Update the frontend's API base URL in your configuration (e.g., in `python-ui/constants.py` or `.env`) to point to your new Railway backend domain.
