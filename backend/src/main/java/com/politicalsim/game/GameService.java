@@ -239,7 +239,21 @@ public class GameService {
 
         addComputerSubmissions(session);
         boolean noConfidencePlayed = roundResolutionEngine.resolveRound(session);
-        boolean electionHeld = noConfidencePlayed || session.getMonthInCycle() >= CYCLE_LENGTH_MONTHS;
+        boolean noConfidenceSucceeded = false;
+        if (noConfidencePlayed) {
+            PartyState humanParty = session.getParties().stream()
+                .filter(p -> p.getControllerType() == com.politicalsim.party.ControllerType.HUMAN)
+                .findFirst().orElse(null);
+            PartyState govParty = session.getGovernmentParty();
+            if (humanParty != null && govParty != null && humanParty.getStats().getPublicSupport() > govParty.getStats().getPublicSupport()) {
+                noConfidenceSucceeded = true;
+            } else {
+                session.getLastRoundCommentary().add("The Opposition's No-Confidence Motion failed to gather enough support. The government survives the vote and continues in office.");
+                session.setLastResults(List.of("No-Confidence Motion failed: Government survives."));
+            }
+        }
+
+        boolean electionHeld = (noConfidencePlayed && noConfidenceSucceeded) || session.getMonthInCycle() >= CYCLE_LENGTH_MONTHS;
         if (electionHeld) {
             roundResolutionEngine.conductElection(session, noConfidencePlayed ? "No-confidence motion triggered an early election." : "Mandatory 60-month election completed.");
             session.setMonthInCycle(1);
