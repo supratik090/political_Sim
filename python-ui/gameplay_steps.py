@@ -595,10 +595,16 @@ def render_turn_view(turn_view):
     )
     
     status_label = turn_view.get("status", "ACTIVE")
-    is_game_over = (status_label == "GAME_OVER")
-    gov_party = turn_view.get("governmentParty")
-    active_human_party_id = turn_view.get("activeHumanPartyId")
-    human_won = bool(gov_party and active_human_party_id and gov_party.get("id") == active_human_party_id)
+    is_game_over = status_label in ("GAME_OVER", "VICTORY", "DEFEAT")
+    if status_label == "VICTORY":
+        human_won = True
+    elif status_label == "DEFEAT":
+        human_won = False
+    else:
+        # Fallback for legacy GAME_OVER games
+        gov_party = turn_view.get("governmentParty")
+        active_human_party_id = turn_view.get("activeHumanPartyId")
+        human_won = bool(gov_party and active_human_party_id and gov_party.get("id") == active_human_party_id)
 
     if is_game_over:
         if human_won:

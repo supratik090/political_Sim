@@ -103,7 +103,14 @@ public class ScenarioSeeder implements CommandLineRunner {
             int thirdCoins, int thirdMorale, int thirdCorruption, int thirdMedia, int thirdSupport,
             int undecided, int startYear) {
 
-        if (scenarioRepository.findByScenarioKey(key).isPresent()) {
+        List<ScenarioDefinition> existing = scenarioRepository.findByScenarioKey(key);
+        if (!existing.isEmpty()) {
+            if (existing.size() > 1) {
+                // Clean up duplicates if any exist in the database
+                for (int i = 1; i < existing.size(); i++) {
+                    scenarioRepository.delete(existing.get(i));
+                }
+            }
             return;
         }
 

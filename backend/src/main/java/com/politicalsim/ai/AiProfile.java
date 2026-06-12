@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class AiProfile {
 
-    private AiStyle style = AiStyle.ORGANIZATION_BUILDER;
+    private AiStyle style = AiStyle.BALANCED_STRATEGIST;
     private double riskTolerance = 0.45;
     private double scandalPreference = 0.45;
     private double welfarePreference = 0.45;
@@ -34,16 +34,16 @@ public class AiProfile {
     public static AiProfile defaultForRole(PartyRole role) {
         return switch (role) {
             case GOVERNMENT -> withCategoryPreferences(
-                    new AiProfile(AiStyle.CAUTIOUS_GOVERNOR, 0.35, 0.25, 0.65, 0.45, 0.55, 0.7),
-                    Map.of("governance", 0.9, "defensive_counter", 0.8, "positive_service", 0.7, "media_narrative", 0.55)
+                    new AiProfile(AiStyle.STRENGTH_BUILDER, 0.30, 0.10, 0.70, 0.50, 0.60, 0.80),
+                    Map.of("governance", 0.8, "positive_service", 0.9, "organization_resource", 0.9, "media_narrative", 0.6)
             );
             case OPPOSITION -> withCategoryPreferences(
-                    new AiProfile(AiStyle.AGGRESSIVE_POPULIST, 0.7, 0.8, 0.5, 0.4, 0.65, 0.75),
-                    Map.of("scandal_accusation", 0.95, "agitation_movement", 0.8, "media_narrative", 0.75, "positive_service", 0.5)
+                    new AiProfile(AiStyle.AGGRESSIVE_ATTACKER, 0.85, 0.90, 0.30, 0.20, 0.50, 0.50),
+                    Map.of("scandal_accusation", 0.95, "agitation_movement", 0.9, "media_narrative", 0.7)
             );
             case THIRD_PARTY -> withCategoryPreferences(
-                    new AiProfile(AiStyle.REGIONAL_KINGMAKER, 0.45, 0.35, 0.55, 0.8, 0.45, 0.7),
-                    Map.of("positive_service", 0.75, "organization_resource", 0.7, "ideology_identity", 0.65, "media_narrative", 0.45)
+                    new AiProfile(AiStyle.BALANCED_STRATEGIST, 0.50, 0.50, 0.50, 0.50, 0.50, 0.60),
+                    Map.of("governance", 0.6, "positive_service", 0.6, "organization_resource", 0.6, "scandal_accusation", 0.6, "agitation_movement", 0.6)
             );
         };
     }
@@ -115,7 +115,16 @@ public class AiProfile {
     }
 
     public AiStyle getStyle() {
-        return style;
+        if (style == null) {
+            return AiStyle.BALANCED_STRATEGIST;
+        }
+        return switch (style) {
+            case CAUTIOUS_GOVERNOR, ORGANIZATION_BUILDER -> AiStyle.STRENGTH_BUILDER;
+            case AGGRESSIVE_POPULIST -> AiStyle.AGGRESSIVE_ATTACKER;
+            case REGIONAL_KINGMAKER -> AiStyle.BALANCED_STRATEGIST;
+            case MEDIA_MACHINE -> AiStyle.BALANCED_STRATEGIST;
+            default -> style;
+        };
     }
 
     public void setStyle(AiStyle style) {

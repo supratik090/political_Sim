@@ -57,7 +57,7 @@ def west_bengal_2000_defaults():
                 "color": "#d23f31",
                 "symbol": "Tiger",
                 "ideology": "DEVELOPMENT_FIRST",
-                "aiProfile": DEFAULT_AI_PROFILES["GOVERNMENT"],
+                "aiProfile": DEFAULT_AI_PROFILES["STRENGTH_BUILDER"],
                 "startingStats": {
                     "coins": 260,
                     "partyMorale": 76,
@@ -74,7 +74,7 @@ def west_bengal_2000_defaults():
                 "color": "#244f9e",
                 "symbol": "Elephant",
                 "ideology": "ANTI_CORRUPTION",
-                "aiProfile": DEFAULT_AI_PROFILES["OPPOSITION"],
+                "aiProfile": DEFAULT_AI_PROFILES["AGGRESSIVE_ATTACKER"],
                 "startingStats": {
                     "coins": 145,
                     "partyMorale": 52,
@@ -91,7 +91,7 @@ def west_bengal_2000_defaults():
                 "color": "#1f8f5f",
                 "symbol": "Peacock",
                 "ideology": "REGIONAL_PRIDE",
-                "aiProfile": DEFAULT_AI_PROFILES["THIRD_PARTY"],
+                "aiProfile": DEFAULT_AI_PROFILES["BALANCED_STRATEGIST"],
                 "startingStats": {
                     "coins": 120,
                     "partyMorale": 52,

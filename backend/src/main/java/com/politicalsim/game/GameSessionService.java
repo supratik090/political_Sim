@@ -63,7 +63,7 @@ public class GameSessionService {
         }
 
         ScenarioDefinition scenario = request.getScenarioKey() == null ? null
-                : scenarioRepository.findByScenarioKey(request.getScenarioKey()).orElse(null);
+                : scenarioRepository.findByScenarioKey(request.getScenarioKey()).stream().findFirst().orElse(null);
         List<PartyState> parties = buildParties(request);
         PartyState governmentParty = findPartyByRole(parties, PartyRole.GOVERNMENT);
         PartyState oppositionParty = findPartyByRole(parties, PartyRole.OPPOSITION);

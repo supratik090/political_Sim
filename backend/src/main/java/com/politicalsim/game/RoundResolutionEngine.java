@@ -301,7 +301,7 @@ public class RoundResolutionEngine {
             PartyStats stats = party.getStats();
             if (stats.getCoins() <= 0 || stats.getPartyMorale() < 10 || stats.getCorruptionScore() > 100 || stats.getPublicSupport() < 5) {
                 if (session.getPlayerPartyIds().contains(party.getId())) {
-                    session.setStatus(GameStatus.GAME_OVER);
+                    session.setStatus(GameStatus.DEFEAT);
                     commentary.add("❌ DEFEAT: Your party " + party.getName() + " has been politically eliminated due to critical resource failure (Coins: " + stats.getCoins() + ", Morale: " + stats.getPartyMorale() + ", Corruption: " + stats.getCorruptionScore() + ", Support: " + stats.getPublicSupport() + "%).");
                     resultLines.add("Defeat: Your party was eliminated.");
                 } else {
@@ -1034,12 +1034,12 @@ public class RoundResolutionEngine {
                 session.getLastRoundCommentary().add("🎉 Your No-Confidence Motion succeeded! You have won the early election and formed the government. You must now survive the next 60 months in office.");
                 session.setLastResults(List.of("No-Confidence Successful: You formed the government!"));
             } else {
-                session.setStatus(GameStatus.GAME_OVER);
+                session.setStatus(GameStatus.VICTORY);
                 session.getLastRoundCommentary().add("🏆 VICTORY: You have successfully completed the 60-month cycle and won the election! Your party forms a stable government.");
                 session.setLastResults(List.of("Victory: You won the election!"));
             }
         } else {
-            session.setStatus(GameStatus.GAME_OVER);
+            session.setStatus(GameStatus.DEFEAT);
             session.getLastRoundCommentary().add("❌ DEFEAT: You did not win the election. " + winner.getName() + " has formed the government.");
             session.setLastResults(List.of("Defeat: You lost the election."));
         }

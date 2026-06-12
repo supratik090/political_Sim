@@ -72,11 +72,12 @@ public class AiDecisionService {
         }
 
         return switch (profile.getStyle()) {
-            case AGGRESSIVE_POPULIST -> AiIntent.ATTACK_RIVAL;
-            case MEDIA_MACHINE -> AiIntent.DEFEND_IMAGE;
-            case CAUTIOUS_GOVERNOR -> AiIntent.GAIN_SUPPORT;
-            case REGIONAL_KINGMAKER -> AiIntent.RAISE_FUNDS;
-            case ORGANIZATION_BUILDER -> AiIntent.RESTORE_MORALE;
+            case STRENGTH_BUILDER -> AiIntent.RESTORE_MORALE;
+            case AGGRESSIVE_ATTACKER -> AiIntent.ATTACK_RIVAL;
+            case LATE_STRIKER -> (session.getTurnNumber() >= 40) ? AiIntent.ATTACK_RIVAL : AiIntent.GAIN_SUPPORT;
+            case AGGRESSIVE_BIDDER -> AiIntent.RAISE_FUNDS;
+            case BALANCED_STRATEGIST -> stats.getPublicSupport() < 30 ? AiIntent.GAIN_SUPPORT : AiIntent.RESTORE_MORALE;
+            default -> AiIntent.RESTORE_MORALE;
         };
     }
 
@@ -91,15 +92,72 @@ public class AiDecisionService {
         score += doubleValue(card.getWeights().get("publicImpactWeight")) * weight(profile, "cardPublicImpact");
         score -= doubleValue(card.getWeights().get("riskWeight")) * (weight(profile, "cardRiskBase") - profile.getRiskTolerance());
 
-        score += intValue(selfEffects.get("publicSupport")) * weight(profile, "selfPublicSupport");
-        score += intValue(selfEffects.get("mediaImage")) * (weight(profile, "selfMediaBase") + profile.getMediaPreference());
-        score += intValue(selfEffects.get("partyMorale")) * weight(profile, "selfMorale");
-        score -= intValue(selfEffects.get("corruptionScore")) * (weight(profile, "selfCorruptionPenaltyBase") + profile.getIdeologyStrictness());
-        score += intValue(selfEffects.get("coins")) * weight(profile, "selfCoins");
+        double selfSupportVal = intValue(selfEffects.get("publicSupport")) * weight(profile, "selfPublicSupport");
+        double selfMediaVal = intValue(selfEffects.get("mediaImage")) * (weight(profile, "selfMediaBase") + profile.getMediaPreference());
+        double selfMoraleVal = intValue(selfEffects.get("partyMorale")) * weight(profile, "selfMorale");
+        double selfCorruptionVal = intValue(selfEffects.get("corruptionScore")) * (weight(profile, "selfCorruptionPenaltyBase") + profile.getIdeologyStrictness());
+        double selfCoinsVal = intValue(selfEffects.get("coins")) * weight(profile, "selfCoins");
 
-        score -= intValue(opponentEffects.get("publicSupport")) * weight(profile, "opponentPublicSupportDamage");
-        score -= intValue(opponentEffects.get("mediaImage")) * weight(profile, "opponentMediaDamage");
-        score += intValue(opponentEffects.get("corruptionScore")) * (weight(profile, "opponentCorruptionGainBase") + profile.getScandalPreference());
+        double oppSupportVal = intValue(opponentEffects.get("publicSupport")) * weight(profile, "opponentPublicSupportDamage");
+        double oppMediaVal = intValue(opponentEffects.get("mediaImage")) * weight(profile, "opponentMediaDamage");
+        double oppCorruptionVal = intValue(opponentEffects.get("corruptionScore")) * (weight(profile, "opponentCorruptionGainBase") + profile.getScandalPreference());
+
+        // Strategy-based adjustments
+        if (profile.getStyle() == AiStyle.STRENGTH_BUILDER) {
+            selfSupportVal *= 1.3;
+            selfMediaVal *= 1.5;
+            selfMoraleVal *= 1.5;
+            selfCoinsVal *= 1.5;
+            selfCorruptionVal *= 1.8; // High aversion to corruption
+            oppSupportVal *= 0.5;
+            oppMediaVal *= 0.5;
+            oppCorruptionVal *= 0.5;
+            if (oneOf(card.getCategory(), "scandal", "scandal_accusation", "agitation", "agitation_movement")) {
+                score -= 15.0;
+            }
+        } else if (profile.getStyle() == AiStyle.AGGRESSIVE_ATTACKER) {
+            oppSupportVal *= 2.0;
+            oppMediaVal *= 2.0;
+            oppCorruptionVal *= 2.0;
+            selfSupportVal *= 0.7;
+            selfCoinsVal *= 0.5;
+            if (oneOf(card.getCategory(), "scandal", "scandal_accusation", "agitation", "agitation_movement")) {
+                score += 15.0;
+            }
+        } else if (profile.getStyle() == AiStyle.LATE_STRIKER) {
+            int turn = session.getTurnNumber();
+            if (turn < 40) {
+                selfSupportVal *= 1.3;
+                selfMoraleVal *= 1.4;
+                selfCoinsVal *= 1.4;
+                oppSupportVal *= 0.3;
+                if (oneOf(card.getCategory(), "scandal", "scandal_accusation", "agitation", "agitation_movement")) {
+                    score -= 12.0;
+                }
+            } else {
+                oppSupportVal *= 2.5;
+                oppMediaVal *= 2.0;
+                if (oneOf(card.getCategory(), "scandal", "scandal_accusation", "agitation", "agitation_movement", "media_narrative")) {
+                    score += 18.0;
+                }
+            }
+        } else if (profile.getStyle() == AiStyle.AGGRESSIVE_BIDDER) {
+            selfCoinsVal *= 2.0;
+            selfMoraleVal *= 1.8;
+            if ("organization_resource".equals(card.getCategory())) {
+                score += 12.0;
+            }
+        }
+
+        score += selfSupportVal;
+        score += selfMediaVal;
+        score += selfMoraleVal;
+        score -= selfCorruptionVal;
+        score += selfCoinsVal;
+
+        score -= oppSupportVal;
+        score -= oppMediaVal;
+        score += oppCorruptionVal;
 
         score += intentFit(intent, card.getCategory()) * weight(profile, "intentFit");
         score += categoryFitScore(party, opponent, card.getCategory(), profile);

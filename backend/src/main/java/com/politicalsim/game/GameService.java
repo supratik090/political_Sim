@@ -5,9 +5,12 @@ import com.politicalsim.api.PartyView;
 import com.politicalsim.api.TurnView;
 import com.politicalsim.api.TurnAdvanceRequest;
 import com.politicalsim.api.HeldRewardView;
+import com.politicalsim.api.CampaignProgressResponse;
+import com.politicalsim.api.ScenarioProgressView;
 import com.politicalsim.ai.AiDecision;
 import com.politicalsim.ai.AiDecisionService;
 import com.politicalsim.ai.AiProfile;
+import com.politicalsim.ai.AiStyle;
 import com.politicalsim.content.CardDefinition;
 import com.politicalsim.content.CardDefinitionRepository;
 import com.politicalsim.content.IssueOptionDefinition;
@@ -17,6 +20,8 @@ import com.politicalsim.content.NewsDefinition;
 import com.politicalsim.content.NewsDefinitionRepository;
 import com.politicalsim.content.NewsReactionDefinition;
 import com.politicalsim.content.DefinitionCache;
+import com.politicalsim.content.ScenarioDefinition;
+import com.politicalsim.content.ScenarioDefinitionRepository;
 import com.politicalsim.party.ControllerType;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
@@ -42,6 +47,7 @@ public class GameService {
     private final CardDefinitionRepository cardRepository;
     private final NewsDefinitionRepository newsRepository;
     private final MonthlyIssueDefinitionRepository issueRepository;
+    private final ScenarioDefinitionRepository scenarioRepository;
     private final AiDecisionService aiDecisionService;
 
     public GameService(
@@ -50,6 +56,7 @@ public class GameService {
             CardDefinitionRepository cardRepository,
             NewsDefinitionRepository newsRepository,
             MonthlyIssueDefinitionRepository issueRepository,
+            ScenarioDefinitionRepository scenarioRepository,
             AiDecisionService aiDecisionService
     ) {
         this.gameSessionService = gameSessionService;
@@ -57,7 +64,121 @@ public class GameService {
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
         this.issueRepository = issueRepository;
+        this.scenarioRepository = scenarioRepository;
         this.aiDecisionService = aiDecisionService;
+    }
+
+    public CampaignProgressResponse getCampaignProgress(String userId) {
+        List<ScenarioDefinition> allActive = scenarioRepository.findAll().stream()
+                .filter(ScenarioDefinition::isActive)
+                .toList();
+        List<ScenarioDefinition> activeScenarios = new ArrayList<>();
+        java.util.Set<String> seenKeys = new java.util.HashSet<>();
+        for (ScenarioDefinition s : allActive) {
+            if (s.getScenarioKey() != null && seenKeys.add(s.getScenarioKey())) {
+                activeScenarios.add(s);
+            }
+        }
+
+        List<GameSession> userGames = new ArrayList<>();
+        if (userId != null && !userId.isBlank()) {
+            userGames = gameSessionService.listGames(userId);
+        }
+
+        List<String> wonScenarioKeys = new ArrayList<>();
+        for (GameSession g : userGames) {
+            String skey = g.getScenarioKey();
+            if (g.getStatus() == GameStatus.VICTORY) {
+                wonScenarioKeys.add(skey);
+            } else if (g.getStatus() == GameStatus.GAME_OVER) {
+                PartyState gov = g.getGovernmentParty();
+                if (gov != null && g.getPlayerPartyIds() != null && g.getPlayerPartyIds().contains(gov.getId())) {
+                    wonScenarioKeys.add(skey);
+                }
+            }
+        }
+
+        boolean wbWon = wonScenarioKeys.contains("west_bengal_2000");
+        boolean mhWon = wonScenarioKeys.contains("maharashtra_2001") || wonScenarioKeys.contains("Mh_2001");
+        boolean upWon = wonScenarioKeys.contains("uttar_pradesh_2001");
+        boolean tnWon = wonScenarioKeys.contains("tamil_nadu_2001");
+        boolean rjWon = wonScenarioKeys.contains("rajasthan_2001");
+
+        int currentEra = 2001;
+        if (wbWon && mhWon && upWon && tnWon && rjWon) {
+            currentEra = 2006;
+        }
+
+        List<ScenarioProgressView> scenarioProgressList = new ArrayList<>();
+        for (ScenarioDefinition s : activeScenarios) {
+            String key = s.getScenarioKey();
+            if (key == null) continue;
+
+            boolean is2006 = key.endsWith("_2006");
+            boolean is2001 = key.endsWith("_2000") || key.endsWith("_2001");
+
+            if (currentEra == 2006 && !is2006) continue;
+            if (currentEra == 2001 && !is2001) continue;
+
+            String status = "AVAILABLE";
+            
+            boolean hasActive = false;
+            for (GameSession g : userGames) {
+                if (key.equals(g.getScenarioKey()) && g.getStatus() == GameStatus.ACTIVE) {
+                    hasActive = true;
+                    break;
+                }
+            }
+
+            if (hasActive) {
+                status = "IN_PROGRESS";
+            } else if (wonScenarioKeys.contains(key)) {
+                status = "WON";
+            } else {
+                boolean locked = false;
+                if (currentEra == 2006) {
+                    if (!"west_bengal_2006".equals(key) && !wonScenarioKeys.contains("west_bengal_2006")) {
+                        locked = true;
+                    }
+                } else {
+                    boolean isDefaultUnlocked = "west_bengal_2000".equals(key) || "maharashtra_2001".equals(key) || "Mh_2001".equals(key);
+                    if (!isDefaultUnlocked && !wonScenarioKeys.contains("west_bengal_2000")) {
+                        locked = true;
+                    }
+                }
+                
+                if (locked) {
+                    status = "LOCKED";
+                }
+            }
+
+            scenarioProgressList.add(new ScenarioProgressView(
+                key,
+                s.getName(),
+                s.getStateName(),
+                s.getDescription(),
+                status,
+                s
+            ));
+        }
+
+        List<String> orderKeys = List.of(
+            "west_bengal_2000", "west_bengal_2006",
+            "maharashtra_2001", "Mh_2001", "maharashtra_2006",
+            "uttar_pradesh_2001", "uttar_pradesh_2006",
+            "tamil_nadu_2001", "tamil_nadu_2006",
+            "rajasthan_2001", "rajasthan_2006"
+        );
+        scenarioProgressList.sort((a, b) -> {
+            int indexA = orderKeys.indexOf(a.getScenarioKey());
+            int indexB = orderKeys.indexOf(b.getScenarioKey());
+            if (indexA == -1 && indexB == -1) return a.getScenarioKey().compareTo(b.getScenarioKey());
+            if (indexA == -1) return 1;
+            if (indexB == -1) return -1;
+            return Integer.compare(indexA, indexB);
+        });
+
+        return new CampaignProgressResponse(currentEra, scenarioProgressList);
     }
 
     public GameSession createGame(CreateGameRequest request) {
@@ -619,41 +740,79 @@ public class GameService {
             return 0;
         }
         
+        AiStyle style = party.getAiProfile() != null ? party.getAiProfile().getStyle() : AiStyle.BALANCED_STRATEGIST;
+        int coinReserve = 30;
+        int moraleReserve = 20;
+        int supportReserve = 15;
+        double bidMultiplier = 1.0;
+        int maxCoinBidLimit = 15;
+        int maxMoraleBidLimit = 20;
+        int maxSupportBidLimit = 3;
+
+        if (style == AiStyle.STRENGTH_BUILDER) {
+            coinReserve = 40;
+            moraleReserve = 30;
+            bidMultiplier = 0.6;
+        } else if (style == AiStyle.LATE_STRIKER) {
+            if (session.getTurnNumber() < 40) {
+                coinReserve = 35;
+                moraleReserve = 25;
+                bidMultiplier = 0.5;
+            } else {
+                coinReserve = 15;
+                moraleReserve = 10;
+                bidMultiplier = 1.5;
+                maxCoinBidLimit = 22;
+                maxMoraleBidLimit = 28;
+                maxSupportBidLimit = 4;
+            }
+        } else if (style == AiStyle.AGGRESSIVE_BIDDER) {
+            coinReserve = 15;
+            moraleReserve = 10;
+            bidMultiplier = 1.6;
+            maxCoinBidLimit = 25;
+            maxMoraleBidLimit = 35;
+            maxSupportBidLimit = 6;
+        }
+
         int bid = 0;
         if ("COINS".equalsIgnoreCase(metric)) {
-            // Keep a reserve for card costs (minimum 30 coins)
-            int usable = Math.max(0, currentMetricValue - 30);
+            int usable = Math.max(0, currentMetricValue - coinReserve);
             if (usable > 0) {
-                int minBid = Math.max(1, (int) Math.ceil(usable * 0.05));
-                int maxBid = Math.min(15, (int) (usable * 0.20));
-                if (maxBid >= minBid) {
+                int minBid = Math.max(1, (int) Math.ceil(usable * 0.05 * bidMultiplier));
+                int maxBid = Math.min(maxCoinBidLimit, (int) (usable * 0.20 * bidMultiplier));
+                maxBid = Math.max(minBid, maxBid);
+                if (maxBid > minBid) {
                     bid = minBid + new Random().nextInt(maxBid - minBid + 1);
                 } else {
                     bid = minBid;
                 }
             }
         } else if ("PARTY_MORALE".equalsIgnoreCase(metric) || "MORALE".equalsIgnoreCase(metric)) {
-            // Keep a reserve of 20 morale
-            int usable = Math.max(0, currentMetricValue - 20);
+            int usable = Math.max(0, currentMetricValue - moraleReserve);
             if (usable > 0) {
-                int minBid = Math.max(1, (int) Math.ceil(usable * 0.05));
-                int maxBid = Math.min(20, (int) (usable * 0.25));
-                if (maxBid >= minBid) {
+                int minBid = Math.max(1, (int) Math.ceil(usable * 0.05 * bidMultiplier));
+                int maxBid = Math.min(maxMoraleBidLimit, (int) (usable * 0.25 * bidMultiplier));
+                maxBid = Math.max(minBid, maxBid);
+                if (maxBid > minBid) {
                     bid = minBid + new Random().nextInt(maxBid - minBid + 1);
                 } else {
                     bid = minBid;
                 }
             }
         } else if ("PUBLIC_SUPPORT".equalsIgnoreCase(metric) || "SUPPORT".equalsIgnoreCase(metric)) {
-            // Support is highly critical; max bid is 3 support points
-            int usable = Math.max(0, currentMetricValue - 15);
+            int usable = Math.max(0, currentMetricValue - supportReserve);
             if (usable > 0) {
-                bid = 1 + new Random().nextInt(Math.min(3, usable));
+                int maxPossibleBid = Math.min(maxSupportBidLimit, usable);
+                if (maxPossibleBid > 0) {
+                    bid = 1 + new Random().nextInt(maxPossibleBid);
+                }
             }
         } else {
-            int minBid = (int) Math.ceil(currentMetricValue * 0.02);
-            int maxBid = (int) (currentMetricValue * 0.10);
-            if (maxBid >= minBid) {
+            int minBid = (int) Math.ceil(currentMetricValue * 0.02 * bidMultiplier);
+            int maxBid = (int) (currentMetricValue * 0.10 * bidMultiplier);
+            maxBid = Math.max(minBid, maxBid);
+            if (maxBid > minBid) {
                 bid = minBid + new Random().nextInt(maxBid - minBid + 1);
             } else {
                 bid = minBid;

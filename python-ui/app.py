@@ -62,6 +62,7 @@ def handle_oauth_callback(code):
                         "name": user_info.get("name"),
                         "picture": user_info.get("picture"),
                     }
+                    st.session_state["write_cache"] = True
                     st.query_params.clear()
                     st.rerun()
     except Exception as e:
@@ -115,6 +116,7 @@ def render_login_page():
                 "name": normalized_email.split("@")[0].capitalize(),
                 "picture": None
             }
+            st.session_state["write_cache"] = True
             st.rerun()
 
 
@@ -142,8 +144,15 @@ def scenario_party_defaults(scenario):
                 "color": party.get("color") or PARTY_COLORS[index % len(PARTY_COLORS)],
                 "symbol": party.get("symbol") or PARTY_SYMBOLS[index % len(PARTY_SYMBOLS)],
                 "aiProfile": party.get("aiProfile") or DEFAULT_AI_PROFILES.get(
-                    party.get("startingRole", ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"][index]),
-                    DEFAULT_AI_PROFILES["THIRD_PARTY"],
+                    {
+                        "GOVERNMENT": "STRENGTH_BUILDER",
+                        "OPPOSITION": "AGGRESSIVE_ATTACKER",
+                        "THIRD_PARTY": "BALANCED_STRATEGIST",
+                    }.get(
+                        party.get("startingRole", ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"][index]),
+                        "BALANCED_STRATEGIST"
+                    ),
+                    DEFAULT_AI_PROFILES["BALANCED_STRATEGIST"]
                 ),
                 "startingStats": party.get("startingStats"),
             }
@@ -158,16 +167,6 @@ def format_game_date(date_str):
     if len(parts) >= 2:
         return f"{parts[0]} {parts[1]}"
     return date_str
-
-
-def check_state_won(games, scenario_key):
-    for g in games:
-        if g.get("scenarioKey") == scenario_key and g.get("status") == "GAME_OVER":
-            gov = g.get("governmentParty")
-            player_id = g.get("playerPartyId")
-            if gov and player_id and gov.get("id") == player_id:
-                return True
-    return False
 
 
 def game_main():
@@ -205,14 +204,12 @@ def game_main():
     except Exception:
         games = []
 
-    # Era Progression Logic (All 2001 campaigns won unlocks 2006 era)
-    wb_2001_won = check_state_won(games, "west_bengal_2000")
-    mh_2001_won = check_state_won(games, "maharashtra_2001") or check_state_won(games, "Mh_2001")
-    up_2001_won = check_state_won(games, "uttar_pradesh_2001")
-    tn_2001_won = check_state_won(games, "tamil_nadu_2001")
-    rj_2001_won = check_state_won(games, "rajasthan_2001")
+    try:
+        progress = api_get("/api/scenarios/progress", {"userId": user_id} if user_id else None)
+    except Exception:
+        progress = {"currentEra": 2001, "scenarios": []}
 
-    current_era = 2006 if (wb_2001_won and mh_2001_won and up_2001_won and tn_2001_won and rj_2001_won) else 2001
+    current_era = progress.get("currentEra", 2001)
 
     # Admin Console and Logout header
     col_empty, col_user_info, col_admin_btn, col_logout_btn = st.columns([3, 1.2, 1.2, 0.8])
@@ -230,8 +227,7 @@ def game_main():
             st.switch_page(admin_page)
     with col_logout_btn:
         if st.button("🚪 Logout", key="logout_btn", use_container_width=True):
-            st.session_state.pop("user", None)
-            st.session_state.pop("game_id", None)
+            st.session_state["clear_cache"] = True
             st.rerun()
 
     # Title Banner Card
@@ -253,45 +249,20 @@ def game_main():
     with col1:
         st.markdown("### 📊 Campaigns Status Table")
         
-        # State Scenarios for current Era
-        if current_era == 2006:
-            campaigns = [
-                ("West Bengal", "west_bengal_2006", "West Bengal 2006"),
-                ("Maharashtra", "maharashtra_2006", "Maharashtra 2006"),
-                ("Uttar Pradesh", "uttar_pradesh_2006", "Uttar Pradesh 2006"),
-                ("Tamil Nadu", "tamil_nadu_2006", "Tamil Nadu 2006"),
-                ("Rajasthan", "rajasthan_2006", "Rajasthan 2006")
-            ]
-        else:
-            campaigns = [
-                ("West Bengal", "west_bengal_2000", "West Bengal 2000"),
-                ("Maharashtra", "Mh_2001", "Maharashtra 2001"),
-                ("Uttar Pradesh", "uttar_pradesh_2001", "Uttar Pradesh 2001"),
-                ("Tamil Nadu", "tamil_nadu_2001", "Tamil Nadu 2001"),
-                ("Rajasthan", "rajasthan_2001", "Rajasthan 2001")
-            ]
-
         table_rows = ""
-        for name, key, display_name in campaigns:
-            # Check Status
-            if check_state_won(games, key):
+        for item in progress.get("scenarios", []):
+            name = item.get("stateName", "Unknown")
+            display_name = item.get("name", "Unknown")
+            status = item.get("status", "LOCKED")
+            
+            if status == "WON":
                 badge = '<span style="background-color: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🏆 WON</span>'
-            elif any(g.get("scenarioKey") == key and g.get("status") == "ACTIVE" for g in games):
+            elif status == "IN_PROGRESS":
                 badge = '<span style="background-color: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔵 IN PROGRESS</span>'
+            elif status == "LOCKED":
+                badge = '<span style="background-color: #374151; color: #9ca3af; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔒 LOCKED</span>'
             else:
-                # Lock conditions
-                is_locked = False
-                if current_era == 2006:
-                    if key != "west_bengal_2006" and not check_state_won(games, "west_bengal_2006"):
-                        is_locked = True
-                else:
-                    if key not in ["west_bengal_2000", "maharashtra_2001", "Mh_2001"] and not check_state_won(games, "west_bengal_2000"):
-                        is_locked = True
-                
-                if is_locked:
-                    badge = '<span style="background-color: #374151; color: #9ca3af; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔒 LOCKED</span>'
-                else:
-                    badge = '<span style="background-color: #d97706; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔓 AVAILABLE</span>'
+                badge = '<span style="background-color: #d97706; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔓 AVAILABLE</span>'
 
             table_rows += (
                 f'<tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">'
@@ -335,42 +306,19 @@ def game_main():
         # Render options below buttons
         if active_action == "create":
             st.markdown("### Choose a Campaign")
-            try:
-                scenarios = list_scenarios_for_game()
-            except Exception:
-                scenarios = [west_bengal_2000_defaults()]
-
-            # Build options map filtered by era
+            
+            # Build options map from progress
             scenario_options = {}
-            for s in scenarios:
-                key = s.get("scenarioKey")
+            for item in progress.get("scenarios", []):
+                s = item.get("scenarioDefinition")
+                if not s:
+                    continue
                 name = s.get("name")
+                status = item.get("status", "LOCKED")
                 
-                is_2006 = key.endswith("_2006")
-                is_2001 = key.endswith("_2000") or key.endswith("_2001")
-                
-                if current_era == 2006 and not is_2006:
-                    continue
-                if current_era == 2001 and not is_2001:
-                    continue
-
-                status = "Unlocked"
-                if key in ["west_bengal_2000", "west_bengal_2006", "maharashtra_2001", "Mh_2001"]:
-                    status = "Unlocked"
-                    if check_state_won(games, key):
-                        status = "Won"
-                else:
-                    if current_era == 2006:
-                        status = "Unlocked" if check_state_won(games, "west_bengal_2006") else "Locked"
-                    else:
-                        status = "Unlocked" if check_state_won(games, "west_bengal_2000") else "Locked"
-                    
-                    if status == "Unlocked" and check_state_won(games, key):
-                        status = "Won"
-
-                if status == "Locked":
+                if status == "LOCKED":
                     label = f"🔒 {name} (Locked - Win West Bengal first)"
-                elif status == "Won":
+                elif status == "WON":
                     label = f"👑 {name} (Won!)"
                 else:
                     label = f"🟢 {name}"
@@ -428,25 +376,31 @@ def game_main():
                                 human_count += 1
                             else:
                                 from constants import DEFAULT_AI_PROFILES
-                                ai_profile = party.get("aiProfile") or DEFAULT_AI_PROFILES.get(party["role"], DEFAULT_AI_PROFILES["THIRD_PARTY"])
-                                st.markdown("##### AI Profile")
+                                style = None
+                                if party.get("aiProfile"):
+                                    style = party["aiProfile"].get("style")
+                                else:
+                                    if party["role"] == "GOVERNMENT":
+                                        style = "STRENGTH_BUILDER"
+                                    elif party["role"] == "OPPOSITION":
+                                        style = "AGGRESSIVE_ATTACKER"
+                                    else:
+                                        style = "BALANCED_STRATEGIST"
+
+                                st.markdown("##### AI Strategy Profile")
                                 preset_names = list(AI_PROFILE_PRESETS.keys())
-                                default_preset = "Role Default"
+                                default_preset = "Balanced Strategist ⚖️"
                                 for preset_name, preset in AI_PROFILE_PRESETS.items():
-                                    if preset and preset.get("style") == ai_profile.get("style"):
+                                    if preset and preset.get("style") == style:
                                         default_preset = preset_name
                                         break
                                 selected_preset = st.selectbox(
-                                    "AI Profile",
+                                    "AI Strategy Profile",
                                     preset_names,
                                     index=preset_names.index(default_preset),
                                     key=f"start-ai-profile-{index}",
                                 )
-                                party["aiProfile"] = (
-                                    DEFAULT_AI_PROFILES.get(party["role"], DEFAULT_AI_PROFILES["THIRD_PARTY"])
-                                    if AI_PROFILE_PRESETS[selected_preset] is None
-                                    else AI_PROFILE_PRESETS[selected_preset]
-                                )
+                                party["aiProfile"] = AI_PROFILE_PRESETS[selected_preset]
                                 
                     if human_count != human_count_target:
                         st.warning(f"This setup needs exactly {human_count_target} human-controlled party/parties. Current: {human_count}.")
@@ -527,14 +481,85 @@ def admin_main():
 # Page configurations and routing registration
 st.set_page_config(page_title="Indian Politics Simulation", layout="wide")
 
+# Check for cache_user query parameter
+cache_user = st.query_params.get("cache_user")
+if cache_user and "user" not in st.session_state:
+    try:
+        user_info = json.loads(urllib.parse.unquote(cache_user))
+        st.session_state["user"] = user_info
+        st.query_params.clear()
+        st.rerun()
+    except Exception as e:
+        pass
+
 # Check for OAuth callback code
 code = st.query_params.get("code")
 if code and "user" not in st.session_state:
     handle_oauth_callback(code)
 
 if "user" not in st.session_state:
+    import streamlit.components.v1 as components
+    components.html("""
+        <script>
+            try {
+                const dataStr = window.parent.localStorage.getItem("political_sim_user_cache");
+                if (dataStr) {
+                    const cache = JSON.parse(dataStr);
+                    if (cache && cache.user && cache.expiresAt) {
+                        const now = new Date().getTime();
+                        if (now < cache.expiresAt) {
+                            const userParam = encodeURIComponent(JSON.stringify(cache.user));
+                            window.parent.location.href = window.parent.location.origin + window.parent.location.pathname + "?cache_user=" + userParam;
+                        } else {
+                            window.parent.localStorage.removeItem("political_sim_user_cache");
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to read localStorage:", e);
+            }
+        </script>
+    """, height=0, width=0)
     render_login_page()
 else:
+    import streamlit.components.v1 as components
+    import time
+
+    if st.session_state.get("clear_cache"):
+        components.html("""
+            <script>
+                try {
+                    window.parent.localStorage.removeItem("political_sim_user_cache");
+                    window.parent.location.href = window.parent.location.origin + window.parent.location.pathname;
+                } catch (e) {
+                    console.error("Failed to clear localStorage:", e);
+                }
+            </script>
+        """, height=0, width=0)
+        st.session_state.pop("clear_cache", None)
+        st.session_state.pop("user", None)
+        st.session_state.pop("game_id", None)
+        st.rerun()
+
+    if st.session_state.get("write_cache"):
+        user_data = st.session_state["user"]
+        expires_at = int(time.time() * 1000) + (5 * 24 * 60 * 60 * 1000)  # 5 days
+        cache_payload = {
+            "user": user_data,
+            "expiresAt": expires_at
+        }
+        cache_json = json.dumps(cache_payload)
+        components.html(f"""
+            <script>
+                try {{
+                    window.parent.localStorage.setItem("political_sim_user_cache", `{cache_json}`);
+                }} catch (e) {{
+                    console.error("Failed to write to localStorage:", e);
+                }}
+            </script>
+        """, height=0, width=0)
+        st.session_state.pop("write_cache", None)
+
     game_page = st.Page(game_main, title="Indian Politics Simulation", url_path="game", default=True)
     admin_page = st.Page(admin_main, title="Admin Console", url_path="admin")
 
