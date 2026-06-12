@@ -2,6 +2,8 @@ package com.politicalsim.game;
 
 import com.politicalsim.party.PartyState;
 import com.politicalsim.publicmood.PublicState;
+import com.politicalsim.content.CardDefinition;
+import com.politicalsim.content.MonthlyIssueDefinition;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -48,6 +50,8 @@ public class GameSession {
     private Map<String, Integer> lastRoundBids = new LinkedHashMap<>();
     private String lastRoundBiddingMetric;
     private String lastRoundWinnerPartyId;
+    private List<CardDefinition> gameCards = new ArrayList<>();
+    private List<MonthlyIssueDefinition> gameIssues = new ArrayList<>();
 
 
     public String getId() {
@@ -312,5 +316,21 @@ public class GameSession {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public List<CardDefinition> getGameCards() {
+        return gameCards;
+    }
+
+    public void setGameCards(List<CardDefinition> gameCards) {
+        this.gameCards = gameCards;
+    }
+
+    public List<MonthlyIssueDefinition> getGameIssues() {
+        return gameIssues;
+    }
+
+    public void setGameIssues(List<MonthlyIssueDefinition> gameIssues) {
+        this.gameIssues = gameIssues;
     }
 }

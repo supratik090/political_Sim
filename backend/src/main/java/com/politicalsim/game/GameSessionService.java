@@ -4,6 +4,10 @@ import com.politicalsim.api.CreateGameRequest;
 import com.politicalsim.api.CreatePartySetupRequest;
 import com.politicalsim.content.ScenarioDefinition;
 import com.politicalsim.content.ScenarioDefinitionRepository;
+import com.politicalsim.content.CardDefinition;
+import com.politicalsim.content.CardDefinitionRepository;
+import com.politicalsim.content.MonthlyIssueDefinition;
+import com.politicalsim.content.MonthlyIssueDefinitionRepository;
 import com.politicalsim.party.ControllerType;
 import com.politicalsim.party.Ideology;
 import com.politicalsim.party.PartyRole;
@@ -27,15 +31,21 @@ public class GameSessionService {
 
     private final GameSessionRepository repository;
     private final ScenarioDefinitionRepository scenarioRepository;
+    private final CardDefinitionRepository cardRepository;
+    private final MonthlyIssueDefinitionRepository issueRepository;
     private final String defaultStateName;
 
     public GameSessionService(
             GameSessionRepository repository,
             ScenarioDefinitionRepository scenarioRepository,
+            CardDefinitionRepository cardRepository,
+            MonthlyIssueDefinitionRepository issueRepository,
             @Value("${political-sim.default-state-name}") String defaultStateName
     ) {
         this.repository = repository;
         this.scenarioRepository = scenarioRepository;
+        this.cardRepository = cardRepository;
+        this.issueRepository = issueRepository;
         this.defaultStateName = defaultStateName;
     }
 
@@ -101,6 +111,27 @@ public class GameSessionService {
         }
         session.setPartyRoundWins(wins);
         session.setPartyHeldRewards(held);
+
+        // Initialize Game Cards and Issues (up to 60 chosen randomly across all scenarios)
+        List<CardDefinition> allCards = cardRepository.findAll().stream()
+                .filter(CardDefinition::isActive)
+                .toList();
+        List<CardDefinition> selectedCards = new ArrayList<>(allCards);
+        if (selectedCards.size() > 60) {
+            java.util.Collections.shuffle(selectedCards);
+            selectedCards = selectedCards.subList(0, 60);
+        }
+        session.setGameCards(selectedCards);
+
+        List<MonthlyIssueDefinition> allIssues = issueRepository.findAll().stream()
+                .filter(MonthlyIssueDefinition::isActive)
+                .toList();
+        List<MonthlyIssueDefinition> selectedIssues = new ArrayList<>(allIssues);
+        if (selectedIssues.size() > 60) {
+            java.util.Collections.shuffle(selectedIssues);
+            selectedIssues = selectedIssues.subList(0, 60);
+        }
+        session.setGameIssues(selectedIssues);
 
         normalizePublicSupport(session);
 

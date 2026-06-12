@@ -215,17 +215,205 @@ def inject_game_css():
           border-radius: 10px;
         }
         
+        .party-panel-title {
+          font-size: 15px;
+          font-weight: 800;
+          margin-bottom: 8px;
+        }
+        .party-panel-badge {
+          font-size: 11px;
+          opacity: 0.6;
+        }
+
+        .playable-card-body {
+          font-family: 'Montserrat', sans-serif;
+          line-height: 1.5;
+          padding: 8px 0;
+        }
+        .playable-card-category {
+          font-size: 11px;
+          text-transform: uppercase;
+          color: #555555;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+        }
+        .playable-card-title {
+          font-size: 14px;
+          font-weight: 800;
+          margin-top: 4px;
+          margin-bottom: 8px;
+          color: #111111;
+        }
+        .playable-card-description {
+          font-size: 12px;
+          margin-bottom: 10px;
+          color: #2d3748;
+        }
+        .playable-card-effects {
+          background: rgba(0,0,0,0.03);
+          border-radius: 6px;
+          padding: 8px;
+          margin-bottom: 10px;
+          font-size: 12px;
+          color: #2d3748;
+        }
+        .playable-card-meta {
+          font-size: 11px;
+          border-top: 1px dashed rgba(0,0,0,0.15);
+          padding-top: 6px;
+          color: #555555;
+        }
+
         @media (max-width: 768px) {
-          [data-testid="stHorizontalBlock"] {
+          /* Keep standings columns side-by-side on mobile */
+          div[data-testid="stVerticalBlock"]:has(.standing-columns-marker) > div[data-testid="stHorizontalBlock"] {
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 6px !important;
+          }
+          div[data-testid="stVerticalBlock"]:has(.standing-columns-marker) > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 32% !important;
+            min-width: 32% !important;
+            flex: 1 1 0% !important;
+          }
+          div[data-testid="stVerticalBlock"]:has(.standing-columns-marker) [data-testid="stVerticalBlockBorderWrapper"] {
+            padding: 6px !important;
+          }
+          
+          /* Keep card columns side-by-side on mobile */
+          div[data-testid="stVerticalBlock"]:has(.card-columns-marker) > div[data-testid="stHorizontalBlock"] {
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 6px !important;
+          }
+          div[data-testid="stVerticalBlock"]:has(.card-columns-marker) > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 32% !important;
+            min-width: 32% !important;
+            flex: 1 1 0% !important;
+          }
+
+          /* Other elements stacked */
+          [data-testid="stHorizontalBlock"]:not(:has(.standing-columns-marker)):not(:has(.card-columns-marker)) {
             flex-direction: column !important;
             gap: 12px !important;
           }
-          [data-testid="column"] {
+          [data-testid="stHorizontalBlock"]:not(:has(.standing-columns-marker)):not(:has(.card-columns-marker)) > [data-testid="column"] {
             width: 100% !important;
             min-width: 100% !important;
           }
+
           .kbc-card-container {
             padding: 14px !important;
+            border-radius: 10px !important;
+          }
+          .kbc-question-title {
+            font-size: 15px !important;
+            margin-bottom: 12px !important;
+            padding-bottom: 8px !important;
+          }
+          h1 {
+            font-size: 20px !important;
+          }
+          h2 {
+            font-size: 15px !important;
+          }
+          h3 {
+            font-size: 13px !important;
+          }
+          
+          /* Scaled down metrics display */
+          [data-testid="stMetricValue"] {
+            font-size: 11px !important;
+          }
+          [data-testid="stMetricLabel"] {
+            font-size: 8px !important;
+          }
+          [data-testid="stMetricDelta"] {
+            font-size: 8px !important;
+          }
+          
+          /* Scaled down option buttons */
+          div.stButton > button {
+            font-size: 10px !important;
+            padding: 4px 8px !important;
+            border-radius: 12px !important;
+          }
+          
+          /* Compact card expanders on mobile */
+          div[data-testid="stExpander"] {
+            margin-bottom: 4px !important;
+            border-radius: 4px !important;
+          }
+          div[data-testid="stExpander"] summary {
+            padding: 4px 6px !important;
+          }
+          div[data-testid="stExpander"] summary div {
+            font-size: 10px !important;
+          }
+          div[data-testid="stExpander"] div[role="region"] div {
+            font-size: 9px !important;
+            padding: 4px 6px !important;
+          }
+          
+          /* Scaled down party panel text */
+          .party-panel-title {
+            font-size: 10px !important;
+            margin-bottom: 4px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+          }
+          .party-panel-badge {
+            font-size: 7px !important;
+            display: block !important;
+            margin-top: 1px !important;
+          }
+
+          /* Scaled down playable cards HTML content */
+          .playable-card-body {
+            padding: 4px 0 !important;
+          }
+          .playable-card-category {
+            font-size: 8px !important;
+          }
+          .playable-card-title {
+            font-size: 10px !important;
+            margin-top: 2px !important;
+            margin-bottom: 4px !important;
+          }
+          .playable-card-description {
+            font-size: 9px !important;
+            margin-bottom: 6px !important;
+          }
+          .playable-card-effects {
+            font-size: 9px !important;
+            padding: 4px !important;
+            margin-bottom: 6px !important;
+          }
+          .playable-card-meta {
+            font-size: 8px !important;
+            padding-top: 4px !important;
+          }
+          
+          /* Compact party banners and flags */
+          .party-flag {
+            min-height: 75px !important;
+            padding: 8px 12px !important;
+            border-radius: 10px !important;
+          }
+          .party-flag-title {
+            font-size: 12px !important;
+          }
+          .party-flag-subtitle {
+            font-size: 9px !important;
+          }
+          .symbol-medallion {
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 10px !important;
+          }
+          .party-symbol {
+            font-size: 18px !important;
           }
         }
     """
@@ -235,28 +423,32 @@ def inject_game_css():
 def render_party_panel(title, party, deltas=None):
     stats = party["stats"]
     deltas = deltas or {}
-    badge = "Player" if party["playerControlled"] else "AI"
-    color = party.get("color") or "#555555"
+    is_active = party.get("active", True)
+    badge = "ELIMINATED" if not is_active else ("Player" if party["playerControlled"] else "AI")
+    color = "#718096" if not is_active else (party.get("color") or "#555555")
     
     with st.container(border=True):
         st.markdown(
-            f"<div style='font-size: 16px; font-weight: 800; margin-bottom: 8px;'>"
+            f"<div class='party-panel-title' style='color: {color};'>"
             f"<span style='color: {color};'>●</span> {party['name']} "
-            f"<span style='font-size: 11px; opacity: 0.6;'>({badge} - {title})</span>"
+            f"<span class='party-panel-badge'>({badge} - {title})</span>"
             f"</div>",
             unsafe_allow_html=True
         )
         
-        col1, col2 = st.columns(2)
-        with col1:
-            metric_with_delta("Coins", stats["coins"], deltas.get("coins"))
-            metric_with_delta("Corruption", stats["corruptionScore"], deltas.get("corruptionScore"), inverse=True)
-        with col2:
-            metric_with_delta("Morale", stats["partyMorale"], deltas.get("partyMorale"))
-            metric_with_delta("Media", stats["mediaImage"], deltas.get("mediaImage"))
-            
-        metric_with_delta("Public Support", stats["publicSupport"], deltas.get("publicSupport"), suffix="%")
-        st.progress(stats["publicSupport"] / 100.0)
+        if not is_active:
+            st.info("💀 Politically Eliminated")
+        else:
+            col1, col2 = st.columns(2)
+            with col1:
+                metric_with_delta("Coins", stats["coins"], deltas.get("coins"))
+                metric_with_delta("Corruption", stats["corruptionScore"], deltas.get("corruptionScore"), inverse=True)
+            with col2:
+                metric_with_delta("Morale", stats["partyMorale"], deltas.get("partyMorale"))
+                metric_with_delta("Media", stats["mediaImage"], deltas.get("mediaImage"))
+                
+            metric_with_delta("Public Support", stats["publicSupport"], deltas.get("publicSupport"), suffix="%")
+            st.progress(stats["publicSupport"] / 100.0)
 
 
 def render_last_decisions_panel(party, submission, bidding_metric=None, last_round_winner_id=None):
@@ -521,15 +713,15 @@ def render_playable_card(card, turn_view):
     with st.expander(expander_title, expanded=False):
         st.markdown(
             f"""
-            <div style="font-family: 'Montserrat', sans-serif; line-height: 1.5; padding: 8px 0;">
-                <div style="font-size: 11px; text-transform: uppercase; color: #555555; font-weight: 700; letter-spacing: 0.05em;">{label}</div>
-                <div style="font-size: 14px; font-weight: 800; margin-top: 4px; margin-bottom: 8px; color: #111111;">🃏 {card['name']}</div>
-                <div style="font-size: 12px; margin-bottom: 10px; color: #2d3748;">{card.get('description', 'No description available.')}</div>
-                <div style="background: rgba(0,0,0,0.03); border-radius: 6px; padding: 8px; margin-bottom: 10px; font-size: 12px;">
+            <div class="playable-card-body">
+                <div class="playable-card-category">{label}</div>
+                <div class="playable-card-title">🃏 {card['name']}</div>
+                <div class="playable-card-description">{card.get('description', 'No description available.')}</div>
+                <div class="playable-card-effects">
                     <div style="margin-bottom: 4px;"><b>🟢 Self Effects:</b> {summarize_effects(card, 'selfParty')}</div>
                     <div><b>🔴 Opponent Effects:</b> {summarize_effects(card, 'opponentParty')}</div>
                 </div>
-                <div style="font-size: 11px; border-top: 1px dashed rgba(0,0,0,0.15); padding-top: 6px; color: #555555;">
+                <div class="playable-card-meta">
                     <b>Cost:</b> {card['cost']} coins | <b>Uses:</b> {remaining_uses}/{card.get('maxUsesPerCycle', 2)}<br/>
                     <b>Risk:</b> {risk_text} | <b>Resolution:</b> {timing.get('minTurns', 1)}-{timing.get('maxTurns', 1)} m
                 </div>

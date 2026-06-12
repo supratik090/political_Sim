@@ -256,7 +256,7 @@ public class GameService {
 
         boolean electionHeld = (noConfidencePlayed && noConfidenceSucceeded) || session.getMonthInCycle() >= CYCLE_LENGTH_MONTHS;
         if (electionHeld) {
-            roundResolutionEngine.conductElection(session, noConfidencePlayed ? "No-confidence motion triggered an early election." : "Mandatory 60-month election completed.");
+            roundResolutionEngine.conductElection(session, noConfidencePlayed ? "No-confidence motion triggered an early election." : "Mandatory 60-month election completed.", noConfidencePlayed);
             session.setMonthInCycle(1);
         } else {
             session.setMonthInCycle(session.getMonthInCycle() + 1);
@@ -300,7 +300,7 @@ public class GameService {
             noCard.setWeights(new LinkedHashMap<>());
             return noCard;
         }
-        return getCardsForScenario(session.getScenarioKey()).stream()
+        return getCardsForSession(session).stream()
                 .filter(CardDefinition::isActive)
                 .filter(card -> card.getCardKey().equals(cardKey))
                 .filter(card -> card.getRoleAllowed().contains(role.name()))
@@ -377,6 +377,9 @@ public class GameService {
             if (party.getControllerType() != ControllerType.COMPUTER) {
                 continue;
             }
+            if (!party.isActive()) {
+                continue;
+            }
             if (session.getCurrentRoundSubmissions().stream().anyMatch(s -> s.getPartyId().equals(party.getId()))) {
                 continue;
             }
@@ -440,7 +443,7 @@ public class GameService {
     }
 
     private MonthlyIssueDefinition getCurrentIssue(GameSession session, PartyState party) {
-        List<MonthlyIssueDefinition> issues = getIssuesForScenario(session.getScenarioKey()).stream()
+        List<MonthlyIssueDefinition> issues = getIssuesForSession(session).stream()
                 .filter(MonthlyIssueDefinition::isActive)
                 .filter(issue -> issue.getRoleAllowed().contains(party.getRole().name()))
                 .sorted(Comparator.comparing(MonthlyIssueDefinition::getIssueKey))
@@ -533,7 +536,7 @@ public class GameService {
 
     private List<CardDefinition> getAvailableCardsForParty(GameSession session, PartyState party) {
         List<CardDefinition> cards = new java.util.ArrayList<>(
-            getCardsForScenario(session.getScenarioKey()).stream()
+            getCardsForSession(session).stream()
                 .filter(CardDefinition::isActive)
                 .filter(card -> card.getRoleAllowed().contains(party.getRole().name()))
                 .filter(card -> usedCount(session, party, card) < card.getMaxUsesPerCycle())
@@ -581,6 +584,7 @@ public class GameService {
 
     private PartyState chooseOpponent(GameSession session, PartyState actor) {
         return session.getParties().stream()
+                .filter(PartyState::isActive)
                 .filter(party -> !party.getId().equals(actor.getId()))
                 .max(Comparator.comparingInt(party -> party.getStats().getPublicSupport()))
                 .orElse(null);
@@ -709,6 +713,20 @@ public class GameService {
             }
             return issues;
         });
+    }
+
+    private List<CardDefinition> getCardsForSession(GameSession session) {
+        if (session.getGameCards() != null && !session.getGameCards().isEmpty()) {
+            return session.getGameCards();
+        }
+        return getCardsForScenario(session.getScenarioKey());
+    }
+
+    private List<MonthlyIssueDefinition> getIssuesForSession(GameSession session) {
+        if (session.getGameIssues() != null && !session.getGameIssues().isEmpty()) {
+            return session.getGameIssues();
+        }
+        return getIssuesForScenario(session.getScenarioKey());
     }
 
     private record NoConfidenceStatus(boolean available, String reason) {

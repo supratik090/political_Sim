@@ -54,6 +54,7 @@ def render_card_deck(cards, turn_view):
         st.markdown(f"### {label}")
         category_cards = sorted(grouped[category], key=lambda item: item["name"])
         for row_start in range(0, len(category_cards), 3):
+            st.markdown('<div class="card-columns-marker"></div>', unsafe_allow_html=True)
             cols = st.columns(3)
             for col, card in zip(cols, category_cards[row_start:row_start + 3]):
                 with col:
@@ -510,6 +511,25 @@ def render_turn_view(turn_view):
         )
         st.session_state["scroll_to_top"] = False
 
+    if st.session_state.get("scroll_to_stats"):
+        st.markdown(
+            """
+            <img src="does-not-exist" onerror="
+              const scrollToStats = (el) => {
+                if (el) {
+                  try { el.scrollIntoView({behavior: 'smooth', block: 'start'}); } catch(e) {}
+                }
+              };
+              try {
+                const el = document.getElementById('stats-focus') || (window.parent && window.parent.document && window.parent.document.getElementById('stats-focus'));
+                scrollToStats(el);
+              } catch(e) {}
+            " style="display:none;"/>
+            """,
+            unsafe_allow_html=True
+        )
+        st.session_state["scroll_to_stats"] = False
+
     col_title, col_menu = st.columns([3, 1])
     with col_title:
         st.title("Political Strategy Sim")
@@ -683,6 +703,8 @@ def render_turn_view(turn_view):
         render_sidebar_inventory(turn_view)
 
 
+    st.markdown('<div id="stats-focus"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="standing-columns-marker"></div>', unsafe_allow_html=True)
     st.subheader("Current Party Standings")
     party_columns = st.columns(3)
     for index, party in enumerate(turn_view.get("parties", [])):
@@ -975,7 +997,7 @@ def render_turn_view(turn_view):
                 st.session_state["reward_target_party_id"] = None
                 st.session_state["bid_amount"] = 0
                 st.session_state["gameplay_step"] = "select_card"
-                st.session_state["scroll_to_top"] = True
+                st.session_state["scroll_to_stats"] = True
                 st.success("Turn advanced successfully!")
                 st.rerun()
             except requests.RequestException as exc:

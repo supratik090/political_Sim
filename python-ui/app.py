@@ -207,7 +207,7 @@ def game_main():
 
     # Era Progression Logic (All 2001 campaigns won unlocks 2006 era)
     wb_2001_won = check_state_won(games, "west_bengal_2000")
-    mh_2001_won = check_state_won(games, "maharashtra_2001")
+    mh_2001_won = check_state_won(games, "maharashtra_2001") or check_state_won(games, "Mh_2001")
     up_2001_won = check_state_won(games, "uttar_pradesh_2001")
     tn_2001_won = check_state_won(games, "tamil_nadu_2001")
     rj_2001_won = check_state_won(games, "rajasthan_2001")
@@ -265,7 +265,7 @@ def game_main():
         else:
             campaigns = [
                 ("West Bengal", "west_bengal_2000", "West Bengal 2000"),
-                ("Maharashtra", "maharashtra_2001", "Maharashtra 2001"),
+                ("Maharashtra", "Mh_2001", "Maharashtra 2001"),
                 ("Uttar Pradesh", "uttar_pradesh_2001", "Uttar Pradesh 2001"),
                 ("Tamil Nadu", "tamil_nadu_2001", "Tamil Nadu 2001"),
                 ("Rajasthan", "rajasthan_2001", "Rajasthan 2001")
@@ -285,7 +285,7 @@ def game_main():
                     if key != "west_bengal_2006" and not check_state_won(games, "west_bengal_2006"):
                         is_locked = True
                 else:
-                    if key != "west_bengal_2000" and not check_state_won(games, "west_bengal_2000"):
+                    if key not in ["west_bengal_2000", "maharashtra_2001", "Mh_2001"] and not check_state_won(games, "west_bengal_2000"):
                         is_locked = True
                 
                 if is_locked:
@@ -355,7 +355,7 @@ def game_main():
                     continue
 
                 status = "Unlocked"
-                if key in ["west_bengal_2000", "west_bengal_2006"]:
+                if key in ["west_bengal_2000", "west_bengal_2006", "maharashtra_2001", "Mh_2001"]:
                     status = "Unlocked"
                     if check_state_won(games, key):
                         status = "Won"

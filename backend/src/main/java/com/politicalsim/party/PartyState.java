@@ -14,6 +14,7 @@ public class PartyState {
     private Ideology ideology;
     private AiProfile aiProfile;
     private PartyStats stats;
+    private boolean active = true;
 
     public PartyState() {
     }
@@ -129,5 +130,13 @@ public class PartyState {
 
     public void setStats(PartyStats stats) {
         this.stats = stats;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

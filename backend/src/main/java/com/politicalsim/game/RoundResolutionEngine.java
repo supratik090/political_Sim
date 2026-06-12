@@ -33,18 +33,18 @@ public class RoundResolutionEngine {
         new RewardDefinition("reward_leak_25_corruption", "Corruption Exposure", "Increase corruption score by 25 on an opponent party.", true, "opponent", 0, 0, 25, 0, 0),
         new RewardDefinition("reward_smear_5_support", "Smear Campaign", "Decrease public support by 5% of an opponent party.", true, "opponent", 0, 0, 0, 0, -5),
         new RewardDefinition("reward_donation_40_coins", "Private Donation", "Gift 40 coins to yourself.", false, "self", 40, 0, 0, 0, 0),
-        new RewardDefinition("reward_cadre_15_morale", "Cadre Boost", "Increase morale by 15 of yourself.", false, "self", 0, 15, 0, 0, 0),
-        new RewardDefinition("reward_spotlight_20_media", "Media Spotlight", "Boost media image by 20 of a selected party.", true, "any", 0, 0, 0, 20, 0),
-        new RewardDefinition("reward_reform_15_corruption", "Internal Reform", "Decrease corruption score by 15 of yourself.", false, "self", 0, 0, -15, 0, 0),
+        new RewardDefinition("reward_cadre_15_morale", "Cadre Boost", "Increase morale by 35 of yourself.", false, "self", 0, 35, 0, 0, 0),
+        new RewardDefinition("reward_spotlight_20_media", "Media Spotlight", "Boost media image by 30 of a selected party.", true, "any", 0, 0, 0, 30, 0),
+        new RewardDefinition("reward_reform_15_corruption", "Internal Reform", "Decrease corruption score by 25 of yourself.", false, "self", 0, 0, -25, 0, 0),
         new RewardDefinition("reward_rally_8_support", "Grassroots Rally", "Boost public support by 8% of yourself.", false, "self", 0, 0, 0, 0, 8),
-        new RewardDefinition("reward_morale_tax", "Morale Tradeoff", "Deduct 15 morale from yourself to gain 30 coins.", false, "self", 30, -15, 0, 0, 0),
-        new RewardDefinition("reward_tax_audit", "Tax Audit Trigger", "Increase corruption by 20 and deduct 15 coins from an opponent party.", true, "opponent", -15, 0, 20, 0, 0),
-        new RewardDefinition("reward_assassination", "Character Assassination", "Deduct 25 media image and 15 morale from an opponent party.", true, "opponent", 0, -15, 0, -25, 0),
-        new RewardDefinition("reward_alliance", "Local Coalition Boost", "Boost public support by 6% and media image by 10 of yourself.", false, "self", 0, 0, 0, 10, 6),
-        new RewardDefinition("reward_bribe_scandal", "Bribe Scandal Setup", "Increase corruption by 30 and deduct 10 morale from an opponent party.", true, "opponent", 0, -10, 30, 0, 0),
-        new RewardDefinition("reward_charity_event", "Charity Gala", "Deduct 20 coins from yourself but boost media image by 25.", false, "self", -20, 0, 0, 25, 0),
+        new RewardDefinition("reward_morale_tax", "Morale Tradeoff", "Deduct 5 morale from yourself to gain 60 coins.", false, "self", 60, -5, 0, 0, 0),
+        new RewardDefinition("reward_tax_audit", "Tax Audit Trigger", "Increase corruption by 30 and deduct 45 coins from an opponent party.", true, "opponent", -45, 0, 30, 0, 0),
+        new RewardDefinition("reward_assassination", "Character Assassination", "Deduct 25 media image and 25 morale from an opponent party.", true, "opponent", 0, -25, 0, -25, 0),
+        new RewardDefinition("reward_alliance", "Local Coalition Boost", "Boost public support by 10% and media image by 30 of yourself.", false, "self", 0, 0, 0, 30, 10),
+        new RewardDefinition("reward_bribe_scandal", "Bribe Scandal Setup", "Increase corruption by 30 and deduct 20 morale from an opponent party.", true, "opponent", 0, -20, 30, 0, 0),
+        new RewardDefinition("reward_charity_event", "Charity Gala", "Increase 20 coins from yourself and boost media image by 25.", false, "self", 20, 0, 0, 25, 0),
         new RewardDefinition("reward_ideological_purge", "Ideological Purge", "Boost morale by 25 add 5% public support from yourself.", false, "self", 0, 25, 0, 0, 5),
-        new RewardDefinition("reward_foreign_aid", "Foreign Aid Link", "Gift 60 coins to yourself, but increase corruption by 10.", false, "self", 60, 0, 10, 0, 0),
+        new RewardDefinition("reward_foreign_aid", "Foreign Aid Link", "Gift 60 coins to yourself, and decrease corruption by 10.", false, "self", 60, 0, -10, 0, 0),
         new RewardDefinition("reward_press_boycott", "Press Boycott", "Deduct 30 media image from an opponent party.", true, "opponent", 0, 0, 0, -30, 0),
         new RewardDefinition("reward_voter_suppression", "Voter Suppression Probe", "Deduct 8% public support from an opponent party.", true, "opponent", 0, 0, 0, 0, -8),
         new RewardDefinition("reward_audit_cleanse", "Audit Cleanse", "Decrease corruption score by 25 of yourself.", false, "self", 0, 0, -25, 0, 0)
@@ -255,7 +255,7 @@ public class RoundResolutionEngine {
                         .findFirst().orElse(null);
                 if (reward != null) {
                     List<HeldReward> held = session.getPartyHeldRewards().computeIfAbsent(cycleWinnerPartyId, k -> new ArrayList<>());
-                    HeldReward newHeld = new HeldReward(reward.key(), reward.name(), reward.description(), 5, reward.requiresTarget(), reward.allowedTargets());
+                    HeldReward newHeld = new HeldReward(reward.key(), reward.name(), reward.description(), 15, reward.requiresTarget(), reward.allowedTargets());
                     held.add(newHeld);
                     commentary.add("🏆 CYCLE REWARD AWARDED: " + winnerParty.getName() + " wins the 5-turn cycle reward: " + reward.name() + " (" + reward.description() + ")!");
                 }
@@ -293,6 +293,28 @@ public class RoundResolutionEngine {
             deltas.put(party.getId(), partyDeltas);
             significantMovement(party, partyDeltas, commentary);
         }
+        // Check for party elimination
+        for (PartyState party : session.getParties()) {
+            if (!party.isActive()) {
+                continue;
+            }
+            PartyStats stats = party.getStats();
+            if (stats.getCoins() <= 0 || stats.getPartyMorale() < 10 || stats.getCorruptionScore() > 100 || stats.getPublicSupport() < 5) {
+                if (session.getPlayerPartyIds().contains(party.getId())) {
+                    session.setStatus(GameStatus.GAME_OVER);
+                    commentary.add("❌ DEFEAT: Your party " + party.getName() + " has been politically eliminated due to critical resource failure (Coins: " + stats.getCoins() + ", Morale: " + stats.getPartyMorale() + ", Corruption: " + stats.getCorruptionScore() + ", Support: " + stats.getPublicSupport() + "%).");
+                    resultLines.add("Defeat: Your party was eliminated.");
+                } else {
+                    party.setActive(false);
+                    int supportToMove = stats.getPublicSupport();
+                    party.getStats().setPublicSupport(0);
+                    session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + supportToMove);
+                    commentary.add("💀 ELIMINATED: AI Party " + party.getName() + " has been politically eliminated and is no longer active in this campaign.");
+                    resultLines.add("Eliminated: AI Party " + party.getName() + " was eliminated.");
+                }
+            }
+        }
+
         normalizePublicSupport(session);
 
         session.setLastRoundSubmissions(new ArrayList<>(session.getCurrentRoundSubmissions()));
@@ -543,7 +565,7 @@ public class RoundResolutionEngine {
         if (!"card".equals(delayedEffect.getSourceType())) {
             return false;
         }
-        return getCardsForScenario(session.getScenarioKey()).stream()
+        return getCardsForSession(session).stream()
                 .filter(card -> card.getCardKey().equals(delayedEffect.getSourceKey()))
                 .noneMatch(card -> {
                     Object scheduled = card.getVisibleEffects().get("scheduled");
@@ -978,8 +1000,10 @@ public class RoundResolutionEngine {
         publicState.setMainIssues(List.of("Governance delivery", "Corruption credibility", "Campaign consistency"));
     }
 
-    public void conductElection(GameSession session, String reason) {
-        List<PartyState> ranking = new ArrayList<>(session.getParties());
+    public void conductElection(GameSession session, String reason, boolean isNoConfidenceElection) {
+        List<PartyState> ranking = new ArrayList<>(session.getParties().stream()
+                .filter(PartyState::isActive)
+                .toList());
         ranking.sort(Comparator.comparingInt((PartyState party) -> party.getStats().getPublicSupport()).reversed());
 
         PartyState winner = ranking.get(0);
@@ -1003,8 +1027,22 @@ public class RoundResolutionEngine {
         session.setCardUsageByParty(initialCardUsage(session.getParties()));
         session.getLastRoundCommentary().add(reason + " " + winner.getName() + " forms the government with "
                 + winner.getStats().getPublicSupport() + "% support.");
-        session.setLastResults(List.of("Election result: " + winner.getName() + " forms the government."));
-        session.setStatus(GameStatus.GAME_OVER);
+        
+        boolean humanWon = session.getPlayerPartyIds().contains(winner.getId());
+        if (humanWon) {
+            if (isNoConfidenceElection) {
+                session.getLastRoundCommentary().add("🎉 Your No-Confidence Motion succeeded! You have won the early election and formed the government. You must now survive the next 60 months in office.");
+                session.setLastResults(List.of("No-Confidence Successful: You formed the government!"));
+            } else {
+                session.setStatus(GameStatus.GAME_OVER);
+                session.getLastRoundCommentary().add("🏆 VICTORY: You have successfully completed the 60-month cycle and won the election! Your party forms a stable government.");
+                session.setLastResults(List.of("Victory: You won the election!"));
+            }
+        } else {
+            session.setStatus(GameStatus.GAME_OVER);
+            session.getLastRoundCommentary().add("❌ DEFEAT: You did not win the election. " + winner.getName() + " has formed the government.");
+            session.setLastResults(List.of("Defeat: You lost the election."));
+        }
     }
 
     private Map<String, Map<String, Integer>> initialCardUsage(List<PartyState> parties) {
@@ -1023,14 +1061,26 @@ public class RoundResolutionEngine {
         }
         int maxPartyTotal = 100 - minUndecided;
 
-        int total = session.getParties().stream().mapToInt(party -> party.getStats().getPublicSupport()).sum();
+        int total = session.getParties().stream()
+                .filter(PartyState::isActive)
+                .mapToInt(party -> party.getStats().getPublicSupport())
+                .sum();
         if (total <= maxPartyTotal) {
             session.getPublicState().setUndecidedSupport(100 - total);
+            for (PartyState party : session.getParties()) {
+                if (!party.isActive()) {
+                    party.getStats().setPublicSupport(0);
+                }
+            }
             return;
         }
 
         int normalizedTotal = 0;
         for (PartyState party : session.getParties()) {
+            if (!party.isActive()) {
+                party.getStats().setPublicSupport(0);
+                continue;
+            }
             int normalized = Math.max(0, party.getStats().getPublicSupport() * maxPartyTotal / total);
             party.getStats().setPublicSupport(normalized);
             normalizedTotal += normalized;
@@ -1038,6 +1088,9 @@ public class RoundResolutionEngine {
 
         int remainder = maxPartyTotal - normalizedTotal;
         for (PartyState party : session.getParties()) {
+            if (!party.isActive()) {
+                continue;
+            }
             if (remainder <= 0) {
                 break;
             }
@@ -1127,7 +1180,7 @@ public class RoundResolutionEngine {
             noCard.setWeights(new LinkedHashMap<>());
             return noCard;
         }
-        return getCardsForScenario(session.getScenarioKey()).stream()
+        return getCardsForSession(session).stream()
                 .filter(CardDefinition::isActive)
                 .filter(card -> card.getCardKey().equals(cardKey))
                 .filter(card -> card.getRoleAllowed().contains(role.name()))
@@ -1146,7 +1199,7 @@ public class RoundResolutionEngine {
     }
 
     private MonthlyIssueDefinition getIssueByKey(GameSession session, PartyState party, String issueKey) {
-        return getIssuesForScenario(session.getScenarioKey()).stream()
+        return getIssuesForSession(session).stream()
                 .filter(MonthlyIssueDefinition::isActive)
                 .filter(issue -> issue.getRoleAllowed().contains(party.getRole().name()))
                 .filter(issue -> issue.getIssueKey().equals(issueKey))
@@ -1278,6 +1331,20 @@ public class RoundResolutionEngine {
             }
             return issues;
         });
+    }
+
+    private List<CardDefinition> getCardsForSession(GameSession session) {
+        if (session.getGameCards() != null && !session.getGameCards().isEmpty()) {
+            return session.getGameCards();
+        }
+        return getCardsForScenario(session.getScenarioKey());
+    }
+
+    private List<MonthlyIssueDefinition> getIssuesForSession(GameSession session) {
+        if (session.getGameIssues() != null && !session.getGameIssues().isEmpty()) {
+            return session.getGameIssues();
+        }
+        return getIssuesForScenario(session.getScenarioKey());
     }
 }
 
