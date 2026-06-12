@@ -8,6 +8,7 @@ import com.politicalsim.content.MonthlyIssueDefinitionRepository;
 import com.politicalsim.content.NewsDefinition;
 import com.politicalsim.content.NewsDefinitionRepository;
 import com.politicalsim.content.NewsReactionDefinition;
+import com.politicalsim.content.DefinitionCache;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
 import com.politicalsim.party.PartyStats;
@@ -74,12 +75,11 @@ public class RoundResolutionEngine {
         Map<String, Integer> supportPressure = initialSupportPressure(session);
         resolveDueDelayedEffects(session, supportPressure, commentary);
         
-        // Deduct bids first
+        // Log bids first (do NOT deduct yet)
         String biddingMetric = getBiddingMetricForTurn(session.getTurnNumber());
         for (RoundSubmission submission : session.getCurrentRoundSubmissions()) {
             PartyState actor = findParty(session, submission.getPartyId());
             int bid = submission.getBid();
-            deductStatValue(actor, biddingMetric, bid);
             commentary.add("Bidding: " + actor.getName() + " bid " + bid + " " + biddingMetric + ".");
         }
 
@@ -184,6 +184,11 @@ public class RoundResolutionEngine {
             PartyState winnerParty = findParty(session, winnerPartyId);
             int currentWins = session.getPartyRoundWins().getOrDefault(winnerPartyId, 0);
             session.getPartyRoundWins().put(winnerPartyId, currentWins + 1);
+            
+            // Deduct bid only for the winner
+            int winnerBid = roundWinnerSub.getBid();
+            deductStatValue(winnerParty, biddingMetric, winnerBid);
+            
             commentary.add("Bidding Winner: " + winnerParty.getName() + " wins the bidding round with a bid of " + highestBid + " " + biddingMetric + "!");
         } else {
             commentary.add("Bidding Winner: No winner for this round.");
@@ -1246,27 +1251,33 @@ public class RoundResolutionEngine {
     }
 
     private List<CardDefinition> getCardsForScenario(String scenarioKey) {
-        List<CardDefinition> cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc(scenarioKey);
-        if (cards.isEmpty()) {
-            cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc("west_bengal_2000");
-        }
-        return cards;
+        return DefinitionCache.cardsCache.computeIfAbsent(scenarioKey, key -> {
+            List<CardDefinition> cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc(key);
+            if (cards.isEmpty()) {
+                cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc("west_bengal_2000");
+            }
+            return cards;
+        });
     }
 
     private List<NewsDefinition> getNewsForScenario(String scenarioKey) {
-        List<NewsDefinition> news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc(scenarioKey);
-        if (news.isEmpty()) {
-            news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc("west_bengal_2000");
-        }
-        return news;
+        return DefinitionCache.newsCache.computeIfAbsent(scenarioKey, key -> {
+            List<NewsDefinition> news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc(key);
+            if (news.isEmpty()) {
+                news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc("west_bengal_2000");
+            }
+            return news;
+        });
     }
 
     private List<MonthlyIssueDefinition> getIssuesForScenario(String scenarioKey) {
-        List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(scenarioKey);
-        if (issues.isEmpty()) {
-            issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc("west_bengal_2000");
-        }
-        return issues;
+        return DefinitionCache.issuesCache.computeIfAbsent(scenarioKey, key -> {
+            List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(key);
+            if (issues.isEmpty()) {
+                issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc("west_bengal_2000");
+            }
+            return issues;
+        });
     }
 }
 

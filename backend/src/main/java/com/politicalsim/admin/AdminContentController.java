@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.politicalsim.content.DefinitionCache;
+
 
 @RestController
 @RequestMapping("/api/admin")
@@ -58,6 +60,7 @@ public class AdminContentController {
     @PostMapping("/scenarios")
     @ResponseStatus(HttpStatus.CREATED)
     public ScenarioDefinition createScenario(@RequestBody ScenarioDefinition scenario) {
+        DefinitionCache.clearAll();
         scenario.setId(null);
         return scenarioRepository.save(scenario);
     }
@@ -65,6 +68,7 @@ public class AdminContentController {
     @PutMapping("/scenarios/{id}")
     public ScenarioDefinition updateScenario(@PathVariable String id, @RequestBody ScenarioDefinition scenario) {
         requireScenario(id);
+        DefinitionCache.clearAll();
         scenario.setId(id);
         return scenarioRepository.save(scenario);
     }
@@ -72,6 +76,7 @@ public class AdminContentController {
     @DeleteMapping("/scenarios/{id}")
     public Map<String, String> deleteScenario(@PathVariable String id) {
         requireScenario(id);
+        DefinitionCache.clearAll();
         scenarioRepository.deleteById(id);
         return Map.of("status", "deleted", "id", id);
     }
@@ -93,6 +98,7 @@ public class AdminContentController {
     @PostMapping("/cards")
     @ResponseStatus(HttpStatus.CREATED)
     public CardDefinition createCard(@RequestBody CardDefinition card) {
+        DefinitionCache.clearAll();
         card.setId(null);
         return cardRepository.save(card);
     }
@@ -100,6 +106,7 @@ public class AdminContentController {
     @PutMapping("/cards/{id}")
     public CardDefinition updateCard(@PathVariable String id, @RequestBody CardDefinition card) {
         requireCard(id);
+        DefinitionCache.clearAll();
         card.setId(id);
         return cardRepository.save(card);
     }
@@ -107,6 +114,7 @@ public class AdminContentController {
     @DeleteMapping("/cards/{id}")
     public Map<String, String> deleteCard(@PathVariable String id) {
         requireCard(id);
+        DefinitionCache.clearAll();
         cardRepository.deleteById(id);
         return Map.of("status", "deleted", "id", id);
     }
@@ -128,6 +136,7 @@ public class AdminContentController {
     @PostMapping("/news")
     @ResponseStatus(HttpStatus.CREATED)
     public NewsDefinition createNews(@RequestBody NewsDefinition news) {
+        DefinitionCache.clearAll();
         news.setId(null);
         return newsRepository.save(news);
     }
@@ -135,6 +144,7 @@ public class AdminContentController {
     @PutMapping("/news/{id}")
     public NewsDefinition updateNews(@PathVariable String id, @RequestBody NewsDefinition news) {
         requireNews(id);
+        DefinitionCache.clearAll();
         news.setId(id);
         return newsRepository.save(news);
     }
@@ -142,6 +152,7 @@ public class AdminContentController {
     @DeleteMapping("/news/{id}")
     public Map<String, String> deleteNews(@PathVariable String id) {
         requireNews(id);
+        DefinitionCache.clearAll();
         newsRepository.deleteById(id);
         return Map.of("status", "deleted", "id", id);
     }
@@ -163,6 +174,7 @@ public class AdminContentController {
     @PostMapping("/issues")
     @ResponseStatus(HttpStatus.CREATED)
     public MonthlyIssueDefinition createIssue(@RequestBody MonthlyIssueDefinition issue) {
+        DefinitionCache.clearAll();
         issue.setId(null);
         return issueRepository.save(issue);
     }
@@ -170,6 +182,7 @@ public class AdminContentController {
     @PutMapping("/issues/{id}")
     public MonthlyIssueDefinition updateIssue(@PathVariable String id, @RequestBody MonthlyIssueDefinition issue) {
         requireIssue(id);
+        DefinitionCache.clearAll();
         issue.setId(id);
         return issueRepository.save(issue);
     }
@@ -177,6 +190,7 @@ public class AdminContentController {
     @DeleteMapping("/issues/{id}")
     public Map<String, String> deleteIssue(@PathVariable String id) {
         requireIssue(id);
+        DefinitionCache.clearAll();
         issueRepository.deleteById(id);
         return Map.of("status", "deleted", "id", id);
     }

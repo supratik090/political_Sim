@@ -16,6 +16,7 @@ import com.politicalsim.content.MonthlyIssueDefinitionRepository;
 import com.politicalsim.content.NewsDefinition;
 import com.politicalsim.content.NewsDefinitionRepository;
 import com.politicalsim.content.NewsReactionDefinition;
+import com.politicalsim.content.DefinitionCache;
 import com.politicalsim.party.ControllerType;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
@@ -333,13 +334,7 @@ public class GameService {
         if (!requiresTarget(card)) {
             return null;
         }
-        if (actor.getRole() != PartyRole.GOVERNMENT) {
-            return session.getGovernmentParty();
-        }
-        return session.getParties().stream()
-                .filter(party -> !party.getId().equals(actor.getId()))
-                .max(Comparator.comparingInt(party -> party.getStats().getPublicSupport()))
-                .orElse(null);
+        return chooseOpponent(session, actor);
     }
 
     private boolean requiresTarget(CardDefinition card) {
@@ -403,17 +398,7 @@ public class GameService {
             // AI Bid Selection
             String metric = roundResolutionEngine.getBiddingMetricForTurn(session.getTurnNumber());
             int currentMetricValue = roundResolutionEngine.getStatValue(party, metric);
-            int bid = 0;
-            if (currentMetricValue > 0) {
-                int minBid = (int) Math.ceil(currentMetricValue * 0.05);
-                int maxBid = (int) (currentMetricValue * 0.25);
-                if (maxBid >= minBid) {
-                    bid = minBid + new Random().nextInt(maxBid - minBid + 1);
-                } else {
-                    bid = minBid;
-                }
-                bid = Math.min(bid, currentMetricValue);
-            }
+            int bid = calculateSmartBid(session, party, metric, currentMetricValue);
             submission.setBid(bid);
 
             // AI Reward Play Selection
@@ -595,10 +580,83 @@ public class GameService {
     }
 
     private PartyState chooseOpponent(GameSession session, PartyState actor) {
-        if (actor.getRole() == PartyRole.GOVERNMENT) {
-            return session.getOppositionParty();
+        return session.getParties().stream()
+                .filter(party -> !party.getId().equals(actor.getId()))
+                .max(Comparator.comparingInt(party -> party.getStats().getPublicSupport()))
+                .orElse(null);
+    }
+
+    private int calculateSmartBid(GameSession session, PartyState party, String metric, int currentMetricValue) {
+        int cycleTurn = ((session.getTurnNumber() - 1) % 5) + 1; // 1 to 5
+        int remainingTurns = 5 - cycleTurn;
+        int myWins = session.getPartyRoundWins().getOrDefault(party.getId(), 0);
+        
+        int leaderWins = 0;
+        for (Map.Entry<String, Integer> entry : session.getPartyRoundWins().entrySet()) {
+            if (!entry.getKey().equals(party.getId())) {
+                leaderWins = Math.max(leaderWins, entry.getValue());
+            }
         }
-        return session.getGovernmentParty();
+        
+        int overallMaxWins = Math.max(myWins, leaderWins);
+        
+        // 1. If any party has already won 3 rounds, cycle is decided. Bid 0.
+        if (overallMaxWins >= 3) {
+            return 0;
+        }
+        
+        // 2. If we cannot win or tie, save resources. Bid 0.
+        if (myWins + remainingTurns < leaderWins) {
+            return 0;
+        }
+        
+        // 3. Resource-safe bid calculation
+        if (currentMetricValue <= 0) {
+            return 0;
+        }
+        
+        int bid = 0;
+        if ("COINS".equalsIgnoreCase(metric)) {
+            // Keep a reserve for card costs (minimum 30 coins)
+            int usable = Math.max(0, currentMetricValue - 30);
+            if (usable > 0) {
+                int minBid = Math.max(1, (int) Math.ceil(usable * 0.05));
+                int maxBid = Math.min(15, (int) (usable * 0.20));
+                if (maxBid >= minBid) {
+                    bid = minBid + new Random().nextInt(maxBid - minBid + 1);
+                } else {
+                    bid = minBid;
+                }
+            }
+        } else if ("PARTY_MORALE".equalsIgnoreCase(metric) || "MORALE".equalsIgnoreCase(metric)) {
+            // Keep a reserve of 20 morale
+            int usable = Math.max(0, currentMetricValue - 20);
+            if (usable > 0) {
+                int minBid = Math.max(1, (int) Math.ceil(usable * 0.05));
+                int maxBid = Math.min(20, (int) (usable * 0.25));
+                if (maxBid >= minBid) {
+                    bid = minBid + new Random().nextInt(maxBid - minBid + 1);
+                } else {
+                    bid = minBid;
+                }
+            }
+        } else if ("PUBLIC_SUPPORT".equalsIgnoreCase(metric) || "SUPPORT".equalsIgnoreCase(metric)) {
+            // Support is highly critical; max bid is 3 support points
+            int usable = Math.max(0, currentMetricValue - 15);
+            if (usable > 0) {
+                bid = 1 + new Random().nextInt(Math.min(3, usable));
+            }
+        } else {
+            int minBid = (int) Math.ceil(currentMetricValue * 0.02);
+            int maxBid = (int) (currentMetricValue * 0.10);
+            if (maxBid >= minBid) {
+                bid = minBid + new Random().nextInt(maxBid - minBid + 1);
+            } else {
+                bid = minBid;
+            }
+        }
+        
+        return Math.min(bid, currentMetricValue);
     }
 
     private PartyState findParty(GameSession session, String partyId) {
@@ -624,27 +682,33 @@ public class GameService {
     }
 
     private List<CardDefinition> getCardsForScenario(String scenarioKey) {
-        List<CardDefinition> cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc(scenarioKey);
-        if (cards.isEmpty()) {
-            cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc("west_bengal_2000");
-        }
-        return cards;
+        return DefinitionCache.cardsCache.computeIfAbsent(scenarioKey, key -> {
+            List<CardDefinition> cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc(key);
+            if (cards.isEmpty()) {
+                cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc("west_bengal_2000");
+            }
+            return cards;
+        });
     }
 
     private List<NewsDefinition> getNewsForScenario(String scenarioKey) {
-        List<NewsDefinition> news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc(scenarioKey);
-        if (news.isEmpty()) {
-            news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc("west_bengal_2000");
-        }
-        return news;
+        return DefinitionCache.newsCache.computeIfAbsent(scenarioKey, key -> {
+            List<NewsDefinition> news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc(key);
+            if (news.isEmpty()) {
+                news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc("west_bengal_2000");
+            }
+            return news;
+        });
     }
 
     private List<MonthlyIssueDefinition> getIssuesForScenario(String scenarioKey) {
-        List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(scenarioKey);
-        if (issues.isEmpty()) {
-            issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc("west_bengal_2000");
-        }
-        return issues;
+        return DefinitionCache.issuesCache.computeIfAbsent(scenarioKey, key -> {
+            List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(key);
+            if (issues.isEmpty()) {
+                issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc("west_bengal_2000");
+            }
+            return issues;
+        });
     }
 
     private record NoConfidenceStatus(boolean available, String reason) {
