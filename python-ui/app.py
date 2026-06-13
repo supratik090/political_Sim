@@ -26,6 +26,7 @@ from gameplay_steps import render_turn_view
 
 # Import Admin views
 from admin_views import render_admin, west_bengal_2000_defaults
+from ui_components import inject_game_css
 import urllib.parse
 import base64
 import json
@@ -70,10 +71,10 @@ def handle_oauth_callback(code):
 
 def render_login_page():
     st.markdown(
-        """<div style="background: linear-gradient(135deg, #0b0f19 0%, #111827 100%); padding: 50px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); margin-top: 100px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: 'Montserrat', sans-serif; max-width: 600px; margin-left: auto; margin-right: auto;">
-<span style="font-size: 14px; color: #fbbf24; text-transform: uppercase; font-weight: 800; letter-spacing: 0.15em; display: block; margin-bottom: 10px;">GRAND ELECTION STRATEGY</span>
-<h1 style="font-size: 36px; font-weight: 900; color: #ffffff; margin: 0; letter-spacing: -0.02em;">Indian Politics Simulation</h1>
-<p style="font-size: 15px; color: #a1a1aa; margin-top: 12px; margin-bottom: 30px; line-height: 1.5;">Login with your Google account to govern state campaigns, design coalition policies, and maintain election sessions.</p>
+        """<div style="background: #6594B1; padding: 50px; border-radius: 16px; border: 2px solid #213C51; margin-top: 100px; text-align: center; box-shadow: 0 10px 30px rgba(33,60,81,0.05); font-family: 'Montserrat', sans-serif; max-width: 600px; margin-left: auto; margin-right: auto;">
+<span style="font-size: 14px; color: #ffffff !important; text-transform: uppercase; font-weight: 800; letter-spacing: 0.15em; display: block; margin-bottom: 10px; opacity: 0.9;">GRAND ELECTION STRATEGY</span>
+<h1 style="font-size: 36px; font-weight: 900; color: #ffffff !important; margin: 0; letter-spacing: -0.02em;">Indian Politics Simulation</h1>
+<p style="font-size: 15px; color: #ffffff !important; opacity: 0.95; margin-top: 12px; margin-bottom: 30px; line-height: 1.5;">Login with your Google account to govern state campaigns, design coalition policies, and maintain election sessions.</p>
 </div>""",
         unsafe_allow_html=True
     )
@@ -89,7 +90,7 @@ def render_login_page():
             st.markdown(
                 f"""
                 <div style="text-align: center; margin-top: 20px;">
-                    <a href="{google_auth_url}" target="_self" style="display: inline-block; padding: 12px 24px; background-color: #ffffff; color: #757575; border-radius: 24px; font-weight: bold; border: 1px solid #dadce0; text-decoration: none; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background-color 0.2s;">
+                    <a href="{google_auth_url}" target="_self" style="display: inline-block; padding: 12px 24px; background-color: #213C51; color: #ffffff; border-radius: 24px; font-weight: bold; border: 1px solid #213C51; text-decoration: none; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background-color 0.2s;">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width: 18px; margin-right: 12px; vertical-align: middle;"/>
                         Sign in with Google
                     </a>
@@ -102,8 +103,8 @@ def render_login_page():
             
         st.markdown(
             """
-            <div style="text-align: center; margin-top: 30px; padding: 20px; border-radius: 12px; background-color: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-                <h4 style="margin: 0 0 10px 0; color: #fbbf24; font-size: 14px; text-transform: uppercase;">🔑 Developer Bypass Login</h4>
+            <div style="text-align: center; margin-top: 30px; padding: 20px; border-radius: 12px; background-color: #B0BA99; border: 2px solid #213C51;">
+                <h4 style="margin: 0 0 10px 0; color: #213C51 !important; font-size: 14px; text-transform: uppercase;">🔑 Developer Bypass Login</h4>
             </div>
             """,
             unsafe_allow_html=True
@@ -180,7 +181,7 @@ def game_main():
     if "news_definitions" not in st.session_state:
         try:
             news_list = api_get("/api/admin/news")
-            st.session_state["news_definitions"] = {news["newsKey"]: news for news in news_list}
+            st.session_state["news_definitions"] = {(news.get("newsKey") or news.get("issueKey")): news for news in news_list}
         except Exception:
             st.session_state["news_definitions"] = {}
 
@@ -212,12 +213,12 @@ def game_main():
     current_era = progress.get("currentEra", 2001)
 
     # Admin Console and Logout header
-    col_empty, col_user_info, col_admin_btn, col_logout_btn = st.columns([3, 1.2, 1.2, 0.8])
+    col_empty, col_user_info, col_admin_btn, col_logout_btn = st.columns([2.5, 1.7, 1.2, 0.8])
     with col_user_info:
         st.markdown(
             f"""
             <div style="display: flex; align-items: center; gap: 8px; font-family: 'Montserrat', sans-serif; padding-top: 6px;">
-                <span style="font-size: 13px; font-weight: bold; color: #a1a1aa; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">👤 {user['name'] if user else 'Unknown'}</span>
+                <span style="font-size: 14px; color: #213C51 !important; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">👋 Welcome, <b style="font-weight: 800; color: #213C51 !important;">{user['name'] if user else 'Unknown'}</b>!</span>
             </div>
             """,
             unsafe_allow_html=True
@@ -232,11 +233,11 @@ def game_main():
 
     # Title Banner Card
     st.markdown(
-        f"""<div style="background: linear-gradient(135deg, #0b0f19 0%, #111827 100%); padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: 'Montserrat', sans-serif;">
-<span style="font-size: 12px; color: #fbbf24; text-transform: uppercase; font-weight: 800; letter-spacing: 0.15em; display: block; margin-bottom: 5px;">GRAND CAMPAIGN BOARD</span>
-<h1 style="font-size: 40px; font-weight: 900; color: #ffffff; margin: 0; letter-spacing: -0.02em;">Indian Politics Simulation</h1>
-<p style="font-size: 15px; color: #a1a1aa; margin-top: 8px;">Command campaign strategies, form coalitions, and win state elections across the Indian union.</p>
-<div style="display: inline-block; background-color: rgba(251, 191, 36, 0.15); border: 1px solid #fbbf24; padding: 6px 18px; border-radius: 20px; color: #fbbf24; font-weight: 800; font-size: 14px; margin-top: 15px; text-transform: uppercase; letter-spacing: 0.05em;">
+        f"""<div style="background: #6594B1; padding: 30px; border-radius: 16px; border: 2px solid #213C51; margin-bottom: 25px; text-align: center; box-shadow: 0 10px 30px rgba(33,60,81,0.1); font-family: 'Montserrat', sans-serif;">
+<span style="font-size: 12px; color: #ffffff !important; text-transform: uppercase; font-weight: 800; letter-spacing: 0.15em; display: block; margin-bottom: 5px; opacity: 0.9;">GRAND CAMPAIGN BOARD</span>
+<h1 style="font-size: 40px; font-weight: 900; color: #ffffff !important; margin: 0; letter-spacing: -0.02em;">Indian Politics Simulation</h1>
+<p style="font-size: 15px; color: #ffffff !important; margin-top: 8px; opacity: 0.95;">Command campaign strategies, form coalitions, and win state elections across the Indian union.</p>
+<div style="display: inline-block; background-color: #213C51; border: 1px solid #213C51; padding: 6px 18px; border-radius: 20px; color: #ffffff !important; font-weight: 800; font-size: 14px; margin-top: 15px; text-transform: uppercase; letter-spacing: 0.05em;">
 📅 Campaign Era: {current_era}
 </div>
 </div>""",
@@ -256,29 +257,29 @@ def game_main():
             status = item.get("status", "LOCKED")
             
             if status == "WON":
-                badge = '<span style="background-color: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🏆 WON</span>'
+                badge = '<span style="background-color: #22c55e; color: #ffffff !important; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🏆 WON</span>'
             elif status == "IN_PROGRESS":
-                badge = '<span style="background-color: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔵 IN PROGRESS</span>'
+                badge = '<span style="background-color: #213C51; color: #ffffff !important; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔥 IN PROGRESS</span>'
             elif status == "LOCKED":
-                badge = '<span style="background-color: #374151; color: #9ca3af; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔒 LOCKED</span>'
+                badge = '<span style="background-color: rgba(33, 60, 81, 0.1); color: #213C51 !important; border: 1px solid rgba(33, 60, 81, 0.3); padding: 3px 7px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔒 LOCKED</span>'
             else:
-                badge = '<span style="background-color: #d97706; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔓 AVAILABLE</span>'
+                badge = '<span style="background-color: #DDAED3; color: #000000 !important; border: 1px solid #213C51; padding: 3px 7px; border-radius: 4px; font-weight: bold; font-size: 11px;">🔓 AVAILABLE</span>'
 
             table_rows += (
-                f'<tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">'
-                f'<td style="padding: 14px 10px; font-weight: bold; color: #ffffff;">📍 {name}</td>'
-                f'<td style="padding: 14px 10px; color: #9ca3af; font-size: 13px;">{display_name}</td>'
+                f'<tr style="border-bottom: 1px solid rgba(33, 60, 81, 0.2);">'
+                f'<td style="padding: 14px 10px; font-weight: bold; color: #000000;">📍 {name}</td>'
+                f'<td style="padding: 14px 10px; color: #000000; font-size: 13px;">{display_name}</td>'
                 f'<td style="padding: 14px 10px; text-align: right;">{badge}</td>'
                 f'</tr>'
             )
 
         table_html = (
-            f'<table style="width: 100%; border-collapse: collapse; font-family: \'Montserrat\', sans-serif; background-color: #0b0f19; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">'
+            f'<table style="width: 100%; border-collapse: collapse; font-family: \'Montserrat\', sans-serif; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 2px solid #213C51;">'
             f'<thead>'
-            f'<tr style="background-color: #111827; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">'
-            f'<th style="padding: 14px 10px; color: #fbbf24; font-size: 12px; text-transform: uppercase; font-weight: 800;">Campaign</th>'
-            f'<th style="padding: 14px 10px; color: #fbbf24; font-size: 12px; text-transform: uppercase; font-weight: 800;">Key</th>'
-            f'<th style="padding: 14px 10px; color: #fbbf24; font-size: 12px; text-transform: uppercase; font-weight: 800; text-align: right;">Status</th>'
+            f'<tr style="background-color: #6594B1; border-bottom: 2px solid #213C51; text-align: left;">'
+            f'<th style="padding: 14px 10px; color: #ffffff; font-size: 12px; text-transform: uppercase; font-weight: 800;">Campaign</th>'
+            f'<th style="padding: 14px 10px; color: #ffffff; font-size: 12px; text-transform: uppercase; font-weight: 800;">Key</th>'
+            f'<th style="padding: 14px 10px; color: #ffffff; font-size: 12px; text-transform: uppercase; font-weight: 800; text-align: right;">Status</th>'
             f'</tr>'
             f'</thead>'
             f'<tbody>'
@@ -480,6 +481,7 @@ def admin_main():
 
 # Page configurations and routing registration
 st.set_page_config(page_title="Indian Politics Simulation", layout="wide")
+inject_game_css()
 
 # Check for cache_user query parameter
 cache_user = st.query_params.get("cache_user")

@@ -1,5 +1,6 @@
 package com.politicalsim.content;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,12 +18,15 @@ public class NewsDefinition {
     @Indexed
     private String scenarioKey;
 
+    @JsonAlias({"newsKey", "issueKey"})
     private String newsKey;
     private String type;
     private String title;
     private String description;
     private List<String> monthTags = new ArrayList<>();
     private List<String> issueTags = new ArrayList<>();
+
+    @JsonAlias({"reactionOptions", "options"})
     private List<NewsReactionDefinition> reactionOptions = new ArrayList<>();
     private Map<String, Object> weights = new LinkedHashMap<>();
     private boolean active = true;
@@ -97,6 +101,22 @@ public class NewsDefinition {
 
     public void setReactionOptions(List<NewsReactionDefinition> reactionOptions) {
         this.reactionOptions = reactionOptions;
+    }
+
+    public List<NewsReactionDefinition> getOptions() {
+        return reactionOptions;
+    }
+
+    public void setOptions(List<NewsReactionDefinition> options) {
+        this.reactionOptions = options;
+    }
+
+    public String getIssueKey() {
+        return newsKey;
+    }
+
+    public void setIssueKey(String issueKey) {
+        this.newsKey = issueKey;
     }
 
     public Map<String, Object> getWeights() {

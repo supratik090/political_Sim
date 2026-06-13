@@ -460,7 +460,15 @@ public class RoundResolutionEngine {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> partyEffect(Map<String, Object> effects, String key) {
+        if (effects == null) {
+            return Map.of();
+        }
         Object value = effects.get(key);
+        if (value == null && "playerParty".equals(key)) {
+            value = effects.get("selfParty");
+        } else if (value == null && "selfParty".equals(key)) {
+            value = effects.get("playerParty");
+        }
         if (value instanceof Map<?, ?> map) {
             return (Map<String, Object>) map;
         }
@@ -730,6 +738,11 @@ public class RoundResolutionEngine {
     private Map<String, Object> partyEffectFromEffectsObject(Object effects, String key) {
         if (effects instanceof Map<?, ?> map) {
             Object partyEffects = map.get(key);
+            if (partyEffects == null && "playerParty".equals(key)) {
+                partyEffects = map.get("selfParty");
+            } else if (partyEffects == null && "selfParty".equals(key)) {
+                partyEffects = map.get("playerParty");
+            }
             if (partyEffects instanceof Map<?, ?> partyMap) {
                 return (Map<String, Object>) partyMap;
             }

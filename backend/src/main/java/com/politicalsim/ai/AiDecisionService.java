@@ -310,15 +310,31 @@ public class AiDecisionService {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> partyEffect(Map<String, Object> effects, String key) {
+        if (effects == null) {
+            return Map.of();
+        }
         Object value = effects.get(key);
+        if (value == null && "playerParty".equals(key)) {
+            value = effects.get("selfParty");
+        } else if (value == null && "selfParty".equals(key)) {
+            value = effects.get("playerParty");
+        }
         if (value instanceof Map<?, ?> map) {
             return (Map<String, Object>) map;
         }
         Object scheduled = effects.get("scheduled");
         if (scheduled instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof Map<?, ?> scheduledMap) {
             Object nestedEffects = scheduledMap.get("effects");
-            if (nestedEffects instanceof Map<?, ?> nestedMap && nestedMap.get(key) instanceof Map<?, ?> partyMap) {
-                return (Map<String, Object>) partyMap;
+            if (nestedEffects instanceof Map<?, ?> nestedMap) {
+                Object partyMap = nestedMap.get(key);
+                if (partyMap == null && "playerParty".equals(key)) {
+                    partyMap = nestedMap.get("selfParty");
+                } else if (partyMap == null && "selfParty".equals(key)) {
+                    partyMap = nestedMap.get("playerParty");
+                }
+                if (partyMap instanceof Map<?, ?> pMap) {
+                    return (Map<String, Object>) pMap;
+                }
             }
         }
         return Map.of();

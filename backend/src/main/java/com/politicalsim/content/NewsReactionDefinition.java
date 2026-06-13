@@ -1,5 +1,6 @@
 package com.politicalsim.content;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 
 public class NewsReactionDefinition {
 
+    @JsonAlias({"reactionKey", "optionKey"})
     private String reactionKey;
     private String text;
     private List<String> roleAllowed = new ArrayList<>();
@@ -21,6 +23,14 @@ public class NewsReactionDefinition {
 
     public void setReactionKey(String reactionKey) {
         this.reactionKey = reactionKey;
+    }
+
+    public String getOptionKey() {
+        return reactionKey;
+    }
+
+    public void setOptionKey(String optionKey) {
+        this.reactionKey = optionKey;
     }
 
     public String getText() {

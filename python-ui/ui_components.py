@@ -23,103 +23,301 @@ def metric_with_delta(label, value, delta=None, inverse=False, suffix=""):
 
 def inject_game_css():
     category_css = ""
-    for cat, p_color in POST_IT_COLORS.items():
-        border_color = CATEGORY_COLORS.get(cat, "#555555")
-        category_css += f"""
-        div[data-testid="column"]:has(.card-marker-{cat}) [data-testid="stExpander"],
-        div:has(.card-marker-{cat}) ~ [data-testid="stExpander"] {{
-          background-color: {p_color} !important;
-          border: 1px solid rgba(0, 0, 0, 0.12) !important;
-          border-left: 5px solid {border_color} !important;
-          border-radius: 8px !important;
-          margin-bottom: 12px !important;
-        }}
-        div[data-testid="column"]:has(.card-marker-{cat}) [data-testid="stExpander"] summary,
-        div[data-testid="column"]:has(.card-marker-{cat}) [data-testid="stExpander"] summary > div,
-        div[data-testid="column"]:has(.card-marker-{cat}) [data-testid="stExpander"] summary div,
-        div:has(.card-marker-{cat}) ~ [data-testid="stExpander"] summary,
-        div:has(.card-marker-{cat}) ~ [data-testid="stExpander"] summary > div,
-        div:has(.card-marker-{cat}) ~ [data-testid="stExpander"] summary div {{
-          background-color: transparent !important;
-          color: #212529 !important;
-          font-weight: 800 !important;
-        }}
-        div[data-testid="column"]:has(.card-marker-{cat}) [data-testid="stExpander"] summary:hover,
-        div[data-testid="column"]:has(.card-marker-{cat}) [data-testid="stExpander"] summary div:hover,
-        div:has(.card-marker-{cat}) ~ [data-testid="stExpander"] summary:hover,
-        div:has(.card-marker-{cat}) ~ [data-testid="stExpander"] summary div:hover {{
-          color: #111111 !important;
-          background-color: transparent !important;
-        }}
-        div[data-testid="column"]:has(.card-marker-{cat}) [data-testid="stExpander"] summary svg,
-        div:has(.card-marker-{cat}) ~ [data-testid="stExpander"] summary svg {{
-          fill: #212529 !important;
-        }}
-        div[data-testid="column"]:has(.card-marker-{cat}) [data-testid="stExpander"] div[role="region"],
-        div[data-testid="column"]:has(.card-marker-{cat}) [data-testid="stExpander"] div[role="region"] > div,
-        div[data-testid="column"]:has(.card-marker-{cat}) [data-testid="stExpander"] div[role="region"] div,
-        div:has(.card-marker-{cat}) ~ [data-testid="stExpander"] div[role="region"],
-        div:has(.card-marker-{cat}) ~ [data-testid="stExpander"] div[role="region"] > div,
-        div:has(.card-marker-{cat}) ~ [data-testid="stExpander"] div[role="region"] div {{
-          background-color: transparent !important;
-          color: #212529 !important;
-          border-top: 1px dashed rgba(0, 0, 0, 0.12) !important;
-        }}
-        """
 
     base_css = """
-        <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap');
 
-        .stApp {
-          font-family: 'Montserrat', sans-serif !important;
+        /* Force page background to Sage Grey-Green (#B0BA99) and body text to Black */
+        html, body, [data-testid="stApp"], [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stMain"], section.main, .stApp {
+          background-color: #B0BA99 !important;
+          background: #B0BA99 !important;
+          color: #000000 !important;
         }
         
-        /* Custom styled metric values */
+        /* Ensure the main block container is transparent to reveal the page background */
+        .block-container, [data-testid="stMainBlockContainer"] {
+          background-color: transparent !important;
+          background: transparent !important;
+        }
+        
+        .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6, .stApp p, .stApp label, .stApp li, .stApp span {
+          color: #000000 !important;
+        }
+
+        /* Styled tabs */
+        button[data-baseweb="tab"] {
+          color: #000000 !important;
+          font-weight: 600 !important;
+          background-color: transparent !important;
+        }
+        button[data-baseweb="tab"][aria-selected="true"] {
+          color: #213C51 !important;
+          border-bottom-color: #213C51 !important;
+        }
+        
+        /* Inputs styling: select boxes #213C51 background and white text */
+        [data-testid="stTextInput"] input,
+        [data-testid="stTextInput"] input * {
+          background-color: #213C51 !important;
+          color: #ffffff !important;
+        }
+        [data-testid="stTextInput"] div[data-baseweb="base-input"] {
+          border: 1.5px solid #6594B1 !important;
+          border-radius: 4px !important;
+        }
+        [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+        [data-testid="stSelectbox"] div[data-baseweb="select"] span,
+        [data-testid="stSelectbox"] div[data-baseweb="select"] div,
+        [data-testid="stSelectbox"] div[data-baseweb="select"] * {
+          background-color: #213C51 !important;
+          color: #ffffff !important;
+        }
+        [data-testid="stSelectbox"] div[data-baseweb="select"] {
+          border: 1.5px solid #6594B1 !important;
+          border-radius: 4px !important;
+        }
+
+        /* Custom styled metric values: Black by default on page */
         [data-testid="stMetricValue"] {
           font-size: 20px !important;
           font-weight: 800 !important;
+          color: #000000 !important;
         }
         [data-testid="stMetricLabel"] {
           font-size: 11px !important;
           font-weight: 700 !important;
           text-transform: uppercase !important;
           letter-spacing: 0.05em !important;
+          color: #000000 !important;
+          opacity: 0.8;
         }
         [data-testid="stMetricDelta"] {
           font-weight: 700 !important;
           font-size: 13px !important;
         }
         
-        /* Softer Green & Orange Option Buttons */
+        /* Globally Styled Buttons (Secondary / Standard - select boxes #213C51, text white) */
         div.stButton > button {
-          background: linear-gradient(135deg, #1b2e24 0%, #0d1611 100%) !important;
-          color: #81c784 !important;
-          border: 2px solid #4caf50 !important;
-          border-radius: 25px !important;
-          font-weight: 700 !important;
-          font-size: 14px !important;
-          letter-spacing: 0.05em !important;
-          padding: 10px 20px !important;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          background: #213C51 !important;
+          color: #ffffff !important;
+          border: 1px solid #213C51 !important;
+          border-radius: 8px !important;
+          font-weight: 600 !important;
+          font-size: 13px !important;
+          letter-spacing: 0.03em !important;
+          padding: 8px 16px !important;
+          box-shadow: 0 4px 6px rgba(33, 60, 81, 0.15) !important;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
           width: 100% !important;
         }
-        div.stButton > button:hover {
-          background: #4caf50 !important;
+        /* Prevent global text color override from making button text dark/unreadable */
+        div.stButton > button,
+        div.stButton > button p,
+        div.stButton > button span {
           color: #ffffff !important;
-          border-color: #ffffff !important;
-          box-shadow: 0 0 15px rgba(76, 175, 80, 0.7) !important;
+        }
+        div.stButton > button:hover {
+          background: #192e3e !important;
+          border-color: #192e3e !important;
+          box-shadow: 0 6px 12px rgba(33, 60, 81, 0.25) !important;
           transform: translateY(-2px) !important;
+        }
+        div.stButton > button:hover p,
+        div.stButton > button:hover span {
+          color: #ffffff !important;
         }
         div.stButton > button:active {
           transform: translateY(1px) !important;
         }
         div.stButton > button:disabled {
-          border-color: #223326 !important;
-          color: #55665a !important;
-          background: #0d120e !important;
+          border-color: rgba(33, 60, 81, 0.1) !important;
+          color: rgba(255, 255, 255, 0.6) !important;
+          background: #192e3e !important;
           box-shadow: none !important;
+        }
+
+        /* Selected Select Option Buttons: text changes to Green (#22c55e) once selected */
+        div.stButton > button[kind="primary"],
+        div.stButton > button[data-testid="stBaseButton-primary"] {
+          background: #213C51 !important;
+          color: #22c55e !important;
+          border: 1.5px solid #22c55e !important;
+          font-weight: 700 !important;
+          box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2) !important;
+        }
+        div.stButton > button[kind="primary"],
+        div.stButton > button[kind="primary"] p,
+        div.stButton > button[kind="primary"] span,
+        div.stButton > button[data-testid="stBaseButton-primary"],
+        div.stButton > button[data-testid="stBaseButton-primary"] p,
+        div.stButton > button[data-testid="stBaseButton-primary"] span {
+          color: #22c55e !important;
+        }
+        div.stButton > button[kind="primary"]:hover,
+        div.stButton > button[data-testid="stBaseButton-primary"]:hover {
+          background: #192e3e !important;
+          border-color: #22c55e !important;
+          box-shadow: 0 6px 15px rgba(34, 197, 94, 0.3) !important;
+        }
+        div.stButton > button[kind="primary"]:hover p,
+        div.stButton > button[kind="primary"]:hover span,
+        div.stButton > button[data-testid="stBaseButton-primary"]:hover p,
+        div.stButton > button[data-testid="stBaseButton-primary"]:hover span {
+          color: #22c55e !important;
+        }
+        
+        /* Clean and soft expanders inside dashboard */
+        [data-testid="stExpander"] {
+          background-color: #ffffff !important;
+          border: 1px solid #213C51 !important;
+          border-radius: 8px !important;
+        }
+        [data-testid="stExpander"] summary div {
+          color: #000000 !important;
+          font-weight: 700 !important;
+        }
+        
+        /* Bidding Station Background (#6594B1) and White text */
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.bidding-station-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .bidding-station-marker)) {
+          background: #6594B1 !important;
+          background-color: #6594B1 !important;
+          border: 2px solid #213C51 !important;
+          border-radius: 12px !important;
+          padding: 16px !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.bidding-station-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .bidding-station-marker)) *:not([data-testid="stMetricDelta"]):not([data-testid="stMetricDelta"] *) {
+          color: #ffffff !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.bidding-station-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .bidding-station-marker)) [data-testid="stMetricValue"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.bidding-station-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .bidding-station-marker)) [data-testid="stMetricLabel"] {
+          color: #ffffff !important;
+        }
+
+        /* Standings & Last Decisions: White background (#ffffff) and Black text */
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.standings-panel-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .standings-panel-marker)),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.last-decisions-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .last-decisions-marker)) {
+          background: #ffffff !important;
+          background-color: #ffffff !important;
+          border: 2px solid #213C51 !important;
+          border-radius: 12px !important;
+          padding: 16px !important;
+          box-shadow: 0 4px 10px rgba(33, 60, 81, 0.05) !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.standings-panel-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .standings-panel-marker)) *:not([data-testid="stMetricDelta"]):not([data-testid="stMetricDelta"] *):not(.party-panel-title):not(.party-panel-title *),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.last-decisions-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .last-decisions-marker)) *:not([data-testid="stMetricDelta"]):not([data-testid="stMetricDelta"] *):not(.last-decisions-title):not(.last-decisions-title *) {
+          color: #000000 !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.standings-panel-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .standings-panel-marker)) [data-testid="stMetricValue"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.standings-panel-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .standings-panel-marker)) [data-testid="stMetricLabel"] {
+          color: #000000 !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.standings-panel-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .standings-panel-marker)) .party-panel-badge {
+          color: #475569 !important;
+        }
+
+
+        /* Cards container: background #DDAED3 with #213C51 border and black text */
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) {
+          background: #DDAED3 !important;
+          background-color: #DDAED3 !important;
+          border: 2px solid #213C51 !important;
+          border-top: 6px solid #213C51 !important;
+          border-radius: 12px !important;
+          padding: 14px !important;
+          box-shadow: 0 4px 10px rgba(33, 60, 81, 0.05) !important;
+          transition: all 0.2s ease-in-out !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) h4,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) summary,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) p:not(button):not(button *),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) span:not(.card-cost-value):not(.card-effect-self):not(.card-effect-opp):not(button *),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) div:not(.card-effect-self):not(.card-effect-opp):not(button):not(button *) {
+          color: #000000 !important;
+        }
+
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) .card-cost-value {
+          color: #213C51 !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) .card-effect-self,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) .card-effect-self * {
+          color: #0d9488 !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) .card-effect-opp,
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.playable-card-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .playable-card-marker)) .card-effect-opp * {
+          color: #be123c !important;
+        }
+        
+
+
+
+        /* Targeted vertical block containers (News Reactions, Party Decisions, Play Reward): White background, Steel Blue border, Black text */
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.news-reactions-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .news-reactions-marker)),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.party-decisions-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .party-decisions-marker)),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.play-reward-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .play-reward-marker)) {
+          background-color: #ffffff !important;
+          background: #ffffff !important;
+          border: 2px solid #6594B1 !important;
+          border-radius: 12px !important;
+          padding: 16px !important;
+          box-shadow: 0 4px 10px rgba(101, 148, 177, 0.08) !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.news-reactions-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .news-reactions-marker)) *:not(button):not(button *),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.party-decisions-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .party-decisions-marker)) *:not(button):not(button *),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.play-reward-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .play-reward-marker)) *:not(button):not(button *) {
+          color: #000000 !important;
+        }
+
+        /* Held Rewards container: background #DDAED3 with #213C51 border and black text */
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.held-rewards-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .held-rewards-marker)) {
+          background-color: #DDAED3 !important;
+          background: #DDAED3 !important;
+          border: 2px solid #213C51 !important;
+          border-radius: 12px !important;
+          padding: 16px !important;
+          box-shadow: 0 4px 10px rgba(33, 60, 81, 0.05) !important;
+        }
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.held-rewards-marker):not(:has(div[data-testid="stVerticalBlockBorderWrapper"] .held-rewards-marker)) *:not(button):not(button *) {
+          color: #000000 !important;
+        }
+
+
+        /* Force active player banner top left card to have bright white text */
+        div[data-testid="stAppViewContainer"] .party-flag,
+        div[data-testid="stAppViewContainer"] .party-flag *,
+        .party-flag, .party-flag * {
+          color: #ffffff !important;
+        }
+        
+        /* Increase size and readability of the bidding slider */
+        [data-testid="stSlider"] {
+          padding-top: 12px !important;
+          padding-bottom: 12px !important;
+          margin-left: 12px !important;
+          margin-right: 12px !important;
+        }
+
+        [data-testid="stSlider"] label,
+        [data-testid="stSlider"] label * {
+          font-size: 13px !important;
+          font-weight: 800 !important;
+          color: #ffffff !important;
+        }
+        [data-testid="stSlider"] div[data-baseweb="slider"] {
+          height: 10px !important;
+          margin-top: 6px !important;
+          margin-bottom: 6px !important;
+        }
+        [data-testid="stSlider"] div[role="slider"] {
+          width: 20px !important;
+          height: 20px !important;
+          background-color: #213C51 !important;
+          border: 2px solid #ffffff !important;
+        }
+        [data-testid="stSlider"] div[data-baseweb="slider"] + div,
+        [data-testid="stSlider"] div[data-baseweb="slider"] + div * {
+          font-size: 12px !important;
+          font-weight: 700 !important;
+          color: #ffffff !important;
         }
         
         .kbc-card-container {
@@ -191,12 +389,16 @@ def inject_game_css():
           margin-top: 3px;
         }
         .deck-card {
-          border: 1px solid rgba(49, 43, 33, .18);
+          background-color: #D6FB61 !important;
+          border: 2px solid #39B1D1 !important;
           border-radius: 16px;
           padding: 12px;
-          color: white;
+          color: #1e293b !important;
           min-height: 178px;
           box-shadow: 0 8px 18px rgba(80, 62, 35, .10);
+        }
+        .deck-card * {
+          color: #1e293b !important;
         }
         .deck-card-title {
           font-weight: 800;
@@ -265,42 +467,40 @@ def inject_game_css():
         }
 
         @media (max-width: 768px) {
-          /* Keep standings columns side-by-side on mobile */
-          div[data-testid="stVerticalBlock"]:has(.standing-columns-marker) > div[data-testid="stHorizontalBlock"] {
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            gap: 6px !important;
-          }
-          div[data-testid="stVerticalBlock"]:has(.standing-columns-marker) > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            width: 32% !important;
-            min-width: 32% !important;
-            flex: 1 1 0% !important;
-          }
-          div[data-testid="stVerticalBlock"]:has(.standing-columns-marker) [data-testid="stVerticalBlockBorderWrapper"] {
-            padding: 6px !important;
-          }
-          
-          /* Keep card columns side-by-side on mobile */
-          div[data-testid="stVerticalBlock"]:has(.card-columns-marker) > div[data-testid="stHorizontalBlock"] {
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            gap: 6px !important;
-          }
-          div[data-testid="stVerticalBlock"]:has(.card-columns-marker) > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            width: 32% !important;
-            min-width: 32% !important;
-            flex: 1 1 0% !important;
-          }
-
-          /* Other elements stacked */
-          [data-testid="stHorizontalBlock"]:not(:has(.standing-columns-marker)):not(:has(.card-columns-marker)) {
+          /* Force all horizontal blocks to cascade (stack) vertically on mobile */
+          [data-testid="stHorizontalBlock"] {
             flex-direction: column !important;
             gap: 12px !important;
           }
-          [data-testid="stHorizontalBlock"]:not(:has(.standing-columns-marker)):not(:has(.card-columns-marker)) > [data-testid="column"] {
+          [data-testid="stHorizontalBlock"] > [data-testid="column"] {
             width: 100% !important;
             min-width: 100% !important;
           }
+
+          /* Mobile slider sizing adjustments to prevent text overflow */
+          [data-testid="stSlider"] {
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+          }
+          [data-testid="stSlider"] label,
+          [data-testid="stSlider"] label * {
+            font-size: 11px !important;
+          }
+          [data-testid="stSlider"] div[data-baseweb="slider"] {
+            height: 6px !important;
+            margin-top: 4px !important;
+            margin-bottom: 4px !important;
+          }
+          [data-testid="stSlider"] div[role="slider"] {
+            width: 14px !important;
+            height: 14px !important;
+          }
+          [data-testid="stSlider"] div[data-baseweb="slider"] + div,
+          [data-testid="stSlider"] div[data-baseweb="slider"] + div * {
+            font-size: 10px !important;
+          }
+
+
 
           .kbc-card-container {
             padding: 14px !important;
@@ -417,7 +617,7 @@ def inject_game_css():
           }
         }
     """
-    st.markdown(base_css + category_css + "\n</style>", unsafe_allow_html=True)
+    st.markdown("<style>\n" + category_css + base_css + "\n</style>", unsafe_allow_html=True)
 
 
 def render_party_panel(title, party, deltas=None):
@@ -428,6 +628,7 @@ def render_party_panel(title, party, deltas=None):
     color = "#718096" if not is_active else (party.get("color") or "#555555")
     
     with st.container(border=True):
+        st.markdown("<div class='standings-panel-marker'></div>", unsafe_allow_html=True)
         st.markdown(
             f"<div class='party-panel-title' style='color: {color};'>"
             f"<span style='color: {color};'>●</span> {party['name']} "
@@ -461,13 +662,15 @@ def render_last_decisions_panel(party, submission, bidding_metric=None, last_rou
         return text
     
     with st.container(border=True):
+        st.markdown("<div class='last-decisions-marker'></div>", unsafe_allow_html=True)
         st.markdown(
-            f"<div style='font-size: 15px; font-weight: 800; margin-bottom: 8px;'>"
+            f"<div class='last-decisions-title' style='font-size: 15px; font-weight: 800; margin-bottom: 8px; color: {color} !important;'>"
             f"<span style='color: {color};'>●</span> {party['name']} "
-            f"<span style='font-size: 11px; opacity: 0.6;'>({badge})</span>"
+            f"<span style='font-size: 11px; opacity: 0.6; color: #475569 !important;'>({badge})</span>"
             f"</div>",
             unsafe_allow_html=True
         )
+
         
         if not submission:
             st.caption("No decisions recorded for last turn.")
@@ -537,7 +740,8 @@ def render_last_decisions_panel(party, submission, bidding_metric=None, last_rou
                 news_def = st.session_state.get("news_definitions", {}).get(news_key)
                 if news_def:
                     news_title = news_def.get("title", news_key)
-                    reaction_opt = next((opt for opt in news_def.get("reactionOptions", []) if opt.get("reactionKey") == reaction_key), None)
+                    reaction_opts = news_def.get("reactionOptions") or news_def.get("options") or []
+                    reaction_opt = next((opt for opt in reaction_opts if (opt.get("reactionKey") or opt.get("optionKey")) == reaction_key), None)
                     reaction_text = reaction_opt.get("text", reaction_key) if reaction_opt else reaction_key
                 else:
                     news_title = news_key
@@ -569,7 +773,7 @@ def render_last_decisions_panel(party, submission, bidding_metric=None, last_rou
                         unsafe_allow_html=True
                     )
                 
-        # Monthly Issue Response
+        # Party Decision Response
         if submission.get("issueTitle"):
             issue_title = submission.get("issueTitle")
             option_text = submission.get("issueOptionText", "Response chosen")
@@ -580,12 +784,12 @@ def render_last_decisions_panel(party, submission, bidding_metric=None, last_rou
                 st.markdown(
                     f"""<details style="border-left: 4px solid #4caf50; padding-left: 10px; margin-top: 10px; background: rgba(0,0,0,0.02); border-radius: 4px; padding: 6px 10px; cursor: pointer; font-family: 'Montserrat', sans-serif;">
 <summary style="font-size: 10px; text-transform: uppercase; opacity: 0.6; font-weight: 700; letter-spacing: 0.05em; color: #4caf50; outline: none; list-style: none;">
-📋 Monthly Issue <span style="font-size: 9px; color: #888; font-weight: normal; margin-left: 4px; text-transform: none; letter-spacing: normal;">(click to view)</span>
+📋 Party Decision <span style="font-size: 9px; color: #888; font-weight: normal; margin-left: 4px; text-transform: none; letter-spacing: normal;">(click to view)</span>
 <div style="font-size: 12px; font-weight: 700; margin-top: 1px; color: #212529;">{issue_title_short}</div>
 <div style="font-size: 11px; opacity: 0.8; margin-top: 2px; font-weight: 500; color: #212529;">↳ {option_text_short}</div>
 </summary>
 <div style="font-size: 11px; opacity: 0.95; margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(0,0,0,0.05); color: #111;">
-<strong>Issue:</strong> {issue_title}<br/>
+<strong>Decision:</strong> {issue_title}<br/>
 <strong>Response:</strong> {option_text}
 </div>
 </details>""",
@@ -594,7 +798,7 @@ def render_last_decisions_panel(party, submission, bidding_metric=None, last_rou
             else:
                 st.markdown(
                     f"""<div style="border-left: 4px solid #4caf50; padding-left: 10px; margin-top: 10px; background: rgba(0,0,0,0.02); border-radius: 4px; padding: 6px 10px; font-family: 'Montserrat', sans-serif;">
-<div style="font-size: 10px; text-transform: uppercase; opacity: 0.6; font-weight: 700; letter-spacing: 0.05em; color: #4caf50;">Monthly Issue</div>
+<div style="font-size: 10px; text-transform: uppercase; opacity: 0.6; font-weight: 700; letter-spacing: 0.05em; color: #4caf50;">Party Decision</div>
 <div style="font-size: 12px; font-weight: 700; margin-top: 1px;">📋 {issue_title}</div>
 <div style="font-size: 11px; opacity: 0.8; margin-top: 2px;">↳ {option_text}</div>
 </div>""",
@@ -634,16 +838,16 @@ def render_party_banner(party):
     stats = party["stats"]
     st.markdown(
         f"""
-        <div class="party-flag" style="background: linear-gradient(135deg, {color}, #1d1d1d);">
-          <div style="display:flex;align-items:center;">
-            <div class="symbol-medallion">{symbol_art}</div>
-            <div>
-              <div class="party-symbol">{symbol}</div>
-              <div style="font-size:20px;font-weight:800;margin-top:4px;">{party['name']}</div>
+        <div class="party-flag" style="background: linear-gradient(135deg, {color}, #1d1d1d); color: #ffffff !important;">
+          <div style="display:flex;align-items:center; color: #ffffff !important;">
+            <div class="symbol-medallion" style="color: #ffffff !important;">{symbol_art}</div>
+            <div style="color: #ffffff !important;">
+              <div class="party-symbol" style="color: #ffffff !important;">{symbol}</div>
+              <div style="font-size:20px;font-weight:800;margin-top:4px; color: #ffffff !important;">{party['name']}</div>
             </div>
           </div>
-          <div style="margin-top:5px;">{party['role'].replace('_', ' ').title()} | {party.get('humanPlayerLabel') or party['controllerType']}</div>
-          <div style="margin-top:10px;font-size:13px;">Coins {stats['coins']} | Morale {stats['partyMorale']} | Media {stats['mediaImage']} | Support {stats['publicSupport']}%</div>
+          <div style="margin-top:5px; color: #ffffff !important;">{party['role'].replace('_', ' ').title()} | {party.get('humanPlayerLabel') or party['controllerType']}</div>
+          <div style="margin-top:10px;font-size:13px; color: #ffffff !important;">Coins {stats['coins']} | Morale {stats['partyMorale']} | Media {stats['mediaImage']} | Support {stats['publicSupport']}%</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -683,10 +887,87 @@ def card_requires_target(card):
     return bool(target.get("opponentParty")) or bool(opponent_effects)
 
 
+def get_card_description(card):
+    desc = card.get("description")
+    if desc and isinstance(desc, str) and desc.strip() and desc != "No description available.":
+        return desc
+        
+    name_key = card.get("name", "").lower().strip()
+    
+    CARD_DESCRIPTIONS = {
+        "launch welfare scheme": "Introduce structured financial assistance and welfare programs to support low-income families and build voter gratitude.",
+        "announce infrastructure project": "Unveil major development projects like highways, bridges, and power plants to showcase governance capability.",
+        "law and order drive": "Initiate a crack-down on local crime, boosting citizens' sense of safety and reinforcing your administrative strength.",
+        "farmer loan relief": "Announce debt waivers and subsidies for small-scale farmers to win rural loyalty and ease agricultural distress.",
+        "youth employment mission": "Launch skill training programs and job creation initiatives to attract the crucial young demographic.",
+        "women safety campaign": "Deploy special surveillance units and helpline infrastructure to address safety concerns and win women's support.",
+        "subsidy announcement": "Introduce subsidized food, electricity, or water supplies to provide immediate relief to underprivileged households.",
+        "education reform bill": "Revamp public schooling systems, launch teacher training drives, and allocate scholarships to improve education.",
+        "disaster relief package": "Distribute emergency funds, food supplies, and rebuilding grants in response to local flooding or droughts.",
+        "cleanliness mission": "Organize state-wide sanitation and solid waste management campaigns to improve public health and hygiene.",
+        "unity march": "Lead party cadres on a peaceful march through diverse neighborhoods to champion communal harmony and social solidarity.",
+        "public grievance camp": "Set up direct outreach desks where citizens can meet officials to resolve pending administrative issues.",
+        "media blitz": "Buy prime-time TV slots and full-page newspaper advertisements to flood the public sphere with positive achievements.",
+        "attack opposition manifesto": "Deconstruct the opposition's policy declarations, highlighting fiscal irresponsibility and unfeasible promises.",
+        "cabinet reshuffle": "Replace underperforming ministers with fresh faces to project reformist intent and manage internal party dynamics.",
+        "promote popular leader": "Focus your media campaign and rallies on an iconic leader to tap into personal charisma and mass appeal.",
+        "cadre training camp": "Conduct strategic bootcamps for grassroots party workers to align messaging and prepare for election mobilization.",
+        "strengthen party base": "Re-engage traditional voters and key community leaders to secure your core constituency support.",
+        "organize fundraiser": "Host dinners and corporate outreach programs to secure campaign funds and financial resources.",
+        "regional pride campaign": "Highlight regional achievements, language, and cultural heritage to invoke native identity support.",
+        "community leader outreach": "Initiate private negotiations and alliance building with powerful local community influencers.",
+        "anti-corruption raid on opposition": "Order federal or state agencies to raid opposition leaders under investigation for financial fraud.",
+        "investigate opposition funding": "Initiate a formal audit into foreign donations and corporate backers of key rival political entities.",
+        "expose opposition infighting": "Leak internal communications and private disputes of the rival party to highlight their leadership crisis.",
+        "order independent inquiry": "Appoint a retired judge to lead a public probe into a recent administrative slip-up, buying time for the party.",
+        "release documents": "Leak verified files regarding rival party leaders' assets, real-estate deals, or illegal transactions.",
+        "sacrifice minister": "Force a controversial cabinet member to resign, absorbing public outrage and shielding the chief leader.",
+        "media defense campaign": "Deploy your best party spokespersons to television debates to counter hostile narratives and clarify policy.",
+        "legal notice": "Send cease-and-desist letters to media houses or rival politicians publishing defamatory statements.",
+        "suppress protest": "Deploy law enforcement units to place barriers, impose curfews, and dissolve public demonstrations.",
+        "anti-corruption march": "Lead a public march demanding actions against corrupt ministers, capitalizing on middle-class outrage.",
+        "farmer agitation": "Support rural strikes and highway blockades to protest state crop pricing and demand financial packages.",
+        "student movement": "Mobilize college unions for protests against rising tuition, job scarcity, or administrative high-handedness.",
+        "price rise protest": "Organize mock market demonstrations with empty gas cylinders to highlight inflation and rising food prices.",
+        "public yatra": "Embark on a walking tour across the state to connect with grassroots voters and listen to local concerns.",
+        "cleanliness drive": "Lead party cadres in cleaning local parks and markets, presenting a positive civic-minded image.",
+        "blood donation camp": "Establish volunteer camps to donate blood and coordinate medical help, demonstrating social responsibility.",
+        "relief work during crisis": "Deploy party volunteers to distribute drinking water, dry rations, and medical kits during a heatwave or flood.",
+        "public listening sabha": "Convene open-town halls in rural blocks where party representatives sit down to answer community questions.",
+        "media debate challenge": "Publicly challenge the rival leader to a televised, one-on-one live debate on development and governance.",
+        "social media campaign": "Launch coordinated viral campaigns, memes, and video snippets on YouTube and WhatsApp to sway opinion.",
+        "release shadow budget": "Present a detailed alternative budget highlighting how your party would fund welfare without increasing debt.",
+        "build booth network": "Set up dedicated committees for every single voting booth to manage voter turn-out on election day.",
+        "regional pride rally": "Hold a mega convention celebrating local historical icons and achievements to counter national narratives.",
+        "expose teacher admission scam": "Expose systemic bribes in public teacher recruitments, targeting the ruling coalition's governance credibility.",
+        "expose local corruption": "Publish details of bribery in municipal road contracts or local ration distribution networks.",
+        "demand judicial inquiry": "Formally request a high court-monitored investigation into recent state administrative failures."
+    }
+    
+    if name_key in CARD_DESCRIPTIONS:
+        return CARD_DESCRIPTIONS[name_key]
+    
+    category = card.get("category", "other")
+    cost = card.get("cost", 0)
+    
+    cat_desc_map = {
+        "governance": f"Deploy resources to strengthen administrative efficiency, implement policy changes, and improve your public support.",
+        "positive_service": f"Organize public service initiatives, welfare camps, and citizen outreach campaigns to build local goodwill.",
+        "agitation_movement": f"Mobilize party workers for protests and grassroot movements to put pressure on rivals and capture media focus.",
+        "scandal_accusation": f"Expose rival corruptions and administrative leaks to damage their reputation and morale.",
+        "defensive_counter": f"Launch protective public relations campaigns to minimize damage from opponent allegations and rumors.",
+        "media_narrative": f"Coordinate media appearances and narratives to boost your party's image and public perception.",
+        "organization_resource": f"Reorganize party cadres, raise funds, and build inner-party morale to prepare for election battles.",
+        "ideology_identity": f"Anchor your campaign on core ideological values and identity outreach to secure your base demographics.",
+        "constitutional_power_move": f"Utilize legislative and constitutional procedures to secure political leverage and challenge rival coalitions."
+    }
+    
+    return cat_desc_map.get(category, f"Conduct a strategic {category.replace('_', ' ').lower()} campaign move costing {cost} coins.")
+
+
 def render_playable_card(card, turn_view):
     category = card.get("category", "other")
     color = CATEGORY_COLORS.get(category, "#555555")
-    post_it_color = POST_IT_COLORS.get(category, "#fff2cc")
     timing = card.get("timing", {})
     risk = card.get("riskRoll", {})
     risk_text = f"{risk.get('chance', 0)}% risk" if risk else "Low risk"
@@ -701,71 +982,77 @@ def render_playable_card(card, turn_view):
     usage = turn_view.get("cardUsageByParty", {}).get(active_party_id, {})
     used_uses = usage.get(card.get("cardKey"), 0)
     remaining_uses = card.get("maxUsesPerCycle", 2) - used_uses
-    if selected_card_key == card.get("cardKey"):
+    
+    is_selected = selected_card_key == card.get("cardKey")
+    if is_selected:
         remaining_uses -= 1
     remaining_uses = max(0, remaining_uses)
     
-    label = CATEGORY_LABELS.get(category, category.replace("_", " ").title())
-    expander_title = f"🃏 {card['name']} (Cost: {card['cost']})"
-    if selected_card_key == card.get("cardKey"):
-        expander_title = f"🔥 {card['name']} (SELECTED) 🔥"
-    st.markdown(f'<div class="card-marker-{category}"></div>', unsafe_allow_html=True)
-    with st.expander(expander_title, expanded=False):
+    with st.container(border=True):
+        selected_class = "card-selected-marker" if is_selected else ""
+        st.markdown(f"<div class='playable-card-marker card-category-{category} {selected_class}'></div>", unsafe_allow_html=True)
+        
+        # Heading and Cost directly in container
         st.markdown(
             f"""
-            <div class="playable-card-body">
-                <div class="playable-card-category">{label}</div>
-                <div class="playable-card-title">🃏 {card['name']}</div>
-                <div class="playable-card-description">{card.get('description', 'No description available.')}</div>
-                <div class="playable-card-effects">
-                    <div style="margin-bottom: 4px;"><b>🟢 Self Effects:</b> {summarize_effects(card, 'selfParty')}</div>
-                    <div><b>🔴 Opponent Effects:</b> {summarize_effects(card, 'opponentParty')}</div>
-                </div>
-                <div class="playable-card-meta">
-                    <b>Cost:</b> {card['cost']} coins | <b>Uses:</b> {remaining_uses}/{card.get('maxUsesPerCycle', 2)}<br/>
-                    <b>Risk:</b> {risk_text} | <b>Resolution:</b> {timing.get('minTurns', 1)}-{timing.get('maxTurns', 1)} m
-                </div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; font-family: 'Montserrat', sans-serif;">
+                <h4 style="margin: 0; font-weight: 800; color: #1e293b; font-size: 14px; flex: 1; padding-right: 8px; line-height: 1.3;">
+                    🃏 {card['name']}
+                </h4>
+                <span class="card-cost-value" style="font-weight: 800; color: #39B1D1; font-size: 13px; white-space: nowrap;">⚡ {card['cost']} coins</span>
             </div>
+            <details style="margin-top: 10px; font-size: 11px; cursor: pointer; color: #1e293b; font-family: 'Montserrat', sans-serif;">
+                <summary style="font-weight: 700; color: #1e293b; outline: none; margin-bottom: 6px;">🔎 Expand Details</summary>
+                <div style="background: rgba(57, 177, 209, 0.05); padding: 8px; border-radius: 6px; margin-top: 4px; border-left: 3px solid #39B1D1; color: #1e293b;">
+                    <div style="margin-bottom: 8px; font-weight: 500; line-height: 1.4; color: #1e293b;">
+                        {get_card_description(card)}
+                    </div>
+                    <div style="margin-bottom: 6px; font-weight: 600; color: #1e293b;">
+                        Uses Left: <span style="background-color: rgba(57, 177, 209, 0.1); padding: 1px 6px; border-radius: 8px; font-weight: 700; font-size: 10px;">{remaining_uses}/{card.get('maxUsesPerCycle', 2)}</span>
+                    </div>
+                    <div class="card-effect-self" style="margin-bottom: 4px; color: #0d9488;"><b>🟢 Self:</b> {summarize_effects(card, 'selfParty')}</div>
+                    <div class="card-effect-opp" style="color: #be123c;"><b>🔴 Opponent:</b> {summarize_effects(card, 'opponentParty')}</div>
+                    <div style="margin-top: 6px; opacity: 0.8; font-size: 10px; color: #1e293b; border-top: 1px solid rgba(57, 177, 209, 0.1); padding-top: 4px;">
+                        Risk: <b>{risk_text}</b> | Timing: <b>{timing.get('minTurns', 1)}-{timing.get('maxTurns', 1)}</b> months
+                    </div>
+                </div>
+            </details>
+            <div style="margin-top: 10px;"></div>
             """,
             unsafe_allow_html=True
         )
-        if insufficient_funds:
-            st.warning("⚠️ Insufficient coins to play this card.")
-        elif remaining_uses <= 0:
-            st.warning("⚠️ No remaining uses for this cycle.")
         
-        st.write("") # Spacer
-        if st.button("Select Card", key=selected_key, use_container_width=True, disabled=(remaining_uses <= 0) or insufficient_funds):
-            st.session_state["selected_card"] = card
-            st.session_state["target_party_id"] = None
-            has_rewards = bool(turn_view.get("activePlayerHeldRewards", []))
-            if card_requires_target(card):
-                st.session_state["gameplay_step"] = "select_target"
-            elif has_rewards:
-                st.session_state["gameplay_step"] = "play_reward"
+        btn_label = "Deselect Card" if is_selected else "Select Card"
+        btn_type = "primary" if is_selected else "secondary"
+        
+        if st.button(btn_label, key=selected_key, use_container_width=True, type=btn_type, disabled=((remaining_uses <= 0 or insufficient_funds) and not is_selected)):
+            if is_selected:
+                st.session_state.pop("selected_card", None)
+                st.session_state["target_party_id"] = None
             else:
-                st.session_state["gameplay_step"] = "news_reactions"
-            st.success(f"Selected: {card['name']}")
+                st.session_state["selected_card"] = card
+                st.session_state["target_party_id"] = None
             st.rerun()
-
-    if st.session_state.get("selected_card", {}).get("cardKey") == card.get("cardKey"):
-        st.info("Selected for this turn")
+        
+        if insufficient_funds:
+            st.warning("⚠️ Insufficient coins")
+        elif remaining_uses <= 0 and not is_selected:
+            st.warning("⚠️ No remaining uses")
 
 
 def render_selected_card_panel(card):
     category = card.get("category", "other")
-    color = CATEGORY_COLORS.get(category, "#555555")
     timing = card.get("timing", {})
     risk = card.get("riskRoll", {})
     risk_text = f"{risk.get('chance', 0)}% risk" if risk else "Low risk"
     st.markdown(
         f"""
-        <div class="deck-card" style="background: linear-gradient(135deg, {color}, #222); min-height: 150px;">
-          <div class="deck-card-title">{card['name']}</div>
-          <div class="deck-meta">Cost {card['cost']} | {CATEGORY_LABELS.get(category, category)}</div>
-          <div class="deck-meta">Result: {timing.get('minTurns', 1)}-{timing.get('maxTurns', 1)} months | {risk_text}</div>
-          <div class="effect-line"><b>Self:</b> {summarize_effects(card, 'selfParty')}</div>
-          <div class="effect-line"><b>Opponent:</b> {summarize_effects(card, 'opponentParty')}</div>
+        <div class="deck-card" style="background-color: #D6FB61 !important; border: 2px solid #39B1D1 !important; color: #1e293b !important; min-height: 150px; border-radius: 12px; padding: 16px;">
+          <div class="deck-card-title" style="color: #1e293b !important; font-weight: 800; font-size: 15px;">🃏 {card['name']}</div>
+          <div class="deck-meta" style="color: #1e293b !important; opacity: 0.8; font-size: 12px; margin-top: 4px;">Cost {card['cost']} | {CATEGORY_LABELS.get(category, category)}</div>
+          <div class="deck-meta" style="color: #1e293b !important; opacity: 0.8; font-size: 12px; margin-top: 4px;">Result: {timing.get('minTurns', 1)}-{timing.get('maxTurns', 1)} months | {risk_text}</div>
+          <div class="effect-line" style="color: #0d9488 !important; font-size: 12px; margin-top: 8px; background: rgba(0,0,0,0.03); padding: 7px; border-radius: 10px;"><b>Self:</b> {summarize_effects(card, 'selfParty')}</div>
+          <div class="effect-line" style="color: #be123c !important; font-size: 12px; margin-top: 8px; background: rgba(0,0,0,0.03); padding: 7px; border-radius: 10px;"><b>Opponent:</b> {summarize_effects(card, 'opponentParty')}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -782,4 +1069,4 @@ def render_sidebar_inventory(turn_view):
         with st.container(border=True):
             st.markdown(f"**🎁 {r['name']}**")
             st.caption(r['description'])
-            st.markdown(f"<span style='color: #ff9800; font-size: 11px; font-weight: 700;'>⏳ Expires in {r['turnsLeft']} turn(s)</span>", unsafe_allow_html=True)
+            st.markdown(f"<span style='color: #ff9800 !important; font-size: 11px; font-weight: 700;'>⏳ Expires in {r['turnsLeft']} turn(s)</span>", unsafe_allow_html=True)
