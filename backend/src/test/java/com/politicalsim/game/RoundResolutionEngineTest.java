@@ -182,4 +182,48 @@ class RoundResolutionEngineTest {
         org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("Party A is holding reward: Private Donation")));
         org.junit.jupiter.api.Assertions.assertTrue(results.stream().anyMatch(r -> r.contains("Party A is holding reward: Private Donation")));
     }
+
+    @Test
+    void resolveRoundLogsAiDecisionBasisAndNextRoundStrategicOutlook() {
+        GameSession session = new GameSession();
+        session.setTurnNumber(1);
+        session.setCurrentDate(java.time.LocalDate.now());
+        session.setScenarioKey("test");
+        PublicState publicState = new PublicState();
+        session.setPublicState(publicState);
+        
+        // Party A is COMPUTER, so it gets next turn priorities logged
+        PartyStats stats = new PartyStats(60, 40, 0, 50, 20); // low coins, low morale, low support
+        PartyState partyA = party("Party A", PartyRole.GOVERNMENT, stats);
+        partyA.setControllerType(ControllerType.COMPUTER);
+        session.setParties(List.of(partyA));
+        session.setGovernmentParty(partyA);
+        
+        CardDefinition card = new CardDefinition();
+        card.setCardKey("no_card");
+        card.setName("No Card");
+        card.setRoleAllowed(List.of("GOVERNMENT"));
+        card.setWeights(Map.of("riskWeight", 0.0, "basePlayWeight", 1.0, "aiPriorityWeight", 1.0, "publicImpactWeight", 1.0));
+        session.setGameCards(List.of(card));
+
+        RoundSubmission sub = new RoundSubmission();
+        sub.setPartyId(partyA.getId());
+        sub.setPartyName(partyA.getName());
+        sub.setCardKey("no_card");
+        sub.setCardName("No Card");
+        sub.setAiDecisionBasis("Party A decided to conserve energy.");
+        session.getCurrentRoundSubmissions().add(sub);
+        
+        engine.resolveRound(session);
+        
+        List<String> commentary = session.getLastRoundCommentary();
+        
+        // Assert AI decision basis is logged
+        org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("🤖 AI Decision Analysis: Party A decided to conserve energy.")));
+        
+        // Assert Next Round Outlook is logged with low coins, morale, support needs
+        org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("🔮 Next Round Strategic Outlook:")));
+        org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("Party A next round priorities: needs to focus on restoring Coins") 
+                && c.contains("Morale") && c.contains("Voter Support")));
+    }
 }

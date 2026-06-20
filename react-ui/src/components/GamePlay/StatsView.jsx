@@ -150,7 +150,7 @@ export default function StatsView({
                 </div>
                 
                 <div style={{ display: 'flex', gap: '6px', marginBottom: '15px' }}>
-                  <span style={{ fontSize: '10px', padding: '2px 6px', background: 'var(--primary-dark)', borderRadius: '4px', opacity: 0.9, fontWeight: 'bold', color: '#ffffff' }}>
+                  <span style={{ fontSize: '10px', padding: '2px 6px', background: party.role === 'DEFEATED' ? '#ef4444' : 'var(--primary-dark)', borderRadius: '4px', opacity: 0.9, fontWeight: 'bold', color: '#ffffff' }}>
                     {party.role}
                   </span>
                   <span style={{ fontSize: '10px', padding: '2px 6px', background: 'var(--primary-dark)', borderRadius: '4px', opacity: 0.9, fontWeight: 'bold', color: '#ffffff' }}>

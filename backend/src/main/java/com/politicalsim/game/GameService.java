@@ -596,7 +596,16 @@ public class GameService {
             discCorruption = Math.max(0, Math.min(discCorruption, maxCorruptionSpend));
             
             // 4. Fund projects with discretionary funds (re-enabled for AI with a 10% resource cap)
-            if (discCoins > 0) {
+            String projectBasis = "";
+            if (isInWarningZone) {
+                projectBasis = "Project strategy: Froze all project funding due to active warning thresholds.";
+            } else if (discCoins <= 0) {
+                projectBasis = "Project strategy: Conserved resources (no discretionary budget left above safety reserves).";
+            } else {
+                projectBasis = "Project strategy: Decided not to fund any projects (could not afford any progress steps or no projects available).";
+            }
+
+            if (discCoins > 0 && !isInWarningZone) {
                 List<ProjectScore> scoredProjects = new ArrayList<>();
                 for (ProjectState project : party.getProjects()) {
                     if (project.getProgressPercent() < 100) {
@@ -669,6 +678,11 @@ public class GameService {
                         discSupport -= bestSupportCost;
                         discCorruption -= bestCorruptionCost;
                         
+                        projectBasis = "Project strategy: Funded project '" + ps.projectDef().getName() + "' (Progress: +" + bestProgress + "%, Cost: " 
+                            + (bestCoinsCost > 0 ? bestCoinsCost + " Coins" : "") 
+                            + (bestMoraleCost > 0 ? ", " + bestMoraleCost + " Morale" : "")
+                            + ") to gain passive benefits.";
+
                         if (ps.project().getProgressPercent() >= 100) {
                             boolean hasIncomplete = party.getProjects().stream()
                                 .anyMatch(p -> p.getProjectKey().equals(ps.project().getProjectKey()) && p.getProgressPercent() < 100);
@@ -712,6 +726,74 @@ public class GameService {
                     }
                 }
             }
+
+            // Construct explanation of AI decision
+            boolean hasDefeatHazard = party.getStats().getCoins() <= 20
+                    || party.getStats().getPartyMorale() <= 18
+                    || party.getStats().getPublicSupport() <= 10
+                    || party.getStats().getCorruptionScore() >= 75;
+
+            int cycleTurn = ((session.getTurnNumber() - 1) % 5) + 1;
+            int remainingTurns = 5 - cycleTurn;
+            int myWins = session.getPartyRoundWins().getOrDefault(party.getId(), 0);
+            int leaderWins = 0;
+            for (Map.Entry<String, Integer> entry : session.getPartyRoundWins().entrySet()) {
+                if (!entry.getKey().equals(party.getId())) {
+                    leaderWins = Math.max(leaderWins, entry.getValue());
+                }
+            }
+            int overallMaxWins = Math.max(myWins, leaderWins);
+
+            String intentExplanation = switch (decision.intent()) {
+                case FORCE_NO_CONFIDENCE -> "force early elections due to Government vulnerability";
+                case RAISE_FUNDS -> "replenish low coin reserves";
+                case SURVIVE_SCANDAL -> "reduce high corruption score";
+                case DEFEND_IMAGE -> "improve weak media presence";
+                case RESTORE_MORALE -> "restore low cadre morale";
+                case PREPARE_ELECTION -> "gather voter support before the upcoming election";
+                case ATTACK_RIVAL -> "target key rivals and capitalize on their weaknesses";
+                case GAIN_SUPPORT -> "increase general voter support";
+                default -> "maintain general stability";
+            };
+            String strategyBasis = party.getName() + " focused on '" + decision.intent().name() + "' (" + intentExplanation + "). "
+                + "Decided to play '" + decision.card().getName() + "' (Reserves: " 
+                + party.getStats().getCoins() + " Coins, " + party.getStats().getPartyMorale() + " Morale, " 
+                + party.getStats().getCorruptionScore() + "% Corruption, " + party.getStats().getMediaImage() + " Media, " 
+                + party.getStats().getPublicSupport() + "% Support).";
+
+            // Bid explanation
+            String bidReason;
+            if (hasDefeatHazard) {
+                bidReason = "conserved resources because party is in a defeat hazard zone";
+            } else if (overallMaxWins >= 3) {
+                bidReason = "placed 0 bid because five-turn cycle reward is already decided";
+            } else if (myWins + remainingTurns < leaderWins) {
+                bidReason = "placed 0 bid because it is mathematically impossible to win this reward cycle";
+            } else {
+                RewardDefinition currentReward = null;
+                if (session.getCurrentRewardKey() != null) {
+                    currentReward = RoundResolutionEngine.REWARD_POOL.stream()
+                            .filter(r -> r.key().equals(session.getCurrentRewardKey()))
+                            .findFirst()
+                            .orElse(null);
+                }
+                if (currentReward != null) {
+                    double rewardUtility = aiDecisionService.evaluateRewardUtility(session, party, currentReward);
+                    if (rewardUtility < 0.3) {
+                        bidReason = "placed 0 bid because cycle reward utility is low (" + String.format("%.2f", rewardUtility) + ")";
+                    } else if (rewardUtility < 0.6) {
+                        bidReason = "scaled bid down by 50% to " + bid + " because reward utility is moderate (" + String.format("%.2f", rewardUtility) + ")";
+                    } else {
+                        bidReason = "bid " + bid + " with high reward utility (" + String.format("%.2f", rewardUtility) + ")";
+                    }
+                } else {
+                    bidReason = "bid " + bid + " (no active cycle reward)";
+                }
+            }
+            String bidBasis = "Bidding strategy on " + metric + ": " + bidReason + ".";
+
+            String explanation = strategyBasis + " " + bidBasis + " " + projectBasis;
+            submission.setAiDecisionBasis(explanation);
 
             session.getCurrentRoundSubmissions().add(submission);
         }

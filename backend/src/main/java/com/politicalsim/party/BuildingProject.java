@@ -9,10 +9,10 @@ public enum BuildingProject {
     YOUTH_WING("Youth Wing Network", 35, 5, 5, 5, 0, 0, 3, 0, 0, 1, false),
     
     // New Positive Projects (Yields to Self)
-    MEGA_RALLY("Mega Rally", 60, 0, 0, 10, 1, 8, 0, 0, 1, 1, false),
-    PRIME_LEADER_VISIT("Prime Leader Visit", 60, 0, 10, 10, 0, 10, 0, -1, 1, 2, false),
+    MEGA_RALLY("Mega Rally", 60, 0, 0, 10, 5, 6, 0, 0, 1, 1, false),
+    PRIME_LEADER_VISIT("Prime Leader Visit", 100, 0, 10, 10, 0, 10, 0, -1, 1, 2, false),
     FOUNDATION_DAY("Foundation Day Celebration", 40, 15, 0, 0, 0, 6, 2, 0, 0, 1, false),
-    PARTY_CONGRESS("Party Congress", 100, 0, 10, 10, 1, 12, 2, 0, 2, 1, false),
+    PARTY_CONGRESS("Party Congress", 120, 0, 0, 20, 10, 12, 2, 0, 2, 1, false),
 
     // Offensive Projects (Requires Target = true, Yields/Drains target)
     DISSENT_NEWSPAPER("Dissenting Newspaper", 65, 15, 0, 0, 0, 0, 0, 0, 0, -1, true),
@@ -21,9 +21,9 @@ public enum BuildingProject {
     CORRUPTION_EXPOSE("Expose Corruption Center", 40, 0, 5, 0, 0, 0, 0, 3, 0, 0, true),
     
     // New Offensive Projects (Yields/Drains target)
-    CAMPAIGN_SABOTAGE("Campaign Sabotage", 30, 0, 0, 10, 0, -5, -2, 0, -1, 0, true),
-    AUDIT_HARASSMENT("Audit Harassment", 40, 0, 10, 0, 0, -8, -1, 1, 0, 0, true),
-    MEDIA_SMEAR("Media Smear Campaign", 40, 0, 10, 0, 0, -6, 0, 0, -2, -1, true);
+    CAMPAIGN_SABOTAGE("Campaign Sabotage", 50, 0, 0, 10, 0, -5, -2, 0, -1, 0, true),
+    AUDIT_HARASSMENT("Audit Harassment", 80, 0, 10, 0, 0, -8, -1, 1, 0, 0, true),
+    MEDIA_SMEAR("Media Smear Campaign", 60, 0, 10, 0, 0, -6, 0, 0, -2, -1, true);
 
     private final String name;
     private final int costCoins;

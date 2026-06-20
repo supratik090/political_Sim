@@ -158,6 +158,10 @@ public class RoundResolutionEngine {
                 cardEffects += ", target " + opponent.getName() + "(" + formatEffectsObject(card.getVisibleEffects(), "opponentParty") + ")";
             }
 
+            if (submission.getAiDecisionBasis() != null && !submission.getAiDecisionBasis().isBlank()) {
+                commentary.add("🤖 AI Decision Analysis: " + submission.getAiDecisionBasis());
+            }
+
             if (submission.getAiIntent() == null || submission.getAiIntent().isBlank()) {
                 commentary.add(actor.getName() + " played " + card.getName() + targetPhrase(opponent) + ". " + cardEffects);
             } else {
@@ -460,6 +464,42 @@ public class RoundResolutionEngine {
             } else {
                 commentary.add("  - " + party.getName() + " is holding reward: None");
             }
+        }
+
+        // 4. Log Next Round Strategic Outlook for AI players
+        commentary.add("🔮 Next Round Strategic Outlook:");
+        for (PartyState party : session.getParties()) {
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED || !party.isActive()) {
+                continue;
+            }
+            if (party.getControllerType() != com.politicalsim.party.ControllerType.COMPUTER) {
+                continue;
+            }
+            PartyStats stats = party.getStats();
+            List<String> needs = new ArrayList<>();
+            if (stats.getCoins() < 100) {
+                needs.add("Coins (current: " + stats.getCoins() + " < 100)");
+            }
+            if (stats.getPartyMorale() < 50) {
+                needs.add("Morale (current: " + stats.getPartyMorale() + " < 50)");
+            }
+            if (stats.getCorruptionScore() >= 50) {
+                needs.add("Corruption Reduction (current: " + stats.getCorruptionScore() + "% >= 50%)");
+            }
+            if (stats.getMediaImage() < 50) {
+                needs.add("Media Image (current: " + stats.getMediaImage() + " < 50)");
+            }
+            if (stats.getPublicSupport() < 25) {
+                needs.add("Voter Support (current: " + stats.getPublicSupport() + "% < 25%)");
+            }
+            
+            String priorities;
+            if (!needs.isEmpty()) {
+                priorities = "needs to focus on restoring " + String.join(", ", needs);
+            } else {
+                priorities = "focus on offensive campaign maneuvers / consolidating lead";
+            }
+            commentary.add("  - " + party.getName() + " next round priorities: " + priorities + ".");
         }
 
         session.setLastRoundSubmissions(new ArrayList<>(session.getCurrentRoundSubmissions()));

@@ -160,4 +160,14 @@ public class RoundSubmission {
     public void setRewardName(String rewardName) {
         this.rewardName = rewardName;
     }
+
+    private String aiDecisionBasis;
+
+    public String getAiDecisionBasis() {
+        return aiDecisionBasis;
+    }
+
+    public void setAiDecisionBasis(String aiDecisionBasis) {
+        this.aiDecisionBasis = aiDecisionBasis;
+    }
 }
