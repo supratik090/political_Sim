@@ -25,11 +25,29 @@ public class NewsDefinition {
     private String description;
     private List<String> monthTags = new ArrayList<>();
     private List<String> issueTags = new ArrayList<>();
+    private String crisisTriggerKey;
+    private int crisisDuration;
 
     @JsonAlias({"reactionOptions", "options"})
     private List<NewsReactionDefinition> reactionOptions = new ArrayList<>();
     private Map<String, Object> weights = new LinkedHashMap<>();
     private boolean active = true;
+
+    public String getCrisisTriggerKey() {
+        return crisisTriggerKey;
+    }
+
+    public void setCrisisTriggerKey(String crisisTriggerKey) {
+        this.crisisTriggerKey = crisisTriggerKey;
+    }
+
+    public int getCrisisDuration() {
+        return crisisDuration;
+    }
+
+    public void setCrisisDuration(int crisisDuration) {
+        this.crisisDuration = crisisDuration;
+    }
 
     public String getId() {
         return id;

@@ -11,6 +11,8 @@ from ui_components import (
     render_last_decisions_panel,
     render_playable_card,
     card_requires_target,
+    render_active_crisis_banner,
+    render_building_projects_panel,
 )
 
 
@@ -151,7 +153,63 @@ def show_defeat_dialog(state_name, last_results):
         st.rerun()
 
 
+def render_coin_stacks(bid, bid_metric="COINS"):
+    color_map = {
+        "COINS": ("#d97706", "#fbbf24", "#f59e0b", "🪙"),
+        "CORRUPTION": ("#991b1b", "#fca5a5", "#ef4444", "⚖️"),
+        "MORALE": ("#be123c", "#f43f5e", "#e11d48", "❤️"),
+        "MEDIA": ("#1d4ed8", "#60a5fa", "#3b82f6", "📰"),
+        "PUBLIC_SUPPORT": ("#047857", "#34d399", "#10b981", "📈")
+    }
+    
+    border_color, light_color, main_color, icon = color_map.get(bid_metric.upper(), ("#d97706", "#fbbf24", "#f59e0b", "🪙"))
+    
+    if bid == 0:
+        return """
+        <div style='color: rgba(255,255,255,0.4); font-size: 13px; font-style: italic; display: flex; align-items: center; justify-content: center; height: 75px; width: 100%; border: 1px dashed rgba(255,255,255,0.15); border-radius: 8px; background: rgba(33,60,81,0.15);'>
+            No resources staked. Adjust bid below to stack chips.
+        </div>
+        """
+        
+    stacks_10 = bid // 10
+    rem = bid % 10
+    stacks_5 = rem // 5
+    rem_1 = rem % 5
+    
+    html = "<div style='display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 14px; min-height: 80px; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.08);'>"
+    
+    # Helper to draw stack
+    def draw_stack(count, color_border, color_light, color_main, label=""):
+        stack_html = "<div class='coin-stack' style='display: inline-flex; flex-direction: column-reverse; align-items: center; min-width: 38px;'>"
+        for i in range(count):
+            margin_bottom = "-5px" if i < count - 1 else "0px"
+            stack_html += f"<div class='coin-chip' style='width: 34px; height: 8px; border-radius: 10px; border: 1.5px solid {color_border}; background: linear-gradient(to bottom, {color_light}, {color_main}); margin-bottom: {margin_bottom}; box-shadow: 0 1px 2px rgba(0,0,0,0.4);'></div>"
+        if label:
+            stack_html += f"<div style='font-size: 9px; color: #ffffff; font-weight: 700; margin-top: 4px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);'>{label}</div>"
+        stack_html += "</div>"
+        return stack_html
+
+    # Render stacks of 10 (purple/indigo theme)
+    show_10s = min(stacks_10, 6)
+    for _ in range(show_10s):
+        html += draw_stack(10, "#4338ca", "#818cf8", "#4f46e5", "10")
+    if stacks_10 > 6:
+        html += f"<div style='font-size: 13px; font-weight: 800; color: #a5b4fc; align-self: center; margin-bottom: 10px;'>+ {stacks_10 - 6} more (×10)</div>"
+        
+    # Render stacks of 5 (green/emerald theme)
+    for _ in range(stacks_5):
+        html += draw_stack(5, "#047857", "#34d399", "#059669", "5")
+        
+    # Render remaining 1s (metric theme)
+    if rem_1 > 0:
+        html += draw_stack(rem_1, border_color, light_color, main_color, "1")
+        
+    html += "</div>"
+    return html
+
+
 def render_turn_view(turn_view):
+
     inject_game_css()
     
     if st.session_state.get("scroll_to_top"):
@@ -356,6 +414,10 @@ def render_turn_view(turn_view):
     )
     active_party_id = active_party["id"]
 
+    # Active Crisis Alert Banner (Spans full page width)
+    if turn_view.get("activeCrisisKey"):
+        render_active_crisis_banner(turn_view)
+
     # ----------------------------------------------------
     # Unified TBS Grid (Left: Status Panel, Right: Actions Panel)
     # ----------------------------------------------------
@@ -427,16 +489,22 @@ def render_turn_view(turn_view):
         news_ready = all((news.get("newsKey") or news.get("issueKey")) in selected_news for news in news_items)
         
         issue_ready = not turn_view.get("currentIssue") or bool(st.session_state.get("selected_issue_option_key"))
+
+        def status_text(is_ready):
+            return "✅ Done" if is_ready else "⏳ Pending"
+
+        def section_heading(icon, title, is_ready):
+            st.markdown(f"### {icon} {title} · {status_text(is_ready)}")
         
         # 1. Card Selection / Drafted Card Block
-        st.subheader("🃏 Select Card")
+        section_heading("🃏", "Select a Political Card", card_ready)
         if card_ready:
             card = st.session_state["selected_card"]
             render_selected_card_panel(card)
             
             # Inline target selection if required
             if target_required:
-                st.markdown("#### 🎯 Select Target Opponent")
+                st.markdown(f"#### 🎯 Select Target Opponent · {status_text(target_ready)}")
                 target_parties = [p for p in turn_view.get("parties", []) if p["id"] != active_party_id]
                 target_options = ["Select Target..."] + [p["name"] for p in target_parties]
                 
@@ -454,11 +522,15 @@ def render_turn_view(turn_view):
                     key="inline_card_target_select"
                 )
                 if selected_t_name == "Select Target...":
-                    st.session_state["target_party_id"] = None
+                    if st.session_state.get("target_party_id") is not None:
+                        st.session_state["target_party_id"] = None
+                        st.rerun()
                 else:
                     selected_t_party = next((p for p in target_parties if p["name"] == selected_t_name), None)
-                    if selected_t_party:
+                    if selected_t_party and st.session_state.get("target_party_id") != selected_t_party["id"]:
                         st.session_state["target_party_id"] = selected_t_party["id"]
+                        st.rerun()
+                target_ready = not target_required or bool(st.session_state.get("target_party_id"))
                         
             st.write("")
             if st.button("Change Campaign Move (Deselect)", type="secondary", use_container_width=True, key="cancel_drafted_card_btn"):
@@ -508,22 +580,25 @@ def render_turn_view(turn_view):
             st.write("")
             with st.container(border=True):
                 st.markdown("<div class='news-reactions-marker'></div>", unsafe_allow_html=True)
-                st.markdown("### 📣 News Reactions")
+                completed_news = sum(1 for news in news_items if (news.get("newsKey") or news.get("issueKey")) in selected_news)
+                st.markdown(f"### 📣 News Reactions · {status_text(news_ready)}")
+                st.caption(f"{completed_news}/{len(news_items)} reactions selected")
                 for news in news_items:
-                    st.write(f"**{news['title']}**")
+                    news_key = news.get("newsKey") or news.get("issueKey")
+                    news_done = news_key in selected_news
+                    st.write(f"**{'✅' if news_done else '⏳'} {news['title']}**")
                     st.caption(news.get("description", ""))
                     
                     options = []
                     reaction_list = news.get("reactionOptions") or news.get("options") or []
                     for reaction in reaction_list:
-                        effects_desc = summarize_reaction_effects(reaction)
                         reaction_key = reaction.get("reactionKey") or reaction.get("optionKey")
                         options.append({
                             "key": reaction_key,
-                            "text": f"{reaction['text']} ({effects_desc})"
+                            "text": reaction['text']
                         })
+
                         
-                    news_key = news.get("newsKey") or news.get("issueKey")
                     current_selection = selected_news.get(news_key)
                     clicked_key = render_kbc_options(options, current_selection, f"news-react-{news_key}")
                     if clicked_key:
@@ -537,17 +612,17 @@ def render_turn_view(turn_view):
             st.write("")
             with st.container(border=True):
                 st.markdown("<div class='party-decisions-marker'></div>", unsafe_allow_html=True)
-                st.markdown("### 🏛️ Party Decisions")
+                st.markdown(f"### 🏛️ Party Decisions · {status_text(issue_ready)}")
                 st.write(f"**{issue['title']}**")
                 st.write(issue.get("description", ""))
                 
                 options = []
                 for opt in issue.get("options", []):
-                    effects_desc = summarize_issue_option_effects(opt)
                     options.append({
                         "key": opt["optionKey"],
-                        "text": f"{opt['text']} ({effects_desc})"
+                        "text": opt['text']
                     })
+
                     
                 current_selection = st.session_state.get("selected_issue_option_key")
                 clicked_key = render_kbc_options(options, current_selection, f"issue-select-{issue['issueKey']}")
@@ -569,13 +644,32 @@ def render_turn_view(turn_view):
         }
         metric_key = metric_key_map.get(bid_metric.upper(), "coins")
         max_bid = stats.get(metric_key, 0)
+
+        bid_ready = bool(st.session_state.get("bid_amount_selected")) or max_bid <= 0
         
         st.write("")
         with st.container(border=True):
             # Inject CSS marker for background styling
             st.markdown("<div class='bidding-station-marker'></div>", unsafe_allow_html=True)
-            st.markdown(f"### 🗳️ Bidding Station (Round {cycle_turn}/5)")
+            st.markdown(f"### 🗳️ Bidding Station (Round {cycle_turn}/5) · {status_text(bid_ready)}")
             st.write("")
+            
+            # Show Bidding Target
+            reward_name = turn_view.get("currentRewardName", "Unknown Reward")
+            reward_desc = turn_view.get("currentRewardDescription", "Win this round to claim the reward.")
+            
+            if reward_name:
+                st.markdown(
+                    f"""
+                    <div style="background: rgba(0,0,0,0.15); border-left: 3px solid #E0B0FF; padding: 10px 15px; margin-bottom: 15px; border-radius: 0 4px 4px 0;">
+                        <div style="font-size: 10px; text-transform: uppercase; color: #E0B0FF; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 3px;">BIDDING FOR</div>
+                        <div style="font-size: 14px; font-weight: 800; color: #ffffff;">🎯 {reward_name}</div>
+                        <div style="font-size: 11px; color: #cbd5e1; margin-top: 4px; font-style: italic;">{reward_desc}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                
             col_m1, col_m2 = st.columns(2)
             with col_m1:
                 st.markdown(
@@ -604,12 +698,89 @@ def render_turn_view(turn_view):
                 unsafe_allow_html=True
             )
             
+            # Initialize bid_amount in session state if not present
+            if "bid_amount" not in st.session_state:
+                st.session_state["bid_amount"] = 0
+                
+            # Keep within bounds
+            st.session_state["bid_amount"] = max(0, min(st.session_state["bid_amount"], max_bid))
+            
             if max_bid > 0:
-                bid_val = st.slider("Select your BID", min_value=0, max_value=max_bid, value=st.session_state.get("bid_amount", 0), key="bidding_station_slider")
-                st.session_state["bid_amount"] = bid_val
+                # Render visual chip stacks
+                st.write("")
+                st.markdown(render_coin_stacks(st.session_state["bid_amount"], bid_metric), unsafe_allow_html=True)
+                st.write("")
+                
+                # Plural text settings based on the metric
+                unit_plural = {
+                    "COINS": "Coins",
+                    "CORRUPTION": "Corruption Points",
+                    "MORALE": "Morale Points",
+                    "MEDIA": "Media Points",
+                    "PUBLIC_SUPPORT": "% Support"
+                }
+                plural = unit_plural.get(bid_metric.upper(), "Tokens")
+                
+                # Visual label indicating stake & remaining
+                st.markdown(
+                    f"""
+                    <div style="text-align: center; font-size: 13px; font-weight: 700; margin-bottom: 12px; color: #ffffff;">
+                        🗳️ Staked: <span style="color: #fbbf24; font-size: 15px;">{st.session_state["bid_amount"]}</span> / {max_bid} {plural} 
+                        <span style="font-weight: 400; opacity: 0.8; margin-left: 8px;">(Remaining: {max_bid - st.session_state["bid_amount"]})</span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                
+                # Calculate up to 6 unique distributed presets
+                options_set = {0, max_bid}
+                if max_bid > 0:
+                    for i in range(1, 5):
+                        val = int(round(i * max_bid / 5.0))
+                        options_set.add(val)
+                bids_list = sorted(list(options_set))
+                
+                st.write("")
+                st.caption("Select a preset bid:")
+                
+                # Render preset buttons in rows of 3 columns
+                for i in range(0, len(bids_list), 3):
+                    cols = st.columns(3)
+                    for col_idx, val in enumerate(bids_list[i:i+3]):
+                        with cols[col_idx]:
+                            is_selected = (st.session_state["bid_amount"] == val)
+                            if val == max_bid:
+                                label = f"🔥 {val} (All-In)"
+                            elif val == 0:
+                                label = f"💤 Pass"
+                            else:
+                                label = f"🪙 {val}"
+                                
+                            btn_type = "primary" if is_selected else "secondary"
+                            if st.button(label, key=f"bid_preset_{val}", use_container_width=True, type=btn_type):
+                                st.session_state["bid_amount"] = val
+                                st.session_state["bid_amount_selected"] = True
+                                st.rerun()
+                                
+                # Manual entry box
+                st.write("")
+                manual_val = st.number_input(
+                    "Or type custom bid:",
+                    min_value=0,
+                    max_value=max_bid,
+                    value=int(st.session_state["bid_amount"]),
+                    step=1,
+                    key="bidding_manual_input_box"
+                )
+                if manual_val != st.session_state["bid_amount"]:
+                    st.session_state["bid_amount"] = manual_val
+                    st.session_state["bid_amount_selected"] = True
+                    st.rerun()
             else:
                 st.info("Your value for this metric is 0 (Cannot place bid).")
                 st.session_state["bid_amount"] = 0
+                st.session_state["bid_amount_selected"] = True
+
 
         # 4. Held Rewards in its own block colored with DDAED3
         st.write("")
@@ -686,14 +857,34 @@ def render_turn_view(turn_view):
                         if chosen_t_party:
                             st.session_state["reward_target_party_id"] = chosen_t_party["id"]
 
+        # 4.5. Building Projects
+        render_building_projects_panel(turn_view)
+
         # 5. End Turn Submission Block
         st.write("")
-        all_ready = card_ready and target_ready and news_ready and issue_ready
+        card_ready = bool(st.session_state.get("selected_card"))
+        target_required = card_requires_target(st.session_state["selected_card"]) if card_ready else False
+        target_ready = not target_required or bool(st.session_state.get("target_party_id"))
+        news_ready = all((news.get("newsKey") or news.get("issueKey")) in selected_news for news in news_items)
+        issue_ready = not turn_view.get("currentIssue") or bool(st.session_state.get("selected_issue_option_key"))
+        bid_ready = bool(st.session_state.get("bid_amount_selected")) or max_bid <= 0
+        all_ready = card_ready and target_ready and news_ready and issue_ready and bid_ready
         
         if all_ready:
             st.success("🎉 All decisions locked! Ready to proceed.")
         else:
-            st.warning("⚠️ Complete all required checklist items to advance turn.")
+            pending_items = []
+            if not card_ready:
+                pending_items.append("campaign card")
+            if not target_ready:
+                pending_items.append("target opponent")
+            if not news_ready:
+                pending_items.append("news reactions")
+            if not issue_ready:
+                pending_items.append("party decision")
+            if not bid_ready:
+                pending_items.append("bid")
+            st.warning("⏳ Pending: " + ", ".join(pending_items) + ".")
             
         if st.button("End Turn (Submit Decisions)", disabled=not all_ready, type="primary", use_container_width=True, key="tbs_end_turn_button"):
             try:
@@ -716,6 +907,7 @@ def render_turn_view(turn_view):
                 st.session_state["selected_reward_key"] = None
                 st.session_state["reward_target_party_id"] = None
                 st.session_state["bid_amount"] = 0
+                st.session_state["bid_amount_selected"] = False
                 st.session_state["scroll_to_stats"] = True
                 st.success("Turn advanced successfully!")
                 st.rerun()

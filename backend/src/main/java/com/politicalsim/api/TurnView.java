@@ -46,6 +46,10 @@ public record TurnView(
         String lastRoundBiddingMetric,
         String lastRoundWinnerPartyId,
         String biddingMetric,
-        List<HeldRewardView> activePlayerHeldRewards
+        List<HeldRewardView> activePlayerHeldRewards,
+        String activeCrisisKey,
+        String activeCrisisName,
+        String activeCrisisDescription,
+        int activeCrisisTurnsLeft
 ) {
 }

@@ -137,6 +137,8 @@ public class ScenarioSeeder implements CommandLineRunner {
         gov.setDefaultControllerType(ControllerType.COMPUTER);
         gov.setIdeology(Ideology.DEVELOPMENT_FIRST);
         gov.setStartingStats(new PartyStats(govCoins, govMorale, govCorruption, govMedia, govSupport));
+        gov.setColor("#E15554");
+        gov.setSymbol("Tiger");
         parties.add(gov);
 
         ScenarioPartyDefinition opp = new ScenarioPartyDefinition();
@@ -146,6 +148,8 @@ public class ScenarioSeeder implements CommandLineRunner {
         opp.setDefaultControllerType(ControllerType.HUMAN);
         opp.setIdeology(Ideology.ANTI_CORRUPTION);
         opp.setStartingStats(new PartyStats(oppCoins, oppMorale, oppCorruption, oppMedia, oppSupport));
+        opp.setColor("#3F88C5");
+        opp.setSymbol("Elephant");
         parties.add(opp);
 
         ScenarioPartyDefinition third = new ScenarioPartyDefinition();
@@ -155,6 +159,8 @@ public class ScenarioSeeder implements CommandLineRunner {
         third.setDefaultControllerType(ControllerType.COMPUTER);
         third.setIdeology(Ideology.REGIONAL_PRIDE);
         third.setStartingStats(new PartyStats(thirdCoins, thirdMorale, thirdCorruption, thirdMedia, thirdSupport));
+        third.setColor("#17B890");
+        third.setSymbol("Peacock");
         parties.add(third);
 
         scenario.setPoliticalParties(parties);

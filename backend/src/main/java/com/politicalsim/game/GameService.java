@@ -11,6 +11,7 @@ import com.politicalsim.ai.AiDecision;
 import com.politicalsim.ai.AiDecisionService;
 import com.politicalsim.ai.AiProfile;
 import com.politicalsim.ai.AiStyle;
+import com.politicalsim.ai.AiIntent;
 import com.politicalsim.content.CardDefinition;
 import com.politicalsim.content.CardDefinitionRepository;
 import com.politicalsim.content.IssueOptionDefinition;
@@ -26,6 +27,8 @@ import com.politicalsim.party.ControllerType;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
 import com.politicalsim.party.PartyStats;
+import com.politicalsim.party.ProjectState;
+import com.politicalsim.party.BuildingProject;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -260,7 +263,11 @@ public class GameService {
                 session.getLastRoundBiddingMetric(),
                 session.getLastRoundWinnerPartyId(),
                 roundResolutionEngine.getBiddingMetricForTurn(session.getTurnNumber()),
-                activePlayerHeldRewards
+                activePlayerHeldRewards,
+                session.getActiveCrisisKey(),
+                session.getActiveCrisisName(),
+                session.getActiveCrisisDescription(),
+                session.getActiveCrisisTurnsLeft()
         );
     }
 
@@ -431,8 +438,8 @@ public class GameService {
 
     private CardDefinition findAvailableCard(GameSession session, String cardKey, PartyState party) {
         CardDefinition card = findCard(session, cardKey, party.getRole());
-        if (usedCount(session, party, card) >= card.getMaxUsesPerCycle()) {
-            throw new IllegalArgumentException("Card has no uses remaining this election cycle: " + cardKey);
+        if (!"no_card".equals(card.getCardKey()) && usedCount(session, party, card) >= 2) {
+            throw new IllegalArgumentException("Card has no uses remaining in this game: " + cardKey);
         }
         return card;
     }
@@ -455,7 +462,7 @@ public class GameService {
         if (!requiresTarget(card)) {
             return null;
         }
-        return chooseOpponent(session, actor);
+        return aiDecisionService.chooseOpponent(session, actor, card);
     }
 
     private boolean requiresTarget(CardDefinition card) {
@@ -524,6 +531,163 @@ public class GameService {
             int currentMetricValue = roundResolutionEngine.getStatValue(party, metric);
             int bid = calculateSmartBid(session, party, metric, currentMetricValue);
             submission.setBid(bid);
+
+            // AI Project Funding and Targeting
+            // 1. Assign/Modify targets for completed offensive projects
+            for (ProjectState project : party.getProjects()) {
+                if (project.getProgressPercent() >= 100) {
+                    BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
+                    if (projectDef.isRequiresTarget()) {
+                        PartyState target = aiDecisionService.chooseOpponentForProject(session, party, projectDef);
+                        if (target != null) {
+                            project.setTargetPartyId(target.getId());
+                            project.setTargetPartyName(target.getName());
+                        }
+                    }
+                }
+            }
+
+            // 2. Compute reserves
+            int cardCost = decision.card().getCost();
+            int projectedCardCost = cardCost;
+            if (session.getActiveCrisisKey() != null) {
+                if ("drought_crisis".equals(session.getActiveCrisisKey()) &&
+                        ("welfare".equals(decision.card().getCategory()) || "rural".equals(decision.card().getCategory()))) {
+                    projectedCardCost += 5;
+                } else if ("strike_crisis".equals(session.getActiveCrisisKey())) {
+                    projectedCardCost += 2;
+                }
+            }
+
+            int bidReserveCoins = "COINS".equalsIgnoreCase(metric) ? bid : 0;
+            int bidReserveMorale = ("PARTY_MORALE".equalsIgnoreCase(metric) || "MORALE".equalsIgnoreCase(metric)) ? bid : 0;
+
+            // 3. Compute discretionary funds (Safety reserve of 30 coins, 25 morale, 25 media, 15 support)
+            // If the party is in any warning/defeat hazard zone, conserve all resources (disc = 0)
+            boolean isInWarningZone = party.getStats().getCoins() <= 30
+                    || party.getStats().getPartyMorale() <= 25
+                    || party.getStats().getPublicSupport() <= 12
+                    || party.getStats().getCorruptionScore() >= 75;
+
+            int maxCoinsSpend = (int) (party.getStats().getCoins() * 0.10);
+            int maxMoraleSpend = (int) (party.getStats().getPartyMorale() * 0.10);
+            int maxMediaSpend = (int) (party.getStats().getMediaImage() * 0.10);
+            int maxSupportSpend = (int) (party.getStats().getPublicSupport() * 0.10);
+            int maxCorruptionSpend = (int) ((100 - party.getStats().getCorruptionScore()) * 0.10);
+
+            int discCoins = 0;
+            int discMorale = 0;
+            int discMedia = 0;
+            int discSupport = 0;
+            int discCorruption = 0;
+
+            if (!isInWarningZone) {
+                discCoins = party.getStats().getCoins() - projectedCardCost - bidReserveCoins - 30;
+                discMorale = party.getStats().getPartyMorale() - bidReserveMorale - 25;
+                discMedia = party.getStats().getMediaImage() - 25;
+                discSupport = party.getStats().getPublicSupport() - 15;
+                discCorruption = 60 - party.getStats().getCorruptionScore();
+            }
+
+            discCoins = Math.max(0, Math.min(discCoins, maxCoinsSpend));
+            discMorale = Math.max(0, Math.min(discMorale, maxMoraleSpend));
+            discMedia = Math.max(0, Math.min(discMedia, maxMediaSpend));
+            discSupport = Math.max(0, Math.min(discSupport, maxSupportSpend));
+            discCorruption = Math.max(0, Math.min(discCorruption, maxCorruptionSpend));
+            
+            // 4. Fund projects with discretionary funds (re-enabled for AI with a 10% resource cap)
+            if (discCoins > 0) {
+                List<ProjectScore> scoredProjects = new ArrayList<>();
+                for (ProjectState project : party.getProjects()) {
+                    if (project.getProgressPercent() < 100) {
+                        BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
+                        double score = scoreProjectForAi(session, party, decision, projectDef);
+                        scoredProjects.add(new ProjectScore(project, projectDef, score));
+                    }
+                }
+                
+                scoredProjects.sort((a, b) -> Double.compare(b.score(), a.score()));
+                
+                for (ProjectScore ps : scoredProjects) {
+                    int remaining = 100 - ps.project().getProgressPercent();
+                    if (remaining <= 0) continue;
+                    
+                    int bestProgress = 0;
+                    int bestCoinsCost = 0;
+                    int bestMoraleCost = 0;
+                    int bestCorruptionCost = 0;
+                    int bestMediaCost = 0;
+                    int bestSupportCost = 0;
+                    
+                    int[] steps = {100, 80, 60, 40, 20};
+                    for (int step : steps) {
+                        if (step <= remaining) {
+                            int coinsCost = (int) Math.ceil((double) ps.projectDef().getCostCoins() * step / 100.0);
+                            int moraleCost = (int) Math.ceil((double) ps.projectDef().getCostMorale() * step / 100.0);
+                            int corruptionCost = (int) Math.ceil((double) ps.projectDef().getCostCorruption() * step / 100.0);
+                            int mediaCost = (int) Math.ceil((double) ps.projectDef().getCostMedia() * step / 100.0);
+                            int supportCost = (int) Math.ceil((double) ps.projectDef().getCostSupport() * step / 100.0);
+
+                            boolean canAfford = coinsCost <= discCoins;
+                            if (ps.projectDef().getCostMorale() > 0 && moraleCost > discMorale) canAfford = false;
+                            if (ps.projectDef().getCostCorruption() > 0 && corruptionCost > discCorruption) canAfford = false;
+                            if (ps.projectDef().getCostMedia() > 0 && mediaCost > discMedia) canAfford = false;
+                            if (ps.projectDef().getCostSupport() > 0 && supportCost > discSupport) canAfford = false;
+
+                            if (canAfford) {
+                                bestProgress = step;
+                                bestCoinsCost = coinsCost;
+                                bestMoraleCost = moraleCost;
+                                bestCorruptionCost = corruptionCost;
+                                bestMediaCost = mediaCost;
+                                bestSupportCost = supportCost;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (bestProgress > 0) {
+                        party.getStats().setCoins(party.getStats().getCoins() - bestCoinsCost);
+                        party.getStats().setPartyMorale(party.getStats().getPartyMorale() - bestMoraleCost);
+                        party.getStats().setMediaImage(party.getStats().getMediaImage() - bestMediaCost);
+                        party.getStats().setCorruptionScore(Math.min(100, party.getStats().getCorruptionScore() + bestCorruptionCost));
+                        if (bestSupportCost > 0) {
+                            party.getStats().setPublicSupport(Math.max(0, party.getStats().getPublicSupport() - bestSupportCost));
+                            session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + bestSupportCost);
+                        }
+
+                        ps.project().setProgressPercent(ps.project().getProgressPercent() + bestProgress);
+                        
+                        // Record AI contribution
+                        Map<String, Map<String, Integer>> contribs = session.getProjectContributionsThisTurn();
+                        Map<String, Integer> partyContribs = contribs.computeIfAbsent(party.getId(), k -> new java.util.LinkedHashMap<>());
+                        partyContribs.put(ps.project().getProjectKey(), partyContribs.getOrDefault(ps.project().getProjectKey(), 0) + bestProgress);
+                        
+                        discCoins -= bestCoinsCost;
+                        discMorale -= bestMoraleCost;
+                        discMedia -= bestMediaCost;
+                        discSupport -= bestSupportCost;
+                        discCorruption -= bestCorruptionCost;
+                        
+                        if (ps.project().getProgressPercent() >= 100) {
+                            boolean hasIncomplete = party.getProjects().stream()
+                                .anyMatch(p -> p.getProjectKey().equals(ps.project().getProjectKey()) && p.getProgressPercent() < 100);
+                            if (!hasIncomplete) {
+                                party.getProjects().add(new ProjectState(ps.project().getProjectKey()));
+                            }
+
+                            if (ps.projectDef().isRequiresTarget()) {
+                                PartyState target = aiDecisionService.chooseOpponentForProject(session, party, ps.projectDef());
+                                if (target != null) {
+                                    ps.project().setTargetPartyId(target.getId());
+                                    ps.project().setTargetPartyName(target.getName());
+                                }
+                            }
+                        }
+                        break; // ONLY FUND ONE PROJECT PER TURN
+                    }
+                }
+            }
 
             // AI Reward Play Selection
             List<HeldReward> heldRewards = session.getPartyHeldRewards().get(party.getId());
@@ -660,7 +824,7 @@ public class GameService {
             getCardsForSession(session).stream()
                 .filter(CardDefinition::isActive)
                 .filter(card -> card.getRoleAllowed().contains(party.getRole().name()))
-                .filter(card -> usedCount(session, party, card) < card.getMaxUsesPerCycle())
+                .filter(card -> "no_card".equals(card.getCardKey()) || usedCount(session, party, card) < 2)
                 .filter(card -> party.getStats().getCoins() >= card.getCost())
                 .toList()
         );
@@ -712,6 +876,7 @@ public class GameService {
     }
 
     private int calculateSmartBid(GameSession session, PartyState party, String metric, int currentMetricValue) {
+        // AI players are allowed to place bids for rewards normally again
         int cycleTurn = ((session.getTurnNumber() - 1) % 5) + 1; // 1 to 5
         int remainingTurns = 5 - cycleTurn;
         int myWins = session.getPartyRoundWins().getOrDefault(party.getId(), 0);
@@ -737,6 +902,18 @@ public class GameService {
         
         // 3. Resource-safe bid calculation
         if (currentMetricValue <= 0) {
+            return 0;
+        }
+
+        // Defeat condition checks before bidding:
+        // Conserve resources if party is in a danger/warning zone on any metrics
+        PartyStats stats = party.getStats();
+        boolean hasDefeatHazard = stats.getCoins() <= 20
+                || stats.getPartyMorale() <= 18
+                || stats.getPublicSupport() <= 10
+                || stats.getCorruptionScore() >= 75;
+
+        if (hasDefeatHazard) {
             return 0;
         }
         
@@ -777,7 +954,8 @@ public class GameService {
 
         int bid = 0;
         if ("COINS".equalsIgnoreCase(metric)) {
-            int usable = Math.max(0, currentMetricValue - coinReserve);
+            int minReserve = Math.max(coinReserve, 20); // Absolute safety reserve of 20 coins
+            int usable = Math.max(0, currentMetricValue - minReserve);
             if (usable > 0) {
                 int minBid = Math.max(1, (int) Math.ceil(usable * 0.05 * bidMultiplier));
                 int maxBid = Math.min(maxCoinBidLimit, (int) (usable * 0.20 * bidMultiplier));
@@ -789,7 +967,8 @@ public class GameService {
                 }
             }
         } else if ("PARTY_MORALE".equalsIgnoreCase(metric) || "MORALE".equalsIgnoreCase(metric)) {
-            int usable = Math.max(0, currentMetricValue - moraleReserve);
+            int minReserve = Math.max(moraleReserve, 18); // Absolute safety reserve of 18 morale
+            int usable = Math.max(0, currentMetricValue - minReserve);
             if (usable > 0) {
                 int minBid = Math.max(1, (int) Math.ceil(usable * 0.05 * bidMultiplier));
                 int maxBid = Math.min(maxMoraleBidLimit, (int) (usable * 0.25 * bidMultiplier));
@@ -801,7 +980,8 @@ public class GameService {
                 }
             }
         } else if ("PUBLIC_SUPPORT".equalsIgnoreCase(metric) || "SUPPORT".equalsIgnoreCase(metric)) {
-            int usable = Math.max(0, currentMetricValue - supportReserve);
+            int minReserve = Math.max(supportReserve, 10); // Absolute safety reserve of 10 support
+            int usable = Math.max(0, currentMetricValue - minReserve);
             if (usable > 0) {
                 int maxPossibleBid = Math.min(maxSupportBidLimit, usable);
                 if (maxPossibleBid > 0) {
@@ -816,6 +996,42 @@ public class GameService {
                 bid = minBid + new Random().nextInt(maxBid - minBid + 1);
             } else {
                 bid = minBid;
+            }
+        }
+        
+        // 4. Enforce strict limits:
+        // - Capped at 20% of current metric value (to avoid losing too much in a single bid)
+        int maxAllowedBid = (int) (currentMetricValue * 0.20);
+        bid = Math.min(bid, maxAllowedBid);
+
+        // - "go slow with min Bids at first turns" (First 15 turns)
+        if (session.getTurnNumber() <= 15) {
+            if ("COINS".equalsIgnoreCase(metric)) {
+                bid = Math.min(bid, 4);
+            } else if ("PARTY_MORALE".equalsIgnoreCase(metric) || "MORALE".equalsIgnoreCase(metric)) {
+                bid = Math.min(bid, 5);
+            } else if ("PUBLIC_SUPPORT".equalsIgnoreCase(metric) || "SUPPORT".equalsIgnoreCase(metric)) {
+                bid = Math.min(bid, 1);
+            } else {
+                bid = Math.min(bid, 3);
+            }
+        }
+
+        // Cycle reward utility check:
+        // Bid only if AI needs the reward (utility >= 0.3). Moderate need (0.3 <= utility < 0.6) scales bid down by 50%.
+        RewardDefinition currentReward = null;
+        if (session.getCurrentRewardKey() != null) {
+            currentReward = RoundResolutionEngine.REWARD_POOL.stream()
+                    .filter(r -> r.key().equals(session.getCurrentRewardKey()))
+                    .findFirst()
+                    .orElse(null);
+        }
+        if (currentReward != null) {
+            double rewardUtility = aiDecisionService.evaluateRewardUtility(session, party, currentReward);
+            if (rewardUtility < 0.3) {
+                return 0;
+            } else if (rewardUtility < 0.6) {
+                bid = (int) Math.ceil(bid * 0.5);
             }
         }
         
@@ -886,6 +1102,183 @@ public class GameService {
             return session.getGameIssues();
         }
         return getIssuesForScenario(session.getScenarioKey());
+    }
+
+    public TurnView fundProject(String gameId, String partyId, String projectIdOrKey, int progress) {
+        GameSession session = getGame(gameId);
+        PartyState party = session.getParties().stream()
+                .filter(p -> p.getId().equals(partyId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Party not found: " + partyId));
+
+        ProjectState project = party.getProjects().stream()
+                .filter(p -> (p.getId() != null && p.getId().equals(projectIdOrKey)) || p.getProjectKey().equals(projectIdOrKey))
+                .filter(p -> p.getProgressPercent() < 100)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Incomplete project not found: " + projectIdOrKey));
+
+        BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
+        int remaining = 100 - project.getProgressPercent();
+        int actualProgress = Math.min(progress, remaining);
+
+        if (actualProgress <= 0) {
+            throw new IllegalArgumentException("Invalid progress contribution.");
+        }
+
+        int coinsCost = (int) Math.ceil((double) projectDef.getCostCoins() * actualProgress / 100.0);
+        int moraleCost = (int) Math.ceil((double) projectDef.getCostMorale() * actualProgress / 100.0);
+        int corruptionCost = (int) Math.ceil((double) projectDef.getCostCorruption() * actualProgress / 100.0);
+        int mediaCost = (int) Math.ceil((double) projectDef.getCostMedia() * actualProgress / 100.0);
+        int supportCost = (int) Math.ceil((double) projectDef.getCostSupport() * actualProgress / 100.0);
+
+        if (party.getStats().getCoins() < coinsCost) {
+            throw new IllegalArgumentException("Insufficient coins: requires " + coinsCost + " but you have " + party.getStats().getCoins() + ".");
+        }
+        if (party.getStats().getPartyMorale() < moraleCost) {
+            throw new IllegalArgumentException("Insufficient morale: requires " + moraleCost + " but you have " + party.getStats().getPartyMorale() + ".");
+        }
+        if (party.getStats().getMediaImage() < mediaCost) {
+            throw new IllegalArgumentException("Insufficient Media Image: requires " + mediaCost + " but you have " + party.getStats().getMediaImage() + ".");
+        }
+        if (party.getStats().getPublicSupport() < supportCost) {
+            throw new IllegalArgumentException("Insufficient Public Support: requires " + supportCost + " but you have " + party.getStats().getPublicSupport() + ".");
+        }
+
+        // Deduct/apply immediately
+        party.getStats().setCoins(party.getStats().getCoins() - coinsCost);
+        party.getStats().setPartyMorale(party.getStats().getPartyMorale() - moraleCost);
+        party.getStats().setMediaImage(party.getStats().getMediaImage() - mediaCost);
+        party.getStats().setCorruptionScore(Math.min(100, party.getStats().getCorruptionScore() + corruptionCost));
+        if (supportCost > 0) {
+            party.getStats().setPublicSupport(Math.max(0, party.getStats().getPublicSupport() - supportCost));
+            session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + supportCost);
+        }
+
+        project.setProgressPercent(project.getProgressPercent() + actualProgress);
+
+        if (project.getProgressPercent() >= 100) {
+            boolean hasIncomplete = party.getProjects().stream()
+                    .anyMatch(p -> p.getProjectKey().equals(project.getProjectKey()) && p.getProgressPercent() < 100);
+            if (!hasIncomplete) {
+                party.getProjects().add(new ProjectState(project.getProjectKey()));
+            }
+        }
+
+        // Record human contribution
+        Map<String, Map<String, Integer>> contribs = session.getProjectContributionsThisTurn();
+        Map<String, Integer> partyContribs = contribs.computeIfAbsent(partyId, k -> new java.util.LinkedHashMap<>());
+        partyContribs.put(project.getProjectKey(), partyContribs.getOrDefault(project.getProjectKey(), 0) + actualProgress);
+
+        gameSessionService.save(session);
+        return getTurnView(gameId);
+    }
+
+    public TurnView setProjectTarget(String gameId, String partyId, String projectIdOrKey, String targetPartyId) {
+        GameSession session = getGame(gameId);
+        PartyState party = session.getParties().stream()
+                .filter(p -> p.getId().equals(partyId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Party not found: " + partyId));
+
+        ProjectState project = party.getProjects().stream()
+                .filter(p -> (p.getId() != null && p.getId().equals(projectIdOrKey)) || p.getProjectKey().equals(projectIdOrKey))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectIdOrKey));
+
+        if (project.getProgressPercent() < 100) {
+            throw new IllegalArgumentException("Project must be completed to assign target.");
+        }
+
+        BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
+        if (!projectDef.isRequiresTarget()) {
+            throw new IllegalArgumentException("Project does not require target.");
+        }
+
+        PartyState target = session.getParties().stream()
+                .filter(p -> p.getId().equals(targetPartyId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Target party not found: " + targetPartyId));
+
+        if (target.getId().equals(party.getId())) {
+            throw new IllegalArgumentException("Cannot target yourself.");
+        }
+
+        project.setTargetPartyId(target.getId());
+        project.setTargetPartyName(target.getName());
+
+        gameSessionService.save(session);
+        return getTurnView(gameId);
+    }
+
+    private record ProjectScore(ProjectState project, BuildingProject projectDef, double score) {
+    }
+
+    private double scoreProjectForAi(GameSession session, PartyState party, AiDecision decision, BuildingProject projectDef) {
+        double score = 0.0;
+        int turn = session.getTurnNumber();
+        
+        // 1. Base Strategy Weight: Passive yields are stronger in the early/mid game.
+        // Offensive yields are stronger in the late game to pull down the front runner.
+        if (!projectDef.isRequiresTarget()) {
+            score += Math.max(0, 60 - turn) * 0.8;
+        } else {
+            score += turn * 1.0;
+        }
+        
+        // 2. Adjust based on AI Intent / Style
+        AiProfile profile = party.getAiProfile() == null ? AiProfile.defaultForRole(party.getRole()) : party.getAiProfile();
+        AiStyle style = profile.getStyle();
+        
+        // If GAIN_SUPPORT or PREPARE_ELECTION, boost projects with support benefits
+        if (decision.intent() == AiIntent.GAIN_SUPPORT || decision.intent() == AiIntent.PREPARE_ELECTION) {
+            score += projectDef.getBenefitSupport() * 30.0;
+        }
+        
+        // If RESTORE_MORALE, boost morale-generating projects
+        if (decision.intent() == AiIntent.RESTORE_MORALE) {
+            score += projectDef.getBenefitMorale() * 20.0;
+        }
+        
+        // If RAISE_FUNDS, boost coins-generating projects
+        if (decision.intent() == AiIntent.RAISE_FUNDS) {
+            score += projectDef.getBenefitCoins() * 10.0;
+        }
+        
+        // Style-specific preferences
+        if (style == AiStyle.STRENGTH_BUILDER) {
+            // Prefers defensive / economic passive building
+            if (!projectDef.isRequiresTarget()) {
+                score += 25.0;
+            } else {
+                score -= 15.0;
+            }
+        } else if (style == AiStyle.AGGRESSIVE_ATTACKER) {
+            // Prefers offensive projects targeting opponents
+            if (projectDef.isRequiresTarget()) {
+                score += 30.0;
+            } else {
+                score -= 10.0;
+            }
+        } else if (style == AiStyle.LATE_STRIKER) {
+            if (turn < 40) {
+                // Focus on strength first
+                if (!projectDef.isRequiresTarget()) score += 20.0;
+            } else {
+                // Aggressive attacks later
+                if (projectDef.isRequiresTarget()) score += 35.0;
+            }
+        } else if (style == AiStyle.AGGRESSIVE_BIDDER) {
+            // Prefers projects that yield coins or morale to fund future bids
+            score += projectDef.getBenefitCoins() * 8.0;
+            score += projectDef.getBenefitMorale() * 8.0;
+        }
+        
+        // 3. Avoid corruption if party has high aversion or is Anti-Corruption
+        if (party.getIdeology() == com.politicalsim.party.Ideology.ANTI_CORRUPTION) {
+            score -= projectDef.getCostCorruption() * 2.0;
+        }
+        
+        return score;
     }
 
     private record NoConfidenceStatus(boolean available, String reason) {

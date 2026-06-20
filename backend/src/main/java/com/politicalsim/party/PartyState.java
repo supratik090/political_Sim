@@ -15,6 +15,15 @@ public class PartyState {
     private AiProfile aiProfile;
     private PartyStats stats;
     private boolean active = true;
+    private java.util.List<ProjectState> projects = defaultProjectsList();
+
+    private static java.util.List<ProjectState> defaultProjectsList() {
+        java.util.List<ProjectState> list = new java.util.ArrayList<>();
+        for (BuildingProject p : BuildingProject.values()) {
+            list.add(new ProjectState(p.name()));
+        }
+        return list;
+    }
 
     public PartyState() {
     }
@@ -138,5 +147,16 @@ public class PartyState {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public java.util.List<ProjectState> getProjects() {
+        if (projects == null) {
+            projects = defaultProjectsList();
+        }
+        return projects;
+    }
+
+    public void setProjects(java.util.List<ProjectState> projects) {
+        this.projects = projects;
     }
 }

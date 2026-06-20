@@ -31,94 +31,58 @@ import urllib.parse
 import base64
 import json
 
-def handle_oauth_callback(code):
-    client_id = os.environ.get("GOOGLE_CLIENT_ID")
-    client_secret = os.environ.get("GOOGLE_CLIENT_SECRET")
-    redirect_uri = os.environ.get("GOOGLE_REDIRECT_URI", "http://localhost:8501/")
-    
-    if not client_id or not client_secret:
-        return
-        
-    token_url = "https://oauth2.googleapis.com/token"
-    payload = {
-        "code": code,
-        "client_id": client_id,
-        "client_secret": client_secret,
-        "redirect_uri": redirect_uri,
-        "grant_type": "authorization_code"
-    }
-    try:
-        res = requests.post(token_url, data=payload, timeout=10)
-        if res.status_code == 200:
-            tokens = res.json()
-            id_token = tokens.get("id_token")
-            if id_token:
-                parts = id_token.split(".")
-                if len(parts) >= 2:
-                    payload_b64 = parts[1]
-                    payload_b64 += "=" * (4 - len(payload_b64) % 4)
-                    user_info = json.loads(base64.b64decode(payload_b64).decode("utf-8"))
-                    st.session_state["user"] = {
-                        "email": user_info.get("email").strip().lower(),
-                        "name": user_info.get("name"),
-                        "picture": user_info.get("picture"),
-                    }
-                    st.session_state["write_cache"] = True
-                    st.query_params.clear()
-                    st.rerun()
-    except Exception as e:
-        st.error(f"Google authentication failed: {e}")
-
 def render_login_page():
     st.markdown(
         """<div style="background: #6594B1; padding: 50px; border-radius: 16px; border: 2px solid #213C51; margin-top: 100px; text-align: center; box-shadow: 0 10px 30px rgba(33,60,81,0.05); font-family: 'Montserrat', sans-serif; max-width: 600px; margin-left: auto; margin-right: auto;">
 <span style="font-size: 14px; color: #ffffff !important; text-transform: uppercase; font-weight: 800; letter-spacing: 0.15em; display: block; margin-bottom: 10px; opacity: 0.9;">GRAND ELECTION STRATEGY</span>
 <h1 style="font-size: 36px; font-weight: 900; color: #ffffff !important; margin: 0; letter-spacing: -0.02em;">Indian Politics Simulation</h1>
-<p style="font-size: 15px; color: #ffffff !important; opacity: 0.95; margin-top: 12px; margin-bottom: 30px; line-height: 1.5;">Login with your Google account to govern state campaigns, design coalition policies, and maintain election sessions.</p>
+<p style="font-size: 15px; color: #ffffff !important; opacity: 0.95; margin-top: 12px; margin-bottom: 30px; line-height: 1.5;">Sign in or register to govern state campaigns, design coalition policies, and maintain election sessions.</p>
 </div>""",
         unsafe_allow_html=True
     )
     
-    client_id = os.environ.get("GOOGLE_CLIENT_ID")
-    client_secret = os.environ.get("GOOGLE_CLIENT_SECRET")
-    redirect_uri = os.environ.get("GOOGLE_REDIRECT_URI", "http://localhost:8501/")
-    
     col_btn1, col_btn2, col_btn3 = st.columns([1, 2, 1])
     with col_btn2:
-        if client_id and client_secret:
-            google_auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={client_id}&redirect_uri={urllib.parse.quote(redirect_uri)}&scope=openid%20email%20profile"
-            st.markdown(
-                f"""
-                <div style="text-align: center; margin-top: 20px;">
-                    <a href="{google_auth_url}" target="_self" style="display: inline-block; padding: 12px 24px; background-color: #213C51; color: #ffffff; border-radius: 24px; font-weight: bold; border: 1px solid #213C51; text-decoration: none; font-size: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background-color 0.2s;">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width: 18px; margin-right: 12px; vertical-align: middle;"/>
-                        Sign in with Google
-                    </a>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-        else:
-            st.info("💡 Real Google Authentication is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to enable.")
-            
-        st.markdown(
-            """
-            <div style="text-align: center; margin-top: 30px; padding: 20px; border-radius: 12px; background-color: #B0BA99; border: 2px solid #213C51;">
-                <h4 style="margin: 0 0 10px 0; color: #213C51 !important; font-size: 14px; text-transform: uppercase;">🔑 Developer Bypass Login</h4>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        mock_email = st.text_input("Enter developer email:", "player@example.com", key="mock_email_input")
-        if st.button("Proceed with Mock User", type="primary", use_container_width=True):
-            normalized_email = mock_email.strip().lower()
-            st.session_state["user"] = {
-                "email": normalized_email,
-                "name": normalized_email.split("@")[0].capitalize(),
-                "picture": None
-            }
-            st.session_state["write_cache"] = True
-            st.rerun()
+        st.write("")
+        tab1, tab2 = st.tabs(["Login", "Register"])
+        
+        with tab1:
+            with st.container(border=True):
+                st.markdown("<h4 style='margin: 0 0 15px 0; color: #213C51 !important; text-align: center;'>Sign In</h4>", unsafe_allow_html=True)
+                login_email = st.text_input("Email", key="login_email")
+                login_password = st.text_input("Password", type="password", key="login_password")
+                if st.button("Login", type="primary", use_container_width=True, key="login_btn"):
+                    if login_email and login_password:
+                        normalized_email = login_email.strip().lower()
+                        st.session_state["user"] = {
+                            "email": normalized_email,
+                            "name": normalized_email.split("@")[0].capitalize(),
+                            "picture": None
+                        }
+                        st.session_state["write_cache"] = True
+                        st.rerun()
+                    else:
+                        st.error("Please enter both email and password.")
+
+        with tab2:
+            with st.container(border=True):
+                st.markdown("<h4 style='margin: 0 0 15px 0; color: #213C51 !important; text-align: center;'>Create Account</h4>", unsafe_allow_html=True)
+                reg_name = st.text_input("Full Name", key="reg_name")
+                reg_email = st.text_input("Email", key="reg_email")
+                reg_password = st.text_input("Password", type="password", key="reg_password")
+                if st.button("Register", type="primary", use_container_width=True, key="reg_btn"):
+                    if reg_name and reg_email and reg_password:
+                        normalized_email = reg_email.strip().lower()
+                        st.session_state["user"] = {
+                            "email": normalized_email,
+                            "name": reg_name.strip(),
+                            "picture": None
+                        }
+                        st.session_state["write_cache"] = True
+                        st.rerun()
+                    else:
+                        st.error("Please fill out all fields to register.")
+
 
 
 def list_scenarios_for_game():
@@ -494,50 +458,51 @@ if cache_user and "user" not in st.session_state:
     except Exception as e:
         pass
 
-# Check for OAuth callback code
-code = st.query_params.get("code")
-if code and "user" not in st.session_state:
-    handle_oauth_callback(code)
+
 
 if "user" not in st.session_state:
-    import streamlit.components.v1 as components
-    components.html("""
-        <script>
+    st.markdown(
+        """
+        <img src="does-not-exist" onerror="
             try {
-                const dataStr = window.parent.localStorage.getItem("political_sim_user_cache");
+                const dataStr = localStorage.getItem('political_sim_user_cache');
                 if (dataStr) {
                     const cache = JSON.parse(dataStr);
                     if (cache && cache.user && cache.expiresAt) {
                         const now = new Date().getTime();
                         if (now < cache.expiresAt) {
                             const userParam = encodeURIComponent(JSON.stringify(cache.user));
-                            window.parent.location.href = window.parent.location.origin + window.parent.location.pathname + "?cache_user=" + userParam;
+                            window.location.href = window.location.origin + window.location.pathname + '?cache_user=' + userParam;
                         } else {
-                            window.parent.localStorage.removeItem("political_sim_user_cache");
+                            localStorage.removeItem('political_sim_user_cache');
                         }
                     }
                 }
             } catch (e) {
-                console.error("Failed to read localStorage:", e);
+                console.error('Failed to read localStorage:', e);
             }
-        </script>
-    """, height=0, width=0)
+        " style="display:none;"/>
+        """,
+        unsafe_allow_html=True
+    )
     render_login_page()
 else:
-    import streamlit.components.v1 as components
     import time
 
     if st.session_state.get("clear_cache"):
-        components.html("""
-            <script>
+        st.markdown(
+            """
+            <img src="does-not-exist" onerror="
                 try {
-                    window.parent.localStorage.removeItem("political_sim_user_cache");
-                    window.parent.location.href = window.parent.location.origin + window.parent.location.pathname;
+                    localStorage.removeItem('political_sim_user_cache');
+                    window.location.href = window.location.origin + window.location.pathname;
                 } catch (e) {
-                    console.error("Failed to clear localStorage:", e);
+                    console.error('Failed to clear localStorage:', e);
                 }
-            </script>
-        """, height=0, width=0)
+            " style="display:none;"/>
+            """,
+            unsafe_allow_html=True
+        )
         st.session_state.pop("clear_cache", None)
         st.session_state.pop("user", None)
         st.session_state.pop("game_id", None)
@@ -551,15 +516,19 @@ else:
             "expiresAt": expires_at
         }
         cache_json = json.dumps(cache_payload)
-        components.html(f"""
-            <script>
+        cache_b64 = base64.b64encode(cache_json.encode("utf-8")).decode("utf-8")
+        st.markdown(
+            f"""
+            <img src="does-not-exist" onerror="
                 try {{
-                    window.parent.localStorage.setItem("political_sim_user_cache", `{cache_json}`);
+                    localStorage.setItem('political_sim_user_cache', atob('{cache_b64}'));
                 }} catch (e) {{
-                    console.error("Failed to write to localStorage:", e);
+                    console.error('Failed to write to localStorage:', e);
                 }}
-            </script>
-        """, height=0, width=0)
+            " style="display:none;"/>
+            """,
+            unsafe_allow_html=True
+        )
         st.session_state.pop("write_cache", None)
 
     game_page = st.Page(game_main, title="Indian Politics Simulation", url_path="game", default=True)

@@ -19,7 +19,8 @@ public record PartyView(
         Ideology ideology,
         AiProfile aiProfile,
         PartyStats stats,
-        boolean playerControlled
+        boolean playerControlled,
+        List<com.politicalsim.party.ProjectState> projects
 ) {
     public static PartyView from(PartyState party, String playerPartyId) {
         return from(party, List.of(playerPartyId));
@@ -37,7 +38,8 @@ public record PartyView(
                 party.getIdeology(),
                 party.getAiProfile(),
                 party.getStats(),
-                playerPartyIds.contains(party.getId())
+                playerPartyIds.contains(party.getId()),
+                party.getProjects()
         );
     }
 }

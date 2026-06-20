@@ -56,3 +56,23 @@ def api_delete(path):
     response = requests.delete(f"{API_BASE_URL}{path}", timeout=30)
     response.raise_for_status()
     return response.json()
+
+
+def fund_project(game_id, party_id, project_key, progress):
+    response = requests.post(
+        f"{API_BASE_URL}/api/games/{game_id}/parties/{party_id}/projects/fund",
+        params={"projectKey": project_key, "progress": progress},
+        timeout=30
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def set_project_target(game_id, party_id, project_key, target_party_id):
+    response = requests.post(
+        f"{API_BASE_URL}/api/games/{game_id}/parties/{party_id}/projects/{project_key}/target",
+        params={"targetPartyId": target_party_id},
+        timeout=30
+    )
+    response.raise_for_status()
+    return response.json()

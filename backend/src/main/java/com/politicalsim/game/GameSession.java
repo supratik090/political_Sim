@@ -24,6 +24,7 @@ public class GameSession {
     private int monthInCycle;
     private LocalDate currentDate;
     private GameStatus status;
+    private String createdAt = java.time.Instant.now().toString();
     private String playerPartyId;
     private List<String> playerPartyIds = new ArrayList<>();
     private List<PartyState> parties = new ArrayList<>();
@@ -44,10 +45,16 @@ public class GameSession {
     private String currentRewardKey;
     private String currentRewardName;
     private String currentRewardDescription;
+    private String activeCrisisKey;
+    private String activeCrisisName;
+    private String activeCrisisDescription;
+    private int activeCrisisTurnsLeft;
     private List<String> usedRewardKeys = new ArrayList<>();
     private Map<String, Integer> partyRoundWins = new LinkedHashMap<>();
     private Map<String, List<HeldReward>> partyHeldRewards = new LinkedHashMap<>();
     private Map<String, Integer> lastRoundBids = new LinkedHashMap<>();
+    private Map<String, Map<String, Integer>> grudges = new LinkedHashMap<>();
+    private Map<String, Map<String, Integer>> projectContributionsThisTurn = new LinkedHashMap<>();
     private String lastRoundBiddingMetric;
     private String lastRoundWinnerPartyId;
     private List<CardDefinition> gameCards = new ArrayList<>();
@@ -332,5 +339,67 @@ public class GameSession {
 
     public void setGameIssues(List<MonthlyIssueDefinition> gameIssues) {
         this.gameIssues = gameIssues;
+    }
+
+    public String getActiveCrisisKey() {
+        return activeCrisisKey;
+    }
+
+    public void setActiveCrisisKey(String activeCrisisKey) {
+        this.activeCrisisKey = activeCrisisKey;
+    }
+
+    public String getActiveCrisisName() {
+        return activeCrisisName;
+    }
+
+    public void setActiveCrisisName(String activeCrisisName) {
+        this.activeCrisisName = activeCrisisName;
+    }
+
+    public String getActiveCrisisDescription() {
+        return activeCrisisDescription;
+    }
+
+    public void setActiveCrisisDescription(String activeCrisisDescription) {
+        this.activeCrisisDescription = activeCrisisDescription;
+    }
+
+    public int getActiveCrisisTurnsLeft() {
+        return activeCrisisTurnsLeft;
+    }
+
+    public void setActiveCrisisTurnsLeft(int activeCrisisTurnsLeft) {
+        this.activeCrisisTurnsLeft = activeCrisisTurnsLeft;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Map<String, Map<String, Integer>> getGrudges() {
+        if (grudges == null) {
+            grudges = new LinkedHashMap<>();
+        }
+        return grudges;
+    }
+
+    public void setGrudges(Map<String, Map<String, Integer>> grudges) {
+        this.grudges = grudges;
+    }
+
+    public Map<String, Map<String, Integer>> getProjectContributionsThisTurn() {
+        if (projectContributionsThisTurn == null) {
+            projectContributionsThisTurn = new LinkedHashMap<>();
+        }
+        return projectContributionsThisTurn;
+    }
+
+    public void setProjectContributionsThisTurn(Map<String, Map<String, Integer>> projectContributionsThisTurn) {
+        this.projectContributionsThisTurn = projectContributionsThisTurn;
     }
 }

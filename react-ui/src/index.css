@@ -1,0 +1,359 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap');
+
+:root {
+  /* Base App Theme */
+  --primary-background: #E6E6FA; /* Lavender */
+  --text-primary: #000000;
+  --text-secondary: #475569;
+  
+  /* Primary Elements & Borders */
+  --primary-dark: #213C51;       /* Deep Blue */
+  --primary-border: #6594B1;     /* Steel Blue */
+  
+  /* Interactive Elements (Buttons, Inputs) */
+  --button-bg: #213C51;
+  --button-text: #ffffff;
+  --button-hover-bg: #192e3e;
+  --button-disabled-bg: #192e3e;
+  --button-disabled-text: rgba(255, 255, 255, 0.6);
+  
+  /* Selected State */
+  --selected-highlight: #22c55e; /* Green */
+  
+  /* Unified Dashboard & Cards */
+  --card-bg: #ffffff;            /* Clean White */
+  --card-border: #6594B1;        /* Steel Blue */
+  --card-text: #213C51;          /* Deep Blue */
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--primary-background);
+  color: var(--text-primary);
+  font-family: 'Montserrat', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Custom Text Selection Highlight */
+::selection {
+  background-color: var(--selected-highlight);
+  color: #ffffff;
+}
+::-moz-selection {
+  background-color: var(--selected-highlight);
+  color: #ffffff;
+}
+
+/* Global Button Styles */
+button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: 1px solid var(--button-bg);
+  border-radius: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  padding: 10px 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(33, 60, 81, 0.15);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--button-hover-bg);
+  border-color: var(--button-hover-bg);
+  box-shadow: 0 6px 12px rgba(33, 60, 81, 0.25);
+  transform: translateY(-2px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  background-color: var(--button-disabled-bg);
+  color: var(--button-disabled-text);
+  border-color: rgba(33, 60, 81, 0.1);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+button.selected {
+  background-color: var(--button-bg);
+  color: var(--selected-highlight);
+  border: 1.5px solid var(--selected-highlight);
+  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);
+}
+
+button.selected:hover {
+  background-color: var(--button-hover-bg);
+  border-color: var(--selected-highlight);
+}
+
+/* Global Inputs */
+input[type="text"], input[type="password"], input[type="email"], input[type="number"], select {
+  background-color: var(--primary-dark);
+  color: #ffffff;
+  border: 1.5px solid var(--primary-border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+input:focus, select:focus {
+  border-color: var(--selected-highlight);
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.unified-card {
+  background-color: var(--card-bg);
+  border: 2px solid var(--card-border);
+  color: var(--card-text);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(33, 60, 81, 0.05);
+}
+
+@keyframes pulse-soft {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+  }
+}
+
+/* Layout & Container Classes */
+.dashboard-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-top-nav-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.game-board-container {
+  padding: 30px;
+}
+
+.game-title-banner {
+  background: var(--primary-border);
+  padding: 30px;
+  border-radius: 16px;
+  border: 2px solid var(--primary-dark);
+  margin-bottom: 25px;
+  text-align: center;
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(33,60,81,0.1);
+}
+
+.game-title-h1 {
+  font-size: 40px;
+  font-weight: 900;
+  margin: 0;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.game-title-p {
+  font-size: 15px;
+  margin-top: 8px;
+  opacity: 0.95;
+  color: #ffffff;
+}
+
+.view-toggle-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.view-toggle-button {
+  flex: 1;
+  padding: 15px;
+  font-size: 16px;
+}
+
+.cycle-reward-pane {
+  flex: 1 1 300px;
+  border-left: 1px solid rgba(101, 148, 177, 0.3);
+  padding-left: 20px;
+  padding-top: 0px;
+  border-top: none;
+}
+
+.floating-nav-arrow {
+  position: fixed;
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, var(--selected-highlight) 0%, #15803d 100%);
+  color: #ffffff;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(34, 19, 94, 0.4);
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 3px solid #ffffff;
+  animation: pulse-soft 2s infinite ease-in-out;
+}
+
+.floating-nav-arrow:hover {
+  transform: translateY(-50%) scale(1.12);
+  box-shadow: 0 12px 30px rgba(34, 19, 94, 0.6);
+}
+
+.create-party-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+}
+
+/* Mobile Responsiveness Rules (Samsung Galaxy & Mobile Devices) */
+@media (max-width: 768px) {
+  .create-party-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .dashboard-top-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  .nav-subtitle {
+    display: none; /* Hide subtitle to save vertical space on mobile */
+  }
+
+  .dashboard-top-nav-buttons {
+    justify-content: center;
+  }
+
+  .dashboard-top-nav-buttons button {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .game-board-container {
+    padding: 12px 6px;
+  }
+
+  .game-title-banner {
+    padding: 15px 10px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+  }
+
+  .banner-subtitle {
+    font-size: 10px !important;
+  }
+
+  .game-title-h1 {
+    font-size: 24px;
+  }
+
+  .game-title-p {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .view-toggle-bar {
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .view-toggle-button {
+    padding: 10px 8px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  .game-content-card {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .cycle-reward-pane {
+    border-left: none;
+    padding-left: 0;
+    padding-top: 15px;
+    border-top: 1px solid rgba(101, 148, 177, 0.2);
+  }
+
+  .floating-nav-arrow {
+    right: 12px;
+    width: 48px;
+    height: 48px;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 15px rgba(34, 19, 94, 0.3);
+  }
+  
+  .floating-nav-arrow span {
+    font-size: 20px !important;
+  }
+
+  .floating-nav-arrow:hover {
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  /* Compacting typography inside game views */
+  .game-board-container h2 {
+    font-size: 18px !important;
+  }
+  .game-board-container h3 {
+    font-size: 15px !important;
+  }
+  .game-board-container h4 {
+    font-size: 13px !important;
+  }
+  .game-board-container h5 {
+    font-size: 12px !important;
+  }
+
+  .unified-card {
+    padding: 12px;
+    border-radius: 8px;
+  }
+}
+
+

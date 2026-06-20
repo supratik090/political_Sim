@@ -290,7 +290,7 @@ public class GameSessionService {
         return switch (role) {
             case GOVERNMENT -> new PartyStats(260, 72, 24, 62, 43);
             case OPPOSITION -> new PartyStats(150, 58, 18, 48, 32);
-            case THIRD_PARTY -> new PartyStats(120, 52, 16, 42, 15);
+            case THIRD_PARTY, DEFEATED -> new PartyStats(120, 52, 16, 42, 15);
         };
     }
 

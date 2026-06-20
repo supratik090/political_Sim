@@ -41,7 +41,7 @@ public class AiProfile {
                     new AiProfile(AiStyle.AGGRESSIVE_ATTACKER, 0.85, 0.90, 0.30, 0.20, 0.50, 0.50),
                     Map.of("scandal_accusation", 0.95, "agitation_movement", 0.9, "media_narrative", 0.7)
             );
-            case THIRD_PARTY -> withCategoryPreferences(
+            case THIRD_PARTY, DEFEATED -> withCategoryPreferences(
                     new AiProfile(AiStyle.BALANCED_STRATEGIST, 0.50, 0.50, 0.50, 0.50, 0.50, 0.60),
                     Map.of("governance", 0.6, "positive_service", 0.6, "organization_resource", 0.6, "scandal_accusation", 0.6, "agitation_movement", 0.6)
             );
@@ -58,16 +58,16 @@ public class AiProfile {
         thresholds.put("governmentNoConfidenceSupport", 30.0);
         thresholds.put("governmentNoConfidenceMorale", 35.0);
         thresholds.put("noConfidenceRiskTolerance", 0.55);
-        thresholds.put("lowCoins", 65.0);
-        thresholds.put("corruptionCrisis", 48.0);
+        thresholds.put("lowCoins", 100.0);
+        thresholds.put("corruptionCrisis", 50.0);
         thresholds.put("mediaCrisis", 34.0);
-        thresholds.put("lowMorale", 38.0);
+        thresholds.put("lowMorale", 50.0);
         thresholds.put("electionWindowMonths", 6.0);
         thresholds.put("electionSupportTarget", 42.0);
         thresholds.put("opponentCorruptionAttack", 38.0);
         thresholds.put("scandalAttackPreference", 0.55);
         thresholds.put("lowSupport", 34.0);
-        thresholds.put("needMoraleLow", 45.0);
+        thresholds.put("needMoraleLow", 50.0);
         thresholds.put("needMediaLow", 45.0);
         thresholds.put("needSupportLow", 30.0);
         thresholds.put("needCorruptionHigh", 40.0);

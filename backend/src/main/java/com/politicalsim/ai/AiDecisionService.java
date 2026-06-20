@@ -2,7 +2,10 @@ package com.politicalsim.ai;
 
 import com.politicalsim.content.CardDefinition;
 import com.politicalsim.content.NewsReactionDefinition;
+import com.politicalsim.game.RewardDefinition;
 import com.politicalsim.game.GameSession;
+import com.politicalsim.game.RoundSubmission;
+import com.politicalsim.party.BuildingProject;
 import com.politicalsim.party.Ideology;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
@@ -89,6 +92,18 @@ public class AiDecisionService {
 
         double score = doubleValue(card.getWeights().get("basePlayWeight"));
         score += doubleValue(card.getWeights().get("aiPriorityWeight")) * weight(profile, "cardAiPriority");
+
+        // Penalize playing the exact same card consecutively (except for Pass / no_card)
+        if (!"no_card".equals(card.getCardKey()) && session.getLastRoundSubmissions() != null) {
+            for (RoundSubmission lastSub : session.getLastRoundSubmissions()) {
+                if (lastSub.getPartyId().equals(party.getId())) {
+                    if (card.getCardKey().equals(lastSub.getCardKey())) {
+                        score -= 35.0; 
+                        break;
+                    }
+                }
+            }
+        }
         score += doubleValue(card.getWeights().get("publicImpactWeight")) * weight(profile, "cardPublicImpact");
         score -= doubleValue(card.getWeights().get("riskWeight")) * (weight(profile, "cardRiskBase") - profile.getRiskTolerance());
 
@@ -149,6 +164,38 @@ public class AiDecisionService {
             }
         }
 
+        // Dynamic target evaluation within card scoring:
+        // Adjust score based on our grudges and targeted weaknesses of the chosen opponent candidate
+        if (requiresTarget(card)) {
+            PartyState targetOpponent = chooseOpponent(session, party, card);
+            if (targetOpponent != null) {
+                // Grudge vendetta boost
+                Map<String, Map<String, Integer>> grudges = session.getGrudges();
+                if (grudges != null) {
+                    Map<String, Integer> myGrudges = grudges.get(party.getId());
+                    if (myGrudges != null) {
+                        int grudge = myGrudges.getOrDefault(targetOpponent.getId(), 0);
+                        score += grudge * 3.0; // Grudge boost to favor attacking rivals
+                    }
+                }
+
+                // Opponent vulnerability attack boosts
+                PartyStats tStats = targetOpponent.getStats();
+                if (intValue(opponentEffects.get("coins")) < 0 && tStats.getCoins() <= 25) {
+                    score += 15.0; // Bonus incentive to bankrupt target
+                }
+                if (intValue(opponentEffects.get("partyMorale")) < 0 && tStats.getPartyMorale() <= 20) {
+                    score += 15.0; // Bonus incentive to break targeted morale
+                }
+                if (intValue(opponentEffects.get("corruptionScore")) > 0 && tStats.getCorruptionScore() >= 75) {
+                    score += 15.0; // Bonus incentive to scandal-expose target
+                }
+                if (intValue(opponentEffects.get("publicSupport")) < 0 && tStats.getPublicSupport() <= 12) {
+                    score += 10.0; // Bonus incentive to force voter support defeat
+                }
+            }
+        }
+
         score += selfSupportVal;
         score += selfMediaVal;
         score += selfMoraleVal;
@@ -165,10 +212,63 @@ public class AiDecisionService {
         score += ideologyFitScore(party, card);
         score += electionTimingScore(session, card.getCategory(), profile);
 
+        int netCoinEffect = 0;
+        if (selfEffects.containsKey("coins")) {
+            int visibleCoins = intValue(selfEffects.get("coins"));
+            if (visibleCoins < 0) {
+                // Negative coin change represents the card cost itself (offset by the engine)
+                netCoinEffect = -card.getCost();
+            } else {
+                netCoinEffect = visibleCoins - card.getCost();
+            }
+        } else {
+            netCoinEffect = -card.getCost();
+        }
+
         if (stats.getCoins() < card.getCost()) {
             score -= weight(profile, "unaffordableBasePenalty") + (card.getCost() - stats.getCoins());
-        } else if (stats.getCoins() < threshold(profile, "needCoinsLow")) {
-            score -= card.getCost() * weight(profile, "lowCoinCostPenalty");
+        } else if (stats.getCoins() < 100 && netCoinEffect > 0) {
+            // Encourage playing coin-generating welfare or organization cards when in crisis
+            if ("positive_service".equals(card.getCategory()) || "organization_resource".equals(card.getCategory())) {
+                score += netCoinEffect * 2.5;
+            }
+        } else {
+            // Apply dynamic, progressive coin safety penalty to prevent spending down to critical levels
+            int remainingCoins = stats.getCoins() + netCoinEffect;
+            if (remainingCoins < 25) {
+                score -= 80.0 + (25 - remainingCoins) * 3.0; // Critical danger of bankruptcy/elimination
+            } else if (remainingCoins < 50) {
+                score -= 40.0; // High risk warning
+            } else if (remainingCoins < 75) {
+                score -= 20.0; // Moderate resource protection
+            } else if (remainingCoins < 100) {
+                score -= 5.0;  // Precautionary soft penalty
+            } else if (stats.getCoins() < threshold(profile, "needCoinsLow")) {
+                score -= card.getCost() * weight(profile, "lowCoinCostPenalty");
+            }
+        }
+
+        // Apply dynamic morale safety/recovery logic
+        int netMoraleEffect = 0;
+        if (selfEffects.containsKey("partyMorale")) {
+            netMoraleEffect = intValue(selfEffects.get("partyMorale"));
+        }
+
+        if (stats.getPartyMorale() < 50 && netMoraleEffect > 0) {
+            // Encourage playing morale-restoring cards when in crisis
+            score += netMoraleEffect * 3.0;
+        } else if (netMoraleEffect < 0) {
+            // Apply dynamic morale safety penalty to prevent playing cards that drop morale below safety levels
+            int remainingMorale = stats.getPartyMorale() + netMoraleEffect;
+            if (remainingMorale < 15) {
+                score -= 100.0 + (15 - remainingMorale) * 4.0; // Critical danger of morale collapse/defeat
+            } else if (remainingMorale < 25) {
+                score -= 50.0;  // High risk
+            } else if (remainingMorale < 35) {
+                score -= 25.0;  // Moderate risk
+            } else if (remainingMorale < 50) {
+                score -= 10.0;  // Soft precaution
+            }
         }
 
         score += card.getCardKey().hashCode() % 7 * 0.01;
@@ -387,5 +487,233 @@ public class AiDecisionService {
             return number.doubleValue();
         }
         return 0;
+    }
+
+    public PartyState chooseOpponent(GameSession session, PartyState actor, CardDefinition card) {
+        java.util.List<PartyState> candidates = session.getParties().stream()
+                .filter(PartyState::isActive)
+                .filter(p -> !p.getId().equals(actor.getId()))
+                .toList();
+
+        if (candidates.isEmpty()) {
+            return null;
+        }
+
+        PartyState bestCandidate = null;
+        double highestScore = -9999.0;
+
+        for (PartyState candidate : candidates) {
+            PartyStats cStats = candidate.getStats();
+            double score = 0;
+
+            // 1. Leader bias (base target score scales with public support)
+            score += cStats.getPublicSupport() * 1.5;
+
+            // 2. Grudge history check (retaliation)
+            Map<String, Map<String, Integer>> grudges = session.getGrudges();
+            if (grudges != null) {
+                Map<String, Integer> myGrudges = grudges.get(actor.getId());
+                if (myGrudges != null) {
+                    int grudgeLevel = myGrudges.getOrDefault(candidate.getId(), 0);
+                    score += grudgeLevel * 10.0;
+                }
+            }
+
+            // 3. Opponent Weaknesses check (Killer Instinct targeting)
+            if (card != null) {
+                Map<String, Object> oppEffects = partyEffect(card.getVisibleEffects(), "opponentParty");
+                
+                if (intValue(oppEffects.get("coins")) < 0) {
+                    score += (100 - cStats.getCoins()) * 1.0;
+                    if (cStats.getCoins() <= 25) {
+                        score += 35.0; // Coins warning knockout
+                    }
+                }
+                
+                if (intValue(oppEffects.get("partyMorale")) < 0) {
+                    score += (100 - cStats.getPartyMorale()) * 1.0;
+                    if (cStats.getPartyMorale() <= 20) {
+                        score += 35.0; // Morale warning knockout
+                    }
+                }
+
+                if (intValue(oppEffects.get("corruptionScore")) > 0) {
+                    score += cStats.getCorruptionScore() * 1.0;
+                    if (cStats.getCorruptionScore() >= 75) {
+                        score += 35.0; // Corruption warning knockout
+                    }
+                }
+
+                if (intValue(oppEffects.get("publicSupport")) < 0) {
+                    if (cStats.getPublicSupport() <= 12) {
+                        score += 25.0; // Support warning knockout
+                    }
+                }
+            }
+
+            if (score > highestScore) {
+                highestScore = score;
+                bestCandidate = candidate;
+            }
+        }
+
+        return bestCandidate;
+    }
+
+    public PartyState chooseOpponentForProject(GameSession session, PartyState actor, BuildingProject projectDef) {
+        java.util.List<PartyState> candidates = session.getParties().stream()
+                .filter(PartyState::isActive)
+                .filter(p -> !p.getId().equals(actor.getId()))
+                .toList();
+
+        if (candidates.isEmpty()) {
+            return null;
+        }
+
+        PartyState bestCandidate = null;
+        double highestScore = -9999.0;
+
+        for (PartyState candidate : candidates) {
+            PartyStats cStats = candidate.getStats();
+            double score = 0;
+
+            // 1. Leader bias
+            score += cStats.getPublicSupport() * 1.5;
+
+            // 2. Grudges
+            Map<String, Map<String, Integer>> grudges = session.getGrudges();
+            if (grudges != null) {
+                Map<String, Integer> myGrudges = grudges.get(actor.getId());
+                if (myGrudges != null) {
+                    int grudgeLevel = myGrudges.getOrDefault(candidate.getId(), 0);
+                    score += grudgeLevel * 10.0;
+                }
+            }
+
+            // 3. Project-specific weaknesses
+            if (projectDef != null) {
+                if (projectDef.getBenefitMorale() < 0) {
+                    score += (100 - cStats.getPartyMorale()) * 1.0;
+                    if (cStats.getPartyMorale() <= 20) score += 35.0;
+                }
+                if (projectDef.getBenefitMedia() < 0) {
+                    score += (100 - cStats.getMediaImage()) * 1.0;
+                }
+                if (projectDef.getBenefitCorruption() > 0) {
+                    score += cStats.getCorruptionScore() * 1.0;
+                    if (cStats.getCorruptionScore() >= 75) score += 35.0;
+                }
+                if (projectDef.getBenefitSupport() < 0) {
+                    if (cStats.getPublicSupport() <= 12) score += 25.0;
+                }
+            }
+
+            if (score > highestScore) {
+                highestScore = score;
+                bestCandidate = candidate;
+            }
+        }
+
+        return bestCandidate;
+    }
+
+    private boolean requiresTarget(CardDefinition card) {
+        if (card == null || card.getTarget() == null) {
+            return false;
+        }
+        Object declaredTarget = card.getTarget().get("opponentParty");
+        return Boolean.TRUE.equals(declaredTarget) || !partyEffect(card.getVisibleEffects(), "opponentParty").isEmpty();
+    }
+
+    public double evaluateRewardUtility(GameSession session, PartyState party, RewardDefinition reward) {
+        if (reward == null) {
+            return 0.0;
+        }
+
+        PartyStats stats = party.getStats();
+        double utility = 0.0;
+
+        // 1. Coins benefit
+        if (reward.coinsEffect() > 0) {
+            if (stats.getCoins() <= 40) {
+                utility += 0.8;
+            } else if (stats.getCoins() <= 70) {
+                utility += 0.4;
+            } else {
+                utility += 0.1;
+            }
+        }
+
+        // 2. Morale benefit
+        if (reward.moraleEffect() > 0) {
+            if (stats.getPartyMorale() <= 30) {
+                utility += 0.8;
+            } else if (stats.getPartyMorale() <= 60) {
+                utility += 0.4;
+            } else {
+                utility += 0.1;
+            }
+        }
+
+        // 3. Corruption reduction (negative benefit is good for self)
+        if (reward.corruptionEffect() < 0 && "self".equals(reward.allowedTargets())) {
+            if (stats.getCorruptionScore() >= 60) {
+                utility += 0.9;
+            } else if (stats.getCorruptionScore() >= 30) {
+                utility += 0.4;
+            } else {
+                utility += 0.1;
+            }
+        }
+
+        // 4. Media image benefit
+        if (reward.mediaEffect() > 0) {
+            if (stats.getMediaImage() <= 35) {
+                utility += 0.7;
+            } else if (stats.getMediaImage() <= 70) {
+                utility += 0.3;
+            } else {
+                utility += 0.1;
+            }
+        }
+
+        // 5. Support benefit
+        if (reward.publicSupportEffect() > 0) {
+            if (stats.getPublicSupport() <= 20) {
+                utility += 0.9;
+            } else if (stats.getPublicSupport() <= 35) {
+                utility += 0.5;
+            } else {
+                utility += 0.2;
+            }
+        }
+
+        // 6. Hostile / Sabotage rewards
+        if ("opponent".equals(reward.allowedTargets())) {
+            PartyState leadOpponent = session.getParties().stream()
+                    .filter(p -> p.isActive() && !p.getId().equals(party.getId()))
+                    .max(java.util.Comparator.comparingInt(p -> p.getStats().getPublicSupport()))
+                    .orElse(null);
+            
+            if (leadOpponent != null) {
+                if (leadOpponent.getStats().getPublicSupport() >= 35) {
+                    utility += 0.6;
+                } else {
+                    utility += 0.3;
+                }
+
+                if (reward.moraleEffect() < 0 && leadOpponent.getStats().getPartyMorale() <= 30) {
+                    utility += 0.5;
+                }
+                if (reward.coinsEffect() < 0 && leadOpponent.getStats().getCoins() <= 30) {
+                    utility += 0.5;
+                }
+                if (reward.corruptionEffect() > 0 && leadOpponent.getStats().getCorruptionScore() >= 65) {
+                    utility += 0.5;
+                }
+            }
+        }
+
+        return utility;
     }
 }

@@ -12,6 +12,8 @@ import com.politicalsim.content.DefinitionCache;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
 import com.politicalsim.party.PartyStats;
+import com.politicalsim.party.ProjectState;
+import com.politicalsim.party.BuildingProject;
 import com.politicalsim.publicmood.PublicState;
 
 import org.springframework.stereotype.Service;
@@ -66,12 +68,32 @@ public class RoundResolutionEngine {
 
     public boolean resolveRound(GameSession session) {
         Map<String, PartyStats> beforeStats = new LinkedHashMap<>();
+        Map<String, PartyStats> defeatedStartingStats = new LinkedHashMap<>();
         for (PartyState party : session.getParties()) {
             beforeStats.put(party.getId(), copyStats(party.getStats()));
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                defeatedStartingStats.put(party.getId(), copyStats(party.getStats()));
+            }
         }
 
         List<String> commentary = new ArrayList<>();
         List<String> resultLines = new ArrayList<>();
+
+        // Trigger crisis from monthly news
+        List<NewsDefinition> currentNewsList = getCurrentNews(session);
+        if (currentNewsList != null && !currentNewsList.isEmpty()) {
+            NewsDefinition news = currentNewsList.get(0);
+            if (news.getCrisisTriggerKey() != null && !news.getCrisisTriggerKey().isBlank()) {
+                if (session.getActiveCrisisKey() == null) {
+                    session.setActiveCrisisKey(news.getCrisisTriggerKey());
+                    session.setActiveCrisisName(news.getTitle());
+                    session.setActiveCrisisDescription(news.getDescription());
+                    session.setActiveCrisisTurnsLeft(news.getCrisisDuration() <= 0 ? 2 : news.getCrisisDuration());
+                    commentary.add("🚨 STATE CRISIS TRIGGERED: " + news.getTitle() + " has thrown the state into a crisis! Active for " + session.getActiveCrisisTurnsLeft() + " turns.");
+                }
+            }
+        }
+
         Map<String, Integer> supportPressure = initialSupportPressure(session);
         resolveDueDelayedEffects(session, supportPressure, commentary);
         
@@ -79,6 +101,9 @@ public class RoundResolutionEngine {
         String biddingMetric = getBiddingMetricForTurn(session.getTurnNumber());
         for (RoundSubmission submission : session.getCurrentRoundSubmissions()) {
             PartyState actor = findParty(session, submission.getPartyId());
+            if (actor.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                continue;
+            }
             int bid = submission.getBid();
             commentary.add("Bidding: " + actor.getName() + " bid " + bid + " " + biddingMetric + ".");
         }
@@ -87,6 +112,9 @@ public class RoundResolutionEngine {
         for (RoundSubmission submission : session.getCurrentRoundSubmissions()) {
             if (submission.getSelectedRewardKey() != null && !submission.getSelectedRewardKey().isBlank()) {
                 PartyState actor = findParty(session, submission.getPartyId());
+                if (actor.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                    continue;
+                }
                 RewardDefinition rewardDef = REWARD_POOL.stream()
                         .filter(r -> r.key().equals(submission.getSelectedRewardKey()))
                         .findFirst().orElse(null);
@@ -103,7 +131,8 @@ public class RoundResolutionEngine {
                         rTarget = findParty(session, submission.getRewardTargetPartyId());
                     }
                     applyRewardEffect(session, rTarget, rewardDef, commentary);
-                    commentary.add("Reward played: " + actor.getName() + " played reward '" + rewardDef.name() + "' on target " + rTarget.getName() + ".");
+                    String rewardEffects = formatRewardEffects(rewardDef);
+                    commentary.add("🏆 Reward played: " + actor.getName() + " played reward '" + rewardDef.name() + "' on target " + rTarget.getName() + ". Effects: " + rewardEffects);
                     resultLines.add(actor.getName() + " played reward: " + rewardDef.name() + (rewardDef.requiresTarget() ? " on " + rTarget.getName() : ""));
                 }
             }
@@ -112,6 +141,9 @@ public class RoundResolutionEngine {
         boolean noConfidencePlayed = false;
         for (RoundSubmission submission : session.getCurrentRoundSubmissions()) {
             PartyState actor = findParty(session, submission.getPartyId());
+            if (actor.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                continue;
+            }
             PartyState opponent = resolveSubmittedTarget(session, actor, submission);
             CardDefinition card = findCard(session, submission.getCardKey(), actor.getRole());
             if (isNoConfidenceCard(card)) {
@@ -120,15 +152,22 @@ public class RoundResolutionEngine {
             incrementCardUsage(session, actor, card);
             applyCard(session, actor, opponent, card, supportPressure, commentary);
             scheduleCardDelayedEffects(session, actor, opponent, card, commentary);
+            
+            String cardEffects = "Effects: self(" + formatEffectsObject(card.getVisibleEffects(), "selfParty") + ")";
+            if (opponent != null) {
+                cardEffects += ", target " + opponent.getName() + "(" + formatEffectsObject(card.getVisibleEffects(), "opponentParty") + ")";
+            }
+
             if (submission.getAiIntent() == null || submission.getAiIntent().isBlank()) {
-                commentary.add(actor.getName() + " played " + card.getName() + targetPhrase(opponent) + ".");
+                commentary.add(actor.getName() + " played " + card.getName() + targetPhrase(opponent) + ". " + cardEffects);
             } else {
                 commentary.add(actor.getName() + " chose " + card.getName() + targetPhrase(opponent)
-                        + " with intent " + submission.getAiIntent() + ".");
+                        + " with intent " + submission.getAiIntent() + ". " + cardEffects);
             }
             resultLines.add(actor.getName() + " played card: " + card.getName());
+            
             int coinAward = resolveNewsReactions(session, actor, submission.getNewsReactions(), supportPressure, commentary);
-            commentary.add(actor.getName() + " gained " + coinAward + " coins from news handling.");
+            commentary.add("💰 News Reward: " + actor.getName() + " gained +" + coinAward + " coins from news handling (Reserves: " + actor.getStats().getCoins() + ").");
             resolveIssueChoice(session, actor, submission, supportPressure, commentary);
         }
 
@@ -136,6 +175,10 @@ public class RoundResolutionEngine {
         int highestBid = -1;
         List<RoundSubmission> winners = new ArrayList<>();
         for (RoundSubmission sub : session.getCurrentRoundSubmissions()) {
+            PartyState party = findParty(session, sub.getPartyId());
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                continue;
+            }
             if (sub.getBid() > highestBid) {
                 highestBid = sub.getBid();
                 winners.clear();
@@ -162,6 +205,7 @@ public class RoundResolutionEngine {
                     supportWinners.add(sub);
                 }
             }
+
             if (supportWinners.size() == 1) {
                 roundWinnerSub = supportWinners.get(0);
             } else {
@@ -190,12 +234,17 @@ public class RoundResolutionEngine {
             deductStatValue(winnerParty, biddingMetric, winnerBid);
             
             commentary.add("Bidding Winner: " + winnerParty.getName() + " wins the bidding round with a bid of " + highestBid + " " + biddingMetric + "!");
+            commentary.add("💸 Bidding Cost: " + winnerParty.getName() + " paid " + winnerBid + " " + biddingMetric + " for winning the bidding round.");
         } else {
             commentary.add("Bidding Winner: No winner for this round.");
         }
 
         Map<String, Integer> roundBids = new LinkedHashMap<>();
         for (RoundSubmission sub : session.getCurrentRoundSubmissions()) {
+            PartyState party = findParty(session, sub.getPartyId());
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                continue;
+            }
             roundBids.put(sub.getPartyId(), sub.getBid());
         }
         session.setLastRoundBids(roundBids);
@@ -275,40 +324,63 @@ public class RoundResolutionEngine {
             }
         }
 
+        resolveActiveCrisis(session, supportPressure, commentary);
+        resolveBuildingProjects(session, supportPressure, commentary);
         resolvePublicSupport(session, supportPressure, commentary);
         applyMonthlyStatDrift(session, commentary);
         applyHiddenMetricRules(session, commentary);
 
+        // Restore stats for already defeated parties, and enforce support = 0
         for (PartyState party : session.getParties()) {
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                PartyStats startStats = defeatedStartingStats.get(party.getId());
+                if (startStats != null) {
+                    party.getStats().setCoins(startStats.getCoins());
+                    party.getStats().setPartyMorale(startStats.getPartyMorale());
+                    party.getStats().setCorruptionScore(startStats.getCorruptionScore());
+                    party.getStats().setMediaImage(startStats.getMediaImage());
+                }
+                party.getStats().setPublicSupport(0);
+            }
+        }
+
+        // Emergency Campaign Subsidy (Skip defeated parties)
+        for (PartyState party : session.getParties()) {
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED || !party.isActive()) {
+                continue;
+            }
             if (party.getStats().getCoins() < 10) {
                 party.getStats().setCoins(party.getStats().getCoins() + 15);
                 commentary.add("Subsidy: " + party.getName() + " received an emergency campaign subsidy (+15 coins) because their reserves fell below 10.");
             }
         }
 
+        // Clamp stats and compute deltas
         Map<String, Map<String, Integer>> deltas = new LinkedHashMap<>();
         for (PartyState party : session.getParties()) {
             clampStats(party.getStats());
             Map<String, Integer> partyDeltas = delta(beforeStats.get(party.getId()), party.getStats());
             deltas.put(party.getId(), partyDeltas);
-            significantMovement(party, partyDeltas, commentary);
         }
-        // Check for party elimination
+
+        // Check for party elimination (both Human and AI)
         for (PartyState party : session.getParties()) {
-            if (!party.isActive()) {
+            if (!party.isActive() || party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
                 continue;
             }
             PartyStats stats = party.getStats();
-            if (stats.getCoins() <= 0 || stats.getPartyMorale() < 10 || stats.getCorruptionScore() > 100 || stats.getPublicSupport() < 5) {
+            if (stats.getCoins() <= 0 || stats.getPartyMorale() < 10 || stats.getCorruptionScore() > 95 || stats.getPublicSupport() < 5) {
+                party.setRole(com.politicalsim.party.PartyRole.DEFEATED);
+                party.setActive(false);
+                int supportToMove = stats.getPublicSupport();
+                stats.setPublicSupport(0);
+                session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + supportToMove);
+
                 if (session.getPlayerPartyIds().contains(party.getId())) {
                     session.setStatus(GameStatus.DEFEAT);
                     commentary.add("❌ DEFEAT: Your party " + party.getName() + " has been politically eliminated due to critical resource failure (Coins: " + stats.getCoins() + ", Morale: " + stats.getPartyMorale() + ", Corruption: " + stats.getCorruptionScore() + ", Support: " + stats.getPublicSupport() + "%).");
                     resultLines.add("Defeat: Your party was eliminated.");
                 } else {
-                    party.setActive(false);
-                    int supportToMove = stats.getPublicSupport();
-                    party.getStats().setPublicSupport(0);
-                    session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + supportToMove);
                     commentary.add("💀 ELIMINATED: AI Party " + party.getName() + " has been politically eliminated and is no longer active in this campaign.");
                     resultLines.add("Eliminated: AI Party " + party.getName() + " was eliminated.");
                 }
@@ -316,6 +388,79 @@ public class RoundResolutionEngine {
         }
 
         normalizePublicSupport(session);
+
+        // 1. Log Project Funding Activity
+        Map<String, Map<String, Integer>> projectContribs = session.getProjectContributionsThisTurn();
+        if (projectContribs != null && !projectContribs.isEmpty()) {
+            commentary.add("🏗️ Project Funding Activity:");
+            for (Map.Entry<String, Map<String, Integer>> entry : projectContribs.entrySet()) {
+                PartyState party = findParty(session, entry.getKey());
+                for (Map.Entry<String, Integer> projEntry : entry.getValue().entrySet()) {
+                    String projectKey = projEntry.getKey();
+                    int progressAdded = projEntry.getValue();
+                    BuildingProject def = BuildingProject.valueOf(projectKey);
+                    int coinsCost = (int) Math.ceil((double) def.getCostCoins() * progressAdded / 100.0);
+                    int moraleCost = (int) Math.ceil((double) def.getCostMorale() * progressAdded / 100.0);
+                    int corruptionCost = (int) Math.ceil((double) def.getCostCorruption() * progressAdded / 100.0);
+                    int mediaCost = (int) Math.ceil((double) def.getCostMedia() * progressAdded / 100.0);
+                    int supportCost = (int) Math.ceil((double) def.getCostSupport() * progressAdded / 100.0);
+                    
+                    List<String> costDetails = new ArrayList<>();
+                    if (coinsCost > 0) costDetails.add(coinsCost + " Coins");
+                    if (moraleCost > 0) costDetails.add(moraleCost + " Morale");
+                    if (corruptionCost > 0) costDetails.add(corruptionCost + " Corruption");
+                    if (mediaCost > 0) costDetails.add(mediaCost + " Media Image");
+                    if (supportCost > 0) costDetails.add(supportCost + "% Public Support");
+                    
+                    String costStr = String.join(", ", costDetails);
+                    String msg = party.getName() + " funded project '" + def.getName() + "' (Progress: +" + progressAdded + "%, Cost: " + costStr + ")";
+                    commentary.add("  - " + msg);
+                    resultLines.add(msg);
+                }
+            }
+            projectContribs.clear(); // Clear for next turn
+        } else {
+            commentary.add("🏗️ Project Funding Activity: No projects were funded this turn.");
+        }
+
+        // 2. Log Coin Movement from round events
+        commentary.add("💰 Turn Coin Movements:");
+        for (PartyState party : session.getParties()) {
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                commentary.add("  - " + party.getName() + " is defeated (Coins: 0).");
+                continue;
+            }
+            if (!party.isActive()) {
+                continue;
+            }
+            int oldCoins = beforeStats.get(party.getId()).getCoins();
+            int newCoins = party.getStats().getCoins();
+            int diff = newCoins - oldCoins;
+            if (diff > 0) {
+                commentary.add("  - " + party.getName() + " had a net change of +" + diff + " coins this round (Current: " + newCoins + ").");
+            } else if (diff < 0) {
+                commentary.add("  - " + party.getName() + " had a net change of -" + Math.abs(diff) + " coins this round (Current: " + newCoins + ").");
+            } else {
+                commentary.add("  - " + party.getName() + " had no net coin change this round (Current: " + newCoins + ").");
+            }
+        }
+
+        // 3. Log Held Rewards
+        commentary.add("🎒 Current Held Rewards:");
+        for (PartyState party : session.getParties()) {
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED || !party.isActive()) {
+                continue;
+            }
+            List<HeldReward> held = session.getPartyHeldRewards().get(party.getId());
+            if (held != null && !held.isEmpty()) {
+                List<String> names = held.stream().map(HeldReward::getName).toList();
+                String msg = party.getName() + " is holding reward: " + String.join(", ", names);
+                commentary.add("  - " + msg);
+                resultLines.add(msg);
+            } else {
+                commentary.add("  - " + party.getName() + " is holding reward: None");
+            }
+        }
 
         session.setLastRoundSubmissions(new ArrayList<>(session.getCurrentRoundSubmissions()));
         session.setLastMetricDeltas(deltas);
@@ -450,10 +595,55 @@ public class RoundResolutionEngine {
 
     private void applyCard(GameSession session, PartyState actor, PartyState opponent, CardDefinition card,
                            Map<String, Integer> supportPressure, List<String> commentary) {
-        actor.getStats().setCoins(actor.getStats().getCoins() - card.getCost());
-        applyEffects(actor, partyEffect(card.getVisibleEffects(), "selfParty"), supportPressure);
+        int cost = card.getCost();
+        if (session.getActiveCrisisKey() != null) {
+            if ("drought_crisis".equals(session.getActiveCrisisKey())) {
+                if ("positive_service".equals(card.getCategory()) || card.getCardKey().contains("farmer") || card.getCardKey().contains("rural") || card.getCardKey().contains("welfare")) {
+                    cost += 5;
+                    commentary.add("Crisis Surcharge: " + actor.getName() + " paid +5 coins to play welfare card during Drought.");
+                }
+            } else if ("industrial_strike".equals(session.getActiveCrisisKey())) {
+                cost += 2;
+                commentary.add("Crisis Surcharge: " + actor.getName() + " paid +2 coins to play card during strike.");
+            }
+        }
+        actor.getStats().setCoins(Math.max(0, actor.getStats().getCoins() - cost));
+
+        // Mitigation of crisis duration via card plays
+        if (session.getActiveCrisisKey() != null) {
+            if ("drought_crisis".equals(session.getActiveCrisisKey()) && "positive_service".equals(card.getCategory())) {
+                session.setActiveCrisisTurnsLeft(Math.max(1, session.getActiveCrisisTurnsLeft() - 1));
+                commentary.add(actor.getName() + " played a Welfare card, helping mitigate the Drought crisis (Shortened duration by 1 turn).");
+            } else if ("industrial_strike".equals(session.getActiveCrisisKey()) && "governance".equals(card.getCategory())) {
+                session.setActiveCrisisTurnsLeft(Math.max(1, session.getActiveCrisisTurnsLeft() - 1));
+                commentary.add(actor.getName() + " played a Governance card, helping negotiate the strike resolution (Shortened duration by 1 turn).");
+            } else if ("scam_panic".equals(session.getActiveCrisisKey()) && ("defensive_counter".equals(card.getCategory()) || card.getCardKey().contains("reform"))) {
+                session.setActiveCrisisTurnsLeft(Math.max(1, session.getActiveCrisisTurnsLeft() - 1));
+                commentary.add(actor.getName() + " addressed transparency, calming public panic around the scam (Shortened duration by 1 turn).");
+            }
+        }
+
+        Map<String, Object> selfEffects = new LinkedHashMap<>(partyEffect(card.getVisibleEffects(), "selfParty"));
+        if (selfEffects.containsKey("coins")) {
+            int effectCoins = intValue(selfEffects.get("coins"));
+            if (effectCoins < 0) {
+                // The cost was already deducted, so we offset the negative coins effect to prevent double-deduction
+                int extraLoss = effectCoins + cost;
+                if (extraLoss > 0) {
+                    extraLoss = 0; // Don't let it become positive
+                }
+                selfEffects.put("coins", extraLoss);
+            }
+        }
+
+        applyEffects(session, actor, selfEffects, supportPressure);
         if (opponent != null) {
-            applyEffects(opponent, partyEffect(card.getVisibleEffects(), "opponentParty"), supportPressure);
+            applyEffects(session, opponent, partyEffect(card.getVisibleEffects(), "opponentParty"), supportPressure);
+            
+            // Record grudge: opponent holds a grudge against actor
+            Map<String, Map<String, Integer>> grudges = session.getGrudges();
+            Map<String, Integer> opponentGrudges = grudges.computeIfAbsent(opponent.getId(), k -> new LinkedHashMap<>());
+            opponentGrudges.put(actor.getId(), opponentGrudges.getOrDefault(actor.getId(), 0) + 1);
         }
         applyRiskRoll(session, actor, opponent, card, supportPressure, commentary);
     }
@@ -486,10 +676,30 @@ public class RoundResolutionEngine {
                 coinAward += 1;
                 continue;
             }
-            applyEffects(actor, partyEffect(reaction.getEffects(), "playerParty"), supportPressure);
+            applyEffects(session, actor, partyEffect(reaction.getEffects(), "playerParty"), supportPressure);
             applyReactionRisk(session, actor, reaction, supportPressure, commentary);
+
+            // Adjust active crisis duration based on Government reactions
+            if (session.getActiveCrisisKey() != null && news != null && news.getCrisisTriggerKey() != null) {
+                PartyState gov = session.getGovernmentParty();
+                if (gov != null && actor.getId().equals(gov.getId())) {
+                    String reactionKey = reaction.getReactionKey();
+                    if (reactionKey != null) {
+                        if (reactionKey.contains("no_comment")) {
+                            session.setActiveCrisisTurnsLeft(session.getActiveCrisisTurnsLeft() + 1);
+                            commentary.add("Negligence Surcharge: Government chose 'No Comment', extending the crisis by +1 turn!");
+                        } else if (reactionKey.contains("relief") || reactionKey.contains("suspend") || reactionKey.contains("disbursement") || reactionKey.contains("reform")) {
+                            session.setActiveCrisisTurnsLeft(Math.max(1, session.getActiveCrisisTurnsLeft() - 1));
+                            commentary.add("Proactive Mitigation: Government responded with immediate policy action, shortening the crisis by -1 turn!");
+                        }
+                    }
+                }
+            }
+
             if (news != null) {
                 scheduleNewsDelayedEffects(session, actor, news, reaction, commentary);
+                Map<String, Object> selfEff = partyEffect(reaction.getEffects(), "playerParty");
+                commentary.add("💬 News Handling: " + actor.getName() + " responded to news '" + news.getTitle() + "' by choosing option '" + reaction.getText() + "'. Effects: " + formatEffectsMap(selfEff));
             }
             coinAward += Math.max(0, Math.min(10, 2 + reaction.getWeight()));
         }
@@ -520,10 +730,16 @@ public class RoundResolutionEngine {
             return;
         }
         MonthlyIssueDefinition issue = getIssueByKey(session, actor, submission.getIssueKey());
+        if (issue == null) {
+            return;
+        }
         IssueOptionDefinition option = findIssueOption(issue, submission.getIssueOptionKey());
-        applyEffects(actor, partyEffect(option.getEffects(), "selfParty"), supportPressure);
+        if (option == null) {
+            return;
+        }
+        applyEffects(session, actor, partyEffect(option.getEffects(), "selfParty"), supportPressure);
         applyIssueRisk(session, actor, option, supportPressure, commentary);
-        commentary.add(actor.getName() + " handled issue '" + issue.getTitle() + "' by choosing: " + option.getText());
+        commentary.add("💬 Issue Handling: " + actor.getName() + " resolved monthly issue '" + issue.getTitle() + "' by choosing: '" + option.getText() + "'. Effects: " + formatEffectsObject(option.getEffects(), "selfParty"));
         scheduleIssueDelayedEffects(session, actor, issue, option, commentary);
     }
 
@@ -533,7 +749,7 @@ public class RoundResolutionEngine {
         if (chance <= 0 || !riskHit(session, "issue:" + actor.getId() + ":" + option.getOptionKey(), chance)) {
             return;
         }
-        applyEffects(actor, riskEffect(option.getRisk(), "selfParty"), supportPressure);
+        applyEffects(session, actor, riskEffect(option.getRisk(), "selfParty"), supportPressure);
         Object badOutcome = option.getRisk().get("badOutcome");
         commentary.add("Surprise: " + actor.getName() + "'s issue response backfired"
                 + (badOutcome == null ? "." : ": " + badOutcome + "."));
@@ -561,10 +777,10 @@ public class RoundResolutionEngine {
                 commentary.add("Delayed result did not materialize: " + delayedEffect.getSourceName() + " for " + target.getName() + ".");
                 continue;
             }
-            applyEffects(target, delayedEffect.getEffects(), supportPressure);
-            commentary.add("Delayed result: " + (delayedEffect.getCommentary() == null
+            applyEffects(session, target, delayedEffect.getEffects(), supportPressure);
+            commentary.add("⏰ Delayed result: " + (delayedEffect.getCommentary() == null
                     ? delayedEffect.getSourceName() + " affected " + target.getName()
-                    : delayedEffect.getCommentary()));
+                    : delayedEffect.getCommentary()) + " Effects: " + formatEffectsMap(delayedEffect.getEffects()));
         }
         session.setDelayedEffects(remaining);
     }
@@ -681,16 +897,29 @@ public class RoundResolutionEngine {
         return min + new Random((session.getId() + ":" + session.getTurnNumber() + ":" + key).hashCode()).nextInt(spread);
     }
 
-    private void applyEffects(PartyState party, Map<String, Object> effects, Map<String, Integer> supportPressure) {
-        applyPartyEffectsWithoutSupport(party.getStats(), effects);
+    private void applyEffects(GameSession session, PartyState party, Map<String, Object> effects, Map<String, Integer> supportPressure) {
+        applyPartyEffectsWithoutSupport(session, party.getStats(), effects);
         supportPressure.computeIfPresent(party.getId(), (id, value) -> value + intValue(effects.get("publicSupport")));
     }
 
-    private void applyPartyEffectsWithoutSupport(PartyStats stats, Map<String, Object> effects) {
+    private void applyPartyEffectsWithoutSupport(GameSession session, PartyStats stats, Map<String, Object> effects) {
         stats.setCoins(stats.getCoins() + intValue(effects.get("coins")));
         stats.setPartyMorale(stats.getPartyMorale() + intValue(effects.get("partyMorale")));
-        stats.setCorruptionScore(stats.getCorruptionScore() + intValue(effects.get("corruptionScore")));
-        stats.setMediaImage(stats.getMediaImage() + intValue(effects.get("mediaImage")));
+        
+        int corruptionVal = intValue(effects.get("corruptionScore"));
+        int mediaVal = intValue(effects.get("mediaImage"));
+        
+        if (session != null && "scam_panic".equals(session.getActiveCrisisKey())) {
+            if (corruptionVal > 0) {
+                corruptionVal *= 2;
+            }
+            if (mediaVal < 0) {
+                mediaVal *= 2;
+            }
+        }
+        
+        stats.setCorruptionScore(stats.getCorruptionScore() + corruptionVal);
+        stats.setMediaImage(stats.getMediaImage() + mediaVal);
     }
 
     private void applyRiskRoll(GameSession session, PartyState actor, PartyState opponent, CardDefinition card,
@@ -699,9 +928,9 @@ public class RoundResolutionEngine {
         if (chance <= 0 || !riskHit(session, "card:" + actor.getId() + ":" + card.getCardKey(), chance)) {
             return;
         }
-        applyEffects(actor, riskEffect(card.getRiskRoll(), "selfParty"), supportPressure);
+        applyEffects(session, actor, riskEffect(card.getRiskRoll(), "selfParty"), supportPressure);
         if (opponent != null) {
-            applyEffects(opponent, riskEffect(card.getRiskRoll(), "opponentParty"), supportPressure);
+            applyEffects(session, opponent, riskEffect(card.getRiskRoll(), "opponentParty"), supportPressure);
         }
         Object badOutcome = card.getRiskRoll().get("badOutcome");
         commentary.add("Surprise: " + actor.getName() + "'s " + card.getName() + " had a backlash"
@@ -714,7 +943,7 @@ public class RoundResolutionEngine {
         if (chance <= 0 || !riskHit(session, "news:" + actor.getId() + ":" + reaction.getReactionKey(), chance)) {
             return;
         }
-        applyEffects(actor, riskEffect(reaction.getRisk(), "playerParty"), supportPressure);
+        applyEffects(session, actor, riskEffect(reaction.getRisk(), "playerParty"), supportPressure);
         Object badOutcome = reaction.getRisk().get("badOutcome");
         commentary.add("Surprise: " + actor.getName() + "'s news response backfired"
                 + (badOutcome == null ? "." : ": " + badOutcome + "."));
@@ -858,7 +1087,16 @@ public class RoundResolutionEngine {
                 }
                 applyHiddenRuleEffect(party.getStats(), rule);
                 firedRules.add(rule.key());
-                commentary.add("Political consequence: " + party.getName() + " - " + rule.commentary());
+                
+                List<String> ruleEffects = new ArrayList<>();
+                if (rule.coins() != 0) ruleEffects.add("💰 " + (rule.coins() > 0 ? "+" : "") + rule.coins() + " Coins");
+                if (rule.partyMorale() != 0) ruleEffects.add("✊ " + (rule.partyMorale() > 0 ? "+" : "") + rule.partyMorale() + " Morale");
+                if (rule.corruptionScore() != 0) ruleEffects.add("⚖️ " + (rule.corruptionScore() > 0 ? "+" : "") + rule.corruptionScore() + "% Corruption");
+                if (rule.mediaImage() != 0) ruleEffects.add("📢 " + (rule.mediaImage() > 0 ? "+" : "") + rule.mediaImage() + " Media Image");
+                if (rule.publicSupport() != 0) ruleEffects.add("📈 " + (rule.publicSupport() > 0 ? "+" : "") + rule.publicSupport() + "% Support");
+                String effectsStr = ruleEffects.isEmpty() ? "" : " (Effects: " + String.join(", ", ruleEffects) + ")";
+                
+                commentary.add("Political consequence: " + party.getName() + " - " + rule.commentary() + effectsStr);
             }
         }
     }
@@ -1037,9 +1275,8 @@ public class RoundResolutionEngine {
 
         session.setGovernmentParty(winner);
         session.setOppositionParty(runnerUp);
-        session.setCardUsageByParty(initialCardUsage(session.getParties()));
         session.getLastRoundCommentary().add(reason + " " + winner.getName() + " forms the government with "
-                + winner.getStats().getPublicSupport() + "% support.");
+                + winner.getStats().getPublicSupport() + "% support. Coin reserves reset: Government party gets 100 coins, other active parties get 75 coins.");
         
         boolean humanWon = session.getPlayerPartyIds().contains(winner.getId());
         if (humanWon) {
@@ -1055,6 +1292,17 @@ public class RoundResolutionEngine {
             session.setStatus(GameStatus.DEFEAT);
             session.getLastRoundCommentary().add("❌ DEFEAT: You did not win the election. " + winner.getName() + " has formed the government.");
             session.setLastResults(List.of("Defeat: You lost the election."));
+
+            // Mark the human player as DEFEATED!
+            for (PartyState party : session.getParties()) {
+                if (session.getPlayerPartyIds().contains(party.getId())) {
+                    party.setRole(com.politicalsim.party.PartyRole.DEFEATED);
+                    party.setActive(false);
+                    int supportToMove = party.getStats().getPublicSupport();
+                    party.getStats().setPublicSupport(0);
+                    session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + supportToMove);
+                }
+            }
         }
     }
 
@@ -1317,6 +1565,9 @@ public class RoundResolutionEngine {
     }
 
     private List<CardDefinition> getCardsForScenario(String scenarioKey) {
+        if (cardRepository == null) {
+            return List.of();
+        }
         return DefinitionCache.cardsCache.computeIfAbsent(scenarioKey, key -> {
             List<CardDefinition> cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc(key);
             if (cards.isEmpty()) {
@@ -1327,6 +1578,9 @@ public class RoundResolutionEngine {
     }
 
     private List<NewsDefinition> getNewsForScenario(String scenarioKey) {
+        if (newsRepository == null) {
+            return List.of();
+        }
         return DefinitionCache.newsCache.computeIfAbsent(scenarioKey, key -> {
             List<NewsDefinition> news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc(key);
             if (news.isEmpty()) {
@@ -1337,6 +1591,9 @@ public class RoundResolutionEngine {
     }
 
     private List<MonthlyIssueDefinition> getIssuesForScenario(String scenarioKey) {
+        if (issueRepository == null) {
+            return List.of();
+        }
         return DefinitionCache.issuesCache.computeIfAbsent(scenarioKey, key -> {
             List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(key);
             if (issues.isEmpty()) {
@@ -1359,5 +1616,187 @@ public class RoundResolutionEngine {
         }
         return getIssuesForScenario(session.getScenarioKey());
     }
+
+    private void resolveActiveCrisis(GameSession session, Map<String, Integer> supportPressure, List<String> commentary) {
+        if (session.getActiveCrisisKey() == null) {
+            return;
+        }
+
+        String key = session.getActiveCrisisKey();
+        commentary.add("⚡ Ongoing Crisis Impact: " + session.getActiveCrisisName() + " (Turns remaining: " + session.getActiveCrisisTurnsLeft() + ")");
+
+        if ("drought_crisis".equals(key)) {
+            PartyState gov = session.getGovernmentParty();
+            if (gov != null) {
+                supportPressure.put(gov.getId(), supportPressure.getOrDefault(gov.getId(), 0) - 2);
+                gov.getStats().setPartyMorale(Math.max(0, gov.getStats().getPartyMorale() - 3));
+                commentary.add("Drought Distress: Government (" + gov.getName() + ") suffered -2 support pressure and -3 Morale due to public rural anger.");
+            }
+        } else if ("industrial_strike".equals(key)) {
+            for (PartyState party : session.getParties()) {
+                if (party.isActive()) {
+                    party.getStats().setCoins(Math.max(0, party.getStats().getCoins() - 3));
+                }
+            }
+            commentary.add("Labor Strike: All active parties lost 3 coins due to halted business activity.");
+            
+            PartyState gov = session.getGovernmentParty();
+            PartyState opp = session.getOppositionParty();
+            if (gov != null) supportPressure.put(gov.getId(), supportPressure.getOrDefault(gov.getId(), 0) - 1);
+            if (opp != null) supportPressure.put(opp.getId(), supportPressure.getOrDefault(opp.getId(), 0) - 1);
+            commentary.add("Strike Volatility: Governance failure pushes support from major parties into the Undecided pool.");
+        } else if ("scam_panic".equals(key)) {
+            PartyState gov = session.getGovernmentParty();
+            if (gov != null && gov.getStats().getCorruptionScore() > 40) {
+                supportPressure.put(gov.getId(), supportPressure.getOrDefault(gov.getId(), 0) - 2);
+                gov.getStats().setMediaImage(Math.max(0, gov.getStats().getMediaImage() - 4));
+                commentary.add("Scam Backlash: Government (" + gov.getName() + ") has high corruption (>40) and suffered -2 support pressure and -4 Media Image.");
+            }
+            for (PartyState party : session.getParties()) {
+                if (party.isActive() && party.getStats().getCorruptionScore() > 50) {
+                    party.getStats().setPartyMorale(Math.max(0, party.getStats().getPartyMorale() - 3));
+                    commentary.add("Scam Panic: " + party.getName() + " has high corruption, causing internal panic and -3 Morale.");
+                }
+            }
+        }
+
+        session.setActiveCrisisTurnsLeft(session.getActiveCrisisTurnsLeft() - 1);
+        if (session.getActiveCrisisTurnsLeft() <= 0) {
+            commentary.add("🎉 Crisis Resolved: " + session.getActiveCrisisName() + " has ended. Normal campaigning resumes.");
+            session.setActiveCrisisKey(null);
+            session.setActiveCrisisName(null);
+            session.setActiveCrisisDescription(null);
+            session.setActiveCrisisTurnsLeft(0);
+        }
+    }
+
+    private void resolveBuildingProjects(GameSession session, Map<String, Integer> supportPressure, List<String> commentary) {
+        for (PartyState party : session.getParties()) {
+            if (!party.isActive()) {
+                continue;
+            }
+            if (party.getProjects() == null) {
+                continue;
+            }
+            for (ProjectState project : party.getProjects()) {
+                if (project.getProgressPercent() < 100) {
+                    continue;
+                }
+
+                BuildingProject def = BuildingProject.valueOf(project.getProjectKey());
+                commentary.add("🏗️ " + party.getName() + "'s completed project '" + def.getName() + "' yields passive benefits:");
+
+                if (def.isRequiresTarget()) {
+                    if (project.getTargetPartyId() == null || project.getTargetPartyId().isBlank()) {
+                        commentary.add("  ⚠️ Warning: No target assigned to '" + def.getName() + "'. No effect this turn.");
+                        continue;
+                    }
+                    PartyState target = session.getParties().stream()
+                            .filter(p -> p.getId().equals(project.getTargetPartyId()))
+                            .findFirst().orElse(null);
+                    if (target == null || !target.isActive()) {
+                        commentary.add("  ⚠️ Warning: Targeted party is no longer active. Assign a new target.");
+                        continue;
+                    }
+
+                    // Record grudge: target holds a grudge against project owner
+                    Map<String, Map<String, Integer>> grudges = session.getGrudges();
+                    Map<String, Integer> targetGrudges = grudges.computeIfAbsent(target.getId(), k -> new LinkedHashMap<>());
+                    targetGrudges.put(party.getId(), targetGrudges.getOrDefault(party.getId(), 0) + 1);
+
+                    if (def.getBenefitCoins() != 0) {
+                        int coinDrain = Math.min(target.getStats().getCoins(), Math.abs(def.getBenefitCoins()));
+                        if (coinDrain > 0) {
+                            target.getStats().setCoins(target.getStats().getCoins() - coinDrain);
+                            commentary.add("  💥 Drained " + target.getName() + "'s Coins by -" + coinDrain + ".");
+                        }
+                    }
+                    if (def.getBenefitMorale() != 0) {
+                        target.getStats().setPartyMorale(Math.max(0, target.getStats().getPartyMorale() + def.getBenefitMorale()));
+                        commentary.add("  💥 Drained " + target.getName() + "'s Morale by " + Math.abs(def.getBenefitMorale()) + ".");
+                    }
+                    if (def.getBenefitMedia() != 0) {
+                        target.getStats().setMediaImage(Math.max(0, target.getStats().getMediaImage() + def.getBenefitMedia()));
+                        commentary.add("  💥 Drained " + target.getName() + "'s Media Image by " + Math.abs(def.getBenefitMedia()) + ".");
+                    }
+                    if (def.getBenefitCorruption() != 0) {
+                        target.getStats().setCorruptionScore(Math.min(100, target.getStats().getCorruptionScore() + def.getBenefitCorruption()));
+                        commentary.add("  💥 Exposed " + target.getName() + ", raising their Corruption by +" + def.getBenefitCorruption() + ".");
+                    }
+                    if (def.getBenefitSupport() != 0) {
+                        int supportDrain = Math.min(target.getStats().getPublicSupport(), Math.abs(def.getBenefitSupport()));
+                        if (supportDrain > 0) {
+                            target.getStats().setPublicSupport(target.getStats().getPublicSupport() - supportDrain);
+                            session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + supportDrain);
+                            commentary.add("  💥 Drained " + target.getName() + "'s Public Support by -" + supportDrain + "%.");
+                        }
+                    }
+                } else {
+                    if (def.getBenefitCoins() != 0) {
+                        party.getStats().setCoins(party.getStats().getCoins() + def.getBenefitCoins());
+                        commentary.add("  💰 Received +" + def.getBenefitCoins() + " Coins.");
+                    }
+                    if (def.getBenefitMorale() != 0) {
+                        party.getStats().setPartyMorale(Math.min(100, party.getStats().getPartyMorale() + def.getBenefitMorale()));
+                        commentary.add("  ⚡ Received +" + def.getBenefitMorale() + " Morale.");
+                    }
+                    if (def.getBenefitMedia() != 0) {
+                        party.getStats().setMediaImage(Math.min(100, party.getStats().getMediaImage() + def.getBenefitMedia()));
+                        commentary.add("  📢 Received +" + def.getBenefitMedia() + " Media Image.");
+                    }
+                    if (def.getBenefitCorruption() != 0) {
+                        party.getStats().setCorruptionScore(Math.max(0, party.getStats().getCorruptionScore() + def.getBenefitCorruption()));
+                        commentary.add("  🛡️ Reduced Corruption by " + Math.abs(def.getBenefitCorruption()) + ".");
+                    }
+                    if (def.getBenefitSupport() != 0) {
+                        int undecided = session.getPublicState().getUndecidedSupport();
+                        int supportGain = Math.min(undecided, def.getBenefitSupport());
+                        if (supportGain > 0) {
+                            party.getStats().setPublicSupport(party.getStats().getPublicSupport() + supportGain);
+                            session.getPublicState().setUndecidedSupport(undecided - supportGain);
+                            commentary.add("  📈 Gained +" + supportGain + "% Public Support from Undecided voters.");
+                        } else {
+                            commentary.add("  📈 No Undecided voters available to gain support.");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private String formatEffectsMap(Map<String, Object> effects) {
+        if (effects == null || effects.isEmpty()) return "None";
+        List<String> parts = new ArrayList<>();
+        int coins = intValue(effects.get("coins"));
+        if (coins != 0) parts.add("💰 " + (coins > 0 ? "+" : "") + coins + " Coins");
+        int morale = intValue(effects.get("partyMorale"));
+        if (morale != 0) parts.add("✊ " + (morale > 0 ? "+" : "") + morale + " Morale");
+        int corruption = intValue(effects.get("corruptionScore"));
+        if (corruption != 0) parts.add("⚖️ " + (corruption > 0 ? "+" : "") + corruption + "% Corruption");
+        int media = intValue(effects.get("mediaImage"));
+        if (media != 0) parts.add("📢 " + (media > 0 ? "+" : "") + media + " Media Image");
+        int support = intValue(effects.get("publicSupport"));
+        if (support != 0) parts.add("📈 " + (support > 0 ? "+" : "") + support + "% Support");
+        
+        if (parts.isEmpty()) return "None";
+        return String.join(", ", parts);
+    }
+
+    private String formatEffectsObject(Map<String, Object> outerEffects, String key) {
+        Map<String, Object> subEffects = partyEffect(outerEffects, key);
+        return formatEffectsMap(subEffects);
+    }
+
+    private String formatRewardEffects(RewardDefinition reward) {
+        List<String> parts = new ArrayList<>();
+        if (reward.coinsEffect() != 0) parts.add("💰 " + (reward.coinsEffect() > 0 ? "+" : "") + reward.coinsEffect() + " Coins");
+        if (reward.moraleEffect() != 0) parts.add("✊ " + (reward.moraleEffect() > 0 ? "+" : "") + reward.moraleEffect() + " Morale");
+        if (reward.corruptionEffect() != 0) parts.add("⚖️ " + (reward.corruptionEffect() > 0 ? "+" : "") + reward.corruptionEffect() + "% Corruption");
+        if (reward.mediaEffect() != 0) parts.add("📢 " + (reward.mediaEffect() > 0 ? "+" : "") + reward.mediaEffect() + " Media Image");
+        if (reward.publicSupportEffect() != 0) parts.add("📈 " + (reward.publicSupportEffect() > 0 ? "+" : "") + reward.publicSupportEffect() + "% Support");
+        if (parts.isEmpty()) return "None";
+        return String.join(", ", parts);
+    }
 }
+
 

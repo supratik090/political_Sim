@@ -209,7 +209,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_farmer_suicide_response",
@@ -267,7 +269,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Release ₹50,000 ex-gratia per affected family immediately and dispatch the agriculture minister to the region.",
+          "text": "Release \u20b950,000 ex-gratia per affected family immediately and dispatch the agriculture minister to the region.",
           "cost": 16,
           "effects": {
             "selfParty": {
@@ -397,7 +399,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_mumbai_flood_infrastructure",
@@ -585,7 +589,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_electricity_maharashtra_2002",
@@ -643,7 +649,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Announce a ₹300 crore emergency fund to procure additional power from the grid and repair ageing substations.",
+          "text": "Announce a \u20b9300 crore emergency fund to procure additional power from the grid and repair ageing substations.",
           "cost": 14,
           "effects": {
             "selfParty": {
@@ -773,7 +779,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_ration_card_ghost",
@@ -961,7 +969,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_onion_price_crisis_2003",
@@ -970,7 +980,7 @@
       ],
       "category": "farmer_welfare",
       "title": "Onion price crash destroys Nashik farmer income",
-      "description": "Wholesale onion prices collapse to ₹1–2 per kg; Nashik farmers dump produce on roads and demand a procurement floor price.",
+      "description": "Wholesale onion prices collapse to \u20b91\u20132 per kg; Nashik farmers dump produce on roads and demand a procurement floor price.",
       "weight": 1.2,
       "options": [
         {
@@ -1019,7 +1029,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Release emergency relief of ₹5,000 per acre to all affected farmers within 15 days.",
+          "text": "Release emergency relief of \u20b95,000 per acre to all affected farmers within 15 days.",
           "cost": 15,
           "effects": {
             "selfParty": {
@@ -1149,7 +1159,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_mumbai_train_accident",
@@ -1337,7 +1349,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_slum_demolition_dharavi",
@@ -1525,7 +1539,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_water_tanker_scam_pune",
@@ -1713,7 +1729,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_sugarcane_fdr_delay",
@@ -1901,7 +1919,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_police_atrocity_marathwada",
@@ -1959,7 +1979,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Announce ex-gratia of ₹10 lakh to the family and transfer the station in-charge immediately.",
+          "text": "Announce ex-gratia of \u20b910 lakh to the family and transfer the station in-charge immediately.",
           "cost": 14,
           "effects": {
             "selfParty": {
@@ -2089,7 +2109,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_mla_encroachment_nagpur",
@@ -2277,7 +2299,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_education_ssc_results",
@@ -2465,7 +2489,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_ncp_bjp_coalition_tension",
@@ -2653,7 +2679,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_textile_mill_closure_mumbai",
@@ -2841,7 +2869,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_road_nh4_contractor_scam",
@@ -3029,7 +3059,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_water_latur_scarcity",
@@ -3038,7 +3070,7 @@
       ],
       "category": "public_service",
       "title": "Latur water scarcity reaches crisis level",
-      "description": "Latur city and surrounding villages go without piped water for 15–20 days at a stretch; train tankers are the only supply.",
+      "description": "Latur city and surrounding villages go without piped water for 15\u201320 days at a stretch; train tankers are the only supply.",
       "weight": 1.2,
       "options": [
         {
@@ -3087,7 +3119,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Release ₹200 crore for borewell drilling, tanker supply, and short-term desalination infrastructure in the region.",
+          "text": "Release \u20b9200 crore for borewell drilling, tanker supply, and short-term desalination infrastructure in the region.",
           "cost": 15,
           "effects": {
             "selfParty": {
@@ -3217,7 +3249,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_land_acquisition_pune_it",
@@ -3405,7 +3439,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_tb_hospital_neglect",
@@ -3593,7 +3629,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_vidarbha_cotton_msp",
@@ -3781,7 +3819,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_municipal_school_privatisation",
@@ -3839,7 +3879,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Announce a ₹500 crore school modernisation package for all 50 schools and retain them under BMC.",
+          "text": "Announce a \u20b9500 crore school modernisation package for all 50 schools and retain them under BMC.",
           "cost": 13,
           "effects": {
             "selfParty": {
@@ -3969,7 +4009,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_chit_fund_fraud_konkan",
@@ -4027,7 +4069,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Create a ₹50 crore state relief fund as advance compensation for the most vulnerable depositors.",
+          "text": "Create a \u20b950 crore state relief fund as advance compensation for the most vulnerable depositors.",
           "cost": 13,
           "effects": {
             "selfParty": {
@@ -4157,7 +4199,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_irrigation_scam_wcd",
@@ -4345,7 +4389,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_bus_rapid_transit_pune",
@@ -4521,7 +4567,7 @@
           ],
           "risk": {
             "chance": 22,
-            "badOutcome": "Media calculates cost per rider as ₹200+.",
+            "badOutcome": "Media calculates cost per rider as \u20b9200+.",
             "effects": {
               "selfParty": {
                 "coins": 0,
@@ -4533,7 +4579,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_dalit_atrocity_beed",
@@ -4721,7 +4769,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_mumbai_air_quality",
@@ -4909,7 +4959,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_hoarding_collapse_mumbai",
@@ -5097,7 +5149,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_beed_water_mafia",
@@ -5285,7 +5339,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_english_medium_school_fee",
@@ -5294,7 +5350,7 @@
       ],
       "category": "education_delivery",
       "title": "Private English medium school fee hike outrages parents",
-      "description": "Pune and Nashik private schools hike fees 25–40% citing infrastructure costs; parents demand state fee regulation.",
+      "description": "Pune and Nashik private schools hike fees 25\u201340% citing infrastructure costs; parents demand state fee regulation.",
       "weight": 0.9,
       "options": [
         {
@@ -5343,7 +5399,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Announce a state scholarship scheme for income-below-₹5 lakh families in private schools.",
+          "text": "Announce a state scholarship scheme for income-below-\u20b95 lakh families in private schools.",
           "cost": 12,
           "effects": {
             "selfParty": {
@@ -5473,7 +5529,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_forest_land_tribal_rights",
@@ -5661,7 +5719,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_cooperative_sugar_losses",
@@ -5849,7 +5909,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_hawkers_eviction_mumbai",
@@ -6037,7 +6099,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_paddy_procurement_konkan",
@@ -6225,7 +6289,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_police_land_grab_thane",
@@ -6413,7 +6479,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_heatwave_vidarbha_2003",
@@ -6422,7 +6490,7 @@
       ],
       "category": "disaster_readiness",
       "title": "Heatwave kills over 100 in Vidarbha",
-      "description": "April–May 2003 heatwave deaths top 100 across Akola, Amravati, and Yavatmal; inadequate ORS distribution at PHCs blamed.",
+      "description": "April\u2013May 2003 heatwave deaths top 100 across Akola, Amravati, and Yavatmal; inadequate ORS distribution at PHCs blamed.",
       "weight": 1.1,
       "options": [
         {
@@ -6471,7 +6539,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Release ₹50 crore for emergency health infrastructure, air-conditioning for PHCs, and tanker water supply.",
+          "text": "Release \u20b950 crore for emergency health infrastructure, air-conditioning for PHCs, and tanker water supply.",
           "cost": 14,
           "effects": {
             "selfParty": {
@@ -6601,7 +6669,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_sez_land_protest_2004",
@@ -6789,7 +6859,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_mid_day_meal_quality_pune",
@@ -6977,7 +7049,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_press_freedom_raid",
@@ -7165,7 +7239,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_kolhapur_flood_dam_safety",
@@ -7223,7 +7299,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Release ₹100 crore for immediate flood relief and announce a dam safety audit across all major Maharashtra dams.",
+          "text": "Release \u20b9100 crore for immediate flood relief and announce a dam safety audit across all major Maharashtra dams.",
           "cost": 14,
           "effects": {
             "selfParty": {
@@ -7353,7 +7429,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_adivasi_naxal_encounter",
@@ -7541,7 +7619,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_mumbai_footover_bridge",
@@ -7729,7 +7809,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_drought_tanker_tender_2005",
@@ -7738,7 +7820,7 @@
       ],
       "category": "governance_delivery",
       "title": "Drought tanker tender manipulated in Aurangabad",
-      "description": "A whistleblower reveals that Aurangabad's emergency tanker tenders were awarded to firms at 3× market rate linked to a ruling party MLA.",
+      "description": "A whistleblower reveals that Aurangabad's emergency tanker tenders were awarded to firms at 3\u00d7 market rate linked to a ruling party MLA.",
       "weight": 1.0,
       "options": [
         {
@@ -7917,7 +7999,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_nanded_hospital_drug",
@@ -8105,7 +8189,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_aurangabad_industrial_air",
@@ -8293,7 +8379,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_kolhapur_leather_effluent",
@@ -8481,7 +8569,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_bus_accident_solapur",
@@ -8539,7 +8629,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Announce ₹10 lakh compensation to each deceased family and fast-track vehicle fitness regulation.",
+          "text": "Announce \u20b910 lakh compensation to each deceased family and fast-track vehicle fitness regulation.",
           "cost": 14,
           "effects": {
             "selfParty": {
@@ -8669,7 +8759,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_nagpur_zero_hour_encroachment",
@@ -8857,7 +8949,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_mumbai_dabbawalas_tax",
@@ -9045,7 +9139,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_pension_delay_teachers",
@@ -9233,7 +9329,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_mumbai_potable_water_2004",
@@ -9421,7 +9519,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_labour_contractor_abuse_thane",
@@ -9609,7 +9709,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_election_code_violation_2004",
@@ -9797,7 +9899,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_2005_mumbai_floods_response",
@@ -9805,7 +9909,7 @@
         "GOVERNMENT"
       ],
       "category": "disaster_readiness",
-      "title": "26 July 2005 Mumbai floods — state response criticised",
+      "title": "26 July 2005 Mumbai floods \u2014 state response criticised",
       "description": "944 mm of rain in 24 hours floods Mumbai; the government is criticised for inadequate NDRF pre-positioning and Mithi river encroachment.",
       "weight": 1.2,
       "options": [
@@ -9855,7 +9959,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Release ₹500 crore disaster relief fund, activate all district collectors, and open relief camps in every ward.",
+          "text": "Release \u20b9500 crore disaster relief fund, activate all district collectors, and open relief camps in every ward.",
           "cost": 16,
           "effects": {
             "selfParty": {
@@ -9985,7 +10089,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_warkari_yatra_logistics",
@@ -10173,7 +10279,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_rural_road_pm_gram",
@@ -10361,7 +10469,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_rural_health_centre_absenteeism",
@@ -10549,7 +10659,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_vidarbha_power_agri_feeder",
@@ -10607,7 +10719,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Announce a ₹100 crore scheme for solar pump installation to reduce farmer dependence on grid power.",
+          "text": "Announce a \u20b9100 crore scheme for solar pump installation to reduce farmer dependence on grid power.",
           "cost": 14,
           "effects": {
             "selfParty": {
@@ -10737,7 +10849,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_solapur_weaver_credit",
@@ -10795,7 +10909,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Announce a ₹200 crore state weaver support fund and hold a credit camp in Solapur in 15 days.",
+          "text": "Announce a \u20b9200 crore state weaver support fund and hold a credit camp in Solapur in 15 days.",
           "cost": 12,
           "effects": {
             "selfParty": {
@@ -10925,7 +11039,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_coastal_fishing_trawler_ban",
@@ -11113,7 +11229,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_aurangabad_heritage_demolition",
@@ -11301,7 +11419,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_monsoon_2003_shortage",
@@ -11359,7 +11479,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Announce a ₹1,000 crore input subsidy package for affected farmers and open credit rescheduling windows.",
+          "text": "Announce a \u20b91,000 crore input subsidy package for affected farmers and open credit rescheduling windows.",
           "cost": 14,
           "effects": {
             "selfParty": {
@@ -11489,7 +11609,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_nashik_grape_export_block",
@@ -11547,7 +11669,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Announce ₹500 crore to support compliance upgrades and pay compensation for the lost export season.",
+          "text": "Announce \u20b9500 crore to support compliance upgrades and pay compensation for the lost export season.",
           "cost": 13,
           "effects": {
             "selfParty": {
@@ -11677,7 +11799,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_senior_ips_transfer_row",
@@ -11865,7 +11989,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_bmc_budget_misuse_2002",
@@ -12053,7 +12179,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_river_junction_project_delay",
@@ -12241,7 +12369,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_maratha_reservation_demand_2004",
@@ -12429,7 +12559,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_groundwater_depletion_marathwada",
@@ -12487,7 +12619,7 @@
         },
         {
           "optionKey": "quick_relief",
-          "text": "Release ₹400 crore for Jalyukt Shivar-style watershed projects in the 10 most affected talukas.",
+          "text": "Release \u20b9400 crore for Jalyukt Shivar-style watershed projects in the 10 most affected talukas.",
           "cost": 13,
           "effects": {
             "selfParty": {
@@ -12617,7 +12749,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "gov_mh_housing_scheme_slum",
@@ -12805,7 +12939,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_vidarbha_rally_strategy",
@@ -12994,7 +13130,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_fadnavis_bjp_infighting",
@@ -13183,7 +13321,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_sena_subaltern_campaign",
@@ -13372,7 +13512,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_farmer_march_nashik",
@@ -13561,7 +13703,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_candidate_criminal_pune",
@@ -13750,7 +13894,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_media_headline_misquote",
@@ -13939,7 +14085,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_coalition_sena_congress_deal",
@@ -14128,7 +14276,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_sena_toll_protest",
@@ -14261,7 +14411,7 @@
           ],
           "risk": {
             "chance": 12,
-            "badOutcome": "RTI data confirms 2× recovery; creates credible platform.",
+            "badOutcome": "RTI data confirms 2\u00d7 recovery; creates credible platform.",
             "effects": {
               "selfParty": {
                 "coins": 0,
@@ -14317,7 +14467,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_bjp_dalit_outreach",
@@ -14506,7 +14658,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_manifesto_farmer_debt_waiver",
@@ -14565,7 +14719,7 @@
         },
         {
           "optionKey": "aggressive_agitation",
-          "text": "Announce a ₹25,000 cr debt waiver promise at the biggest campaign rally to generate maximum farmer mobilisation.",
+          "text": "Announce a \u20b925,000 cr debt waiver promise at the biggest campaign rally to generate maximum farmer mobilisation.",
           "cost": 12,
           "effects": {
             "selfParty": {
@@ -14695,7 +14849,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_womens_wing_safety",
@@ -14884,7 +15040,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_rti_use_corruption_expose",
@@ -15073,7 +15231,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_mumbai_slum_solidarity",
@@ -15262,7 +15422,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_bjp_urban_local_body_strategy",
@@ -15451,7 +15613,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_workers_welfare_camp",
@@ -15640,7 +15804,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_ncp_sugar_cooperative_pressure",
@@ -15829,7 +15995,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_media_bjp_counter_press",
@@ -16001,12 +16169,12 @@
                   "publicSupport": -1
                 }
               },
-              "commentary": "Agency funding exposé undermines the entire counter-campaign."
+              "commentary": "Agency funding expos\u00e9 undermines the entire counter-campaign."
             }
           ],
           "risk": {
             "chance": 20,
-            "badOutcome": "Press agency funding condition surfaces in journalist exposé.",
+            "badOutcome": "Press agency funding condition surfaces in journalist expos\u00e9.",
             "effects": {
               "selfParty": {
                 "coins": 0,
@@ -16018,7 +16186,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_irrigation_scam_opposition",
@@ -16207,7 +16377,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_flood_2005_relief_opp",
@@ -16396,7 +16568,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_congress_seat_adjustment_2004",
@@ -16406,7 +16580,7 @@
       ],
       "category": "coalition_management",
       "title": "Congress-NCP 2004 poll seat adjustment final round",
-      "description": "Final seat-sharing negotiation; NCP wants Pune cantonment, Congress wants Nashik East — both are winnable seats.",
+      "description": "Final seat-sharing negotiation; NCP wants Pune cantonment, Congress wants Nashik East \u2014 both are winnable seats.",
       "weight": 0.9,
       "options": [
         {
@@ -16585,7 +16759,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_sena_thackeray_youth_rally",
@@ -16774,7 +16950,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_coastal_fishing_support",
@@ -16963,7 +17141,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_warkari_welfare_outreach",
@@ -17152,7 +17332,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_vidarbha_press_campaign",
@@ -17341,7 +17523,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_internal_ticket_dispute_konkan",
@@ -17530,7 +17714,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_drought_opp_response_2002",
@@ -17719,7 +17905,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_sena_bjp_2004_postelection",
@@ -17908,7 +18096,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_environmental_campaign_mumbai",
@@ -18097,7 +18287,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_weaker_section_policy",
@@ -18286,7 +18478,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_anti_toll_rtd",
@@ -18475,7 +18669,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_obc_reservation_demand",
@@ -18485,7 +18681,7 @@
       ],
       "category": "social_cohesion",
       "title": "OBC community demands creamy layer revision in Maharashtra",
-      "description": "OBC leaders ask the party to publicly demand revision of the ₹8 lakh creamy layer limit for OBC reservation benefits.",
+      "description": "OBC leaders ask the party to publicly demand revision of the \u20b98 lakh creamy layer limit for OBC reservation benefits.",
       "weight": 0.9,
       "options": [
         {
@@ -18578,7 +18774,7 @@
         },
         {
           "optionKey": "verify_and_attack",
-          "text": "Survey OBC community leaders on their priority — creamy layer, hostel, or scholarship — before any announcement.",
+          "text": "Survey OBC community leaders on their priority \u2014 creamy layer, hostel, or scholarship \u2014 before any announcement.",
           "cost": 5,
           "effects": {
             "selfParty": {
@@ -18664,7 +18860,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_local_mlc_election_funding",
@@ -18674,7 +18872,7 @@
       ],
       "category": "funding_ethics",
       "title": "Opposition MLC election needs emergency funding",
-      "description": "Party needs ₹15 crore to contest three Maharashtra Legislative Council seats but party fund is short.",
+      "description": "Party needs \u20b915 crore to contest three Maharashtra Legislative Council seats but party fund is short.",
       "weight": 0.9,
       "options": [
         {
@@ -18709,7 +18907,7 @@
           ],
           "risk": {
             "chance": 11,
-            "badOutcome": "Small donor drive raises only ₹3 crore; gap remains.",
+            "badOutcome": "Small donor drive raises only \u20b93 crore; gap remains.",
             "effects": {
               "selfParty": {
                 "coins": 0,
@@ -18723,7 +18921,7 @@
         },
         {
           "optionKey": "aggressive_agitation",
-          "text": "Stage a big fundraiser dinner at a Mumbai five-star with ticket prices of ₹1 lakh per plate.",
+          "text": "Stage a big fundraiser dinner at a Mumbai five-star with ticket prices of \u20b91 lakh per plate.",
           "cost": 10,
           "effects": {
             "selfParty": {
@@ -18797,7 +18995,7 @@
           ],
           "risk": {
             "chance": 11,
-            "badOutcome": "Audit reveals ₹8 crore available; gap manageable.",
+            "badOutcome": "Audit reveals \u20b98 crore available; gap manageable.",
             "effects": {
               "selfParty": {
                 "coins": 0,
@@ -18853,7 +19051,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_alliance_with_peasant_group",
@@ -19042,7 +19242,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_conrgrss_healthcare_drive",
@@ -19231,7 +19433,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_maratha_reservation_2004_opp",
@@ -19420,7 +19624,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_bjp_anti_corruption_hotline",
@@ -19609,7 +19815,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_civic_pollution_campaign",
@@ -19798,7 +20006,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_mumbai_housing_crisis_opp",
@@ -19887,7 +20097,7 @@
           ],
           "risk": {
             "chance": 15,
-            "badOutcome": "Mass housing promise costed at ₹80,000 cr; critics mock scale.",
+            "badOutcome": "Mass housing promise costed at \u20b980,000 cr; critics mock scale.",
             "effects": {
               "selfParty": {
                 "coins": 0,
@@ -19931,7 +20141,7 @@
           ],
           "risk": {
             "chance": 12,
-            "badOutcome": "Survey shows most demand is in ₹15–30 lakh segment; sharp positioning possible.",
+            "badOutcome": "Survey shows most demand is in \u20b915\u201330 lakh segment; sharp positioning possible.",
             "effects": {
               "selfParty": {
                 "coins": 0,
@@ -19987,7 +20197,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_farmers_insurance_gap",
@@ -20176,7 +20388,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_old_leader_demand_role_2003",
@@ -20365,7 +20579,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_solar_pump_farmer_demand",
@@ -20454,7 +20670,7 @@
           ],
           "risk": {
             "chance": 15,
-            "badOutcome": "5-lakh promise costed at ₹6,000 cr; media questions fiscal math.",
+            "badOutcome": "5-lakh promise costed at \u20b96,000 cr; media questions fiscal math.",
             "effects": {
               "selfParty": {
                 "coins": 0,
@@ -20554,7 +20770,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_sena_student_wing_agitation",
@@ -20743,7 +20961,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_opp_alliance_branding",
@@ -20932,7 +21152,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_anti_hoarding_campaign",
@@ -21121,7 +21343,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_healthcare_policy_manifesto",
@@ -21131,7 +21355,7 @@
       ],
       "category": "policy_credibility",
       "title": "NCP designs rural healthcare manifesto commitment",
-      "description": "Party debates whether to commit to a ₹10,000 crore universal health scheme or a more targeted PHC upgrade programme.",
+      "description": "Party debates whether to commit to a \u20b910,000 crore universal health scheme or a more targeted PHC upgrade programme.",
       "weight": 0.9,
       "options": [
         {
@@ -21180,7 +21404,7 @@
         },
         {
           "optionKey": "aggressive_agitation",
-          "text": "Announce a 'Maharashtra Health Guarantee Scheme' at a Nashik rally with ₹10,000 crore headline figure.",
+          "text": "Announce a 'Maharashtra Health Guarantee Scheme' at a Nashik rally with \u20b910,000 crore headline figure.",
           "cost": 10,
           "effects": {
             "selfParty": {
@@ -21210,7 +21434,7 @@
           ],
           "risk": {
             "chance": 15,
-            "badOutcome": "₹10,000 crore figure attacked as uncosted within 24 hours.",
+            "badOutcome": "\u20b910,000 crore figure attacked as uncosted within 24 hours.",
             "effects": {
               "selfParty": {
                 "coins": 0,
@@ -21310,7 +21534,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_cadre_booth_agent_training",
@@ -21499,7 +21725,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_sugar_factory_land_issue",
@@ -21688,7 +21916,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     },
     {
       "issueKey": "opp_mh_municipal_water_privatisation",
@@ -21877,7 +22107,9 @@
             }
           }
         }
-      ]
+      ],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
     }
   ],
   "balanceNotes": {

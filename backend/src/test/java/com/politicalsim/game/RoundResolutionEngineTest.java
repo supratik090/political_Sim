@@ -2,6 +2,7 @@ package com.politicalsim.game;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.politicalsim.content.CardDefinition;
 import com.politicalsim.party.ControllerType;
 import com.politicalsim.party.Ideology;
 import com.politicalsim.party.PartyRole;
@@ -10,6 +11,7 @@ import com.politicalsim.party.PartyStats;
 import com.politicalsim.publicmood.PublicState;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class RoundResolutionEngineTest {
@@ -117,5 +119,67 @@ class RoundResolutionEngineTest {
                 null,
                 stats
         );
+    }
+
+    @Test
+    void resolveRoundLogsHeldRewardsProjectFundingAndCoinMovements() {
+        GameSession session = new GameSession();
+        session.setTurnNumber(1);
+        session.setCurrentDate(java.time.LocalDate.now());
+        session.setScenarioKey("test");
+        PublicState publicState = new PublicState();
+        session.setPublicState(publicState);
+        
+        PartyState partyA = party("Party A", PartyRole.GOVERNMENT, new PartyStats(100, 50, 0, 50, 40));
+        PartyState partyB = party("Party B", PartyRole.OPPOSITION, new PartyStats(80, 50, 0, 50, 40));
+        session.setParties(List.of(partyA, partyB));
+        session.setGovernmentParty(partyA);
+        
+        // Setup a card in the session cards
+        CardDefinition card = new CardDefinition();
+        card.setCardKey("test_card");
+        card.setName("Transparency Campaign");
+        card.setRoleAllowed(List.of("GOVERNMENT"));
+        card.setCost(30); // costs 30 coins
+        card.setVisibleEffects(Map.of(
+            "selfParty", Map.of(
+                "coins", 0
+            )
+        ));
+        card.setWeights(Map.of("riskWeight", 0.0, "basePlayWeight", 1.0, "aiPriorityWeight", 1.0, "publicImpactWeight", 1.0));
+        session.setGameCards(List.of(card));
+
+        // Add a submission for Party A playing this card
+        RoundSubmission sub = new RoundSubmission();
+        sub.setPartyId(partyA.getId());
+        sub.setPartyName(partyA.getName());
+        sub.setCardKey("test_card");
+        sub.setCardName("Transparency Campaign");
+        session.getCurrentRoundSubmissions().add(sub);
+        
+        // 1. Setup held reward
+        HeldReward hr = new HeldReward("reward_donation_40_coins", "Private Donation", "Gift 40 coins", 15, false, "self");
+        session.getPartyHeldRewards().computeIfAbsent(partyA.getId(), k -> new ArrayList<>()).add(hr);
+        
+        // 2. Setup project contribution
+        // Project contributions: Party B contributed 20% to Party Headquarters
+        session.getProjectContributionsThisTurn().computeIfAbsent(partyB.getId(), k -> new java.util.LinkedHashMap<>()).put("PARTY_HQ", 20);
+        
+        // Resolve the round
+        engine.resolveRound(session);
+        
+        List<String> commentary = session.getLastRoundCommentary();
+        List<String> results = session.getLastResults();
+        
+        // Assert project funding is logged
+        org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("funded project 'Party Headquarters'")));
+        org.junit.jupiter.api.Assertions.assertTrue(results.stream().anyMatch(r -> r.contains("funded project 'Party Headquarters'")));
+        
+        // Assert coin movement is logged (Party A had a net change of -35 coins)
+        org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("Party A had a net change of -35 coins")));
+        
+        // Assert held rewards are logged
+        org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("Party A is holding reward: Private Donation")));
+        org.junit.jupiter.api.Assertions.assertTrue(results.stream().anyMatch(r -> r.contains("Party A is holding reward: Private Donation")));
     }
 }
