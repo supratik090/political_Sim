@@ -45,15 +45,19 @@ export default function AuthScreen() {
       {/* Banner */}
       <div style={{
         background: 'var(--primary-border)',
-        padding: '50px',
+        padding: '40px 50px',
         borderRadius: '16px',
         border: '2px solid var(--primary-dark)',
         textAlign: 'center',
         boxShadow: '0 10px 30px rgba(33,60,81,0.05)',
         maxWidth: '600px',
         width: '100%',
-        marginBottom: '30px'
+        marginBottom: '30px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
       }}>
+        <img src="/politics.svg" alt="Political Sim Logo" style={{ width: '80px', height: '80px', marginBottom: '20px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }} />
         <span style={{ fontSize: '14px', color: '#ffffff', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.15em', display: 'block', marginBottom: '10px', opacity: 0.9 }}>
           GRAND ELECTION STRATEGY
         </span>

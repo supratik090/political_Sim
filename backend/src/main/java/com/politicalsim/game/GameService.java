@@ -273,6 +273,9 @@ public class GameService {
 
     public TurnView advanceTurn(String gameId, TurnAdvanceRequest request) {
         GameSession session = getGame(gameId);
+        if (session.getStatus() != GameStatus.ACTIVE) {
+            throw new IllegalArgumentException("The game has already ended (Status: " + session.getStatus() + ").");
+        }
         if (request.getSelectedCardKey() == null || request.getSelectedCardKey().isBlank()) {
             throw new IllegalArgumentException("A card must be selected before advancing turn.");
         }
@@ -1188,6 +1191,9 @@ public class GameService {
 
     public TurnView fundProject(String gameId, String partyId, String projectIdOrKey, int progress) {
         GameSession session = getGame(gameId);
+        if (session.getStatus() != GameStatus.ACTIVE) {
+            throw new IllegalArgumentException("The game has already ended (Status: " + session.getStatus() + ").");
+        }
         PartyState party = session.getParties().stream()
                 .filter(p -> p.getId().equals(partyId))
                 .findFirst()
@@ -1257,6 +1263,9 @@ public class GameService {
 
     public TurnView setProjectTarget(String gameId, String partyId, String projectIdOrKey, String targetPartyId) {
         GameSession session = getGame(gameId);
+        if (session.getStatus() != GameStatus.ACTIVE) {
+            throw new IllegalArgumentException("The game has already ended (Status: " + session.getStatus() + ").");
+        }
         PartyState party = session.getParties().stream()
                 .filter(p -> p.getId().equals(partyId))
                 .findFirst()
