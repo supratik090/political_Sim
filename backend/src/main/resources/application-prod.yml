@@ -1,0 +1,7 @@
+logging:
+  level:
+    root: WARN
+    com.politicalsim: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.springframework.data.mongodb: WARN
