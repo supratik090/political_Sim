@@ -199,6 +199,10 @@ public class GameService {
         RewardDefinition firstReward = roundResolutionEngine.selectRandomReward(temp);
         GameSession session = gameSessionService.createGame(request, firstReward);
 
+        // Assign a unique, randomised set of up to 60 monthly issues for this game
+        session.setGameIssues(buildGameIssues(request.getScenarioKey()));
+        gameSessionService.save(session);
+
         if (request.isRetainInstitutions()) {
             GameSession preceding = findPrecedingWonSession(request.getUserId(), request.getScenarioKey());
             if (preceding != null) {
@@ -638,7 +642,7 @@ public class GameService {
             if (session.getCurrentRoundSubmissions().stream().anyMatch(s -> s.getPartyId().equals(party.getId()))) {
                 continue;
             }
-            PartyState opponent = chooseOpponent(session, party);
+            PartyState opponent = chooseOpponentExcludingPacts(session, party);
             AiDecision decision = aiDecisionService.chooseCard(session, party, opponent, getAvailableCardsForParty(session, party));
             Map<String, String> reactions = new LinkedHashMap<>();
             for (NewsDefinition news : getCurrentNews(session)) {
@@ -957,10 +961,10 @@ public class GameService {
     }
 
     private MonthlyIssueDefinition getCurrentIssue(GameSession session, PartyState party) {
+        // Preserve the pre-shuffled order stored in gameIssues — do NOT re-sort here.
         List<MonthlyIssueDefinition> issues = getIssuesForSession(session).stream()
                 .filter(MonthlyIssueDefinition::isActive)
                 .filter(issue -> issue.getRoleAllowed().contains(party.getRole().name()))
-                .sorted(Comparator.comparing(MonthlyIssueDefinition::getIssueKey))
                 .toList();
         if (issues.isEmpty()) {
             return fallbackIssue(party);
@@ -1371,20 +1375,42 @@ public class GameService {
         });
     }
 
+    /**
+     * Loads all candidate issues for a scenario with 'default' fallback chain:
+     *   scenarioKey → alternativeScenarioKey → "default" → empty list
+     * Result is cached since it represents the full pool (not per-game).
+     */
     private List<MonthlyIssueDefinition> getIssuesForScenario(String scenarioKey) {
         return DefinitionCache.issuesCache.computeIfAbsent(scenarioKey, key -> {
-            List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(key);
+            List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKey(key);
             if (issues.isEmpty()) {
                 String altKey = getAlternativeScenarioKey(key);
                 if (altKey != null) {
-                    issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(altKey);
+                    issues = issueRepository.findByScenarioKey(altKey);
                 }
             }
             if (issues.isEmpty()) {
-                issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc("west_bengal_2000");
+                // Generic fallback: definitions tagged with scenarioKey="default"
+                issues = issueRepository.findByScenarioKey("default");
             }
             return issues;
         });
+    }
+
+    /**
+     * Builds a per-game issue list:
+     *  1. Loads full pool (scenarioKey → "default" fallback).
+     *  2. If pool > 60, randomly samples 60 entries.
+     *  3. Shuffles the selected entries so every game has a unique order.
+     * The result is stored in GameSession.gameIssues and persisted.
+     */
+    private List<MonthlyIssueDefinition> buildGameIssues(String scenarioKey) {
+        List<MonthlyIssueDefinition> pool = new ArrayList<>(getIssuesForScenario(scenarioKey));
+        java.util.Collections.shuffle(pool); // randomise before slicing
+        if (pool.size() > 60) {
+            pool = pool.subList(0, 60);
+        }
+        return pool;
     }
 
     private List<CardDefinition> getCardsForSession(GameSession session) {
@@ -1398,6 +1424,7 @@ public class GameService {
         if (session.getGameIssues() != null && !session.getGameIssues().isEmpty()) {
             return session.getGameIssues();
         }
+        // Fallback for old sessions that predate per-game issue storage
         return getIssuesForScenario(session.getScenarioKey());
     }
 

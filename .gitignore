@@ -2,6 +2,7 @@
 .env
 backend/.env
 python-ui/.env
+react-ui/.env
 
 # Java / Maven
 backend/target/

@@ -47,6 +47,8 @@ public class AiDecisionService {
         PartyStats stats = party.getStats();
         AiProfile profile = profileFor(party);
         int monthsLeft = Math.max(0, 60 - session.getMonthInCycle() + 1);
+        // opponent may be null when ALL other active parties have non-aggression pacts with this party
+        boolean hasTargetableOpponent = opponent != null;
 
         if (party.getRole() != PartyRole.GOVERNMENT
                 && session.getGovernmentParty().getStats().getPublicSupport() < threshold(profile, "governmentNoConfidenceSupport")
@@ -69,7 +71,9 @@ public class AiDecisionService {
                 && stats.getPublicSupport() < threshold(profile, "electionSupportTarget")) {
             return AiIntent.PREPARE_ELECTION;
         }
-        if (opponent.getStats().getCorruptionScore() > threshold(profile, "opponentCorruptionAttack")
+        // Only consider attacking if there is actually a targetable opponent (no active NAP)
+        if (hasTargetableOpponent
+                && opponent.getStats().getCorruptionScore() > threshold(profile, "opponentCorruptionAttack")
                 && profile.getScandalPreference() >= threshold(profile, "scandalAttackPreference")) {
             return AiIntent.ATTACK_RIVAL;
         }
@@ -77,10 +81,11 @@ public class AiDecisionService {
             return AiIntent.GAIN_SUPPORT;
         }
 
+        // When fully pact-locked (no targetable opponent), aggressive styles fall back to self-improvement
         return switch (profile.getStyle()) {
             case STRENGTH_BUILDER -> AiIntent.RESTORE_MORALE;
-            case AGGRESSIVE_ATTACKER -> AiIntent.ATTACK_RIVAL;
-            case LATE_STRIKER -> (session.getTurnNumber() >= 40) ? AiIntent.ATTACK_RIVAL : AiIntent.GAIN_SUPPORT;
+            case AGGRESSIVE_ATTACKER -> hasTargetableOpponent ? AiIntent.ATTACK_RIVAL : AiIntent.GAIN_SUPPORT;
+            case LATE_STRIKER -> (hasTargetableOpponent && session.getTurnNumber() >= 40) ? AiIntent.ATTACK_RIVAL : AiIntent.GAIN_SUPPORT;
             case AGGRESSIVE_BIDDER -> AiIntent.RAISE_FUNDS;
             case BALANCED_STRATEGIST -> stats.getPublicSupport() < 30 ? AiIntent.GAIN_SUPPORT : AiIntent.RESTORE_MORALE;
             default -> AiIntent.RESTORE_MORALE;
@@ -485,7 +490,9 @@ public class AiDecisionService {
                 && oneOf(category, "scandal", "scandal_accusation", "agitation", "agitation_movement", "positive_service")) {
             score += weight(profile, "roleCategoryFit");
         }
-        if (party.getRole() != PartyRole.GOVERNMENT
+        // Only consider opponent's corruption if there is a targetable opponent (no NAP covering everyone)
+        if (opponent != null
+                && party.getRole() != PartyRole.GOVERNMENT
                 && opponent.getStats().getCorruptionScore() > threshold(profile, "opponentCorruptionAttack")
                 && oneOf(category, "scandal", "scandal_accusation")) {
             score += weight(profile, "opponentScandalWeakness") * profile.getScandalPreference();
