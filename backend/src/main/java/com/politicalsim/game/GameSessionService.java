@@ -74,7 +74,9 @@ public class GameSessionService {
 
         GameSession session = new GameSession();
         session.setUserId(userId);
-        session.setScenarioKey(blankToDefault(request.getScenarioKey(), "west_bengal_2000"));
+        String finalKey = blankToDefault(request.getScenarioKey(), "west_bengal_2000");
+        session.setScenarioKey(finalKey);
+        session.setScenarioName(scenario != null ? scenario.getName() : finalKey);
         session.setStateName(blankToDefault(request.getStateName(), scenario == null ? defaultStateName : scenario.getStateName()));
         session.setTurnNumber(1);
         session.setMonthInCycle(1);
@@ -96,6 +98,19 @@ public class GameSessionService {
         ));
         session.setLastResults(List.of("New government formed by " + governmentParty.getName() + "."));
         session.setPendingResults(List.of());
+
+        Map<String, PartyStats> startStats = new java.util.LinkedHashMap<>();
+        for (PartyState party : parties) {
+            PartyStats copied = new PartyStats(
+                party.getStats().getCoins(),
+                party.getStats().getPartyMorale(),
+                party.getStats().getCorruptionScore(),
+                party.getStats().getMediaImage(),
+                party.getStats().getPublicSupport()
+            );
+            startStats.put(party.getId(), copied);
+        }
+        session.setTurnStartStats(startStats);
         
         // Initialize Reward States
         session.setUsedRewardKeys(new ArrayList<>());
@@ -157,6 +172,13 @@ public class GameSessionService {
 
     public GameSession save(GameSession session) {
         return repository.save(session);
+    }
+
+    public void deleteGame(String gameId) {
+        if (!repository.existsById(gameId)) {
+            throw new GameNotFoundException(gameId);
+        }
+        repository.deleteById(gameId);
     }
 
     public void normalizePublicSupport(GameSession session) {

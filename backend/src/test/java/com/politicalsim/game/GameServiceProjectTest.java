@@ -67,6 +67,7 @@ class GameServiceProjectTest {
         session.setGovernmentParty(party);
         session.setOppositionParty(party);
         session.setPlayerPartyIds(List.of("tmc"));
+        session.setStatus(GameStatus.ACTIVE);
         session.setScenarioKey("test_scenario");
         session.setCurrentDate(java.time.LocalDate.now());
 

@@ -1,6 +1,7 @@
 package com.politicalsim.game;
 
 import com.politicalsim.party.PartyState;
+import com.politicalsim.party.PartyStats;
 import com.politicalsim.publicmood.PublicState;
 import com.politicalsim.content.CardDefinition;
 import com.politicalsim.content.MonthlyIssueDefinition;
@@ -19,6 +20,7 @@ public class GameSession {
     private String id;
     private String userId;
     private String scenarioKey;
+    private String scenarioName;
     private String stateName;
     private int turnNumber;
     private int monthInCycle;
@@ -59,6 +61,13 @@ public class GameSession {
     private String lastRoundWinnerPartyId;
     private List<CardDefinition> gameCards = new ArrayList<>();
     private List<MonthlyIssueDefinition> gameIssues = new ArrayList<>();
+    private boolean lastElectionHeld;
+    private String lastElectionWinner;
+    private Map<String, Integer> lastElectionVoteShares = new LinkedHashMap<>();
+    private Map<String, PartyStats> turnStartStats = new LinkedHashMap<>();
+    private List<CooperationOffer> cooperationOffers = new ArrayList<>();
+    private List<NonAggressionPact> activePacts = new ArrayList<>();
+
 
 
     public String getId() {
@@ -75,6 +84,26 @@ public class GameSession {
 
     public void setScenarioKey(String scenarioKey) {
         this.scenarioKey = scenarioKey;
+    }
+
+    public String getScenarioName() {
+        if (scenarioName == null || scenarioName.isBlank()) {
+            if (scenarioKey != null) {
+                String[] parts = scenarioKey.split("_");
+                StringBuilder sb = new StringBuilder();
+                for (String p : parts) {
+                    if (p.length() > 0) {
+                        sb.append(Character.toUpperCase(p.charAt(0))).append(p.substring(1)).append(" ");
+                    }
+                }
+                return sb.toString().trim();
+            }
+        }
+        return scenarioName;
+    }
+
+    public void setScenarioName(String scenarioName) {
+        this.scenarioName = scenarioName;
     }
 
     public String getStateName() {
@@ -401,5 +430,65 @@ public class GameSession {
 
     public void setProjectContributionsThisTurn(Map<String, Map<String, Integer>> projectContributionsThisTurn) {
         this.projectContributionsThisTurn = projectContributionsThisTurn;
+    }
+
+    public boolean isLastElectionHeld() {
+        return lastElectionHeld;
+    }
+
+    public void setLastElectionHeld(boolean lastElectionHeld) {
+        this.lastElectionHeld = lastElectionHeld;
+    }
+
+    public String getLastElectionWinner() {
+        return lastElectionWinner;
+    }
+
+    public void setLastElectionWinner(String lastElectionWinner) {
+        this.lastElectionWinner = lastElectionWinner;
+    }
+
+    public Map<String, Integer> getLastElectionVoteShares() {
+        if (lastElectionVoteShares == null) {
+            lastElectionVoteShares = new java.util.LinkedHashMap<>();
+        }
+        return lastElectionVoteShares;
+    }
+
+    public void setLastElectionVoteShares(Map<String, Integer> lastElectionVoteShares) {
+        this.lastElectionVoteShares = lastElectionVoteShares;
+    }
+
+    public Map<String, PartyStats> getTurnStartStats() {
+        if (turnStartStats == null) {
+            turnStartStats = new java.util.LinkedHashMap<>();
+        }
+        return turnStartStats;
+    }
+
+    public void setTurnStartStats(Map<String, PartyStats> turnStartStats) {
+        this.turnStartStats = turnStartStats;
+    }
+
+    public List<CooperationOffer> getCooperationOffers() {
+        if (cooperationOffers == null) {
+            cooperationOffers = new ArrayList<>();
+        }
+        return cooperationOffers;
+    }
+
+    public void setCooperationOffers(List<CooperationOffer> cooperationOffers) {
+        this.cooperationOffers = cooperationOffers;
+    }
+
+    public List<NonAggressionPact> getActivePacts() {
+        if (activePacts == null) {
+            activePacts = new ArrayList<>();
+        }
+        return activePacts;
+    }
+
+    public void setActivePacts(List<NonAggressionPact> activePacts) {
+        this.activePacts = activePacts;
     }
 }

@@ -6,6 +6,7 @@ public class ProjectState {
     private int progressPercent;
     private String targetPartyId;
     private String targetPartyName;
+    private boolean justCompleted;
 
     public ProjectState() {
         this.id = java.util.UUID.randomUUID().toString();
@@ -48,7 +49,19 @@ public class ProjectState {
     }
 
     public void setProgressPercent(int progressPercent) {
+        int oldVal = this.progressPercent;
         this.progressPercent = Math.min(100, Math.max(0, progressPercent));
+        if (oldVal < 100 && this.progressPercent == 100) {
+            this.justCompleted = true;
+        }
+    }
+
+    public boolean isJustCompleted() {
+        return justCompleted;
+    }
+
+    public void setJustCompleted(boolean justCompleted) {
+        this.justCompleted = justCompleted;
     }
 
     public String getTargetPartyId() {

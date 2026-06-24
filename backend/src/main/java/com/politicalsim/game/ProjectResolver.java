@@ -2,6 +2,7 @@ package com.politicalsim.game;
 
 import com.politicalsim.party.BuildingProject;
 import com.politicalsim.party.PartyState;
+import com.politicalsim.party.ProjectState;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,6 +51,21 @@ public class ProjectResolver {
     }
 
     public void resolveBuildingProjects(GameSession session, Map<String, Integer> supportPressure, List<String> commentary) {
+        class StatDelta {
+            int coins = 0;
+            int morale = 0;
+            int media = 0;
+            int corruption = 0;
+            int support = 0;
+            boolean isEmpty() {
+                return coins == 0 && morale == 0 && media == 0 && corruption == 0 && support == 0;
+            }
+        }
+        Map<String, StatDelta> deltas = new java.util.LinkedHashMap<>();
+        for (PartyState p : session.getParties()) {
+            deltas.put(p.getId(), new StatDelta());
+        }
+
         for (PartyState party : session.getParties()) {
             if (!party.isActive()) {
                 continue;
@@ -106,6 +122,7 @@ public class ProjectResolver {
                         int coinDrain = Math.min(target.getStats().getCoins(), Math.abs(def.getBenefitCoins()));
                         if (coinDrain > 0) {
                             target.getStats().setCoins(target.getStats().getCoins() - coinDrain);
+                            deltas.get(target.getId()).coins -= coinDrain;
                             if (logCommentary) {
                                 commentary.add("  💥 Drained " + target.getName() + "'s Coins by -" + coinDrain + ".");
                             }
@@ -113,18 +130,21 @@ public class ProjectResolver {
                     }
                     if (def.getBenefitMorale() != 0) {
                         target.getStats().setPartyMorale(Math.max(0, target.getStats().getPartyMorale() + def.getBenefitMorale()));
+                        deltas.get(target.getId()).morale += def.getBenefitMorale();
                         if (logCommentary) {
                             commentary.add("  💥 Drained " + target.getName() + "'s Morale by " + Math.abs(def.getBenefitMorale()) + ".");
                         }
                     }
                     if (def.getBenefitMedia() != 0) {
                         target.getStats().setMediaImage(Math.max(0, target.getStats().getMediaImage() + def.getBenefitMedia()));
+                        deltas.get(target.getId()).media += def.getBenefitMedia();
                         if (logCommentary) {
                             commentary.add("  💥 Drained " + target.getName() + "'s Media Image by " + Math.abs(def.getBenefitMedia()) + ".");
                         }
                     }
                     if (def.getBenefitCorruption() != 0) {
                         target.getStats().setCorruptionScore(Math.min(100, target.getStats().getCorruptionScore() + def.getBenefitCorruption()));
+                        deltas.get(target.getId()).corruption += def.getBenefitCorruption();
                         if (logCommentary) {
                             commentary.add("  💥 Exposed " + target.getName() + ", raising their Corruption by +" + def.getBenefitCorruption() + ".");
                         }
@@ -134,6 +154,7 @@ public class ProjectResolver {
                         if (supportDrain > 0) {
                             target.getStats().setPublicSupport(target.getStats().getPublicSupport() - supportDrain);
                             session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + supportDrain);
+                            deltas.get(target.getId()).support -= supportDrain;
                             if (logCommentary) {
                                 commentary.add("  💥 Drained " + target.getName() + "'s Public Support by -" + supportDrain + "%.");
                             }
@@ -142,24 +163,28 @@ public class ProjectResolver {
                 } else {
                     if (def.getBenefitCoins() != 0) {
                         party.getStats().setCoins(party.getStats().getCoins() + def.getBenefitCoins());
+                        deltas.get(party.getId()).coins += def.getBenefitCoins();
                         if (logCommentary) {
                             commentary.add("  💰 Received +" + def.getBenefitCoins() + " Coins.");
                         }
                     }
                     if (def.getBenefitMorale() != 0) {
                         party.getStats().setPartyMorale(Math.min(100, party.getStats().getPartyMorale() + def.getBenefitMorale()));
+                        deltas.get(party.getId()).morale += def.getBenefitMorale();
                         if (logCommentary) {
                             commentary.add("  ⚡ Received +" + def.getBenefitMorale() + " Morale.");
                         }
                     }
                     if (def.getBenefitMedia() != 0) {
                         party.getStats().setMediaImage(Math.min(100, party.getStats().getMediaImage() + def.getBenefitMedia()));
+                        deltas.get(party.getId()).media += def.getBenefitMedia();
                         if (logCommentary) {
                             commentary.add("  📢 Received +" + def.getBenefitMedia() + " Media Image.");
                         }
                     }
                     if (def.getBenefitCorruption() != 0) {
                         party.getStats().setCorruptionScore(Math.max(0, party.getStats().getCorruptionScore() + def.getBenefitCorruption()));
+                        deltas.get(party.getId()).corruption += def.getBenefitCorruption();
                         if (logCommentary) {
                             commentary.add("  🛡️ Reduced Corruption by " + Math.abs(def.getBenefitCorruption()) + ".");
                         }
@@ -170,6 +195,7 @@ public class ProjectResolver {
                         if (supportGain > 0) {
                             party.getStats().setPublicSupport(party.getStats().getPublicSupport() + supportGain);
                             session.getPublicState().setUndecidedSupport(undecided - supportGain);
+                            deltas.get(party.getId()).support += supportGain;
                             if (logCommentary) {
                                 commentary.add("  📈 Gained +" + supportGain + "% Public Support from Undecided voters.");
                             }
@@ -181,6 +207,24 @@ public class ProjectResolver {
                     }
                 }
                 project.setJustCompleted(false);
+            }
+        }
+
+        boolean showYieldHeader = false;
+        for (PartyState p : session.getParties()) {
+            StatDelta d = deltas.get(p.getId());
+            if (d != null && !d.isEmpty()) {
+                if (!showYieldHeader) {
+                    commentary.add("🏗️ Passive yields from completed projects this turn:");
+                    showYieldHeader = true;
+                }
+                List<String> parts = new ArrayList<>();
+                if (d.coins != 0) parts.add((d.coins > 0 ? "+" : "") + d.coins + " Coins");
+                if (d.morale != 0) parts.add((d.morale > 0 ? "+" : "") + d.morale + " Morale");
+                if (d.media != 0) parts.add((d.media > 0 ? "+" : "") + d.media + " Media Image");
+                if (d.corruption != 0) parts.add((d.corruption > 0 ? "+" : "") + d.corruption + " Corruption");
+                if (d.support != 0) parts.add((d.support > 0 ? "+" : "") + d.support + "% Support");
+                commentary.add("  - " + p.getName() + ": " + String.join(", ", parts));
             }
         }
     }

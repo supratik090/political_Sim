@@ -1,106 +1,136 @@
 package com.politicalsim.party;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public enum BuildingProject {
-    PARTY_HQ("Party Headquarters", 100, 10, 0, 10, 0, 12, 0, 0, 3, 0, false),
-    IT_CELL("IT Cell (Digital Bureau)", 60, 0, 10, 0, 0, 0, 0, 0, 2, 1, false),
-    CADRE_OFFICE("District Cadre Offices", 50, 5, 10, 0, 0, 0, 4, 0, 0, 1, false),
-    THINK_TANK("Policy Research Think Tank", 40, 10, 0, 5, 0, 2, 0, 0, 4, 0, false),
-    TRAINING_ACADEMY("Grassroots Training Academy", 45, 5, 0, 5, 0, 0, 5, 0, 0, 0, false),
-    YOUTH_WING("Youth Wing Network", 35, 5, 5, 5, 0, 0, 3, 0, 0, 1, false),
-    
-    // New Positive Projects (Yields to Self)
-    MEGA_RALLY("Mega Rally", 60, 0, 0, 10, 5, 6, 0, 0, 1, 1, false),
-    PRIME_LEADER_VISIT("Prime Leader Visit", 100, 0, 10, 10, 0, 10, 0, -1, 1, 2, false),
-    FOUNDATION_DAY("Foundation Day Celebration", 40, 15, 0, 0, 0, 6, 2, 0, 0, 1, false),
-    PARTY_CONGRESS("Party Congress", 120, 0, 0, 20, 10, 12, 2, 0, 2, 1, false),
+    PARTY_HQ,
+    IT_CELL,
+    CADRE_OFFICE,
+    THINK_TANK,
+    TRAINING_ACADEMY,
+    YOUTH_WING,
+    MEGA_RALLY,
+    PRIME_LEADER_VISIT,
+    FOUNDATION_DAY,
+    PARTY_CONGRESS,
+    DISSENT_NEWSPAPER,
+    MEDIA_HOUSE,
+    PARTY_DISSENT,
+    CORRUPTION_EXPOSE,
+    CAMPAIGN_SABOTAGE,
+    AUDIT_HARASSMENT,
+    MEDIA_SMEAR;
 
-    // Offensive Projects (Requires Target = true, Yields/Drains target)
-    DISSENT_NEWSPAPER("Dissenting Newspaper", 65, 15, 0, 0, 0, 0, 0, 0, 0, -1, true),
-    MEDIA_HOUSE("Hostile Media House", 55, 0, 10, 0, 0, 0, 0, 0, -4, 0, true),
-    PARTY_DISSENT("Encourage Rank Dissent", 45, 25, 0, 0, 0, 0, -3, 0, 0, 0, true),
-    CORRUPTION_EXPOSE("Expose Corruption Center", 40, 0, 5, 0, 0, 0, 0, 3, 0, 0, true),
-    
-    // New Offensive Projects (Yields/Drains target)
-    CAMPAIGN_SABOTAGE("Campaign Sabotage", 50, 0, 0, 10, 0, -5, -2, 0, -1, 0, true),
-    AUDIT_HARASSMENT("Audit Harassment", 80, 0, 10, 0, 0, -8, -1, 1, 0, 0, true),
-    MEDIA_SMEAR("Media Smear Campaign", 60, 0, 10, 0, 0, -6, 0, 0, -2, -1, true);
+    public static class ProjectConfig {
+        public String name;
+        public int costCoins;
+        public int costMorale;
+        public int costCorruption;
+        public int costMedia;
+        public int costSupport;
+        public int benefitCoins;
+        public int benefitMorale;
+        public int benefitCorruption;
+        public int benefitMedia;
+        public int benefitSupport;
+        public boolean requiresTarget;
+    }
 
-    private final String name;
-    private final int costCoins;
-    private final int costMorale;
-    private final int costCorruption;
-    private final int costMedia;
-    private final int costSupport;
-    private final int benefitCoins;
-    private final int benefitMorale;
-    private final int benefitCorruption;
-    private final int benefitMedia;
-    private final int benefitSupport;
-    private final boolean requiresTarget;
+    private static final Map<BuildingProject, ProjectConfig> configs = new ConcurrentHashMap<>();
 
-    BuildingProject(String name, int costCoins, int costMorale, int costCorruption, int costMedia, int costSupport,
-                    int benefitCoins, int benefitMorale, int benefitCorruption, int benefitMedia, int benefitSupport,
-                    boolean requiresTarget) {
-        this.name = name;
-        this.costCoins = costCoins;
-        this.costMorale = costMorale;
-        this.costCorruption = costCorruption;
-        this.costMedia = costMedia;
-        this.costSupport = costSupport;
-        this.benefitCoins = benefitCoins;
-        this.benefitMorale = benefitMorale;
-        this.benefitCorruption = benefitCorruption;
-        this.benefitMedia = benefitMedia;
-        this.benefitSupport = benefitSupport;
-        this.requiresTarget = requiresTarget;
+    static {
+        loadConfigsFromClasspath();
+    }
+
+    public static void initializeConfigs(Map<String, ProjectConfig> rawConfigs) {
+        configs.clear();
+        for (Map.Entry<String, ProjectConfig> entry : rawConfigs.entrySet()) {
+            try {
+                BuildingProject project = BuildingProject.valueOf(entry.getKey());
+                configs.put(project, entry.getValue());
+            } catch (IllegalArgumentException e) {
+                // Ignore key mismatch
+            }
+        }
+    }
+
+    private static void loadConfigsFromClasspath() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            InputStream stream = BuildingProject.class.getResourceAsStream("/config/building_projects.json");
+            if (stream != null) {
+                Map<String, ProjectConfig> raw = mapper.readValue(stream, new TypeReference<Map<String, ProjectConfig>>() {});
+                initializeConfigs(raw);
+            } else {
+                System.err.println("⚠️ building_projects.json not found on classpath!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("❌ Failed to parse building_projects.json: " + e.getMessage());
+        }
     }
 
     public String getName() {
-        return name;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.name : this.name();
     }
 
     public int getCostCoins() {
-        return costCoins;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.costCoins : 0;
     }
 
     public int getCostMorale() {
-        return costMorale;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.costMorale : 0;
     }
 
     public int getCostCorruption() {
-        return costCorruption;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.costCorruption : 0;
     }
 
     public int getCostMedia() {
-        return costMedia;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.costMedia : 0;
     }
 
     public int getCostSupport() {
-        return costSupport;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.costSupport : 0;
     }
 
     public int getBenefitCoins() {
-        return benefitCoins;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.benefitCoins : 0;
     }
 
     public int getBenefitMorale() {
-        return benefitMorale;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.benefitMorale : 0;
     }
 
     public int getBenefitCorruption() {
-        return benefitCorruption;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.benefitCorruption : 0;
     }
 
     public int getBenefitMedia() {
-        return benefitMedia;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.benefitMedia : 0;
     }
 
     public int getBenefitSupport() {
-        return benefitSupport;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.benefitSupport : 0;
     }
 
     public boolean isRequiresTarget() {
-        return requiresTarget;
+        ProjectConfig c = configs.get(this);
+        return c != null ? c.requiresTarget : false;
     }
 }
-

@@ -143,16 +143,26 @@ public class BiddingResolver {
 
             if (cycleWinnerPartyId != null) {
                 PartyState cycleWinner = engine.findParty(session, cycleWinnerPartyId);
-                RewardDefinition reward = engine.selectRandomReward(session);
-                HeldReward hr = new HeldReward(reward.key(), reward.name(), reward.description(), 15, reward.requiresTarget(), reward.targetType());
+                String currentRewardKey = session.getCurrentRewardKey();
+                RewardDefinition reward = null;
+                if (currentRewardKey != null && !currentRewardKey.isBlank()) {
+                    reward = engine.getReward(currentRewardKey);
+                }
+                if (reward == null) {
+                    reward = engine.selectRandomReward(session);
+                }
+                HeldReward hr = new HeldReward(reward.key(), reward.name(), reward.description(), 15, reward.requiresTarget(), reward.allowedTargets());
                 session.getPartyHeldRewards().computeIfAbsent(cycleWinnerPartyId, k -> new ArrayList<>()).add(hr);
-                session.getPartyRoundWins().clear(); // reset wins
-                commentary.add("🎁 Cycle Complete: " + cycleWinner.getName() + " won the 5-turn cycle with the most bidding wins! Awarded reward: '" + reward.name() + "'.");
-                session.setLastBiddingWinnerPartyId(cycleWinnerPartyId);
+                for (String partyId : session.getPartyRoundWins().keySet()) {
+                    session.getPartyRoundWins().put(partyId, 0);
+                }
+                commentary.add("🏆 CYCLE REWARD AWARDED: " + cycleWinner.getName() + " wins the 5-turn cycle reward: " + reward.name() + " (" + reward.description() + ")!");
                 
                 // Select next reward
                 RewardDefinition nextReward = engine.selectRandomReward(session);
-                session.setNextBiddingReward(nextReward);
+                session.setCurrentRewardKey(nextReward.key());
+                session.setCurrentRewardName(nextReward.name());
+                session.setCurrentRewardDescription(nextReward.description());
             }
         }
     }

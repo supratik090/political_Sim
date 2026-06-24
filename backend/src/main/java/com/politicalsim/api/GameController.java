@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,6 +62,12 @@ public class GameController {
         return gameService.forfeitGame(gameId);
     }
 
+    @DeleteMapping("/{gameId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteGame(@PathVariable String gameId) {
+        gameService.deleteGame(gameId);
+    }
+
     @PostMapping("/{gameId}/parties/{partyId}/projects/fund")
     public TurnView fundProject(
             @PathVariable String gameId,
@@ -77,6 +84,21 @@ public class GameController {
             @PathVariable String projectKey,
             @RequestParam String targetPartyId) {
         return gameService.setProjectTarget(gameId, partyId, projectKey, targetPartyId);
+    }
+
+    @PostMapping("/{gameId}/cooperation/offer")
+    public TurnView createCooperationOffer(
+            @PathVariable String gameId,
+            @RequestBody com.politicalsim.game.CooperationOffer offer) {
+        return gameService.createCooperationOffer(gameId, offer);
+    }
+
+    @PostMapping("/{gameId}/cooperation/respond")
+    public TurnView respondToCooperationOffer(
+            @PathVariable String gameId,
+            @RequestParam String offerId,
+            @RequestParam boolean accept) {
+        return gameService.respondToCooperationOffer(gameId, offerId, accept);
     }
 
     @ExceptionHandler(GameNotFoundException.class)

@@ -52,6 +52,7 @@ public class GameService {
     private final MonthlyIssueDefinitionRepository issueRepository;
     private final ScenarioDefinitionRepository scenarioRepository;
     private final AiDecisionService aiDecisionService;
+    private final CooperationResolver cooperationResolver;
 
     public GameService(
             GameSessionService gameSessionService,
@@ -69,6 +70,7 @@ public class GameService {
         this.issueRepository = issueRepository;
         this.scenarioRepository = scenarioRepository;
         this.aiDecisionService = aiDecisionService;
+        this.cooperationResolver = new CooperationResolver(this);
     }
 
     public CampaignProgressResponse getCampaignProgress(String userId) {
@@ -121,7 +123,11 @@ public class GameService {
             boolean is2001 = key.endsWith("_2000") || key.endsWith("_2001");
 
             if (currentEra == 2006 && !is2006) continue;
-            if (currentEra == 2001 && !is2001) continue;
+            if (currentEra == 2001 && !is2001) {
+                if (!("west_bengal_2006".equals(key) && wbWon)) {
+                    continue;
+                }
+            }
 
             String status = "AVAILABLE";
             
@@ -145,7 +151,9 @@ public class GameService {
                     }
                 } else {
                     boolean isDefaultUnlocked = "west_bengal_2000".equals(key) || "maharashtra_2001".equals(key) || "Mh_2001".equals(key);
-                    if (!isDefaultUnlocked && !wonScenarioKeys.contains("west_bengal_2000")) {
+                    if ("west_bengal_2006".equals(key)) {
+                        locked = !wbWon;
+                    } else if (!isDefaultUnlocked && !wonScenarioKeys.contains("west_bengal_2000")) {
                         locked = true;
                     }
                 }
@@ -189,13 +197,95 @@ public class GameService {
         temp.setTurnNumber(1);
         temp.setUsedRewardKeys(new ArrayList<>());
         RewardDefinition firstReward = roundResolutionEngine.selectRandomReward(temp);
-        return gameSessionService.createGame(request, firstReward);
+        GameSession session = gameSessionService.createGame(request, firstReward);
+
+        if (request.isRetainInstitutions()) {
+            GameSession preceding = findPrecedingWonSession(request.getUserId(), request.getScenarioKey());
+            if (preceding != null) {
+                List<String> completedProjectKeys = new ArrayList<>();
+                if (preceding.getPlayerPartyIds() != null) {
+                    for (String pid : preceding.getPlayerPartyIds()) {
+                        PartyState pState = preceding.getParties().stream()
+                                .filter(p -> p.getId().equals(pid))
+                                .findFirst().orElse(null);
+                        if (pState != null && pState.getProjects() != null) {
+                            for (ProjectState proj : pState.getProjects()) {
+                                if (proj.getProgressPercent() >= 100) {
+                                    completedProjectKeys.add(proj.getProjectKey());
+                                }
+                            }
+                        }
+                    }
+                }
+
+                List<String> uniqueCompletedProjectKeys = completedProjectKeys.stream().distinct().toList();
+                List<String> projectsToRetain = aiDecisionService.rankAndSelectProjectsToRetain(uniqueCompletedProjectKeys);
+
+                if (!projectsToRetain.isEmpty()) {
+                    PartyState playerParty = session.getParties().stream()
+                            .filter(p -> p.getId().equals(session.getPlayerPartyId()))
+                            .findFirst().orElse(null);
+                    if (playerParty != null && playerParty.getProjects() != null) {
+                        for (String key : projectsToRetain) {
+                            for (ProjectState proj : playerParty.getProjects()) {
+                                if (key.equals(proj.getProjectKey())) {
+                                    proj.setProgressPercent(100);
+                                    proj.setJustCompleted(false);
+                                }
+                            }
+                        }
+                        gameSessionService.save(session);
+                    }
+                }
+            }
+        }
+        return session;
+    }
+
+    private String getPrecedingScenarioKey(String scenarioKey) {
+        if (scenarioKey == null) return null;
+        if ("west_bengal_2006".equals(scenarioKey)) return "west_bengal_2000";
+        if ("maharashtra_2006".equals(scenarioKey)) return "maharashtra_2001";
+        if ("uttar_pradesh_2006".equals(scenarioKey)) return "uttar_pradesh_2001";
+        if ("tamil_nadu_2006".equals(scenarioKey)) return "tamil_nadu_2001";
+        if ("rajasthan_2006".equals(scenarioKey)) return "rajasthan_2001";
+        return null;
+    }
+
+    private GameSession findPrecedingWonSession(String userId, String scenarioKey) {
+        if (userId == null || userId.isBlank()) return null;
+        String precedingKey = getPrecedingScenarioKey(scenarioKey);
+        if (precedingKey == null) return null;
+
+        List<GameSession> userGames = gameSessionService.listGames(userId);
+        for (GameSession g : userGames) {
+            String skey = g.getScenarioKey();
+            if (skey == null) continue;
+            boolean isMatch = skey.equals(precedingKey) || 
+                              ("maharashtra_2001".equals(precedingKey) && "Mh_2001".equals(skey)) ||
+                              ("Mh_2001".equals(precedingKey) && "maharashtra_2001".equals(skey));
+            if (isMatch) {
+                if (g.getStatus() == GameStatus.VICTORY) {
+                    return g;
+                } else if (g.getStatus() == GameStatus.GAME_OVER) {
+                    PartyState gov = g.getGovernmentParty();
+                    if (gov != null && g.getPlayerPartyIds() != null && g.getPlayerPartyIds().contains(gov.getId())) {
+                        return g;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public GameSession forfeitGame(String gameId) {
         GameSession session = getGame(gameId);
         session.setStatus(GameStatus.FORFEITED);
         return gameSessionService.save(session);
+    }
+
+    public void deleteGame(String gameId) {
+        gameSessionService.deleteGame(gameId);
     }
 
     public GameSession getGame(String gameId) {
@@ -267,7 +357,12 @@ public class GameService {
                 session.getActiveCrisisKey(),
                 session.getActiveCrisisName(),
                 session.getActiveCrisisDescription(),
-                session.getActiveCrisisTurnsLeft()
+                session.getActiveCrisisTurnsLeft(),
+                session.isLastElectionHeld(),
+                session.getLastElectionWinner(),
+                session.getLastElectionVoteShares(),
+                session.getCooperationOffers(),
+                session.getActivePacts()
         );
     }
 
@@ -385,7 +480,9 @@ public class GameService {
             }
         }
 
-        boolean electionHeld = (noConfidencePlayed && noConfidenceSucceeded) || session.getMonthInCycle() >= CYCLE_LENGTH_MONTHS;
+        boolean electionHeld = (noConfidencePlayed && noConfidenceSucceeded)
+                || session.getMonthInCycle() >= CYCLE_LENGTH_MONTHS
+                || session.getTurnNumber() >= 60;
         if (electionHeld) {
             roundResolutionEngine.conductElection(session, noConfidencePlayed ? "No-confidence motion triggered an early election." : "Mandatory 60-month election completed.", noConfidencePlayed);
             session.setMonthInCycle(1);
@@ -394,8 +491,35 @@ public class GameService {
         }
         session.setTurnNumber(session.getTurnNumber() + 1);
         session.setCurrentDate(session.getCurrentDate().plusMonths(1));
+
+        // Tick Non-Aggression pacts and cooperation offers
+        if (session.getActivePacts() != null) {
+            session.getActivePacts().forEach(pact -> pact.setTurnsRemaining(pact.getTurnsRemaining() - 1));
+            session.getActivePacts().removeIf(pact -> pact.getTurnsRemaining() <= 0);
+        }
+        if (session.getCooperationOffers() != null) {
+            for (CooperationOffer co : session.getCooperationOffers()) {
+                if (co.getStatus() == CooperationOffer.OfferStatus.PENDING && co.getTurnCreated() < session.getTurnNumber()) {
+                    co.setStatus(CooperationOffer.OfferStatus.EXPIRED);
+                }
+            }
+        }
         session.setActiveHumanPlayerIndex(0);
         session.setCurrentRoundSubmissions(new ArrayList<>());
+
+        Map<String, PartyStats> startStats = new java.util.LinkedHashMap<>();
+        for (PartyState party : session.getParties()) {
+            PartyStats copied = new PartyStats(
+                party.getStats().getCoins(),
+                party.getStats().getPartyMorale(),
+                party.getStats().getCorruptionScore(),
+                party.getStats().getMediaImage(),
+                party.getStats().getPublicSupport()
+            );
+            startStats.put(party.getId(), copied);
+        }
+        session.setTurnStartStats(startStats);
+
         gameSessionService.save(session);
         return getTurnView(gameId);
     }
@@ -710,21 +834,40 @@ public class GameService {
             List<HeldReward> heldRewards = session.getPartyHeldRewards().get(party.getId());
             if (heldRewards != null && !heldRewards.isEmpty()) {
                 if (new Random().nextBoolean()) {
-                    HeldReward hr = heldRewards.get(0);
-                    submission.setSelectedRewardKey(hr.getRewardKey());
-                    submission.setRewardName(hr.getName());
-                    if (hr.isRequiresTarget()) {
-                        PartyState rTarget = null;
-                        if ("opponent".equals(hr.getAllowedTargets())) {
-                            rTarget = opponent;
-                        } else if ("self".equals(hr.getAllowedTargets())) {
-                            rTarget = party;
+                    HeldReward chosenHr = null;
+                    PartyState chosenTarget = null;
+                    for (HeldReward hr : heldRewards) {
+                        if (hr.isRequiresTarget()) {
+                            if ("opponent".equals(hr.getAllowedTargets())) {
+                                PartyState target = chooseOpponentExcludingPacts(session, party);
+                                if (target != null) {
+                                    chosenHr = hr;
+                                    chosenTarget = target;
+                                    break;
+                                }
+                            } else if ("self".equals(hr.getAllowedTargets())) {
+                                chosenHr = hr;
+                                chosenTarget = party;
+                                break;
+                            } else {
+                                // "any"
+                                PartyState target = chooseOpponentExcludingPacts(session, party);
+                                chosenHr = hr;
+                                chosenTarget = (target == null || new Random().nextBoolean()) ? party : target;
+                                break;
+                            }
                         } else {
-                            rTarget = new Random().nextBoolean() ? party : opponent;
+                            chosenHr = hr;
+                            chosenTarget = null;
+                            break;
                         }
-                        if (rTarget != null) {
-                            submission.setRewardTargetPartyId(rTarget.getId());
-                            submission.setRewardTargetPartyName(rTarget.getName());
+                    }
+                    if (chosenHr != null) {
+                        submission.setSelectedRewardKey(chosenHr.getRewardKey());
+                        submission.setRewardName(chosenHr.getName());
+                        if (chosenTarget != null) {
+                            submission.setRewardTargetPartyId(chosenTarget.getId());
+                            submission.setRewardTargetPartyName(chosenTarget.getName());
                         }
                     }
                 }
@@ -799,6 +942,7 @@ public class GameService {
             submission.setAiDecisionBasis(explanation);
 
             session.getCurrentRoundSubmissions().add(submission);
+            generateAiProactiveOffer(session, party);
         }
     }
 
@@ -956,6 +1100,25 @@ public class GameService {
         return session.getParties().stream()
                 .filter(PartyState::isActive)
                 .filter(party -> !party.getId().equals(actor.getId()))
+                .max(Comparator.comparingInt(party -> party.getStats().getPublicSupport()))
+                .orElse(null);
+    }
+
+    private PartyState chooseOpponentExcludingPacts(GameSession session, PartyState actor) {
+        return session.getParties().stream()
+                .filter(PartyState::isActive)
+                .filter(party -> !party.getId().equals(actor.getId()))
+                .filter(party -> {
+                    if (session.getActivePacts() != null) {
+                        for (NonAggressionPact pact : session.getActivePacts()) {
+                            if ((pact.getPartyAId().equals(actor.getId()) && pact.getPartyBId().equals(party.getId()))
+                                    || (pact.getPartyAId().equals(party.getId()) && pact.getPartyBId().equals(actor.getId()))) {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                })
                 .max(Comparator.comparingInt(party -> party.getStats().getPublicSupport()))
                 .orElse(null);
     }
@@ -1123,7 +1286,7 @@ public class GameService {
         return Math.min(bid, currentMetricValue);
     }
 
-    private PartyState findParty(GameSession session, String partyId) {
+    PartyState findParty(GameSession session, String partyId) {
         return session.getParties().stream()
                 .filter(party -> party.getId().equals(partyId))
                 .findFirst()
@@ -1145,9 +1308,22 @@ public class GameService {
         return 0;
     }
 
+    private String getAlternativeScenarioKey(String scenarioKey) {
+        if (scenarioKey == null) return null;
+        if ("maharashtra_2001".equals(scenarioKey)) return "Mh_2001";
+        if ("Mh_2001".equals(scenarioKey)) return "maharashtra_2001";
+        return null;
+    }
+
     private List<CardDefinition> getCardsForScenario(String scenarioKey) {
         return DefinitionCache.cardsCache.computeIfAbsent(scenarioKey, key -> {
             List<CardDefinition> cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc(key);
+            if (cards.isEmpty()) {
+                String altKey = getAlternativeScenarioKey(key);
+                if (altKey != null) {
+                    cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc(altKey);
+                }
+            }
             if (cards.isEmpty()) {
                 cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc("west_bengal_2000");
             }
@@ -1159,7 +1335,10 @@ public class GameService {
         return DefinitionCache.newsCache.computeIfAbsent(scenarioKey, key -> {
             List<NewsDefinition> news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc(key);
             if (news.isEmpty()) {
-                news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc("west_bengal_2000");
+                String altKey = getAlternativeScenarioKey(key);
+                if (altKey != null) {
+                    news = newsRepository.findByScenarioKeyOrderByTypeAscTitleAsc(altKey);
+                }
             }
             return news;
         });
@@ -1168,6 +1347,12 @@ public class GameService {
     private List<MonthlyIssueDefinition> getIssuesForScenario(String scenarioKey) {
         return DefinitionCache.issuesCache.computeIfAbsent(scenarioKey, key -> {
             List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(key);
+            if (issues.isEmpty()) {
+                String altKey = getAlternativeScenarioKey(key);
+                if (altKey != null) {
+                    issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(altKey);
+                }
+            }
             if (issues.isEmpty()) {
                 issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc("west_bengal_2000");
             }
@@ -1370,6 +1555,236 @@ public class GameService {
         }
         
         return score;
+    }
+
+    public TurnView createCooperationOffer(String gameId, CooperationOffer offer) {
+        GameSession session = getGame(gameId);
+        if (session.getStatus() != GameStatus.ACTIVE) {
+            throw new IllegalArgumentException("The game has already ended.");
+        }
+        
+        offer.setId(java.util.UUID.randomUUID().toString());
+        offer.setStatus(CooperationOffer.OfferStatus.PENDING);
+        offer.setTurnCreated(session.getTurnNumber());
+        
+        PartyState sender = findParty(session, offer.getSenderPartyId());
+        PartyState recipient = findParty(session, offer.getRecipientPartyId());
+        
+        // Validate sender has enough assets
+        validateOfferSenderAssets(session, sender, offer);
+        
+        // Log proposal
+        String proposalDesc = getOfferDescription(offer);
+        session.getLastRoundCommentary().add("🤝 " + sender.getName() + " proposed a deal to " + recipient.getName() + ": " + proposalDesc);
+        session.getLastResults().add("🤝 " + sender.getName() + " proposed deal: " + proposalDesc);
+        
+        if (recipient.getControllerType() == ControllerType.COMPUTER) {
+            boolean accepted = aiDecisionService.evaluateCooperationOffer(session, recipient, offer);
+            if (accepted) {
+                executeCooperationTrade(session, offer);
+                offer.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
+                session.getLastRoundCommentary().add("✅ " + recipient.getName() + " accepted the deal with " + sender.getName() + ": " + proposalDesc);
+                session.getLastResults().add("✅ " + recipient.getName() + " accepted deal from " + sender.getName());
+            } else {
+                offer.setStatus(CooperationOffer.OfferStatus.REJECTED);
+                session.getLastRoundCommentary().add("❌ " + recipient.getName() + " rejected the deal proposed by " + sender.getName() + ".");
+                session.getLastResults().add("❌ " + recipient.getName() + " rejected deal from " + sender.getName());
+            }
+        }
+        
+        session.getCooperationOffers().add(offer);
+        gameSessionService.save(session);
+        return getTurnView(gameId);
+    }
+    
+    public TurnView respondToCooperationOffer(String gameId, String offerId, boolean accept) {
+        GameSession session = getGame(gameId);
+        if (session.getStatus() != GameStatus.ACTIVE) {
+            throw new IllegalArgumentException("The game has already ended.");
+        }
+        
+        CooperationOffer offer = session.getCooperationOffers().stream()
+            .filter(o -> o.getId().equals(offerId))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Offer not found: " + offerId));
+            
+        if (offer.getStatus() != CooperationOffer.OfferStatus.PENDING) {
+            throw new IllegalArgumentException("Offer is already resolved.");
+        }
+        
+        PartyState sender = findParty(session, offer.getSenderPartyId());
+        PartyState recipient = findParty(session, offer.getRecipientPartyId());
+        String proposalDesc = getOfferDescription(offer);
+        
+        if (accept) {
+            // Re-validate assets before executing
+            validateOfferSenderAssets(session, sender, offer);
+            validateOfferRecipientAssets(session, recipient, offer);
+            
+            executeCooperationTrade(session, offer);
+            offer.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
+            session.getLastRoundCommentary().add("✅ " + recipient.getName() + " accepted the deal with " + sender.getName() + ": " + proposalDesc);
+            session.getLastResults().add("✅ " + recipient.getName() + " accepted deal from " + sender.getName());
+        } else {
+            offer.setStatus(CooperationOffer.OfferStatus.REJECTED);
+            session.getLastRoundCommentary().add("❌ " + recipient.getName() + " rejected the deal proposed by " + sender.getName() + ".");
+            session.getLastResults().add("❌ " + recipient.getName() + " rejected deal from " + sender.getName());
+        }
+        
+        gameSessionService.save(session);
+        return getTurnView(gameId);
+    }
+    
+    private void validateOfferSenderAssets(GameSession session, PartyState sender, CooperationOffer offer) {
+        cooperationResolver.validateOfferSenderAssets(session, sender, offer);
+    }
+    
+    private void validateOfferRecipientAssets(GameSession session, PartyState recipient, CooperationOffer offer) {
+        cooperationResolver.validateOfferRecipientAssets(session, recipient, offer);
+    }
+    
+    private void validatePactPayment(PartyState payer, CooperationOffer offer) {
+        cooperationResolver.validatePactPayment(payer, offer);
+    }
+    
+    private String getOfferDescription(CooperationOffer offer) {
+        return cooperationResolver.getOfferDescription(offer);
+    }
+    
+    private void executeCooperationTrade(GameSession session, CooperationOffer offer) {
+        cooperationResolver.executeCooperationTrade(session, offer);
+    }
+    
+    private void generateAiProactiveOffer(GameSession session, PartyState party) {
+        for (PartyState other : session.getParties()) {
+            if (!other.isActive() || other.getId().equals(party.getId())) {
+                continue;
+            }
+            
+            // Check if other party has low coins
+            if (other.getStats().getCoins() < 100) {
+                // Check if they have healthy support
+                if (other.getStats().getPublicSupport() > 20 && party.getStats().getCoins() >= 150) {
+                    CooperationOffer offer = new CooperationOffer();
+                    offer.setId(java.util.UUID.randomUUID().toString());
+                    offer.setSenderPartyId(party.getId());
+                    offer.setSenderPartyName(party.getName());
+                    offer.setRecipientPartyId(other.getId());
+                    offer.setRecipientPartyName(other.getName());
+                    offer.setType(CooperationOffer.OfferType.EXCHANGE);
+                    offer.setOfferedCoins(50);
+                    offer.setRequestedSupport(3);
+                    offer.setStatus(CooperationOffer.OfferStatus.PENDING);
+                    offer.setTurnCreated(session.getTurnNumber());
+                    
+                    String proposalDesc = getOfferDescription(offer);
+                    session.getLastRoundCommentary().add("🤝 " + party.getName() + " proposed a trade deal to " + other.getName() + ": " + proposalDesc);
+                    session.getLastResults().add("🤝 " + party.getName() + " proposed trade: 50 Coins for 3% Support to " + other.getName());
+                    
+                    if (other.getControllerType() == ControllerType.COMPUTER) {
+                        boolean accepted = aiDecisionService.evaluateCooperationOffer(session, other, offer);
+                        if (accepted) {
+                            executeCooperationTrade(session, offer);
+                            offer.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
+                            session.getLastRoundCommentary().add("✅ " + other.getName() + " accepted the deal with " + party.getName() + ": " + proposalDesc);
+                            session.getLastResults().add("✅ " + other.getName() + " accepted deal from " + party.getName());
+                        } else {
+                            offer.setStatus(CooperationOffer.OfferStatus.REJECTED);
+                            session.getLastRoundCommentary().add("❌ " + other.getName() + " rejected the deal proposed by " + party.getName() + ".");
+                            session.getLastResults().add("❌ " + other.getName() + " rejected deal from " + party.getName());
+                        }
+                    }
+                    
+                    session.getCooperationOffers().add(offer);
+                    break; // Make at most one proactive offer per turn
+                }
+                
+                // Else check if they have healthy morale
+                if (other.getStats().getPartyMorale() > 40 && party.getStats().getCoins() >= 130) {
+                    CooperationOffer offer = new CooperationOffer();
+                    offer.setId(java.util.UUID.randomUUID().toString());
+                    offer.setSenderPartyId(party.getId());
+                    offer.setSenderPartyName(party.getName());
+                    offer.setRecipientPartyId(other.getId());
+                    offer.setRecipientPartyName(other.getName());
+                    offer.setType(CooperationOffer.OfferType.EXCHANGE);
+                    offer.setOfferedCoins(30);
+                    offer.setRequestedMorale(5);
+                    offer.setStatus(CooperationOffer.OfferStatus.PENDING);
+                    offer.setTurnCreated(session.getTurnNumber());
+                    
+                    String proposalDesc = getOfferDescription(offer);
+                    session.getLastRoundCommentary().add("🤝 " + party.getName() + " proposed a trade deal to " + other.getName() + ": " + proposalDesc);
+                    session.getLastResults().add("🤝 " + party.getName() + " proposed trade: 30 Coins for 5 Morale to " + other.getName());
+                    
+                    if (other.getControllerType() == ControllerType.COMPUTER) {
+                        boolean accepted = aiDecisionService.evaluateCooperationOffer(session, other, offer);
+                        if (accepted) {
+                            executeCooperationTrade(session, offer);
+                            offer.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
+                            session.getLastRoundCommentary().add("✅ " + other.getName() + " accepted the deal with " + party.getName() + ": " + proposalDesc);
+                            session.getLastResults().add("✅ " + other.getName() + " accepted deal from " + party.getName());
+                        } else {
+                            offer.setStatus(CooperationOffer.OfferStatus.REJECTED);
+                            session.getLastRoundCommentary().add("❌ " + other.getName() + " rejected the deal proposed by " + party.getName() + ".");
+                            session.getLastResults().add("❌ " + other.getName() + " rejected deal from " + party.getName());
+                        }
+                    }
+                    
+                    session.getCooperationOffers().add(offer);
+                    break; // Make at most one proactive offer per turn
+                }
+            }
+            
+            // Early game Non-aggression check (only if Turn <= 20 and no active pact)
+            boolean hasActivePact = false;
+            if (session.getActivePacts() != null) {
+                for (NonAggressionPact pact : session.getActivePacts()) {
+                    if ((pact.getPartyAId().equals(party.getId()) && pact.getPartyBId().equals(other.getId()))
+                            || (pact.getPartyAId().equals(other.getId()) && pact.getPartyBId().equals(party.getId()))) {
+                        hasActivePact = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!hasActivePact && session.getTurnNumber() <= 20 && party.getStats().getCoins() >= 80) {
+                CooperationOffer offer = new CooperationOffer();
+                offer.setId(java.util.UUID.randomUUID().toString());
+                offer.setSenderPartyId(party.getId());
+                offer.setSenderPartyName(party.getName());
+                offer.setRecipientPartyId(other.getId());
+                offer.setRecipientPartyName(other.getName());
+                offer.setType(CooperationOffer.OfferType.NON_AGGRESSION);
+                offer.setDurationTurns(10);
+                offer.setSenderPaysPact(true);
+                offer.setPactPaymentResource("COINS");
+                offer.setPactPaymentValue(5);
+                offer.setStatus(CooperationOffer.OfferStatus.PENDING);
+                offer.setTurnCreated(session.getTurnNumber());
+                
+                String proposalDesc = getOfferDescription(offer);
+                session.getLastRoundCommentary().add("🤝 " + party.getName() + " proposed a pact to " + other.getName() + ": " + proposalDesc);
+                session.getLastResults().add("🤝 " + party.getName() + " proposed pact to " + other.getName());
+                
+                if (other.getControllerType() == ControllerType.COMPUTER) {
+                    boolean accepted = aiDecisionService.evaluateCooperationOffer(session, other, offer);
+                    if (accepted) {
+                        executeCooperationTrade(session, offer);
+                        offer.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
+                        session.getLastRoundCommentary().add("✅ " + other.getName() + " accepted the deal with " + party.getName() + ": " + proposalDesc);
+                        session.getLastResults().add("✅ " + other.getName() + " accepted deal from " + party.getName());
+                    } else {
+                        offer.setStatus(CooperationOffer.OfferStatus.REJECTED);
+                        session.getLastRoundCommentary().add("❌ " + other.getName() + " rejected the deal proposed by " + party.getName() + ".");
+                        session.getLastResults().add("❌ " + other.getName() + " rejected deal from " + party.getName());
+                    }
+                }
+                
+                session.getCooperationOffers().add(offer);
+                break; // One offer per turn
+            }
+        }
     }
 
     private record NoConfidenceStatus(boolean available, String reason) {

@@ -44,6 +44,10 @@ public class CardPlayResolver {
                         + " with intent " + submission.getAiIntent() + ". " + cardEffects);
             }
             resultLines.add(actor.getName() + " played card: " + card.getName());
+
+            int coinAward = engine.resolveNewsReactions(session, actor, submission.getNewsReactions(), supportPressure, commentary);
+            commentary.add("💰 News Reward: " + actor.getName() + " gained +" + coinAward + " coins from news handling (Reserves: " + actor.getStats().getCoins() + ").");
+            engine.resolveIssueChoice(session, actor, submission, supportPressure, commentary);
         }
         return noConfidencePlayed;
     }

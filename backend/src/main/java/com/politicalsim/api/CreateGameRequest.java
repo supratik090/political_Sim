@@ -83,4 +83,14 @@ public class CreateGameRequest {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+    private boolean retainInstitutions;
+
+    public boolean isRetainInstitutions() {
+        return retainInstitutions;
+    }
+
+    public void setRetainInstitutions(boolean retainInstitutions) {
+        this.retainInstitutions = retainInstitutions;
+    }
 }

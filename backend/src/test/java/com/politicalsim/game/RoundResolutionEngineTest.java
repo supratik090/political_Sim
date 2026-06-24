@@ -226,4 +226,63 @@ class RoundResolutionEngineTest {
         org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("Party A next round priorities: needs to focus on restoring Coins") 
                 && c.contains("Morale") && c.contains("Voter Support")));
     }
+
+    @Test
+    void testResolveRoundTriggersVictoryWhenAllOpponentsDefeated() {
+        GameSession session = new GameSession();
+        session.setTurnNumber(1);
+        session.setCurrentDate(java.time.LocalDate.now());
+        session.setScenarioKey("test");
+        session.setStatus(GameStatus.ACTIVE);
+        PublicState publicState = new PublicState();
+        session.setPublicState(publicState);
+
+        PartyState humanParty = party("Human Party", PartyRole.GOVERNMENT, new PartyStats(100, 50, 0, 50, 60));
+        humanParty.setControllerType(ControllerType.HUMAN);
+        
+        PartyState ai1 = party("AI 1", PartyRole.DEFEATED, new PartyStats(0, 0, 0, 0, 0));
+        ai1.setActive(false);
+        
+        PartyState ai2 = party("AI 2", PartyRole.DEFEATED, new PartyStats(0, 0, 0, 0, 0));
+        ai2.setActive(false);
+
+        session.setParties(List.of(humanParty, ai1, ai2));
+        session.setPlayerPartyIds(List.of(humanParty.getId()));
+
+        engine.resolveRound(session);
+
+        assertEquals(GameStatus.VICTORY, session.getStatus());
+        org.junit.jupiter.api.Assertions.assertTrue(session.getLastRoundCommentary().stream().anyMatch(c -> c.contains("🏆 VICTORY: All opponent parties have been defeated!")));
+    }
+
+    @Test
+    void testConductElectionEndsGameOnOrAfterTurn60() {
+        GameSession session = new GameSession();
+        session.setTurnNumber(60);
+        session.setCurrentDate(java.time.LocalDate.now());
+        session.setScenarioKey("test");
+        session.setStatus(GameStatus.ACTIVE);
+        PublicState publicState = new PublicState();
+        publicState.setUndecidedSupport(10);
+        session.setPublicState(publicState);
+
+        PartyState humanParty = party("Human Party", PartyRole.OPPOSITION, new PartyStats(100, 50, 0, 50, 50));
+        humanParty.setControllerType(ControllerType.HUMAN);
+        
+        PartyState aiParty = party("AI Party", PartyRole.GOVERNMENT, new PartyStats(100, 50, 0, 50, 40));
+        aiParty.setControllerType(ControllerType.COMPUTER);
+
+        session.setParties(List.of(humanParty, aiParty));
+        session.setPlayerPartyIds(List.of(humanParty.getId()));
+
+        engine.conductElection(session, "Mandatory 60-month election completed.", false);
+
+        // Human has 50% vs AI 40%, so Human should win
+        assertEquals(GameStatus.VICTORY, session.getStatus());
+        assertEquals("Human Party", session.getLastElectionWinner());
+        org.junit.jupiter.api.Assertions.assertTrue(session.isLastElectionHeld());
+        assertEquals(50, session.getLastElectionVoteShares().get("Human Party"));
+        assertEquals(40, session.getLastElectionVoteShares().get("AI Party"));
+        assertEquals(10, session.getLastElectionVoteShares().get("Undecided Voters"));
+    }
 }

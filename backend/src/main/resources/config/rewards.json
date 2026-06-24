@@ -4,11 +4,11 @@
     "name": "Federal Funding Grant",
     "description": "Gift 50 coins to a selected party.",
     "requiresTarget": true,
-    "targetType": "any",
+    "allowedTargets": "any",
     "coinsEffect": 50,
     "moraleEffect": 0,
     "corruptionEffect": 0,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   },
   {
@@ -16,11 +16,11 @@
     "name": "Morale Sabotage",
     "description": "Deduct 20 morale from an opponent party.",
     "requiresTarget": true,
-    "targetType": "opponent",
+    "allowedTargets": "opponent",
     "coinsEffect": 0,
     "moraleEffect": -20,
     "corruptionEffect": 0,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   },
   {
@@ -28,11 +28,11 @@
     "name": "Corruption Exposure",
     "description": "Increase corruption score by 25 on an opponent party.",
     "requiresTarget": true,
-    "targetType": "opponent",
+    "allowedTargets": "opponent",
     "coinsEffect": 0,
     "moraleEffect": 0,
     "corruptionEffect": 25,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   },
   {
@@ -40,11 +40,11 @@
     "name": "Smear Campaign",
     "description": "Decrease public support by 5% of an opponent party.",
     "requiresTarget": true,
-    "targetType": "opponent",
+    "allowedTargets": "opponent",
     "coinsEffect": 0,
     "moraleEffect": 0,
     "corruptionEffect": 0,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": -5
   },
   {
@@ -52,11 +52,11 @@
     "name": "Private Donation",
     "description": "Gift 40 coins to yourself.",
     "requiresTarget": false,
-    "targetType": "self",
+    "allowedTargets": "self",
     "coinsEffect": 40,
     "moraleEffect": 0,
     "corruptionEffect": 0,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   },
   {
@@ -64,11 +64,11 @@
     "name": "Cadre Boost",
     "description": "Increase morale by 35 of yourself.",
     "requiresTarget": false,
-    "targetType": "self",
+    "allowedTargets": "self",
     "coinsEffect": 0,
     "moraleEffect": 35,
     "corruptionEffect": 0,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   },
   {
@@ -76,11 +76,11 @@
     "name": "Media Spotlight",
     "description": "Boost media image by 30 of a selected party.",
     "requiresTarget": true,
-    "targetType": "any",
+    "allowedTargets": "any",
     "coinsEffect": 0,
     "moraleEffect": 0,
     "corruptionEffect": 0,
-    "mediaImageEffect": 30,
+    "mediaEffect": 30,
     "publicSupportEffect": 0
   },
   {
@@ -88,11 +88,11 @@
     "name": "Internal Reform",
     "description": "Decrease corruption score by 25 of yourself.",
     "requiresTarget": false,
-    "targetType": "self",
+    "allowedTargets": "self",
     "coinsEffect": 0,
     "moraleEffect": 0,
     "corruptionEffect": -25,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   },
   {
@@ -100,11 +100,11 @@
     "name": "Grassroots Rally",
     "description": "Boost public support by 8% of yourself.",
     "requiresTarget": false,
-    "targetType": "self",
+    "allowedTargets": "self",
     "coinsEffect": 0,
     "moraleEffect": 0,
     "corruptionEffect": 0,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 8
   },
   {
@@ -112,11 +112,11 @@
     "name": "Morale Tradeoff",
     "description": "Deduct 5 morale from yourself to gain 60 coins.",
     "requiresTarget": false,
-    "targetType": "self",
+    "allowedTargets": "self",
     "coinsEffect": 60,
     "moraleEffect": -5,
     "corruptionEffect": 0,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   },
   {
@@ -124,11 +124,11 @@
     "name": "Tax Audit Trigger",
     "description": "Increase corruption by 30 and deduct 45 coins from an opponent party.",
     "requiresTarget": true,
-    "targetType": "opponent",
+    "allowedTargets": "opponent",
     "coinsEffect": -45,
     "moraleEffect": 0,
     "corruptionEffect": 30,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   },
   {
@@ -136,11 +136,11 @@
     "name": "Character Assassination",
     "description": "Deduct 25 media image and 25 morale from an opponent party.",
     "requiresTarget": true,
-    "targetType": "opponent",
+    "allowedTargets": "opponent",
     "coinsEffect": 0,
     "moraleEffect": -25,
     "corruptionEffect": 0,
-    "mediaImageEffect": -25,
+    "mediaEffect": -25,
     "publicSupportEffect": 0
   },
   {
@@ -148,11 +148,11 @@
     "name": "Local Coalition Boost",
     "description": "Boost public support by 10% and media image by 30 of yourself.",
     "requiresTarget": false,
-    "targetType": "self",
+    "allowedTargets": "self",
     "coinsEffect": 0,
     "moraleEffect": 0,
     "corruptionEffect": 0,
-    "mediaImageEffect": 30,
+    "mediaEffect": 30,
     "publicSupportEffect": 10
   },
   {
@@ -160,11 +160,11 @@
     "name": "Bribe Scandal Setup",
     "description": "Increase corruption by 30 and deduct 20 morale from an opponent party.",
     "requiresTarget": true,
-    "targetType": "opponent",
+    "allowedTargets": "opponent",
     "coinsEffect": 0,
     "moraleEffect": -20,
     "corruptionEffect": 30,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   },
   {
@@ -172,11 +172,11 @@
     "name": "Charity Gala",
     "description": "Increase 20 coins from yourself and boost media image by 25.",
     "requiresTarget": false,
-    "targetType": "self",
+    "allowedTargets": "self",
     "coinsEffect": 20,
     "moraleEffect": 0,
     "corruptionEffect": 0,
-    "mediaImageEffect": 25,
+    "mediaEffect": 25,
     "publicSupportEffect": 0
   },
   {
@@ -184,11 +184,11 @@
     "name": "Ideological Purge",
     "description": "Boost morale by 25 add 5% public support from yourself.",
     "requiresTarget": false,
-    "targetType": "self",
+    "allowedTargets": "self",
     "coinsEffect": 0,
     "moraleEffect": 25,
     "corruptionEffect": 0,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 5
   },
   {
@@ -196,11 +196,11 @@
     "name": "Foreign Aid Link",
     "description": "Gift 60 coins to yourself, and decrease corruption by 10.",
     "requiresTarget": false,
-    "targetType": "self",
+    "allowedTargets": "self",
     "coinsEffect": 60,
     "moraleEffect": 0,
     "corruptionEffect": -10,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   },
   {
@@ -208,11 +208,11 @@
     "name": "Press Boycott",
     "description": "Deduct 30 media image from an opponent party.",
     "requiresTarget": true,
-    "targetType": "opponent",
+    "allowedTargets": "opponent",
     "coinsEffect": 0,
     "moraleEffect": 0,
     "corruptionEffect": 0,
-    "mediaImageEffect": -30,
+    "mediaEffect": -30,
     "publicSupportEffect": 0
   },
   {
@@ -220,11 +220,11 @@
     "name": "Voter Suppression Probe",
     "description": "Deduct 8% public support from an opponent party.",
     "requiresTarget": true,
-    "targetType": "opponent",
+    "allowedTargets": "opponent",
     "coinsEffect": 0,
     "moraleEffect": 0,
     "corruptionEffect": 0,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": -8
   },
   {
@@ -232,11 +232,11 @@
     "name": "Audit Cleanse",
     "description": "Decrease corruption score by 25 of yourself.",
     "requiresTarget": false,
-    "targetType": "self",
+    "allowedTargets": "self",
     "coinsEffect": 0,
     "moraleEffect": 0,
     "corruptionEffect": -25,
-    "mediaImageEffect": 0,
+    "mediaEffect": 0,
     "publicSupportEffect": 0
   }
 ]

@@ -10,8 +10,11 @@ import com.politicalsim.party.Ideology;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
 import com.politicalsim.party.PartyStats;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import com.politicalsim.game.CooperationOffer;
+import com.politicalsim.game.NonAggressionPact;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -193,6 +196,9 @@ public class AiDecisionService {
                 if (intValue(opponentEffects.get("publicSupport")) < 0 && tStats.getPublicSupport() <= 12) {
                     score += 10.0; // Bonus incentive to force voter support defeat
                 }
+            } else {
+                // If a card requires an opponent target but all active opponents have pacts, penalize heavily.
+                score -= 100.0;
             }
         }
 
@@ -493,6 +499,17 @@ public class AiDecisionService {
         java.util.List<PartyState> candidates = session.getParties().stream()
                 .filter(PartyState::isActive)
                 .filter(p -> !p.getId().equals(actor.getId()))
+                .filter(p -> {
+                    if (session.getActivePacts() != null) {
+                        for (NonAggressionPact pact : session.getActivePacts()) {
+                            if ((pact.getPartyAId().equals(actor.getId()) && pact.getPartyBId().equals(p.getId()))
+                                    || (pact.getPartyAId().equals(p.getId()) && pact.getPartyBId().equals(actor.getId()))) {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                })
                 .toList();
 
         if (candidates.isEmpty()) {
@@ -564,6 +581,17 @@ public class AiDecisionService {
         java.util.List<PartyState> candidates = session.getParties().stream()
                 .filter(PartyState::isActive)
                 .filter(p -> !p.getId().equals(actor.getId()))
+                .filter(p -> {
+                    if (session.getActivePacts() != null) {
+                        for (NonAggressionPact pact : session.getActivePacts()) {
+                            if ((pact.getPartyAId().equals(actor.getId()) && pact.getPartyBId().equals(p.getId()))
+                                    || (pact.getPartyAId().equals(p.getId()) && pact.getPartyBId().equals(actor.getId()))) {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                })
                 .toList();
 
         if (candidates.isEmpty()) {
@@ -715,5 +743,143 @@ public class AiDecisionService {
         }
 
         return utility;
+    }
+
+    public double calculateExchangeUtility(PartyState party, int coins, int morale, int support, List<String> buildings, GameSession session, boolean isIncoming) {
+        double coinMultiplier = 1.0;
+        double moraleMultiplier = 1.0;
+        double supportMultiplier = 1.0;
+        
+        int currentCoins = party.getStats().getCoins();
+        int currentMorale = party.getStats().getPartyMorale();
+        int currentSupport = party.getStats().getPublicSupport();
+        
+        if (isIncoming) {
+            if (currentCoins < 40) coinMultiplier = 2.5;
+            if (currentMorale < 25) moraleMultiplier = 2.0;
+            if (currentSupport < 12) supportMultiplier = 3.0;
+        } else {
+            if (currentCoins < 100) coinMultiplier = 2.5;
+            if (currentMorale < 40) moraleMultiplier = 2.0;
+            if (currentSupport < 20) supportMultiplier = 3.0;
+        }
+        
+        double total = coins * coinMultiplier;
+        total += morale * 20.0 * moraleMultiplier;
+        total += support * 50.0 * supportMultiplier;
+        
+        if (buildings != null) {
+            int remainingTurns = Math.max(0, 60 - session.getTurnNumber());
+            for (String key : buildings) {
+                try {
+                    BuildingProject def = BuildingProject.valueOf(key);
+                    double yieldVal = def.getBenefitCoins() 
+                                    + def.getBenefitMorale() * 20.0 
+                                    + def.getBenefitSupport() * 50.0 
+                                    + def.getBenefitMedia() * 20.0 
+                                    - def.getBenefitCorruption() * 20.0;
+                    total += yieldVal * remainingTurns;
+                } catch (Exception e) {
+                    // Ignore invalid enum
+                }
+            }
+        }
+        
+        return total;
+    }
+
+    public boolean evaluateCooperationOffer(GameSession session, PartyState recipient, CooperationOffer offer) {
+        if (offer.getType() == CooperationOffer.OfferType.NON_AGGRESSION) {
+            // Pact safety value is 5 coins per turn
+            double pactValue = 5.0 * offer.getDurationTurns();
+            
+            // Grudge discount
+            Map<String, Map<String, Integer>> grudges = session.getGrudges();
+            int grudgeVal = 0;
+            if (grudges != null && grudges.containsKey(recipient.getId())) {
+                grudgeVal = grudges.get(recipient.getId()).getOrDefault(offer.getSenderPartyId(), 0);
+            }
+            pactValue -= grudgeVal * 2.0;
+            
+            // Early game bonus
+            if (session.getTurnNumber() <= 20) {
+                pactValue += 15.0;
+            }
+            
+            if (offer.isSenderPaysPact()) {
+                // AI receives payment
+                if (grudgeVal > 25) {
+                    return false; // AI refuses pact with hated enemies
+                }
+                return true; // Net positive safety + free resources
+            } else {
+                // AI has to pay
+                double paymentCost = 0;
+                String res = offer.getPactPaymentResource();
+                int val = offer.getPactPaymentValue();
+                
+                if ("COINS".equalsIgnoreCase(res)) {
+                    if (recipient.getStats().getCoins() - val < 20) return false;
+                    paymentCost = calculateExchangeUtility(recipient, val, 0, 0, null, session, false);
+                } else if ("MORALE".equalsIgnoreCase(res)) {
+                    if (recipient.getStats().getPartyMorale() - val < 18) return false;
+                    paymentCost = calculateExchangeUtility(recipient, 0, val, 0, null, session, false);
+                } else if ("SUPPORT".equalsIgnoreCase(res)) {
+                    if (recipient.getStats().getPublicSupport() - val < 10) return false;
+                    paymentCost = calculateExchangeUtility(recipient, 0, 0, val, null, session, false);
+                } else if ("COMPLETED_BUILDING".equalsIgnoreCase(res)) {
+                    paymentCost = calculateExchangeUtility(recipient, 0, 0, 0, offer.getPactPaymentBuildingKeys(), session, false);
+                }
+                
+                return pactValue >= paymentCost;
+            }
+        } else if (offer.getType() == CooperationOffer.OfferType.EXCHANGE) {
+            double receivedUtility = calculateExchangeUtility(recipient, offer.getOfferedCoins(), offer.getOfferedMorale(), offer.getOfferedSupport(), offer.getOfferedBuildingKeys(), session, true);
+            double givenUtility = calculateExchangeUtility(recipient, offer.getRequestedCoins(), offer.getRequestedMorale(), offer.getRequestedSupport(), null, session, false);
+            
+            // Safety limits check
+            if (recipient.getStats().getCoins() - offer.getRequestedCoins() < 20) return false;
+            if (recipient.getStats().getPartyMorale() - offer.getRequestedMorale() < 18) return false;
+            if (recipient.getStats().getPublicSupport() - offer.getRequestedSupport() < 10) return false;
+            
+            return receivedUtility >= 1.05 * givenUtility;
+        }
+        return false;
+    }
+
+    public List<String> rankAndSelectProjectsToRetain(List<String> completedProjectKeys) {
+        if (completedProjectKeys == null || completedProjectKeys.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<String> sorted = new ArrayList<>(completedProjectKeys);
+        sorted.sort((left, right) -> Double.compare(
+            scoreProjectForRetention(right),
+            scoreProjectForRetention(left)
+        ));
+        if (sorted.size() > 5) {
+            return sorted.subList(0, 5);
+        }
+        return sorted;
+    }
+
+    private double scoreProjectForRetention(String projectKey) {
+        try {
+            BuildingProject project = BuildingProject.valueOf(projectKey);
+            double score = 0.0;
+            score += project.getCostCoins();
+            score += project.getCostMorale() * 2.0;
+            score += project.getCostMedia() * 2.0;
+            score += project.getCostCorruption() * 2.0;
+            score += project.getCostSupport() * 5.0;
+            
+            score += project.getBenefitCoins() * 10.0;
+            score += project.getBenefitMorale() * 20.0;
+            score += project.getBenefitMedia() * 20.0;
+            score -= project.getBenefitCorruption() * 20.0;
+            score += project.getBenefitSupport() * 50.0;
+            return score;
+        } catch (Exception e) {
+            return 0.0;
+        }
     }
 }
