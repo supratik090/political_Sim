@@ -8,7 +8,21 @@ spring:
       uri: ${MONGODB_URI:mongodb://localhost:27017/political_sim}
 
 server:
-  port: ${PORT:8080}
+  port: ${PORT:7810}
 
 political-sim:
   default-state-name: West Bengal
+
+logging:
+  level:
+    root: INFO
+    # Your app packages — full DEBUG
+    com.politicalsim: INFO
+    # Spring Security — show filter chain decisions, CORS, blocked requests
+    org.springframework.security: DEBUG
+    # Spring Web — show incoming requests, mapped routes
+    org.springframework.web: INFO
+    # MongoDB — show queries
+    org.springframework.data.mongodb: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

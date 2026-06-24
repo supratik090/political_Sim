@@ -1,10 +1,10 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7810';
 
 export async function apiGet(path, params = {}) {
-  const url = new URL(`${API_BASE_URL}${path}`, window.location.origin);
+  const url = new URL(`${API_BASE_URL}${path}`);
   Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-  
-  const response = await fetch(url);
+
+  const response = await fetch(url.toString());
   if (!response.ok) {
     let errMsg = `API GET request failed: ${response.statusText}`;
     try {
