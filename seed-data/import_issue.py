@@ -60,19 +60,17 @@ def insert_items(api_base_url, resource_path, scenario_key, items):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Import reviewed monthly issues and extra funding cards.")
+    parser = argparse.ArgumentParser(description="Import reviewed monthly issues.")
     parser.add_argument("--api-base-url", default=DEFAULT_API_BASE_URL)
     parser.add_argument("--scenario-key", default="default")
     parser.add_argument("--issues-file", default="review/default_Monthly_issues.json")
-    parser.add_argument("--cards-file", default="review/west_bengal_2000_extra_funding_cards_review.json")
     args = parser.parse_args()
 
     base_dir = Path(__file__).resolve().parent
     issues_data = json.loads((base_dir / args.issues_file).read_text())
-    cards_data = json.loads((base_dir / args.cards_file).read_text())
+
 
     issues = issues_data["issueItems"]
-    cards = cards_data["cards"]
 
     request_json("GET", f"{args.api_base_url}/api/admin/scenarios")
 
@@ -85,17 +83,9 @@ def main():
     )
     inserted_issues = insert_items(args.api_base_url, "/api/admin/issues", args.scenario_key, issues)
 
-    deleted_cards = delete_matching(
-        args.api_base_url,
-        "/api/admin/cards",
-        args.scenario_key,
-        "cardKey",
-        {card["cardKey"] for card in cards},
-    )
-    inserted_cards = insert_items(args.api_base_url, "/api/admin/cards", args.scenario_key, cards)
+
 
     print(f"Issues: deleted {deleted_issues}, inserted {inserted_issues}")
-    print(f"Extra cards: deleted {deleted_cards}, inserted {inserted_cards}")
 
 
 if __name__ == "__main__":
