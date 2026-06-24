@@ -15,11 +15,6 @@ export default function Action5PlayReward({
 
   return (
     <div>
-      {turnData.turnNumber <= 2 && (
-        <p style={{ margin: '0 0 15px 0', fontSize: '13px', color: 'var(--card-text)' }}>
-          Exhaust or deploy any active inventory rewards in your hands. Bidding rewards expire after 3 months.
-        </p>
-      )}
       {!hasRewards ? (
         <p style={{ margin: 0, fontSize: '13px', opacity: 0.8, color: 'gray', fontStyle: 'italic' }}>
           No inventory rewards held. Win bidding rounds to earn rewards!

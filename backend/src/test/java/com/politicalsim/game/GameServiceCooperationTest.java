@@ -3,6 +3,7 @@ package com.politicalsim.game;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.politicalsim.ai.AiDecisionService;
+import com.politicalsim.content.IssueOptionDefinition;
 import com.politicalsim.content.ScenarioDefinition;
 import com.politicalsim.content.ScenarioDefinitionRepository;
 import com.politicalsim.party.ControllerType;
@@ -17,6 +18,7 @@ import com.politicalsim.api.ScenarioProgressView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -524,5 +526,39 @@ class GameServiceCooperationTest {
 
         s.setScenarioName("Custom Bengal Name");
         assertEquals("Custom Bengal Name", s.getScenarioName());
+    }
+
+    @Test
+    void testDynamicIssueOptionCostPenalties() throws Exception {
+        // Recipient (Party B) stats: Coins = 200 (not low)
+        PartyState partyB = session.getParties().get(1);
+        partyB.getStats().setCoins(200);
+        partyB.getStats().setPartyMorale(100);
+
+        IssueOptionDefinition option = new IssueOptionDefinition();
+        option.setOptionKey("costly_option");
+        option.setEffects(Map.of("selfParty", Map.of(
+            "coins", -10,
+            "partyMorale", 0,
+            "mediaImage", 0,
+            "publicSupport", 0
+        )));
+        option.setRisk(Map.of("chance", 0));
+
+        // Invoke scoreIssueOption via reflection
+        java.lang.reflect.Method method = GameService.class.getDeclaredMethod("scoreIssueOption", PartyState.class, IssueOptionDefinition.class);
+        method.setAccessible(true);
+
+        double scoreWithHighCoins = (Double) method.invoke(gameService, partyB, option);
+
+        // Under 200 coins, the penalty is -10 * 0.25 = -2.5
+        assertEquals(-2.5, scoreWithHighCoins, 0.001);
+
+        // Now drop coins to 25 (< 30, triggers 8x penalty multiplier -> 2.0 weight)
+        partyB.getStats().setCoins(25);
+        double scoreWithLowCoins = (Double) method.invoke(gameService, partyB, option);
+        
+        // Under 25 coins, the penalty is -10 * 2.0 = -20.0
+        assertEquals(-20.0, scoreWithLowCoins, 0.001);
     }
 }

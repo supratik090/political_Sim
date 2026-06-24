@@ -102,6 +102,54 @@ export default function GamePlayBoard() {
     }
   };
 
+  const handleSkipTurn = async () => {
+    if (!window.confirm("Are you sure you want to skip this turn? Your party will pass its card play, place a 0 bid, and submit routine/default responses to news and issues.")) {
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    try {
+      const defaultReactions = {};
+      (turnData.currentNews || []).forEach(news => {
+        const newsKey = news.newsKey || news.issueKey;
+        const firstOpt = news.reactionOptions?.[0] || news.options?.[0];
+        if (firstOpt) {
+          defaultReactions[newsKey] = firstOpt.reactionKey || firstOpt.optionKey;
+        }
+      });
+
+      let defaultIssueOpt = 'routine_maintenance';
+      if (turnData.currentIssue) {
+        const firstOpt = turnData.currentIssue.reactionOptions?.[0] || turnData.currentIssue.options?.[0];
+        if (firstOpt) {
+          defaultIssueOpt = firstOpt.reactionKey || firstOpt.optionKey;
+        }
+      }
+
+      const payload = {
+        selectedCardKey: 'no_card',
+        targetPartyId: null,
+        selectedNewsReactions: defaultReactions,
+        selectedIssueOptionKey: defaultIssueOpt,
+        bid: 0,
+        selectedRewardKey: null,
+        rewardTargetPartyId: null
+      };
+
+      const result = await advanceTurn(activeGameId, payload);
+      setTurnData(result);
+      resetLocalStates();
+      setActiveView('INFO');
+      setActiveAccordion(1);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Failed to skip turn.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFundProject = async (projectKey, progress) => {
     setLoading(true);
     setError('');
@@ -335,6 +383,7 @@ export default function GamePlayBoard() {
             activeParty={activeParty}
             loading={loading}
             handleAdvanceTurn={handleAdvanceTurn}
+            handleSkipTurn={handleSkipTurn}
             
             // Action 1 props
             selectedCard={selectedCard}
@@ -377,6 +426,9 @@ export default function GamePlayBoard() {
             setPartyBuildingConfirmed={setPartyBuildingConfirmed}
             handleFundProject={handleFundProject}
             handleSetProjectTarget={handleSetProjectTarget}
+
+            // Action 7 props
+            handleCooperationUpdate={setTurnData}
 
             // Accordion state
             activeAccordion={activeAccordion}

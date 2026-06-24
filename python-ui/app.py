@@ -19,6 +19,7 @@ from api_client import (
     create_game,
     list_games,
     fetch_turn_view,
+    delete_game,
 )
 
 # Import Gameplay steps
@@ -370,6 +371,10 @@ def game_main():
                     if human_count != human_count_target:
                         st.warning(f"This setup needs exactly {human_count_target} human-controlled party/parties. Current: {human_count}.")
 
+                    retain_inst = False
+                    if selected_scenario.get("scenarioKey", "").endswith("_2006"):
+                        retain_inst = st.checkbox("Carry forward completed public institutions from previous campaign", value=False, key="retain_inst_checkbox")
+
                     if st.button("Start Campaign", type="primary", use_container_width=True):
                         if human_count != human_count_target:
                             st.error(f"Cannot start: select exactly {human_count_target} human-controlled party/parties.")
@@ -392,6 +397,7 @@ def game_main():
                                         "startDate": "2006-01-01" if current_era == 2006 else "2001-01-01",
                                         "partySetups": payload_parties,
                                         "userId": user_id,
+                                        "retainInstitutions": retain_inst,
                                     }
                                 )
                                 st.session_state["game_id"] = game["id"]
@@ -422,10 +428,35 @@ def game_main():
                     label = f"📍 {g.get('stateName', scenario)} | 📅 {formatted_date} | ID: {game_id[:8]}"
                     options[label] = game_id
 
-                selected_load = st.selectbox("Load Game", list(options.keys()))
-                if st.button("Load Selected Game", use_container_width=True):
-                    st.session_state["game_id"] = options[selected_load]
-                    st.rerun()
+                selected_load = st.selectbox("Select Campaign", list(options.keys()))
+                game_to_act = options[selected_load]
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button("📂 Load Selected Game", use_container_width=True):
+                        st.session_state["game_id"] = game_to_act
+                        st.session_state.pop("confirm_delete_game_id", None)
+                        st.rerun()
+                with col2:
+                    if st.button("🗑️ Delete Selected Game", use_container_width=True):
+                        st.session_state["confirm_delete_game_id"] = game_to_act
+                
+                if st.session_state.get("confirm_delete_game_id") == game_to_act:
+                    st.warning("⚠️ Are you sure you want to delete this campaign? This action is permanent and cannot be undone.")
+                    confirm_col1, confirm_col2 = st.columns(2)
+                    with confirm_col1:
+                        if st.button("Yes, Delete Campaign", use_container_width=True, type="primary"):
+                            try:
+                                delete_game(game_to_act)
+                                st.success("Campaign deleted successfully!")
+                                st.session_state.pop("confirm_delete_game_id", None)
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Failed to delete campaign: {e}")
+                    with confirm_col2:
+                        if st.button("Cancel", use_container_width=True):
+                            st.session_state.pop("confirm_delete_game_id", None)
+                            st.rerun()
 
 
 def admin_main():

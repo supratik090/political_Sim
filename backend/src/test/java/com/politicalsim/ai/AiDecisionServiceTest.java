@@ -3,6 +3,7 @@ package com.politicalsim.ai;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.politicalsim.content.CardDefinition;
+import com.politicalsim.content.NewsReactionDefinition;
 import com.politicalsim.game.RewardDefinition;
 import com.politicalsim.game.GameSession;
 import com.politicalsim.party.ControllerType;
@@ -224,5 +225,121 @@ class AiDecisionServiceTest {
 
         // AI should select the morale restore card in morale crisis
         assertEquals("gov_morale_rally", decision.card().getCardKey());
+    }
+
+    @Test
+    void aiAvoidsSupportDepletingCardsWhenSupportIsLow() {
+        GameSession session = new GameSession();
+        session.setMonthInCycle(12);
+        
+        // Government has 6% public support (low support close to 5% defeat threshold)
+        PartyState government = party("Tiger Front", PartyRole.GOVERNMENT, new PartyStats(100, 50, 10, 50, 6));
+        PartyState opposition = party("Elephant Congress", PartyRole.OPPOSITION, new PartyStats(120, 55, 15, 50, 34));
+        session.setGovernmentParty(government);
+
+        // We offer a card that drops support by 2% (leaving 4% support, causing defeat) and a normal card with 0 support change
+        CardDefinition riskyCard = card("gov_risky_card", "governance", PartyRole.GOVERNMENT, 0, -2, 0, 0, 0);
+        CardDefinition normalCard = card("gov_normal_card", "governance", PartyRole.GOVERNMENT, 0, 0, 0, 0, 0);
+
+        AiDecision decision = service.chooseCard(session, government, opposition, List.of(riskyCard, normalCard));
+
+        // AI should avoid the support depleting card to prevent defeat
+        assertEquals("gov_normal_card", decision.card().getCardKey());
+    }
+
+    @Test
+    void aiAvoidsCorruptionIncreasingCardsWhenCorruptionIsHigh() {
+        GameSession session = new GameSession();
+        session.setMonthInCycle(12);
+        
+        // Government has 92% corruption (close to 95% defeat threshold)
+        PartyState government = party("Tiger Front", PartyRole.GOVERNMENT, new PartyStats(100, 50, 92, 50, 36));
+        PartyState opposition = party("Elephant Congress", PartyRole.OPPOSITION, new PartyStats(120, 55, 15, 50, 34));
+        session.setGovernmentParty(government);
+
+        // We offer a card that increases corruption by 5% (making it 97% corruption, causing defeat) and a normal card with 0 corruption change
+        CardDefinition riskyCard = card("gov_risky_card", "governance", PartyRole.GOVERNMENT, 0, 0, 0, 5, 0);
+        CardDefinition normalCard = card("gov_normal_card", "governance", PartyRole.GOVERNMENT, 0, 0, 0, 0, 0);
+
+        AiDecision decision = service.chooseCard(session, government, opposition, List.of(riskyCard, normalCard));
+
+        // AI should avoid the corruption increasing card to prevent defeat
+        assertEquals("gov_normal_card", decision.card().getCardKey());
+    }
+
+    @Test
+    void aiChoosesMaxCoinReturnCardDuringRaiseFunds() {
+        GameSession session = new GameSession();
+        session.setMonthInCycle(12);
+        
+        // Government has 25 coins (triggers lowCoins / RAISE_FUNDS intent)
+        PartyState government = party("Tiger Front", PartyRole.GOVERNMENT, new PartyStats(25, 60, 10, 50, 36));
+        PartyState opposition = party("Elephant Congress", PartyRole.OPPOSITION, new PartyStats(120, 55, 15, 50, 34));
+        session.setGovernmentParty(government);
+
+        // We offer:
+        // A: category "governance" (not organization_resource) but yields +22 coins net (visible 22 - cost 2 = +20 coins)
+        CardDefinition govFund = card("gov_fund", "governance", PartyRole.GOVERNMENT, 2, 0, 0, 0, 0);
+        govFund.setVisibleEffects(Map.of(
+            "selfParty", Map.of(
+                "coins", 22
+            )
+        ));
+
+        // B: category "organization_resource" but costs 10 coins (net -10 coins)
+        CardDefinition organizationSpend = card("org_spend", "organization_resource", PartyRole.GOVERNMENT, 10, 0, 0, 0, 0);
+
+        AiDecision decision = service.chooseCard(session, government, opposition, List.of(govFund, organizationSpend));
+
+        // AI should choose Card A because it yields maximum coin return, ignoring categories/tags
+        assertEquals("gov_fund", decision.card().getCardKey());
+    }
+
+    @Test
+    void testDynamicNewsReactionCostPenalties() throws Exception {
+        PartyState party = party("Tiger Front", PartyRole.GOVERNMENT, new PartyStats(200, 100, 10, 50, 36));
+        
+        NewsReactionDefinition reaction = new NewsReactionDefinition();
+        reaction.setReactionKey("costly_reaction");
+        reaction.setWeight(0);
+        reaction.setEffects(Map.of("playerParty", Map.of(
+            "coins", -10,
+            "partyMorale", 0,
+            "mediaImage", 0,
+            "publicSupport", 0
+        )));
+        reaction.setRisk(Map.of("chance", 0.0));
+
+        java.lang.reflect.Method method = AiDecisionService.class.getDeclaredMethod("scoreReaction", PartyState.class, NewsReactionDefinition.class, AiIntent.class);
+        method.setAccessible(true);
+
+        double scoreWithHighCoins = (Double) method.invoke(service, party, reaction, AiIntent.GAIN_SUPPORT);
+
+        double expectedOffset = reaction.getReactionKey().hashCode() % 5 * 0.01;
+        // Under 200 coins, selfCoins weight is 0.2. Penalty is -10 * 0.2 = -2.0 plus offset
+        assertEquals(-2.0 + expectedOffset, scoreWithHighCoins, 0.001);
+
+        // Drop coins to 25 (< 30, triggers 8x penalty multiplier -> 1.6 weight)
+        party.getStats().setCoins(25);
+        double scoreWithLowCoins = (Double) method.invoke(service, party, reaction, AiIntent.GAIN_SUPPORT);
+
+        // Under 25 coins, penalty is -10 * 1.6 = -16.0 plus offset
+        assertEquals(-16.0 + expectedOffset, scoreWithLowCoins, 0.001);
+    }
+
+    @Test
+    void testProgressiveExchangeUtilityMultipliers() {
+        PartyState party = party("Tiger Front", PartyRole.GOVERNMENT, new PartyStats(200, 100, 10, 50, 36));
+        GameSession session = new GameSession();
+        session.setTurnNumber(10);
+
+        // GIVING Coins when Coins = 200 (multiplier is 1.0 because currentCoins >= 100)
+        double utilityHighCoins = service.calculateExchangeUtility(party, 10, 0, 0, null, session, false);
+        assertEquals(10.0, utilityHighCoins, 0.001);
+
+        // GIVING Coins when Coins = 25 (multiplier is 15.0 because currentCoins < 30)
+        party.getStats().setCoins(25);
+        double utilityLowCoins = service.calculateExchangeUtility(party, 10, 0, 0, null, session, false);
+        assertEquals(150.0, utilityLowCoins, 0.001);
     }
 }

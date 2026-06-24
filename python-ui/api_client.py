@@ -55,7 +55,13 @@ def api_put(path, payload):
 def api_delete(path):
     response = requests.delete(f"{API_BASE_URL}{path}", timeout=30)
     response.raise_for_status()
+    if response.status_code == 204 or not response.content:
+        return None
     return response.json()
+
+
+def delete_game(game_id):
+    return api_delete(f"/api/games/{game_id}")
 
 
 def fund_project(game_id, party_id, project_key, progress):

@@ -62,7 +62,9 @@ export async function apiDelete(path) {
     } catch (_) {}
     throw new Error(errMsg);
   }
-  return response.json();
+  if (response.status === 204) return null;
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
 }
 
 // Game API bindings
@@ -71,10 +73,15 @@ export const fetchTurnView = (gameId) => apiGet(`/api/games/${gameId}/turn-view`
 export const listGames = (userId) => apiGet('/api/games', userId ? { userId } : {});
 export const advanceTurn = (gameId, payload) => apiPost(`/api/games/${gameId}/turn/advance`, payload);
 export const forfeitGame = (gameId) => apiPost(`/api/games/${gameId}/forfeit`);
+export const deleteGame = (gameId) => apiDelete(`/api/games/${gameId}`);
 export const fundProject = (gameId, partyId, projectKey, progress) => 
   apiPost(`/api/games/${gameId}/parties/${partyId}/projects/fund?projectKey=${projectKey}&progress=${progress}`);
 export const setProjectTarget = (gameId, partyId, projectKey, targetPartyId) => 
   apiPost(`/api/games/${gameId}/parties/${partyId}/projects/${projectKey}/target?targetPartyId=${targetPartyId}`);
+export const createCooperationOffer = (gameId, payload) => apiPost(`/api/games/${gameId}/cooperation/offer`, payload);
+export const respondToCooperationOffer = (gameId, offerId, accept) => 
+  apiPost(`/api/games/${gameId}/cooperation/respond?offerId=${offerId}&accept=${accept}`);
+
 
 // Admin API bindings
 export const fetchScenarios = () => apiGet('/api/admin/scenarios');

@@ -6,6 +6,7 @@ import Action3PartyDecision from './Action3PartyDecision';
 import Action4Bid from './Action4Bid';
 import Action5PlayReward from './Action5PlayReward';
 import Action6PartyBuilding from './Action6PartyBuilding';
+import Action7Cooperation from './Action7Cooperation';
 import { cardRequiresTarget } from './gameUtils';
 
 export default function ActionsView({
@@ -13,6 +14,7 @@ export default function ActionsView({
   activeParty,
   loading,
   handleAdvanceTurn,
+  handleSkipTurn,
   
   // Action 1 props
   selectedCard,
@@ -56,6 +58,9 @@ export default function ActionsView({
   handleFundProject,
   handleSetProjectTarget,
 
+  // Action 7 props
+  handleCooperationUpdate,
+
   // Accordion props
   activeAccordion,
   setActiveAccordion
@@ -81,10 +86,34 @@ export default function ActionsView({
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
         <h2 style={{ marginTop: 0, marginBottom: '0' }}>🃏 Card Selection &amp; Campaign Actions</h2>
-        <div style={{ fontSize: '12px', background: 'var(--primary-border)', padding: '5px 12px', borderRadius: '20px', color: '#fff', fontWeight: 'bold' }}>
-          Month {turnData.turnNumber} / 60
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button 
+            onClick={handleSkipTurn}
+            disabled={loading}
+            style={{
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              color: '#ffffff',
+              fontSize: '11px',
+              fontWeight: '900',
+              padding: '6px 14px',
+              border: 'none',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              boxShadow: '0 4px 10px rgba(239, 68, 68, 0.2)',
+              transition: 'all 0.2s',
+              fontFamily: "system-ui, -apple-system, sans-serif"
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            ⏭️ Skip Turn
+          </button>
+          <div style={{ fontSize: '12px', background: 'var(--primary-border)', padding: '5px 12px', borderRadius: '20px', color: '#fff', fontWeight: 'bold' }}>
+            Month {turnData.turnNumber} / 60
+          </div>
         </div>
       </div>
 
@@ -197,6 +226,21 @@ export default function ActionsView({
           setPartyBuildingConfirmed={setPartyBuildingConfirmed}
           handleFundProject={handleFundProject}
           handleSetProjectTarget={handleSetProjectTarget}
+        />
+      </ActionSection>
+
+      {/* 7. Diplomatic Cooperation */}
+      <ActionSection 
+        num={7} 
+        title="Diplomatic Cooperation" 
+        isCompleted={true} 
+        isOptional={true}
+        activeAccordion={activeAccordion}
+        setActiveAccordion={setActiveAccordion}
+      >
+        <Action7Cooperation
+          turnData={turnData}
+          onActionComplete={handleCooperationUpdate}
         />
       </ActionSection>
 

@@ -696,11 +696,11 @@ public class GameService {
                     || party.getStats().getPublicSupport() <= 12
                     || party.getStats().getCorruptionScore() >= 75;
 
-            int maxCoinsSpend = (int) (party.getStats().getCoins() * 0.10);
-            int maxMoraleSpend = (int) (party.getStats().getPartyMorale() * 0.10);
-            int maxMediaSpend = (int) (party.getStats().getMediaImage() * 0.10);
-            int maxSupportSpend = (int) (party.getStats().getPublicSupport() * 0.10);
-            int maxCorruptionSpend = (int) ((100 - party.getStats().getCorruptionScore()) * 0.10);
+            int maxCoinsSpend = (int) (party.getStats().getCoins() * 0.30);
+            int maxMoraleSpend = (int) (party.getStats().getPartyMorale() * 0.30);
+            int maxMediaSpend = (int) (party.getStats().getMediaImage() * 0.30);
+            int maxSupportSpend = (int) (party.getStats().getPublicSupport() * 0.30);
+            int maxCorruptionSpend = (int) ((100 - party.getStats().getCorruptionScore()) * 0.30);
 
             int discCoins = 0;
             int discMorale = 0;
@@ -986,8 +986,35 @@ public class GameService {
     private double scoreIssueOption(PartyState party, IssueOptionDefinition option) {
         Map<String, Object> effects = partyEffect(option.getEffects(), "selfParty");
         double score = 0;
-        score += intValue(effects.get("coins")) * 0.25;
-        score += intValue(effects.get("partyMorale")) * 2.0;
+        
+        int coinEffect = intValue(effects.get("coins"));
+        double coinWeight = 0.25;
+        if (coinEffect < 0) {
+            int currentCoins = party.getStats().getCoins();
+            if (currentCoins < 30) {
+                coinWeight = 2.0; // 8x penalty multiplier (0.25 * 8 = 2.0)
+            } else if (currentCoins < 50) {
+                coinWeight = 1.0; // 4x penalty multiplier (0.25 * 4 = 1.0)
+            } else if (currentCoins < 75) {
+                coinWeight = 0.5; // 2x penalty multiplier (0.25 * 2 = 0.5)
+            }
+        }
+        score += coinEffect * coinWeight;
+        
+        int moraleEffect = intValue(effects.get("partyMorale"));
+        double moraleWeight = 2.0;
+        if (moraleEffect < 0) {
+            int currentMorale = party.getStats().getPartyMorale();
+            if (currentMorale < 20) {
+                moraleWeight = 16.0; // 8x penalty multiplier (2.0 * 8 = 16.0)
+            } else if (currentMorale < 35) {
+                moraleWeight = 8.0;  // 4x penalty multiplier (2.0 * 4 = 8.0)
+            } else if (currentMorale < 50) {
+                moraleWeight = 4.0;  // 2x penalty multiplier (2.0 * 2 = 4.0)
+            }
+        }
+        score += moraleEffect * moraleWeight;
+        
         score += intValue(effects.get("mediaImage")) * 2.0;
         score += intValue(effects.get("publicSupport")) * 4.0;
         score -= intValue(effects.get("corruptionScore")) * 3.0;

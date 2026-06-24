@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { listGames, fetchScenarioProgress, createGame } from '../../api/apiClient';
+import { listGames, fetchScenarioProgress, createGame, deleteGame } from '../../api/apiClient';
 
 export default function DashboardHome() {
   const { user, setScreen, setActiveGame, currentScreen } = useGameStore();
@@ -13,6 +13,7 @@ export default function DashboardHome() {
   // Selected scenario config state
   const [selectedScenarioIndex, setSelectedScenarioIndex] = useState(0);
   const [partyConfigs, setPartyConfigs] = useState([]);
+  const [retainInstitutions, setRetainInstitutions] = useState(false);
 
   useEffect(() => {
     if (currentScreen === 'HOME') {
@@ -86,6 +87,7 @@ export default function DashboardHome() {
       const payload = {
         userId: user.id || user.email,
         scenarioKey: scenario.scenarioKey,
+        retainInstitutions: retainInstitutions,
         partySetups: partyConfigs.map(config => ({
           partyKey: config.partyKey,
           partyName: config.name,
@@ -113,6 +115,22 @@ export default function DashboardHome() {
   const handleLoadGame = (gameId) => {
     setActiveGame(gameId);
     setScreen('GAME');
+  };
+
+  const handleDeleteGame = async (gameId) => {
+    const confirmed = window.confirm("Are you sure you want to delete this campaign? This action cannot be undone.");
+    if (!confirmed) return;
+    setLoading(true);
+    try {
+      await deleteGame(gameId);
+      alert('Campaign deleted successfully.');
+      await loadDashboardData();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete campaign: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatDate = (dateStr) => {
@@ -225,6 +243,21 @@ export default function DashboardHome() {
           </div>
         )}
 
+        {currentScenario?.scenarioKey?.endsWith('_2006') && (
+          <div style={{ margin: '20px 0', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+            <input 
+              type="checkbox" 
+              id="retainInstitutions"
+              checked={retainInstitutions} 
+              onChange={(e) => setRetainInstitutions(e.target.checked)} 
+              style={{ width: 'auto', margin: 0 }}
+            />
+            <label htmlFor="retainInstitutions" style={{ fontWeight: 'bold', cursor: 'pointer', color: 'var(--primary-dark)' }}>
+              Carry forward completed public institutions from previous campaign
+            </label>
+          </div>
+        )}
+
         <div style={{ marginTop: '30px', textAlign: 'center' }}>
           <button onClick={handleStartNewGame} disabled={loading} style={{ padding: '15px 40px', fontSize: '18px' }}>
             {loading ? 'Starting...' : 'Start Game'}
@@ -234,27 +267,38 @@ export default function DashboardHome() {
     );
   };
 
-  const renderLoad = () => (
-    <div className="unified-card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ marginTop: 0 }}>Load Saved Campaign</h2>
-        <button onClick={() => setView('TABLE')} style={{ backgroundColor: 'transparent', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>Back</button>
-      </div>
+  const renderLoad = () => {
+    const activeGames = games.filter(game => game.status === 'ACTIVE');
+    return (
+      <div className="unified-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ marginTop: 0 }}>Load Saved Campaign</h2>
+          <button onClick={() => setView('TABLE')} style={{ backgroundColor: 'transparent', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>Back</button>
+        </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
-        {games.length === 0 && <p>No saved games found.</p>}
-        {games.map(game => (
-          <div key={game.id} style={{ border: '1px solid var(--primary-border)', padding: '15px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h4 style={{ margin: '0 0 5px 0' }}>{game.scenarioName || game.scenarioKey}</h4>
-              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Status: {game.status} | Started: {formatDate(game.createdAt)}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
+          {activeGames.length === 0 && <p>No active saved games found.</p>}
+          {activeGames.map(game => (
+            <div key={game.id} style={{ border: '1px solid var(--primary-border)', padding: '15px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h4 style={{ margin: '0 0 5px 0' }}>{game.scenarioName || game.scenarioKey}</h4>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Status: {game.status} | Started: {formatDate(game.createdAt)}</span>
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={() => handleLoadGame(game.id)}>Load Game</button>
+                <button 
+                  onClick={() => handleDeleteGame(game.id)} 
+                  style={{ backgroundColor: '#D9534F', color: '#ffffff', border: 'none' }}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
             </div>
-            <button onClick={() => handleLoadGame(game.id)}>Load Game</button>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div>

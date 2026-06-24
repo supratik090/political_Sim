@@ -22,8 +22,90 @@ export default function StatsView({
         </div>
       </div>
 
+      {/* Election Results Banner */}
+      {turnData.lastElectionHeld && (
+        <div style={{
+          background: 'linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%)',
+          border: '2px solid #3b82f6',
+          borderRadius: '16px',
+          padding: '25px',
+          marginBottom: '25px',
+          color: '#ffffff',
+          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
+          fontFamily: "'Inter', sans-serif",
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Decorative background circle */}
+          <div style={{
+            position: 'absolute',
+            top: '-50px',
+            right: '-50px',
+            width: '150px',
+            height: '150px',
+            borderRadius: '50%',
+            background: 'rgba(59, 130, 246, 0.1)',
+            filter: 'blur(30px)',
+            pointerEvents: 'none'
+          }} />
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
+            <span style={{ fontSize: '28px' }}>🗳️</span>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, letterSpacing: '0.03em', textTransform: 'uppercase', color: '#60a5fa' }}>
+                State Election Results
+              </h3>
+              <p style={{ margin: '2px 0 0 0', fontSize: '12px', opacity: 0.8 }}>
+                The voters have spoken. A new government has been formed.
+              </p>
+            </div>
+          </div>
+          
+          <div style={{ 
+            background: 'rgba(255, 255, 255, 0.05)', 
+            border: '1px solid rgba(255, 255, 255, 0.1)', 
+            borderRadius: '12px', 
+            padding: '15px',
+            marginBottom: '20px'
+          }}>
+            <div style={{ fontSize: '14px', lineHeight: 1.5 }}>
+              👑 Winner: <strong style={{ color: '#fbbf24', fontSize: '16px' }}>{turnData.lastElectionWinner}</strong>
+            </div>
+            <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '5px' }}>
+              {turnData.lastResults?.[0] || 'Government formation successfully completed.'}
+            </div>
+          </div>
+
+          <h4 style={{ margin: '0 0 10px 0', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8' }}>
+            Final Vote Share
+          </h4>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {Object.entries(turnData.lastElectionVoteShares || {}).map(([partyName, share]) => {
+              const partyObj = turnData.parties?.find(p => p.name === partyName);
+              const color = partyObj ? getPartyColor(partyObj) : '#94a3b8';
+              return (
+                <div key={partyName}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color, display: 'inline-block' }} />
+                      <span>{partyName} {partyObj?.playerControlled && '(You)'}</span>
+                    </div>
+                    <span>{share}%</span>
+                  </div>
+                  <div style={{ width: '100%', height: '8px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ width: `${share}%`, height: '100%', backgroundColor: color, borderRadius: '4px', transition: 'width 0.8s ease-out' }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Special Event Alert for No-Confidence */}
       {(() => {
+        if (turnData.lastElectionHeld) return null; // already shown in the banner
         const hasNoConfidence = turnData.lastResults?.some(r => r.toLowerCase().includes('no-confidence')) ||
                                 turnData.lastRoundCommentary?.some(c => c.toLowerCase().includes('no-confidence'));
         if (!hasNoConfidence) return null;
@@ -250,13 +332,158 @@ export default function StatsView({
         </div>
       </div>
 
-      {/* Last Actions results */}
+      {/* TV Breaking News alert for last results */}
       {turnData.lastResults && turnData.lastResults.length > 0 && (
-        <div style={{ border: '1px solid var(--primary-border)', padding: '15px', borderRadius: '8px', marginBottom: '25px', background: '#ffffff', color: '#000000' }}>
-          <h4 style={{ marginTop: 0, marginBottom: '10px', textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.05em', color: 'var(--primary-dark)', fontWeight: 'bold' }}>📝 Last Actions Results Summary</h4>
-          <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '13px', lineHeight: 1.6, color: '#000000' }}>
-            {turnData.lastResults.map((res, i) => <li key={i}>{res}</li>)}
-          </ul>
+        <div style={{
+          background: '#090d16',
+          border: '3px solid #ef4444',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          marginBottom: '25px',
+          boxShadow: '0 8px 30px rgba(239, 68, 68, 0.15)',
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          position: 'relative'
+        }}>
+          {/* Keyframes Style tag */}
+          <style>{`
+            @keyframes marquee-effect {
+              0% { transform: translate3d(0, 0, 0); }
+              100% { transform: translate3d(-50%, 0, 0); }
+            }
+            @keyframes pulse-dot {
+              0% { opacity: 0.3; }
+              50% { opacity: 1; }
+              100% { opacity: 0.3; }
+            }
+          `}</style>
+
+          {/* TV Breaking News Header Banner */}
+          <div style={{
+            background: 'linear-gradient(90deg, #ef4444 0%, #b91c1c 50%, #7f1d1d 100%)',
+            color: '#ffffff',
+            padding: '10px 18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            fontWeight: '900',
+            fontSize: '13px',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.15)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ 
+                width: '10px', 
+                height: '10px', 
+                borderRadius: '50%', 
+                backgroundColor: '#ffffff', 
+                display: 'inline-block',
+                animation: 'pulse-dot 1.2s infinite'
+              }} />
+              <span style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>📺 BREAKING NEWS</span>
+            </div>
+            <span style={{ 
+              background: '#ffffff', 
+              color: '#ef4444', 
+              fontSize: '10px', 
+              padding: '2px 8px', 
+              borderRadius: '4px',
+              fontWeight: '900',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+            }}>
+              LIVE
+            </span>
+          </div>
+
+          {/* TV News Body Card grid */}
+          <div style={{
+            padding: '20px',
+            color: '#f8fafc',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            background: 'radial-gradient(circle at center, #1e293b 0%, #0f172a 100%)'
+          }}>
+            {turnData.lastResults.map((res, i) => (
+              <div key={i} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '15px',
+                background: 'rgba(15, 23, 42, 0.6)',
+                borderLeft: '5px solid #ef4444',
+                padding: '14px 18px',
+                borderRadius: '0 8px 8px 0',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                borderLeftWidth: '5px'
+              }}>
+                <div style={{ 
+                  background: '#ef4444', 
+                  color: '#ffffff', 
+                  fontSize: '9px', 
+                  padding: '2px 6px', 
+                  borderRadius: '3px', 
+                  fontWeight: '900',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  FLASH
+                </div>
+                <div style={{ fontSize: '13.5px', lineHeight: 1.5, fontWeight: 600, color: '#f1f5f9' }}>
+                  {res}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Scrolling Ticker Footer */}
+          <div style={{
+            background: '#b91c1c',
+            color: '#ffffff',
+            padding: '8px 0',
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: '11px',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            borderTop: '2px solid #ef4444'
+          }}>
+            <div style={{
+              background: '#0f172a',
+              padding: '8px 15px',
+              fontWeight: '900',
+              fontSize: '11px',
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              zIndex: 10,
+              boxShadow: '5px 0 10px rgba(0,0,0,0.3)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              borderRight: '2px solid #ef4444',
+              height: '30px',
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              TV FEED
+            </div>
+            
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              width: '200%', 
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                display: 'inline-block',
+                whiteSpace: 'nowrap',
+                animation: 'marquee-effect 35s linear infinite',
+                paddingLeft: '110px'
+              }}>
+                {Array(3).fill(`✦ CAMPAIGN BULLETIN: ${turnData.lastResults.join('   ✦   ')}`).join('   ')}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

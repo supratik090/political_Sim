@@ -12,13 +12,14 @@ The game is a turn-based political strategy simulation inspired by Indian state 
 Each game takes place within a state scenario (e.g., **West Bengal 2001**). The campaign spans an election cycle of exactly **60 turns** (where `1 turn = 1 month`). 
 Elections are held dynamically if a government falls, or automatically on Turn 60.
 
-On each monthly turn, players step through a structured wizard interface:
-1.  **Select Strategy Card**: Play one political campaign card from a role-specific deck of 30 cards. Cards have costs, targeting rules, risk profiles, and delayed effects. Standard cards can be played a maximum of **2 times per game** (persistent across election cycles) to prevent repetitive spam.
-2.  **Target Selection**: Select a rival party (e.g., *Tiger Front*, *Peacock Party*) to receive target-specific card effects.
-3.  **Play Inventory Reward (Optional)**: Deploy a booster reward (e.g., *Grassroots Boost*) won during a previous bidding cycle.
-4.  **External News Reaction**: React to the monthly state-wide news event (rendered in a vintage printed newspaper theme: **The State Chronicle**). Select one of four responses.
-5.  **Monthly Governance Issue**: Resolve an internal policy decision or local challenge (rendered in an urgent **TV Breaking News** frame).
-6.  **Place Bids & Lock Turn**: Place a blind resource bid (using Coins, Morale, or Public Support) for the ongoing 5-turn cycle reward.
+On each monthly turn, players step through a structured campaign wizard interface mapping to the 7 Actions:
+1.  **Action 1: Political Card Selection** (Required): Play a campaign strategy card from a role-specific deck of 30 cards. Standard cards can be played at most **2 times per game** to avoid repetitive play. If the card requires a target, select a rival party.
+2.  **Action 2: News Reaction** (Required): React to the monthly state-wide news event (rendered in a vintage printed newspaper theme: **The State Chronicle**). Select one of four responses.
+3.  **Action 3: Party News Reaction** (Required): Resolve an internal policy decision, monthly governance issue, or local crisis (rendered in an urgent **TV Breaking News** frame).
+4.  **Action 4: Bid for Reward** (Required): Place a blind resource bid (using Coins, Morale, or Support) for the upcoming 5-turn cycle reward.
+5.  **Action 5: Play Reward** (Optional): Deploy any inventory booster reward (e.g., *Grassroots Boost*) won during previous bidding cycles.
+6.  **Action 6: Party Building Activity** (Optional): Allocate funds step-by-step or fully toward long-term infrastructure building projects (e.g., *Mega Rally*, *Prime Leader Visit*, *IT Cell*, *Media Smear*).
+7.  **Action 7: Diplomatic Cooperation** (Optional): Propose or respond to diplomatic proposals like Non-Aggression Pacts or asset trade exchanges with other political parties.
 
 Once all players lock their turns, the round resolves, applying all actions and advancing the timeline.
 
@@ -109,7 +110,7 @@ reaction_options:
 
 ---
 
-### 4. Infrastructure Building Projects
+### 4. Action 6: Infrastructure Building Projects (Party Building Activity)
 Apart from playing cards, parties can invest in long-term building projects (e.g., *Mega Rally*, *Prime Leader Visit*, *Audit Harassment*, *Media Smear*).
 
 *   **Multi-Metric Cost**: Progressing a project can cost combinations of Coins, Morale, Media Image, or Support.
@@ -228,14 +229,80 @@ $$\text{Score} = \text{BasePlayWeight} + \text{IntentFitBonus} + \text{IdeologyA
 
 ---
 
-### 4. Bidding & Project Resource Constraints
+### 4. UI Carry Forward Option Checkbox
+- **`DashboardHome.jsx` (React UI)**: Added a checkbox in the campaign creation screen to let players choose whether to carry forward their completed projects. The checkbox defaults to `false` and is only visible when starting a next-series scenario (ends with `_2006`).
+- **`app.py` (Streamlit Python UI)**: Added the corresponding `st.checkbox` for scenario configurations ending with `_2006` that passes `retainInstitutions` in the API payload, defaulting to `False`.
+
+### 5. Campaign Display Names in Status Lists
+- **`GameSession.java`**: Added the `scenarioName` field. Added a getter with a fallback title case formatter (e.g., converting `"west_bengal_2000"` to `"West Bengal 2000"`) to automatically resolve display names for older campaigns.
+- **`GameSessionService.java`**: Automatically populates `scenarioName` from the scenario definition upon game creation.
+- React and Python UIs automatically show the correct display name because they consume the serialized `scenarioName` property.
+
+---
+
+### 6. Bidding & Project Resource Constraints
 To ensure the AI does not spend itself to death on optional components:
 *   **Safety Bidding**: AI players bid on cycle rewards using calculated resource utility. However, if any critical warning boundaries are active (Coins $\le 20$, Morale $\le 18$, Support $\le 10\%$, Corruption $\ge 75\%$), or if a tie/win is mathematically impossible, the AI automatically bids **0** to conserve resources.
 *   **10% Project Spend Cap**: The AI will only fund infrastructure projects if it is in a healthy state (Coins $> 100$, Morale $> 50$). Even when funding is enabled, the AI caps project spending at a maximum of **10%** of its current Coins and **10%** of its current Morale per turn, preventing instant cash drains.
 
 ---
 
-### 5. AI Rivalry & Targeting (Grudges)
+### 7. AI Rivalry & Targeting (Grudges)
 The AI targets rivals dynamically based on the following indicators:
 *   **Weakness Targeting**: Opponent target scores are boosted if they are near warning levels, allowing the AI to coordinate a knockout blow.
 *   **Grudge Retaliation**: If a human or rival party targets the AI with an offensive card or a hostile project outcome, the AI adds Grudge points to that party. In subsequent rounds, a Grudge multiplier ($+10.0$ points per grudge level) is added to favor target retaliation.
+
+---
+
+## 🤝 Part 4: Cooperation, Alliances, & Resource Exchange (Action 7)
+
+Action 7 introduces dynamic diplomacy, resource trading, and non-aggression treaties between human and computer-controlled parties.
+
+### 1. Diplomatic Actions
+*   **Non-Aggression Pacts**:
+    *   Treaty durations: 5, 10, or 15 turns.
+    *   Can include optional pact compensation/payments in Coins, Morale, Support, or completed buildings.
+    *   **Betrayal Check**: Playing hostile cards or targeting a pact partner with offensive project yields breaks the pact instantly, incurring a severe **-15 Morale penalty** and triggering news alerts.
+*   **Exchanges (Trades)**:
+    *   Sellers can trade combinations of Coins, Morale, Support, and completed buildings.
+    *   Buyers can trade Coins, Support, and Morale.
+
+### 2. Math & Valuation Engine
+To evaluate trades, the game engine converts assets to a baseline coin value:
+
+$$\text{Value}_{\text{Total}} = \text{Coins} + (\text{Morale} \times 20) + (\text{Support} \times 50) + \text{Value}_{\text{Buildings}}$$
+
+#### Building Valuation:
+Completed buildings are valued based on their per-turn yields and the remaining duration of the 60-turn campaign:
+
+$$\text{YieldVal}_{\text{PerTurn}} = \text{YieldCoins} + (\text{YieldMorale} \times 20) + (\text{YieldSupport} \times 50) + (\text{YieldMedia} \times 20) - (\text{YieldCorruption} \times 20)$$
+
+$$\text{Value}_{\text{Building}} = \text{YieldVal}_{\text{PerTurn}} \times (60 - \text{CurrentTurnNumber})$$
+
+### 3. AI Diplomatic Heuristics
+*   **Desperate State**: If Coins $< 100$, Support $< 20\%$, or Morale $< 40$, the AI doubles the strategic utility of its scarce resources to prioritize recovery.
+*   **Safety Limits**: The AI will reject any trade that reduces its reserves below critical levels (20 Coins, 18 Morale, 10% Support).
+*   **Acceptance Condition**: AI accepts incoming deals if:
+    
+    $$\text{Utility}_{\text{Received}} \ge 1.05 \times \text{Utility}_{\text{Given}}$$
+
+*   **Proactive Purchasing**: During round resolution, the AI monitors rival statistics. If a rival has Coins $< 100$ but healthy Support ($> 20\%$) or Morale ($> 40$), the AI proactively offers trades:
+    *   *Buy Support*: Propose exchanging 50 Coins for 3% Support.
+    *   *Buy Morale*: Propose exchanging 30 Coins for 5 Morale.
+
+### 4. UI Architecture & Mobile Optimization
+Action 7 is integrated into the monthly Campaign wizard as an optional section (Action 7). It bypasses turn submission, resolving immediately via REST endpoints:
+*   **Vertical Flow Layout**: Cards are stacked vertically to avoid multi-column overflow on mobile screens.
+*   **Dashboards**:
+    *   *Active Treaties*: Lists current non-aggression treaties with active countdown indicators.
+    *   *Inbox*: Lists incoming proposals with one-tap accept/reject actions.
+    *   *Workshop*: Vertically stacked form elements to select a target partner, toggle pact or exchange mode, define offered assets, specify requested returns, and submit proposals.
+
+### 5. Verification & Tests
+The integration is covered by automated unit tests in [GameServiceCooperationTest.java](file:///Users/supratikde/Desktop/DEV/Political%20party%20Sim/backend/src/test/java/com/politicalsim/game/GameServiceCooperationTest.java):
+*   `testCreateExchangeOfferAcceptedByAI`: Validates that mathematically fair exchanges are accepted and assets are correctly swapped.
+*   `testCreateExchangeOfferRejectedByAISafetyLimits`: Confirms AI rejects deals violating its safety bounds.
+*   `testCreateNonAggressionPactWithPayment`: Verifies pact setup, asset transfers, and active treaty registration.
+*   `testInsufficientAssetsThrowsException`: Tests client-side request validation errors.
+*   `testPactBetrayalDeductsMoraleAndClearsPact`: Verifies reflection-based checks, pact cancellation, and the -15 Morale penalty.
+

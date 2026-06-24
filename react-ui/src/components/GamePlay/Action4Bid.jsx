@@ -57,6 +57,34 @@ export default function Action4Bid({
         </div>
       )}
 
+      {/* Current Cycle Standings */}
+      <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
+        <h5 style={{ margin: '0 0 10px 0', color: '#1e3a8a', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          🏆 Current 5-Turn Cycle Standings
+        </h5>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {turnData.parties?.map(p => {
+            const wins = turnData.partyRoundWins?.[p.id] || 0;
+            return (
+              <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center', color: '#1e3a8a' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: getPartyColor(p), border: '1px solid rgba(0,0,0,0.1)' }} />
+                  <span style={{ fontWeight: p.id === turnData.activeHumanPartyId ? 'bold' : 'normal' }}>
+                    {p.name} {p.id === turnData.activeHumanPartyId && '(You)'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ display: 'flex', gap: '2px' }}>
+                    {Array(wins).fill('⭐').join('')}
+                    {wins === 0 && <span style={{ fontSize: '11px', opacity: 0.6 }}>0 wins</span>}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {turnData.currentRewardName && (
         <div style={{ background: 'rgba(101,148,177,0.08)', borderLeft: '4px solid var(--selected-highlight)', padding: '10px 15px', borderRadius: '0 8px 8px 0', marginBottom: '15px' }}>
           <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold', color: 'var(--primary-dark)', opacity: 0.8 }}>Bidding For</div>

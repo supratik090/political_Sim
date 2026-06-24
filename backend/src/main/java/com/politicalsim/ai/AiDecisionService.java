@@ -87,6 +87,89 @@ public class AiDecisionService {
         };
     }
 
+    private double intentEffectsFit(AiIntent intent, CardDefinition card, Map<String, Object> selfEffects, Map<String, Object> opponentEffects, AiProfile profile) {
+        int netCoinEffect = 0;
+        if (selfEffects.containsKey("coins")) {
+            int visibleCoins = intValue(selfEffects.get("coins"));
+            if (visibleCoins < 0) {
+                netCoinEffect = -card.getCost();
+            } else {
+                netCoinEffect = visibleCoins - card.getCost();
+            }
+        } else {
+            netCoinEffect = -card.getCost();
+        }
+        
+        int netMoraleEffect = intValue(selfEffects.get("partyMorale"));
+        int netSupportEffect = intValue(selfEffects.get("publicSupport"));
+        int netCorruptionEffect = intValue(selfEffects.get("corruptionScore"));
+        int netMediaEffect = intValue(selfEffects.get("mediaImage"));
+
+        return switch (intent) {
+            case RAISE_FUNDS -> {
+                if (netCoinEffect > 0) {
+                    yield netCoinEffect * 0.3; // Becomes netCoinEffect * 2.4 when multiplied by 8.0 weight
+                } else if (netCoinEffect < 0) {
+                    yield netCoinEffect * 0.25; // Becomes netCoinEffect * 2.0 penalty
+                } else {
+                    yield 0.0;
+                }
+            }
+            case RESTORE_MORALE -> {
+                if (netMoraleEffect > 0) {
+                    yield netMoraleEffect * 0.4; // Becomes netMoraleEffect * 3.2
+                } else if (netMoraleEffect < 0) {
+                    yield netMoraleEffect * 0.3; // Becomes netMoraleEffect * 2.4 penalty
+                } else {
+                    yield 0.0;
+                }
+            }
+            case GAIN_SUPPORT, PREPARE_ELECTION -> {
+                if (netSupportEffect > 0) {
+                    yield netSupportEffect * 0.5; // Becomes netSupportEffect * 4.0
+                } else if (netSupportEffect < 0) {
+                    yield netSupportEffect * 0.4; // Becomes netSupportEffect * 3.2 penalty
+                } else {
+                    yield 0.0;
+                }
+            }
+            case DEFEND_IMAGE -> {
+                if (netMediaEffect > 0) {
+                    yield netMediaEffect * 0.4; // Becomes netMediaEffect * 3.2
+                } else if (netMediaEffect < 0) {
+                    yield netMediaEffect * 0.3; // Becomes netMediaEffect * 2.4 penalty
+                } else {
+                    yield 0.0;
+                }
+            }
+            case SURVIVE_SCANDAL -> {
+                if (netCorruptionEffect < 0) {
+                    yield -netCorruptionEffect * 0.5; // Becomes -netCorruptionEffect * 4.0
+                } else if (netCorruptionEffect > 0) {
+                    yield -netCorruptionEffect * 0.4; // Becomes -netCorruptionEffect * 3.2 penalty
+                } else {
+                    yield 0.0;
+                }
+            }
+            case ATTACK_RIVAL, FORCE_NO_CONFIDENCE -> {
+                int oppSupportDamage = -intValue(opponentEffects.get("publicSupport"));
+                int oppMediaDamage = -intValue(opponentEffects.get("mediaImage"));
+                int oppMoraleDamage = -intValue(opponentEffects.get("partyMorale"));
+                int oppCoinsDamage = -intValue(opponentEffects.get("coins"));
+                int oppCorruptionGain = intValue(opponentEffects.get("corruptionScore"));
+
+                double offensiveScore = 0.0;
+                if (oppSupportDamage > 0) offensiveScore += oppSupportDamage * 0.4;
+                if (oppMediaDamage > 0) offensiveScore += oppMediaDamage * 0.2;
+                if (oppMoraleDamage > 0) offensiveScore += oppMoraleDamage * 0.2;
+                if (oppCoinsDamage > 0) offensiveScore += oppCoinsDamage * 0.2;
+                if (oppCorruptionGain > 0) offensiveScore += oppCorruptionGain * 0.2;
+                yield offensiveScore;
+            }
+            default -> 0.0;
+        };
+    }
+
     private double scoreCard(GameSession session, PartyState party, PartyState opponent, CardDefinition card, AiIntent intent) {
         PartyStats stats = party.getStats();
         AiProfile profile = profileFor(party);
@@ -212,9 +295,9 @@ public class AiDecisionService {
         score -= oppMediaVal;
         score += oppCorruptionVal;
 
-        score += intentFit(intent, card.getCategory()) * weight(profile, "intentFit");
+        score += intentEffectsFit(intent, card, selfEffects, opponentEffects, profile) * weight(profile, "intentFit");
         score += categoryFitScore(party, opponent, card.getCategory(), profile);
-        score += needScore(stats, card.getCategory(), profile);
+        score += needScore(stats, card, selfEffects, profile);
         score += ideologyFitScore(party, card);
         score += electionTimingScore(session, card.getCategory(), profile);
 
@@ -234,10 +317,8 @@ public class AiDecisionService {
         if (stats.getCoins() < card.getCost()) {
             score -= weight(profile, "unaffordableBasePenalty") + (card.getCost() - stats.getCoins());
         } else if (stats.getCoins() < 100 && netCoinEffect > 0) {
-            // Encourage playing coin-generating welfare or organization cards when in crisis
-            if ("positive_service".equals(card.getCategory()) || "organization_resource".equals(card.getCategory())) {
-                score += netCoinEffect * 2.5;
-            }
+            // Encourage playing coin-generating cards when in crisis
+            score += netCoinEffect * 2.5;
         } else {
             // Apply dynamic, progressive coin safety penalty to prevent spending down to critical levels
             int remainingCoins = stats.getCoins() + netCoinEffect;
@@ -277,6 +358,50 @@ public class AiDecisionService {
             }
         }
 
+        // Apply dynamic support safety/recovery logic
+        int netSupportEffect = 0;
+        if (selfEffects.containsKey("publicSupport")) {
+            netSupportEffect = intValue(selfEffects.get("publicSupport"));
+        }
+
+        if (stats.getPublicSupport() < 25 && netSupportEffect > 0) {
+            // Encourage playing support-restoring cards when in crisis
+            score += netSupportEffect * 4.0;
+        } else if (netSupportEffect < 0) {
+            // Apply dynamic support safety penalty to prevent playing cards that drop support below safety levels
+            int remainingSupport = stats.getPublicSupport() + netSupportEffect;
+            if (remainingSupport < 6) {
+                score -= 100.0 + (6 - remainingSupport) * 5.0; // Critical danger of support defeat (< 5% is defeat)
+            } else if (remainingSupport < 10) {
+                score -= 50.0;  // High risk
+            } else if (remainingSupport < 15) {
+                score -= 25.0;  // Moderate risk
+            } else if (remainingSupport < 20) {
+                score -= 10.0;  // Soft precaution
+            }
+        }
+
+        // Apply dynamic corruption safety logic
+        int netCorruptionEffect = 0;
+        if (selfEffects.containsKey("corruptionScore")) {
+            netCorruptionEffect = intValue(selfEffects.get("corruptionScore"));
+        }
+
+        if (stats.getCorruptionScore() > 60 && netCorruptionEffect < 0) {
+            // Encourage playing corruption-reducing cards when in danger
+            score += -netCorruptionEffect * 4.0;
+        } else if (netCorruptionEffect > 0) {
+            // Apply dynamic corruption safety penalty to prevent playing cards that increase corruption above safety levels
+            int remainingCorruption = stats.getCorruptionScore() + netCorruptionEffect;
+            if (remainingCorruption > 90) {
+                score -= 100.0 + (remainingCorruption - 90) * 5.0; // Critical danger of corruption defeat (> 95% is defeat)
+            } else if (remainingCorruption > 80) {
+                score -= 50.0;  // High risk
+            } else if (remainingCorruption > 70) {
+                score -= 25.0;  // Moderate risk
+            }
+        }
+
         score += card.getCardKey().hashCode() % 7 * 0.01;
         return score;
     }
@@ -289,9 +414,36 @@ public class AiDecisionService {
 
         score += intValue(effects.get("publicSupport")) * weight(profile, "selfPublicSupport");
         score += intValue(effects.get("mediaImage")) * (weight(profile, "selfMediaBase") + profile.getMediaPreference());
-        score += intValue(effects.get("partyMorale")) * weight(profile, "selfMorale");
+        
+        int moraleEffect = intValue(effects.get("partyMorale"));
+        double selfMoraleWeight = weight(profile, "selfMorale");
+        if (moraleEffect < 0) {
+            int currentMorale = stats.getPartyMorale();
+            if (currentMorale < 20) {
+                selfMoraleWeight *= 8.0;
+            } else if (currentMorale < 35) {
+                selfMoraleWeight *= 4.0;
+            } else if (currentMorale < 50) {
+                selfMoraleWeight *= 2.0;
+            }
+        }
+        score += moraleEffect * selfMoraleWeight;
+        
         score -= intValue(effects.get("corruptionScore")) * (weight(profile, "selfCorruptionPenaltyBase") + profile.getIdeologyStrictness());
-        score += intValue(effects.get("coins")) * weight(profile, "selfCoins");
+        
+        int coinEffect = intValue(effects.get("coins"));
+        double selfCoinsWeight = weight(profile, "selfCoins");
+        if (coinEffect < 0) {
+            int currentCoins = stats.getCoins();
+            if (currentCoins < 30) {
+                selfCoinsWeight *= 8.0;
+            } else if (currentCoins < 50) {
+                selfCoinsWeight *= 4.0;
+            } else if (currentCoins < 75) {
+                selfCoinsWeight *= 2.0;
+            }
+        }
+        score += coinEffect * selfCoinsWeight;
 
         if (intent == AiIntent.GAIN_SUPPORT || intent == AiIntent.PREPARE_ELECTION) {
             score += intValue(effects.get("publicSupport")) * weight(profile, "reactionIntentBoost");
@@ -348,25 +500,61 @@ public class AiDecisionService {
         return score;
     }
 
-    private double needScore(PartyStats stats, String category, AiProfile profile) {
+    private double needScore(PartyStats stats, CardDefinition card, Map<String, Object> selfEffects, AiProfile profile) {
         double score = 0;
-        if (stats.getPartyMorale() < threshold(profile, "needMoraleLow")
-                && oneOf(category, "organization_resource", "positive_service")) {
-            score += weight(profile, "needMoraleBoost");
+        
+        // Calculate net coin effect
+        int netCoinEffect = 0;
+        if (selfEffects.containsKey("coins")) {
+            int visibleCoins = intValue(selfEffects.get("coins"));
+            if (visibleCoins < 0) {
+                netCoinEffect = -card.getCost();
+            } else {
+                netCoinEffect = visibleCoins - card.getCost();
+            }
+        } else {
+            netCoinEffect = -card.getCost();
         }
-        if (stats.getMediaImage() < threshold(profile, "needMediaLow")
-                && oneOf(category, "media_narrative", "defensive_counter")) {
-            score += weight(profile, "needMediaBoost");
+        
+        int netMoraleEffect = intValue(selfEffects.get("partyMorale"));
+        int netSupportEffect = intValue(selfEffects.get("publicSupport"));
+        int netCorruptionEffect = intValue(selfEffects.get("corruptionScore"));
+        int netMediaEffect = intValue(selfEffects.get("mediaImage"));
+
+        if (stats.getPartyMorale() < threshold(profile, "needMoraleLow")) {
+            if (netMoraleEffect > 0) {
+                score += netMoraleEffect * (weight(profile, "needMoraleBoost") / 3.0);
+            } else if (netMoraleEffect < 0) {
+                score += netMoraleEffect * (weight(profile, "needMoraleBoost") / 4.0);
+            }
         }
-        if (stats.getPublicSupport() < threshold(profile, "needSupportLow")
-                && oneOf(category, "positive_service", "governance", "agitation", "agitation_movement")) {
-            score += weight(profile, "needSupportBoost");
+        if (stats.getMediaImage() < threshold(profile, "needMediaLow")) {
+            if (netMediaEffect > 0) {
+                score += netMediaEffect * (weight(profile, "needMediaBoost") / 3.0);
+            } else if (netMediaEffect < 0) {
+                score += netMediaEffect * (weight(profile, "needMediaBoost") / 4.0);
+            }
         }
-        if (stats.getCorruptionScore() > threshold(profile, "needCorruptionHigh") && "defensive_counter".equals(category)) {
-            score += weight(profile, "needCorruptionDefenseBoost");
+        if (stats.getPublicSupport() < threshold(profile, "needSupportLow")) {
+            if (netSupportEffect > 0) {
+                score += netSupportEffect * (weight(profile, "needSupportBoost") / 3.0);
+            } else if (netSupportEffect < 0) {
+                score += netSupportEffect * (weight(profile, "needSupportBoost") / 4.0);
+            }
         }
-        if (stats.getCoins() < threshold(profile, "needCoinsLow") && "organization_resource".equals(category)) {
-            score += weight(profile, "needLowCoinFundBoost");
+        if (stats.getCorruptionScore() > threshold(profile, "needCorruptionHigh")) {
+            if (netCorruptionEffect < 0) {
+                score += -netCorruptionEffect * (weight(profile, "needCorruptionDefenseBoost") / 3.0);
+            } else if (netCorruptionEffect > 0) {
+                score += -netCorruptionEffect * (weight(profile, "needCorruptionDefenseBoost") / 4.0);
+            }
+        }
+        if (stats.getCoins() < threshold(profile, "needCoinsLow")) {
+            if (netCoinEffect > 0) {
+                score += netCoinEffect * (weight(profile, "needLowCoinFundBoost") / 3.0);
+            } else if (netCoinEffect < 0) {
+                score += netCoinEffect * (weight(profile, "needLowCoinFundBoost") / 4.0);
+            }
         }
         return score;
     }
@@ -755,13 +943,35 @@ public class AiDecisionService {
         int currentSupport = party.getStats().getPublicSupport();
         
         if (isIncoming) {
-            if (currentCoins < 40) coinMultiplier = 2.5;
-            if (currentMorale < 25) moraleMultiplier = 2.0;
-            if (currentSupport < 12) supportMultiplier = 3.0;
+            if (currentCoins < 30) coinMultiplier = 10.0;
+            else if (currentCoins < 50) coinMultiplier = 5.0;
+            else if (currentCoins < 75) coinMultiplier = 3.0;
+            else if (currentCoins < 100) coinMultiplier = 2.0;
+
+            if (currentMorale < 20) moraleMultiplier = 8.0;
+            else if (currentMorale < 30) moraleMultiplier = 4.0;
+            else if (currentMorale < 40) moraleMultiplier = 2.5;
+            else if (currentMorale < 50) moraleMultiplier = 1.8;
+
+            if (currentSupport < 10) supportMultiplier = 12.0;
+            else if (currentSupport < 15) supportMultiplier = 7.0;
+            else if (currentSupport < 20) supportMultiplier = 4.0;
+            else if (currentSupport < 25) supportMultiplier = 2.5;
         } else {
-            if (currentCoins < 100) coinMultiplier = 2.5;
-            if (currentMorale < 40) moraleMultiplier = 2.0;
-            if (currentSupport < 20) supportMultiplier = 3.0;
+            if (currentCoins < 30) coinMultiplier = 15.0;
+            else if (currentCoins < 50) coinMultiplier = 8.0;
+            else if (currentCoins < 75) coinMultiplier = 4.0;
+            else if (currentCoins < 100) coinMultiplier = 2.5;
+
+            if (currentMorale < 20) moraleMultiplier = 10.0;
+            else if (currentMorale < 30) moraleMultiplier = 5.0;
+            else if (currentMorale < 40) moraleMultiplier = 3.0;
+            else if (currentMorale < 50) moraleMultiplier = 2.0;
+
+            if (currentSupport < 10) supportMultiplier = 15.0;
+            else if (currentSupport < 15) supportMultiplier = 8.0;
+            else if (currentSupport < 20) supportMultiplier = 5.0;
+            else if (currentSupport < 25) supportMultiplier = 3.0;
         }
         
         double total = coins * coinMultiplier;
