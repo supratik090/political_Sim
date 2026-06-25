@@ -63,7 +63,7 @@ def main():
     parser = argparse.ArgumentParser(description="Import reviewed monthly issues.")
     parser.add_argument("--api-base-url", default=DEFAULT_API_BASE_URL)
     parser.add_argument("--scenario-key", default="default")
-    parser.add_argument("--issues-file", default="review/default_Monthly_issues.json")
+    parser.add_argument("--issues-file", default="review/default_monthly_issues_v1.json")
     args = parser.parse_args()
 
     base_dir = Path(__file__).resolve().parent

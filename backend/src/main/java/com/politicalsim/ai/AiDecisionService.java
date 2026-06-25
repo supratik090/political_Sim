@@ -46,9 +46,18 @@ public class AiDecisionService {
     public AiIntent chooseIntent(GameSession session, PartyState party, PartyState opponent) {
         PartyStats stats = party.getStats();
         AiProfile profile = profileFor(party);
-        int monthsLeft = Math.max(0, 60 - session.getMonthInCycle() + 1);
         // opponent may be null when ALL other active parties have non-aggression pacts with this party
         boolean hasTargetableOpponent = opponent != null;
+
+        // ── CHANGE 1: Survival override — thresholds scale with riskTolerance ───────
+        // Cautious parties (low riskTolerance) panic earlier; bold ones push slightly longer.
+        // riskTolerance range 0.0-1.0; factor maps to threshold multiplier 1.1 (cautious) → 0.9 (bold).
+        double survivalFactor = 1.1 - (profile.getRiskTolerance() * 0.2);
+        if (stats.getPublicSupport() < Math.round(20 * survivalFactor)) return AiIntent.GAIN_SUPPORT;
+        if (stats.getPartyMorale()   < Math.round(22 * survivalFactor)) return AiIntent.RESTORE_MORALE;
+        if (stats.getCorruptionScore() > Math.round(80 / survivalFactor)) return AiIntent.SURVIVE_SCANDAL;
+        if (stats.getCoins()          < Math.round(35 * survivalFactor)) return AiIntent.RAISE_FUNDS;
+        // ─────────────────────────────────────────────────────────────────────────────
 
         if (party.getRole() != PartyRole.GOVERNMENT
                 && session.getGovernmentParty().getStats().getPublicSupport() < threshold(profile, "governmentNoConfidenceSupport")
@@ -67,10 +76,22 @@ public class AiDecisionService {
         if (stats.getPartyMorale() < threshold(profile, "lowMorale")) {
             return AiIntent.RESTORE_MORALE;
         }
-        if (monthsLeft <= threshold(profile, "electionWindowMonths")
+
+        // ── CHANGE 7: Election window fix ────────────────────────────────────────────
+        // Previously used (60 - monthInCycle) which resets every cycle and is always
+        // large, so PREPARE_ELECTION was effectively never triggered before turn 55.
+        // Now uses actual turns remaining in the game.
+        int turnsRemaining = Math.max(0, 60 - session.getTurnNumber());
+        if (turnsRemaining <= (int) threshold(profile, "electionWindowMonths")
                 && stats.getPublicSupport() < threshold(profile, "electionSupportTarget")) {
             return AiIntent.PREPARE_ELECTION;
         }
+        // Broad election surge: all parties push support in the final 10 turns
+        if (turnsRemaining <= 10 && stats.getPublicSupport() < 50) {
+            return AiIntent.PREPARE_ELECTION;
+        }
+        // ─────────────────────────────────────────────────────────────────────────────
+
         // Only consider attacking if there is actually a targetable opponent (no active NAP)
         if (hasTargetableOpponent
                 && opponent.getStats().getCorruptionScore() > threshold(profile, "opponentCorruptionAttack")
@@ -184,17 +205,30 @@ public class AiDecisionService {
         double score = doubleValue(card.getWeights().get("basePlayWeight"));
         score += doubleValue(card.getWeights().get("aiPriorityWeight")) * weight(profile, "cardAiPriority");
 
-        // Penalize playing the exact same card consecutively (except for Pass / no_card)
+        // ── CHANGE 2: Progressive card diversity penalty ──────────────────────────────
+        // Applies to ALL parties (human cards are never scored here, only AI cards are).
+        // Penalise cards that have been used once to encourage spreading usage over 60 turns.
+        // Cards used ≥ 3 times are already filtered out of getAvailableCardsForParty().
+        if (!"no_card".equals(card.getCardKey()) && session.getCardUsageByParty() != null) {
+            Map<String, Integer> myUsage = session.getCardUsageByParty().get(party.getId());
+            if (myUsage != null) {
+                int timesUsed = myUsage.getOrDefault(card.getCardKey(), 0);
+                if (timesUsed == 1) score -= 8.0;   // Mild: used once — prefer fresh cards
+                if (timesUsed == 2) score -= 35.0;  // Strong: used twice — very strong deterrent
+            }
+        }
+        // Penalize playing the exact same card as last turn (consecutive repeat deterrent)
         if (!"no_card".equals(card.getCardKey()) && session.getLastRoundSubmissions() != null) {
             for (RoundSubmission lastSub : session.getLastRoundSubmissions()) {
                 if (lastSub.getPartyId().equals(party.getId())) {
                     if (card.getCardKey().equals(lastSub.getCardKey())) {
-                        score -= 35.0; 
+                        score -= 20.0; // (was 35; combined with diversity penalty above = effective 55 for same-card repeat)
                         break;
                     }
                 }
             }
         }
+        // ─────────────────────────────────────────────────────────────────────────────
         score += doubleValue(card.getWeights().get("publicImpactWeight")) * weight(profile, "cardPublicImpact");
         score -= doubleValue(card.getWeights().get("riskWeight")) * (weight(profile, "cardRiskBase") - profile.getRiskTolerance());
 
@@ -255,34 +289,44 @@ public class AiDecisionService {
             }
         }
 
+        // ── CHANGE 6: Attacker health factor ─────────────────────────────────────────
+        // Scale down ALL opponent-targeting score components when the attacker is weak.
+        // A party at 15% support will score attack cards much lower than a party at 40%,
+        // making self-buff cards naturally win without needing a hard block.
+        double attackerHealthFactor = Math.min(1.0, stats.getPublicSupport() / 30.0);
+        oppSupportVal    *= attackerHealthFactor;
+        oppMediaVal      *= attackerHealthFactor;
+        oppCorruptionVal *= attackerHealthFactor;
+        // ─────────────────────────────────────────────────────────────────────────────
+
         // Dynamic target evaluation within card scoring:
         // Adjust score based on our grudges and targeted weaknesses of the chosen opponent candidate
         if (requiresTarget(card)) {
             PartyState targetOpponent = chooseOpponent(session, party, card);
             if (targetOpponent != null) {
-                // Grudge vendetta boost
+                // Grudge vendetta boost (also scaled by attacker health)
                 Map<String, Map<String, Integer>> grudges = session.getGrudges();
                 if (grudges != null) {
                     Map<String, Integer> myGrudges = grudges.get(party.getId());
                     if (myGrudges != null) {
                         int grudge = myGrudges.getOrDefault(targetOpponent.getId(), 0);
-                        score += grudge * 3.0; // Grudge boost to favor attacking rivals
+                        score += grudge * 3.0 * attackerHealthFactor;
                     }
                 }
 
-                // Opponent vulnerability attack boosts
+                // Opponent vulnerability attack boosts (also scaled by attacker health)
                 PartyStats tStats = targetOpponent.getStats();
                 if (intValue(opponentEffects.get("coins")) < 0 && tStats.getCoins() <= 25) {
-                    score += 15.0; // Bonus incentive to bankrupt target
+                    score += 15.0 * attackerHealthFactor;
                 }
                 if (intValue(opponentEffects.get("partyMorale")) < 0 && tStats.getPartyMorale() <= 20) {
-                    score += 15.0; // Bonus incentive to break targeted morale
+                    score += 15.0 * attackerHealthFactor;
                 }
                 if (intValue(opponentEffects.get("corruptionScore")) > 0 && tStats.getCorruptionScore() >= 75) {
-                    score += 15.0; // Bonus incentive to scandal-expose target
+                    score += 15.0 * attackerHealthFactor;
                 }
                 if (intValue(opponentEffects.get("publicSupport")) < 0 && tStats.getPublicSupport() <= 12) {
-                    score += 10.0; // Bonus incentive to force voter support defeat
+                    score += 10.0 * attackerHealthFactor;
                 }
             } else {
                 // If a card requires an opponent target but all active opponents have pacts, penalize heavily.
@@ -305,6 +349,23 @@ public class AiDecisionService {
         score += needScore(stats, card, selfEffects, profile);
         score += ideologyFitScore(party, card);
         score += electionTimingScore(session, card.getCategory(), profile);
+
+        // ── CHANGE 3: Intent-to-card consistency enforcement ─────────────────────────
+        // When intent is self-recovery, heavily penalise cards whose primary effect is
+        // damaging an opponent's public support (attack cards). This ensures the AI
+        // doesn't waste a recovery turn playing an aggressive card.
+        boolean isSelfRecoveryIntent = intent == AiIntent.GAIN_SUPPORT
+                || intent == AiIntent.RESTORE_MORALE
+                || intent == AiIntent.RAISE_FUNDS
+                || intent == AiIntent.SURVIVE_SCANDAL
+                || intent == AiIntent.DEFEND_IMAGE
+                || intent == AiIntent.PREPARE_ELECTION;
+        boolean isPrimaryAttackCard = requiresTarget(card)
+                && intValue(partyEffect(card.getVisibleEffects(), "opponentParty").get("publicSupport")) < 0;
+        if (isSelfRecoveryIntent && isPrimaryAttackCard) {
+            score -= 50.0;
+        }
+        // ─────────────────────────────────────────────────────────────────────────────
 
         int netCoinEffect = 0;
         if (selfEffects.containsKey("coins")) {
@@ -596,8 +657,11 @@ public class AiDecisionService {
     }
 
     private double electionTimingScore(GameSession session, String category, AiProfile profile) {
-        int monthsLeft = Math.max(0, 60 - session.getMonthInCycle() + 1);
-        if (monthsLeft > threshold(profile, "electionWindowMonths")) {
+        // ── CHANGE 7 (electionTimingScore): use turnsRemaining not monthInCycle ───────
+        // monthInCycle resets each 60-month cycle, so 60 - monthInCycle is always large
+        // and the election window was never reached mid-game. Now use game-wide turns.
+        int turnsRemaining = Math.max(0, 60 - session.getTurnNumber());
+        if (turnsRemaining > threshold(profile, "electionWindowMonths")) {
             return 0;
         }
         if (oneOf(category, "positive_service", "media_narrative", "governance")) {
@@ -607,6 +671,7 @@ public class AiDecisionService {
             return weight(profile, "electionScandalPenalty");
         }
         return 0;
+        // ─────────────────────────────────────────────────────────────────────────────
     }
 
     @SuppressWarnings("unchecked")

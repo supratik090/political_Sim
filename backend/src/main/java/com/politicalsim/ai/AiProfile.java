@@ -33,18 +33,42 @@ public class AiProfile {
 
     public static AiProfile defaultForRole(PartyRole role) {
         return switch (role) {
-            case GOVERNMENT -> withCategoryPreferences(
-                    new AiProfile(AiStyle.STRENGTH_BUILDER, 0.30, 0.10, 0.70, 0.50, 0.60, 0.80),
-                    Map.of("governance", 0.8, "positive_service", 0.9, "organization_resource", 0.9, "media_narrative", 0.6)
-            );
-            case OPPOSITION -> withCategoryPreferences(
-                    new AiProfile(AiStyle.AGGRESSIVE_ATTACKER, 0.85, 0.90, 0.30, 0.20, 0.50, 0.50),
-                    Map.of("scandal_accusation", 0.95, "agitation_movement", 0.9, "media_narrative", 0.7)
-            );
-            case THIRD_PARTY, DEFEATED -> withCategoryPreferences(
-                    new AiProfile(AiStyle.BALANCED_STRATEGIST, 0.50, 0.50, 0.50, 0.50, 0.50, 0.60),
-                    Map.of("governance", 0.6, "positive_service", 0.6, "organization_resource", 0.6, "scandal_accusation", 0.6, "agitation_movement", 0.6)
-            );
+            case GOVERNMENT -> {
+                AiProfile p = withCategoryPreferences(
+                        new AiProfile(AiStyle.STRENGTH_BUILDER, 0.30, 0.10, 0.70, 0.50, 0.60, 0.80),
+                        Map.of("governance", 0.8, "positive_service", 0.9, "organization_resource", 0.9, "media_narrative", 0.6)
+                );
+                // Change 4: Government-specific thresholds
+                p.getIntentThresholds().put("lowMorale", 40.0);          // was 50
+                p.getIntentThresholds().put("lowSupport", 30.0);         // unchanged
+                p.getIntentThresholds().put("lowCoins", 80.0);           // was 100
+                p.getIntentThresholds().put("electionSupportTarget", 45.0); // was 42
+                yield p;
+            }
+            case OPPOSITION -> {
+                AiProfile p = withCategoryPreferences(
+                        new AiProfile(AiStyle.AGGRESSIVE_ATTACKER, 0.85, 0.90, 0.30, 0.20, 0.50, 0.50),
+                        Map.of("scandal_accusation", 0.95, "agitation_movement", 0.9, "media_narrative", 0.7)
+                );
+                // Change 4: Opposition-specific thresholds
+                p.getIntentThresholds().put("lowMorale", 35.0);          // was 50
+                p.getIntentThresholds().put("lowSupport", 20.0);         // was 34 — opposition can operate lower
+                p.getIntentThresholds().put("lowCoins", 70.0);           // was 100
+                p.getIntentThresholds().put("electionSupportTarget", 38.0); // was 42
+                yield p;
+            }
+            case THIRD_PARTY, DEFEATED -> {
+                AiProfile p = withCategoryPreferences(
+                        new AiProfile(AiStyle.BALANCED_STRATEGIST, 0.50, 0.50, 0.50, 0.50, 0.50, 0.60),
+                        Map.of("governance", 0.6, "positive_service", 0.6, "organization_resource", 0.6, "scandal_accusation", 0.6, "agitation_movement", 0.6)
+                );
+                // Change 4: Third-party-specific thresholds
+                p.getIntentThresholds().put("lowMorale", 38.0);          // was 50
+                p.getIntentThresholds().put("lowSupport", 28.0);         // was 34
+                p.getIntentThresholds().put("lowCoins", 75.0);           // was 100
+                p.getIntentThresholds().put("electionSupportTarget", 40.0); // was 42
+                yield p;
+            }
         };
     }
 

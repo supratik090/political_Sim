@@ -569,7 +569,7 @@ public class GameService {
 
     private CardDefinition findAvailableCard(GameSession session, String cardKey, PartyState party) {
         CardDefinition card = findCard(session, cardKey, party.getRole());
-        if (!"no_card".equals(card.getCardKey()) && usedCount(session, party, card) >= 2) {
+        if (!"no_card".equals(card.getCardKey()) && usedCount(session, party, card) >= 3) {
             throw new IllegalArgumentException("Card has no uses remaining in this game: " + cardKey);
         }
         return card;
@@ -661,6 +661,23 @@ public class GameService {
             String metric = roundResolutionEngine.getBiddingMetricForTurn(session.getTurnNumber());
             int currentMetricValue = roundResolutionEngine.getStatValue(party, metric);
             int bid = calculateSmartBid(session, party, metric, currentMetricValue);
+
+            // Change 5: Zero-bid on offensive rewards when in self-crisis
+            // A party that urgently needs to recover should not burn resources competing
+            // for rewards that harm others rather than help itself.
+            boolean isInSelfCrisis = party.getStats().getPublicSupport() < 22
+                    || party.getStats().getPartyMorale() < 25
+                    || party.getStats().getCoins() < 40;
+            if (isInSelfCrisis && session.getCurrentRewardKey() != null) {
+                boolean isOffensiveReward = com.politicalsim.game.RoundResolutionEngine.REWARD_POOL.stream()
+                        .filter(r -> r.key().equals(session.getCurrentRewardKey()))
+                        .findFirst()
+                        .map(r -> "opponent".equals(r.allowedTargets()))
+                        .orElse(false);
+                if (isOffensiveReward) {
+                    bid = 0;
+                }
+            }
             submission.setBid(bid);
 
             // AI Project Funding and Targeting
@@ -1084,7 +1101,7 @@ public class GameService {
             getCardsForSession(session).stream()
                 .filter(CardDefinition::isActive)
                 .filter(card -> card.getRoleAllowed().contains(party.getRole().name()))
-                .filter(card -> "no_card".equals(card.getCardKey()) || usedCount(session, party, card) < 2)
+                .filter(card -> "no_card".equals(card.getCardKey()) || usedCount(session, party, card) < 3)
                 .filter(card -> party.getStats().getCoins() >= card.getCost())
                 .toList()
         );
@@ -1837,6 +1854,54 @@ public class GameService {
                 
                 session.getCooperationOffers().add(offer);
                 break; // One offer per turn
+            }
+
+            // Change 8: Coalition vs dominant human player
+            // If a human party leads all AI parties by 10%+ support, AI parties offer each other
+            // FREE non-aggression pacts (no payment) beyond the early game window.
+            if (!hasActivePact && other.getControllerType() == ControllerType.COMPUTER) {
+                PartyState humanLeader = session.getParties().stream()
+                        .filter(p -> p.isActive() && p.getControllerType() == ControllerType.HUMAN)
+                        .max(java.util.Comparator.comparingInt(p -> p.getStats().getPublicSupport()))
+                        .orElse(null);
+                boolean humanDominating = humanLeader != null
+                        && humanLeader.getStats().getPublicSupport() > party.getStats().getPublicSupport() + 10
+                        && humanLeader.getStats().getPublicSupport() > other.getStats().getPublicSupport() + 10;
+                if (humanDominating) {
+                    CooperationOffer coalitionPact = new CooperationOffer();
+                    coalitionPact.setId(java.util.UUID.randomUUID().toString());
+                    coalitionPact.setSenderPartyId(party.getId());
+                    coalitionPact.setSenderPartyName(party.getName());
+                    coalitionPact.setRecipientPartyId(other.getId());
+                    coalitionPact.setRecipientPartyName(other.getName());
+                    coalitionPact.setType(CooperationOffer.OfferType.NON_AGGRESSION);
+                    coalitionPact.setDurationTurns(8);
+                    coalitionPact.setSenderPaysPact(false); // Free — both sides benefit
+                    coalitionPact.setPactPaymentValue(0);
+                    coalitionPact.setStatus(CooperationOffer.OfferStatus.PENDING);
+                    coalitionPact.setTurnCreated(session.getTurnNumber());
+
+                    String proposalDesc = getOfferDescription(coalitionPact);
+                    session.getLastRoundCommentary().add("🤝 " + party.getName()
+                            + " proposed a defensive coalition pact to " + other.getName()
+                            + " (" + humanLeader.getName() + " is leading): " + proposalDesc);
+                    session.getLastResults().add("🤝 " + party.getName() + " proposed free coalition pact to " + other.getName());
+
+                    boolean accepted = aiDecisionService.evaluateCooperationOffer(session, other, coalitionPact);
+                    if (accepted) {
+                        executeCooperationTrade(session, coalitionPact);
+                        coalitionPact.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
+                        session.getLastRoundCommentary().add("✅ " + other.getName()
+                                + " accepted the defensive coalition pact with " + party.getName() + ".");
+                        session.getLastResults().add("✅ Coalition pact accepted: " + party.getName() + " & " + other.getName());
+                    } else {
+                        coalitionPact.setStatus(CooperationOffer.OfferStatus.REJECTED);
+                        session.getLastRoundCommentary().add("❌ " + other.getName()
+                                + " declined the coalition pact from " + party.getName() + ".");
+                    }
+                    session.getCooperationOffers().add(coalitionPact);
+                    break; // One offer per turn
+                }
             }
         }
     }
