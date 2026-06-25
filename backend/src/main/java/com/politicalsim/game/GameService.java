@@ -108,11 +108,17 @@ public class GameService {
         boolean upWon = wonScenarioKeys.contains("uttar_pradesh_2001");
         boolean tnWon = wonScenarioKeys.contains("tamil_nadu_2001");
         boolean rjWon = wonScenarioKeys.contains("rajasthan_2001");
+        boolean brWon = wonScenarioKeys.contains("bihar_2001");
+        boolean gaWon = wonScenarioKeys.contains("goa_2001");
+        boolean dlWon = wonScenarioKeys.contains("delhi_2001");
+        boolean apWon = wonScenarioKeys.contains("andhra_pradesh_2001");
+        boolean klWon = wonScenarioKeys.contains("kerala_2001");
 
-        int currentEra = 2001;
-        if (wbWon && mhWon && upWon && tnWon && rjWon) {
-            currentEra = 2006;
-        }
+        // New unlock rule:
+        //   - All 2001-era scenarios are always AVAILABLE from the start.
+        //   - Each 2006 scenario unlocks independently when its paired 2001 scenario is won.
+        //     e.g., winning uttar_pradesh_2001 → unlocks uttar_pradesh_2006 only.
+        //   - currentEra is no longer used to hide all 2001 scenarios after 2006 unlocks.
 
         List<ScenarioProgressView> scenarioProgressList = new ArrayList<>();
         for (ScenarioDefinition s : activeScenarios) {
@@ -120,17 +126,25 @@ public class GameService {
             if (key == null) continue;
 
             boolean is2006 = key.endsWith("_2006");
-            boolean is2001 = key.endsWith("_2000") || key.endsWith("_2001");
 
-            if (currentEra == 2006 && !is2006) continue;
-            if (currentEra == 2001 && !is2001) {
-                if (!("west_bengal_2006".equals(key) && wbWon)) {
-                    continue;
-                }
-            }
+            // Determine if this 2006 scenario's corresponding 2001 scenario has been won
+            boolean prerequisiteWon = switch (key) {
+                case "west_bengal_2006"    -> wbWon;
+                case "maharashtra_2006"    -> mhWon;
+                case "uttar_pradesh_2006"  -> upWon;
+                case "tamil_nadu_2006"     -> tnWon;
+                case "rajasthan_2006"      -> rjWon;
+                case "bihar_2006"          -> brWon;
+                case "goa_2006"            -> gaWon;
+                case "delhi_2006"          -> dlWon;
+                case "andhra_pradesh_2006" -> apWon;
+                case "kerala_2006"         -> klWon;
+                default -> true; // 2001-era scenarios have no prerequisite
+            };
 
-            String status = "AVAILABLE";
-            
+            String status;
+
+            // Check for an active (in-progress) game first
             boolean hasActive = false;
             for (GameSession g : userGames) {
                 if (key.equals(g.getScenarioKey()) && g.getStatus() == GameStatus.ACTIVE) {
@@ -143,24 +157,12 @@ public class GameService {
                 status = "IN_PROGRESS";
             } else if (wonScenarioKeys.contains(key)) {
                 status = "WON";
+            } else if (is2006 && !prerequisiteWon) {
+                // 2006 scenario: locked until the matching 2001 scenario is won
+                status = "LOCKED";
             } else {
-                boolean locked = false;
-                if (currentEra == 2006) {
-                    if (!"west_bengal_2006".equals(key) && !wonScenarioKeys.contains("west_bengal_2006")) {
-                        locked = true;
-                    }
-                } else {
-                    boolean isDefaultUnlocked = "west_bengal_2000".equals(key) || "maharashtra_2001".equals(key) || "Mh_2001".equals(key);
-                    if ("west_bengal_2006".equals(key)) {
-                        locked = !wbWon;
-                    } else if (!isDefaultUnlocked && !wonScenarioKeys.contains("west_bengal_2000")) {
-                        locked = true;
-                    }
-                }
-                
-                if (locked) {
-                    status = "LOCKED";
-                }
+                // All 2001-era scenarios and unlocked 2006 scenarios are AVAILABLE
+                status = "AVAILABLE";
             }
 
             scenarioProgressList.add(new ScenarioProgressView(
@@ -178,7 +180,12 @@ public class GameService {
             "maharashtra_2001", "Mh_2001", "maharashtra_2006",
             "uttar_pradesh_2001", "uttar_pradesh_2006",
             "tamil_nadu_2001", "tamil_nadu_2006",
-            "rajasthan_2001", "rajasthan_2006"
+            "rajasthan_2001", "rajasthan_2006",
+            "bihar_2001", "bihar_2006",
+            "goa_2001", "goa_2006",
+            "delhi_2001", "delhi_2006",
+            "andhra_pradesh_2001", "andhra_pradesh_2006",
+            "kerala_2001", "kerala_2006"
         );
         scenarioProgressList.sort((a, b) -> {
             int indexA = orderKeys.indexOf(a.getScenarioKey());
@@ -189,7 +196,7 @@ public class GameService {
             return Integer.compare(indexA, indexB);
         });
 
-        return new CampaignProgressResponse(currentEra, scenarioProgressList);
+        return new CampaignProgressResponse(0, scenarioProgressList);
     }
 
     public GameSession createGame(CreateGameRequest request) {
@@ -253,6 +260,11 @@ public class GameService {
         if ("uttar_pradesh_2006".equals(scenarioKey)) return "uttar_pradesh_2001";
         if ("tamil_nadu_2006".equals(scenarioKey)) return "tamil_nadu_2001";
         if ("rajasthan_2006".equals(scenarioKey)) return "rajasthan_2001";
+        if ("bihar_2006".equals(scenarioKey)) return "bihar_2001";
+        if ("goa_2006".equals(scenarioKey)) return "goa_2001";
+        if ("delhi_2006".equals(scenarioKey)) return "delhi_2001";
+        if ("andhra_pradesh_2006".equals(scenarioKey)) return "andhra_pradesh_2001";
+        if ("kerala_2006".equals(scenarioKey)) return "kerala_2001";
         return null;
     }
 
@@ -322,6 +334,7 @@ public class GameService {
 
         return new TurnView(
                 session.getId(),
+                session.getScenarioKey(),
                 session.getStateName(),
                 session.getTurnNumber(),
                 session.getMonthInCycle(),

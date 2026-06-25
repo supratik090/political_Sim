@@ -1,8 +1,11 @@
 import React from 'react';
 import { useGameStore } from '../../store/gameStore';
 
+const ADMIN_USERNAME = 'AdminUserFoo';
+
 export default function DashboardLayout({ children }) {
   const { user, logout, currentScreen, setScreen } = useGameStore();
+  const isAdmin = user?.name === ADMIN_USERNAME;
 
   return (
     <div className="dashboard-container">
@@ -40,7 +43,7 @@ export default function DashboardLayout({ children }) {
               🏠 Home
             </button>
           )}
-          {currentScreen !== 'ADMIN' && (
+          {isAdmin && currentScreen !== 'ADMIN' && (
             <button onClick={() => setScreen('ADMIN')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>
               🛠️ Admin Console
             </button>

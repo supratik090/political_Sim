@@ -1038,7 +1038,7 @@ public class RoundResolutionEngine {
                         "corruption crosses 80, triggering patronage panic and voter anger."),
                 new HiddenMetricRule("support_under_25_electability_fear", -8, -5, 0, 0, 0,
                         "support falls below 25%, so donors and workers question electability."),
-                new HiddenMetricRule("support_under_15_survival_panic", -15, -8, 0, -5, 0,
+                new HiddenMetricRule("support_under_10_survival_panic", -10, -8, 0, -5, 0,
                         "support falls below 15%, creating survival panic inside the organization."),
                 new HiddenMetricRule("coins_over_220_money_machine", 0, 2, 4, 2, 0,
                         "huge reserves create confidence, but voters notice a money-machine image."),

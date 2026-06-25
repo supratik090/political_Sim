@@ -183,6 +183,20 @@ export default function GamePlayBoard() {
     }
   };
 
+  // Map: winning a 2001-era scenario key → which 2006 campaign it unlocks
+  const NEXT_CAMPAIGN_MAP = {
+    'west_bengal_2000':    { key: 'west_bengal_2006',    name: 'West Bengal 2006' },
+    'maharashtra_2001':    { key: 'maharashtra_2006',    name: 'Maharashtra 2006' },
+    'uttar_pradesh_2001':  { key: 'uttar_pradesh_2006',  name: 'Uttar Pradesh 2006' },
+    'tamil_nadu_2001':     { key: 'tamil_nadu_2006',     name: 'Tamil Nadu 2006' },
+    'rajasthan_2001':      { key: 'rajasthan_2006',      name: 'Rajasthan 2006' },
+    'bihar_2001':          { key: 'bihar_2006',          name: 'Bihar 2006' },
+    'goa_2001':            { key: 'goa_2006',            name: 'Goa 2006' },
+    'delhi_2001':          { key: 'delhi_2006',          name: 'Delhi 2006' },
+    'andhra_pradesh_2001': { key: 'andhra_pradesh_2006', name: 'Andhra Pradesh 2006' },
+    'kerala_2001':         { key: 'kerala_2006',         name: 'Kerala 2006' },
+  };
+
   if (turnData && (turnData.status === 'VICTORY' || turnData.status === 'DEFEAT' || turnData.status === 'GAME_OVER' || turnData.status === 'FORFEITED')) {
     const isVictory = turnData.status === 'VICTORY';
     const bgGradient = isVictory 
@@ -190,6 +204,9 @@ export default function GamePlayBoard() {
       : 'linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%)';
     const emoji = isVictory ? '🏆' : '💀';
     const titleText = isVictory ? 'CAMPAIGN VICTORY!' : 'CAMPAIGN FAILED';
+
+    // Check if this victory unlocks a 2006 campaign
+    const unlockedNext = isVictory ? NEXT_CAMPAIGN_MAP[turnData.scenarioKey] : null;
 
     return (
       <div style={{
@@ -216,6 +233,29 @@ export default function GamePlayBoard() {
         <p style={{ fontSize: '18px', opacity: 0.9, maxWidth: '600px', margin: '0 auto 30px auto', lineHeight: 1.6 }}>
           {turnData.lastResults?.[0] || 'The campaign has concluded.'}
         </p>
+
+        {/* Next Campaign Unlocked Banner — shown only on victory of a 2001-era scenario */}
+        {unlockedNext && (
+          <div style={{
+            background: 'rgba(255,255,255,0.15)',
+            border: '2px solid rgba(255,255,255,0.6)',
+            borderRadius: '16px',
+            padding: '18px 30px',
+            marginBottom: '28px',
+            maxWidth: '500px',
+            width: '100%',
+            backdropFilter: 'blur(8px)',
+            animation: 'pulse 2s ease-in-out infinite',
+          }}>
+            <div style={{ fontSize: '28px', marginBottom: '6px' }}>🎊</div>
+            <div style={{ fontSize: '16px', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '4px' }}>
+              Next Campaign Unlocked!
+            </div>
+            <div style={{ fontSize: '14px', opacity: 0.95, fontWeight: 600 }}>
+              <span style={{ fontWeight: 900, fontSize: '16px' }}>{unlockedNext.name}</span> is now available on the Dashboard.
+            </div>
+          </div>
+        )}
 
         {/* Voting Results Board */}
         <div className="unified-card" style={{

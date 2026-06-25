@@ -16,6 +16,7 @@ import java.util.Map;
 
 public record TurnView(
         String gameId,
+        String scenarioKey,
         String stateName,
         int turnNumber,
         int monthInCycle,
