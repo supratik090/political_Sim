@@ -17,7 +17,7 @@ export default function DashboardLayout({ children }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img src="/politics.svg" alt="Political Sim Logo" style={{ width: '42px', height: '42px', borderRadius: '8px' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '18px', fontWeight: 900, color: 'var(--primary-dark)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            <span style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
               Political Sim
             </span>
             <span style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }) {
 
         {/* Center: Welcome message */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '150px' }}>
-          <div style={{ fontSize: '13px', color: 'var(--primary-dark)' }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-primary)' }}>
             👋 Welcome, <b style={{ fontWeight: 800 }}>{user?.name || 'Unknown'}</b>!
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }} className="nav-subtitle">
@@ -39,12 +39,12 @@ export default function DashboardLayout({ children }) {
         {/* Right Side: Buttons */}
         <div className="dashboard-top-nav-buttons" style={{ margin: 0 }}>
           {currentScreen !== 'HOME' && (
-            <button onClick={() => setScreen('HOME')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>
+            <button onClick={() => setScreen('HOME')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--primary-border)' }}>
               🏠 Home
             </button>
           )}
           {isAdmin && currentScreen !== 'ADMIN' && (
-            <button onClick={() => setScreen('ADMIN')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>
+            <button onClick={() => setScreen('ADMIN')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)', border: '1px solid var(--primary-border)' }}>
               🛠️ Admin Console
             </button>
           )}

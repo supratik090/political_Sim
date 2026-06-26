@@ -30,8 +30,8 @@ export default function Action4Bid({
 
       {/* Present Bidding Scenario Across Parties */}
       {turnData.lastRoundBids && (
-        <div style={{ background: '#f5f3ff', border: '1px solid var(--primary-border)', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
-          <h5 style={{ margin: '0 0 10px 0', color: 'var(--primary-dark)', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div style={{ background: 'rgba(99, 102, 241, 0.05)', border: '1.5px solid var(--card-border)', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
+          <h5 style={{ margin: '0 0 10px 0', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             📊 Present Bidding Scenario (Last Round Bids)
           </h5>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -39,14 +39,14 @@ export default function Action4Bid({
               const bid = turnData.lastRoundBids[p.id];
               const isWinner = turnData.lastRoundWinnerPartyId === p.id;
               return (
-                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center', color: 'var(--primary-dark)' }}>
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center', color: 'var(--text-secondary)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: getPartyColor(p), border: '1px solid rgba(0,0,0,0.1)' }} />
-                    <span style={{ fontWeight: p.id === turnData.activeHumanPartyId ? 'bold' : 'normal' }}>
+                    <span style={{ fontWeight: p.id === turnData.activeHumanPartyId ? 'bold' : 'normal', color: p.id === turnData.activeHumanPartyId ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                       {p.name} {p.id === turnData.activeHumanPartyId && '(You)'}
                     </span>
                   </div>
-                  <span style={{ fontWeight: 'bold' }}>
+                  <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>
                     {bid !== undefined ? `${bid} ${turnData.lastRoundBiddingMetric || ''}` : '0'}
                     {isWinner && <span style={{ marginLeft: '8px', color: '#22c55e', fontSize: '11px', fontWeight: '900' }}>🏆 WINNER</span>}
                   </span>
@@ -58,18 +58,18 @@ export default function Action4Bid({
       )}
 
       {/* Current Cycle Standings */}
-      <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
-        <h5 style={{ margin: '0 0 10px 0', color: '#1e3a8a', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <div style={{ background: 'rgba(56, 189, 248, 0.05)', border: '1.5px solid rgba(56, 189, 248, 0.2)', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
+        <h5 style={{ margin: '0 0 10px 0', color: '#38bdf8', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           🏆 Current 5-Turn Cycle Standings
         </h5>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {turnData.parties?.map(p => {
             const wins = turnData.partyRoundWins?.[p.id] || 0;
             return (
-              <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center', color: '#1e3a8a' }}>
+              <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center', color: 'var(--text-secondary)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: getPartyColor(p), border: '1px solid rgba(0,0,0,0.1)' }} />
-                  <span style={{ fontWeight: p.id === turnData.activeHumanPartyId ? 'bold' : 'normal' }}>
+                  <span style={{ fontWeight: p.id === turnData.activeHumanPartyId ? 'bold' : 'normal', color: p.id === turnData.activeHumanPartyId ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                     {p.name} {p.id === turnData.activeHumanPartyId && '(You)'}
                   </span>
                 </div>
@@ -86,25 +86,25 @@ export default function Action4Bid({
       </div>
 
       {turnData.currentRewardName && (
-        <div style={{ background: 'rgba(101,148,177,0.08)', borderLeft: '4px solid var(--selected-highlight)', padding: '10px 15px', borderRadius: '0 8px 8px 0', marginBottom: '15px' }}>
-          <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold', color: 'var(--primary-dark)', opacity: 0.8 }}>Bidding For</div>
-          <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--primary-dark)', marginTop: '2px' }}>🎯 {turnData.currentRewardName}</div>
-          <div style={{ fontSize: '11px', opacity: 0.8, fontStyle: 'italic', marginTop: '4px' }}>{turnData.currentRewardDescription}</div>
+        <div style={{ background: 'rgba(99, 102, 241, 0.05)', borderLeft: '4px solid var(--selected-highlight)', padding: '10px 15px', borderRadius: '0 8px 8px 0', marginBottom: '15px' }}>
+          <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold', color: 'var(--text-secondary)', opacity: 0.8 }}>Bidding For</div>
+          <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '2px' }}>🎯 {turnData.currentRewardName}</div>
+          <div style={{ fontSize: '11px', opacity: 0.8, fontStyle: 'italic', marginTop: '4px', color: 'var(--text-secondary)' }}>{turnData.currentRewardDescription}</div>
         </div>
       )}
       
       <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
         <div>
-          <div style={{ fontSize: '11px', opacity: 0.8 }}>Bidding Metric</div>
-          <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>⚡ {bidMetric.toUpperCase()}</div>
+          <div style={{ fontSize: '11px', opacity: 0.8, color: 'var(--text-secondary)' }}>Bidding Metric</div>
+          <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text-primary)' }}>⚡ {bidMetric.toUpperCase()}</div>
         </div>
         <div>
-          <div style={{ fontSize: '11px', opacity: 0.8 }}>Your Reserves</div>
-          <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>💎 {maxBid}</div>
+          <div style={{ fontSize: '11px', opacity: 0.8, color: 'var(--text-secondary)' }}>Your Reserves</div>
+          <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text-primary)' }}>💎 {maxBid}</div>
         </div>
       </div>
 
-      <div style={{ textAlign: 'center', fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: 'var(--primary-dark)' }}>
+      <div style={{ textAlign: 'center', fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: 'var(--text-primary)' }}>
         🗳️ Stake: <span style={{ color: 'var(--selected-highlight)', fontSize: '18px' }}>{bidAmount}</span> / {maxBid} ({bidMetric})
         <span style={{ fontWeight: 'normal', opacity: 0.7, marginLeft: '8px' }}>(Remaining: {maxBid - bidAmount})</span>
       </div>
@@ -119,8 +119,8 @@ export default function Action4Bid({
           style={{
             width: '100%',
             padding: '10px',
-            background: bidAmount === 0 ? 'var(--primary-dark)' : '#ffffff',
-            color: bidAmount === 0 ? '#ffffff' : 'var(--primary-dark)',
+            background: bidAmount === 0 ? 'var(--button-hover-bg)' : 'var(--primary-dark)',
+            color: '#ffffff',
             border: '1.5px solid var(--primary-border)',
             fontWeight: 'bold',
             borderRadius: '8px',
@@ -132,7 +132,7 @@ export default function Action4Bid({
 
         {/* Option 2: Number Box */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <label htmlFor="custom-bid-input" style={{ fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap', color: 'var(--primary-dark)' }}>Bid Amount:</label>
+          <label htmlFor="custom-bid-input" style={{ fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap', color: 'var(--text-secondary)' }}>Bid Amount:</label>
           <input 
             id="custom-bid-input"
             type="number" 

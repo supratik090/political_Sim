@@ -180,12 +180,12 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       
       {/* 1. Summit Header: Active Treaties */}
-      <div style={{ border: '1px solid var(--primary-border)', borderRadius: '8px', padding: '15px', background: '#ffffff' }}>
-        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <div style={{ border: '1.5px solid var(--card-border)', borderRadius: '8px', padding: '15px', background: 'var(--card-bg)' }}>
+        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
           🕊️ Active Non-Aggression Treaties
         </h4>
         {myPacts.length === 0 ? (
-          <p style={{ margin: 0, fontSize: '13px', color: 'gray', fontStyle: 'italic', textAlign: 'center' }}>
+          <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic', textAlign: 'center' }}>
             No active non-aggression treaties at this time.
           </p>
         ) : (
@@ -193,7 +193,7 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
             {myPacts.map(p => {
               const partner = p.partyAId === activePartyId ? p.partyBName : p.partyAName;
               return (
-                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(34,197,94,0.06)', border: '1px solid #22c55e', padding: '10px 15px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', color: '#166534' }}>
+                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(34,197,94,0.06)', border: '1px solid #22c55e', padding: '10px 15px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold', color: '#22c55e' }}>
                   <span>🤝 Treaty with {partner}</span>
                   <span style={{ fontSize: '12px', background: '#22c55e', color: '#fff', padding: '2px 8px', borderRadius: '12px' }}>
                     ⏳ {p.turnsRemaining} Months Left
@@ -206,20 +206,20 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
       </div>
 
       {/* 2. Cooperation Inbox: Incoming Offers */}
-      <div style={{ border: '1px solid var(--primary-border)', borderRadius: '8px', padding: '15px', background: '#ffffff' }}>
-        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <div style={{ border: '1.5px solid var(--card-border)', borderRadius: '8px', padding: '15px', background: 'var(--card-bg)' }}>
+        <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
           📥 Incoming Diplomatic Proposals
         </h4>
         {incomingOffers.length === 0 ? (
-          <p style={{ margin: 0, fontSize: '13px', color: 'gray', fontStyle: 'italic', textAlign: 'center' }}>
+          <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)', fontStyle: 'italic', textAlign: 'center' }}>
             No incoming proposals from other parties.
           </p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {incomingOffers.map(o => (
-              <div key={o.id} style={{ border: '1px solid var(--primary-border)', borderRadius: '8px', padding: '12px', background: 'rgba(0,0,0,0.02)' }}>
-                <div style={{ fontSize: '12px', color: 'gray', fontWeight: 'bold' }}>Sender: {o.senderPartyName}</div>
-                <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-dark)', marginTop: '4px' }}>
+              <div key={o.id} style={{ border: '1.5px solid var(--primary-border)', borderRadius: '8px', padding: '12px', background: 'var(--primary-dark)' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Sender: {o.senderPartyName}</div>
+                <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '4px' }}>
                   {getResourceString(o)}
                 </div>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
@@ -245,20 +245,20 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
       </div>
 
       {/* 3. Diplomatic Deal Creator */}
-      <div style={{ border: '1px solid var(--primary-border)', borderRadius: '8px', padding: '15px', background: '#ffffff', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <div style={{ border: '1.5px solid var(--card-border)', borderRadius: '8px', padding: '15px', background: 'var(--card-bg)', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <h4 style={{ margin: 0, fontSize: '14px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
           🏛️ Treaty & Exchange Workshop
         </h4>
 
         {/* Step A: Choose Partner & Type */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px', background: 'rgba(0,0,0,0.01)', border: '1px solid var(--primary-border)', borderRadius: '8px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px', background: 'var(--primary-dark)', border: '1.5px solid var(--primary-border)', borderRadius: '8px' }}>
           <div>
-            <label htmlFor="partner-select" style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'gray' }}>Select Partner:</label>
+            <label htmlFor="partner-select" style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'var(--text-secondary)' }}>Select Partner:</label>
             <select
               id="partner-select"
               value={recipientId}
               onChange={(e) => setRecipientId(e.target.value)}
-              style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', background: '#fff', border: '1px solid var(--primary-border)' }}
+              style={{ width: '100%', padding: '8px', fontSize: '13px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)', outline: 'none' }}
             >
               {otherParties.map(p => (
                 <option key={p.id} value={p.id}>{p.name} ({p.role})</option>
@@ -266,13 +266,13 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
             </select>
           </div>
           <div style={{ marginTop: '5px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'gray' }}>Proposal Type:</span>
+            <span style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'var(--text-secondary)' }}>Proposal Type:</span>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <label style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', border: `1px solid ${offerType === 'EXCHANGE' ? 'var(--primary-dark)' : 'var(--primary-border)'}`, borderRadius: '4px', padding: '8px', cursor: 'pointer', background: offerType === 'EXCHANGE' ? 'rgba(33,60,81,0.05)' : '#fff', fontSize: '12px', fontWeight: 'bold' }}>
+              <label style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', border: `1.5px solid ${offerType === 'EXCHANGE' ? 'var(--selected-highlight)' : 'var(--primary-border)'}`, borderRadius: '4px', padding: '8px', cursor: 'pointer', background: offerType === 'EXCHANGE' ? 'rgba(99, 102, 241, 0.15)' : 'var(--primary-dark)', color: '#ffffff', fontSize: '12px', fontWeight: 'bold' }}>
                 <input type="radio" name="offerType" checked={offerType === 'EXCHANGE'} onChange={() => setOfferType('EXCHANGE')} style={{ display: 'none' }} />
                 💱 Exchange Assets
               </label>
-              <label style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', border: `1px solid ${offerType === 'NON_AGGRESSION' ? 'var(--primary-dark)' : 'var(--primary-border)'}`, borderRadius: '4px', padding: '8px', cursor: 'pointer', background: offerType === 'NON_AGGRESSION' ? 'rgba(33,60,81,0.05)' : '#fff', fontSize: '12px', fontWeight: 'bold' }}>
+              <label style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', border: `1.5px solid ${offerType === 'NON_AGGRESSION' ? 'var(--selected-highlight)' : 'var(--primary-border)'}`, borderRadius: '4px', padding: '8px', cursor: 'pointer', background: offerType === 'NON_AGGRESSION' ? 'rgba(99, 102, 241, 0.15)' : 'var(--primary-dark)', color: '#ffffff', fontSize: '12px', fontWeight: 'bold' }}>
                 <input type="radio" name="offerType" checked={offerType === 'NON_AGGRESSION'} onChange={() => setOfferType('NON_AGGRESSION')} style={{ display: 'none' }} />
                 🕊️ Non-Aggression Pact
               </label>
@@ -281,8 +281,8 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
         </div>
 
         {/* Step B: What you Give (Offer) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px', border: '1px solid var(--primary-border)', borderRadius: '8px' }}>
-          <h5 style={{ margin: 0, fontSize: '12px', color: 'var(--primary-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px', border: '1.5px solid var(--primary-border)', borderRadius: '8px', background: 'var(--primary-dark)' }}>
+          <h5 style={{ margin: 0, fontSize: '12px', color: 'var(--text-primary)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
             🎁 What You Offer (Give)
           </h5>
 
@@ -290,27 +290,27 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <div style={{ flex: 1 }}>
-                  <label htmlFor="give-coins" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Coins:</label>
-                  <input id="give-coins" type="number" min="0" value={offeredCoins} onChange={(e) => setOfferedCoins(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }} />
+                  <label htmlFor="give-coins" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'var(--text-secondary)' }}>Coins:</label>
+                  <input id="give-coins" type="number" min="0" value={offeredCoins} onChange={(e) => setOfferedCoins(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label htmlFor="give-morale" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Morale:</label>
-                  <input id="give-morale" type="number" min="0" value={offeredMorale} onChange={(e) => setOfferedMorale(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }} />
+                  <label htmlFor="give-morale" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'var(--text-secondary)' }}>Morale:</label>
+                  <input id="give-morale" type="number" min="0" value={offeredMorale} onChange={(e) => setOfferedMorale(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label htmlFor="give-support" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Support %:</label>
-                  <input id="give-support" type="number" min="0" max="100" value={offeredSupport} onChange={(e) => setOfferedSupport(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }} />
+                  <label htmlFor="give-support" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'var(--text-secondary)' }}>Support %:</label>
+                  <input id="give-support" type="number" min="0" max="100" value={offeredSupport} onChange={(e) => setOfferedSupport(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))} style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)' }} />
                 </div>
               </div>
 
               {myCompletedProjects.length > 0 && (
                 <div style={{ marginTop: '5px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'gray' }}>Completed Buildings to Offer:</span>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '100px', overflowY: 'auto', padding: '6px', border: '1px solid var(--primary-border)', borderRadius: '4px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'var(--text-secondary)' }}>Completed Buildings to Offer:</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '100px', overflowY: 'auto', padding: '6px', border: '1.5px solid var(--primary-border)', borderRadius: '4px', background: 'var(--primary-dark)' }}>
                     {myCompletedProjects.map(proj => {
                       const pDef = PROJECT_DEFS[proj.projectKey] || {};
                       return (
-                        <label key={proj.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                        <label key={proj.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-primary)' }}>
                           <input type="checkbox" checked={offeredBuildingKeys.includes(proj.projectKey)} onChange={() => toggleBuildingSelection(proj.projectKey, 'OFFER')} />
                           🏗️ {pDef.name || proj.projectKey}
                         </label>
@@ -324,24 +324,24 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
             // Non aggression details (duration & payments)
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div>
-                <label htmlFor="duration-select" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Pact Duration:</label>
-                <select id="duration-select" value={durationTurns} onChange={(e) => setDurationTurns(parseInt(e.target.value))} style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }}>
+                <label htmlFor="duration-select" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'var(--text-secondary)' }}>Pact Duration:</label>
+                <select id="duration-select" value={durationTurns} onChange={(e) => setDurationTurns(parseInt(e.target.value))} style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)', outline: 'none' }}>
                   <option value={5}>5 Months</option>
                   <option value={10}>10 Months</option>
                   <option value={15}>15 Months</option>
                 </select>
               </div>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', marginTop: '5px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', marginTop: '5px', color: 'var(--text-primary)' }}>
                 <input type="checkbox" checked={includePayment} onChange={(e) => setIncludePayment(e.target.checked)} />
                 Include Payment / Compensation with Pact
               </label>
 
               {includePayment && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px', background: 'rgba(0,0,0,0.01)', border: '1px solid var(--primary-border)', borderRadius: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px', background: 'var(--primary-dark)', border: '1.5px solid var(--primary-border)', borderRadius: '6px' }}>
                   <div>
-                    <span style={{ fontSize: '11px', display: 'block', marginBottom: '4px', color: 'gray' }}>Payment Direction:</span>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <span style={{ fontSize: '11px', display: 'block', marginBottom: '4px', color: 'var(--text-secondary)' }}>Payment Direction:</span>
+                    <div style={{ display: 'flex', gap: '10px', color: 'var(--text-primary)' }}>
                       <label style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         <input type="radio" checked={senderPaysPact} onChange={() => setSenderPaysPact(true)} />
                         We Pay Them
@@ -354,8 +354,8 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
                   </div>
 
                   <div>
-                    <label htmlFor="payment-asset" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Asset Type:</label>
-                    <select id="payment-asset" value={pactPaymentResource} onChange={(e) => setPactPaymentResource(e.target.value)} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }}>
+                    <label htmlFor="payment-asset" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'var(--text-secondary)' }}>Asset Type:</label>
+                    <select id="payment-asset" value={pactPaymentResource} onChange={(e) => setPactPaymentResource(e.target.value)} style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)', outline: 'none' }}>
                       <option value="COINS">Coins</option>
                       <option value="MORALE">Morale</option>
                       <option value="SUPPORT">Public Support</option>
@@ -365,22 +365,22 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
 
                   {pactPaymentResource !== 'COMPLETED_BUILDING' ? (
                     <div>
-                      <label htmlFor="payment-val" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Amount:</label>
-                      <input id="payment-val" type="number" min="0" value={pactPaymentValue} onChange={(e) => setPactPaymentValue(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }} />
+                      <label htmlFor="payment-val" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'var(--text-secondary)' }}>Amount:</label>
+                      <input id="payment-val" type="number" min="0" value={pactPaymentValue} onChange={(e) => setPactPaymentValue(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)' }} />
                     </div>
                   ) : (
                     <div>
-                      <span style={{ fontSize: '11px', display: 'block', marginBottom: '4px', color: 'gray' }}>Select completed projects:</span>
+                      <span style={{ fontSize: '11px', display: 'block', marginBottom: '4px', color: 'var(--text-secondary)' }}>Select completed projects:</span>
                       {senderPaysPact ? (
                         // We Pay -> player buildings
                         myCompletedProjects.length === 0 ? (
-                          <p style={{ margin: 0, fontSize: '11px', color: 'gray', fontStyle: 'italic' }}>You own no completed buildings.</p>
+                          <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>You own no completed buildings.</p>
                         ) : (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '100px', overflowY: 'auto', padding: '6px', border: '1px solid var(--primary-border)', borderRadius: '4px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '100px', overflowY: 'auto', padding: '6px', border: '1.5px solid var(--primary-border)', borderRadius: '4px', background: 'var(--primary-dark)' }}>
                             {myCompletedProjects.map(proj => {
                               const pDef = PROJECT_DEFS[proj.projectKey] || {};
                               return (
-                                <label key={proj.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                                <label key={proj.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-primary)' }}>
                                   <input type="checkbox" checked={pactPaymentBuildingKeys.includes(proj.projectKey)} onChange={() => toggleBuildingSelection(proj.projectKey, 'PACT')} />
                                   🏗️ {pDef.name || proj.projectKey}
                                 </label>
@@ -391,13 +391,13 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
                       ) : (
                         // They Pay -> recipient buildings
                         targetCompletedProjects.length === 0 ? (
-                          <p style={{ margin: 0, fontSize: '11px', color: 'gray', fontStyle: 'italic' }}>{recipientParty?.name || 'Partner'} owns no completed buildings.</p>
+                          <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>{recipientParty?.name || 'Partner'} owns no completed buildings.</p>
                         ) : (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '100px', overflowY: 'auto', padding: '6px', border: '1px solid var(--primary-border)', borderRadius: '4px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '100px', overflowY: 'auto', padding: '6px', border: '1.5px solid var(--primary-border)', borderRadius: '4px', background: 'var(--primary-dark)' }}>
                             {targetCompletedProjects.map(proj => {
                               const pDef = PROJECT_DEFS[proj.projectKey] || {};
                               return (
-                                <label key={proj.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                                <label key={proj.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-primary)' }}>
                                   <input type="checkbox" checked={pactPaymentBuildingKeys.includes(proj.projectKey)} onChange={() => toggleBuildingSelection(proj.projectKey, 'PACT')} />
                                   🏗️ {pDef.name || proj.projectKey}
                                 </label>
@@ -416,22 +416,22 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
 
         {/* Step C: What you Receive (Request) */}
         {offerType === 'EXCHANGE' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px', border: '1px solid var(--primary-border)', borderRadius: '8px' }}>
-            <h5 style={{ margin: 0, fontSize: '12px', color: 'var(--primary-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px', border: '1.5px solid var(--primary-border)', borderRadius: '8px', background: 'var(--primary-dark)' }}>
+            <h5 style={{ margin: 0, fontSize: '12px', color: 'var(--text-primary)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
               🤲 What You Request (Take)
             </h5>
             <div style={{ display: 'flex', gap: '10px' }}>
               <div style={{ flex: 1 }}>
-                <label htmlFor="req-coins" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Coins:</label>
-                <input id="req-coins" type="number" min="0" value={requestedCoins} onChange={(e) => setRequestedCoins(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }} />
+                <label htmlFor="req-coins" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'var(--text-secondary)' }}>Coins:</label>
+                <input id="req-coins" type="number" min="0" value={requestedCoins} onChange={(e) => setRequestedCoins(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label htmlFor="req-morale" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Morale:</label>
-                <input id="req-morale" type="number" min="0" value={requestedMorale} onChange={(e) => setRequestedMorale(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }} />
+                <label htmlFor="req-morale" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'var(--text-secondary)' }}>Morale:</label>
+                <input id="req-morale" type="number" min="0" value={requestedMorale} onChange={(e) => setRequestedMorale(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <label htmlFor="req-support" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Support %:</label>
-                <input id="req-support" type="number" min="0" max="100" value={requestedSupport} onChange={(e) => setRequestedSupport(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }} />
+                <label htmlFor="req-support" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'var(--text-secondary)' }}>Support %:</label>
+                <input id="req-support" type="number" min="0" max="100" value={requestedSupport} onChange={(e) => setRequestedSupport(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))} style={{ width: '100%', padding: '8px', fontSize: '12px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)' }} />
               </div>
             </div>
           </div>
@@ -439,12 +439,12 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
 
         {/* Success/Error Alerts */}
         {successMsg && (
-          <div style={{ background: 'rgba(34,197,94,0.1)', color: '#166534', border: '1px solid #22c55e', padding: '10px 15px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>
+          <div style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid #22c55e', padding: '10px 15px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>
             {successMsg}
           </div>
         )}
         {errorMsg && (
-          <div style={{ background: 'rgba(225,29,72,0.1)', color: '#9f1239', border: '1px solid #e11d48', padding: '10px 15px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>
+          <div style={{ background: 'rgba(225,29,72,0.1)', color: '#ef4444', border: '1px solid #ef4444', padding: '10px 15px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>
             {errorMsg}
           </div>
         )}
@@ -455,10 +455,10 @@ export default function Action7Cooperation({ turnData, onActionComplete }) {
           disabled={loading || !recipientId}
           style={{
             width: '100%',
-            padding: '10px 20px',
+            padding: '12px 20px',
             fontSize: '13px',
             fontWeight: 'bold',
-            background: 'var(--primary-dark)',
+            background: 'var(--button-bg)',
             color: '#ffffff',
             border: 'none',
             borderRadius: '6px',

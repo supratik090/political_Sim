@@ -189,7 +189,7 @@ export default function DashboardHome() {
       <div className="unified-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ marginTop: 0 }}>Create New Campaign</h2>
-          <button onClick={() => setView('TABLE')} style={{ backgroundColor: 'transparent', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>Back</button>
+          <button onClick={() => setView('TABLE')} style={{ backgroundColor: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--primary-border)' }}>Back</button>
         </div>
 
         <div style={{ marginBottom: '20px' }}>
@@ -213,7 +213,7 @@ export default function DashboardHome() {
                   type="text" 
                   value={partyConfigs[idx].name} 
                   onChange={(e) => updatePartyConfig(idx, 'name', e.target.value)}
-                  style={{ marginBottom: '10px' }} 
+                  style={{ marginBottom: '10px', backgroundColor: 'var(--button-bg)', color: '#ffffff', border: '1.5px solid var(--primary-border)' }} 
                 />
                 <select 
                   value={partyConfigs[idx].controllerType}
@@ -252,7 +252,7 @@ export default function DashboardHome() {
               onChange={(e) => setRetainInstitutions(e.target.checked)} 
               style={{ width: 'auto', margin: 0 }}
             />
-            <label htmlFor="retainInstitutions" style={{ fontWeight: 'bold', cursor: 'pointer', color: 'var(--primary-dark)' }}>
+            <label htmlFor="retainInstitutions" style={{ fontWeight: 'bold', cursor: 'pointer', color: 'var(--text-primary)' }}>
               Carry forward completed public institutions from previous campaign
             </label>
           </div>
@@ -273,7 +273,7 @@ export default function DashboardHome() {
       <div className="unified-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ marginTop: 0 }}>Load Saved Campaign</h2>
-          <button onClick={() => setView('TABLE')} style={{ backgroundColor: 'transparent', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>Back</button>
+          <button onClick={() => setView('TABLE')} style={{ backgroundColor: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--primary-border)' }}>Back</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
@@ -303,14 +303,14 @@ export default function DashboardHome() {
   return (
     <div>
       <div style={{
-        background: 'var(--primary-border)',
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)',
         padding: '30px',
         borderRadius: '16px',
-        border: '2px solid var(--primary-dark)',
+        border: '1.5px solid rgba(99, 102, 241, 0.35)',
         marginBottom: '25px',
         textAlign: 'center',
         color: '#ffffff',
-        boxShadow: '0 10px 30px rgba(33,60,81,0.1)'
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
       }}>
         <h1 style={{ fontSize: '36px', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: '#ffffff' }}>
           Dashboard

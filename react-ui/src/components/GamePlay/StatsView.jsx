@@ -152,10 +152,10 @@ export default function StatsView({
             <h3 style={{ margin: '0 0 10px 0', color: '#d23f31', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px' }}>
               ⚠️ Defeat Hazard Warnings
             </h3>
-            <ul style={{ margin: 0, paddingLeft: '20px', color: '#1e293b', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <ul style={{ margin: 0, paddingLeft: '20px', color: 'var(--text-secondary)', fontSize: '13px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {allWarnings.map((warn, i) => (
                 <li key={i}>
-                  <b style={{ color: warn.partyColor && warn.partyColor !== '#ffffff' && warn.partyColor !== '#fff' ? warn.partyColor : '#1e293b' }}>{warn.partyName}</b>: {warn.message}
+                  <b style={{ color: warn.partyColor && warn.partyColor !== '#ffffff' && warn.partyColor !== '#fff' ? warn.partyColor : 'var(--text-primary)' }}>{warn.partyName}</b>: {warn.message}
                 </li>
               ))}
             </ul>
@@ -189,7 +189,7 @@ export default function StatsView({
               boxShadow: isDefeated 
                 ? '0 4px 12px rgba(239, 68, 68, 0.1)' 
                 : (isPlayer ? '0 0 15px rgba(31, 143, 95, 0.15)' : 'none'),
-              background: isDefeated ? '#f8fafc' : '#ffffff',
+              background: isDefeated ? 'rgba(239, 68, 68, 0.05)' : '#334155',
               opacity: isDefeated ? 0.85 : 1
             }}>
               {isPlayer && (
@@ -228,7 +228,7 @@ export default function StatsView({
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
                   <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: getPartyColor(party), display: 'inline-block', border: '1px solid rgba(0,0,0,0.1)' }} />
-                  <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--primary-dark)' }}>{party.name}</h3>
+                  <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--text-primary)' }}>{party.name}</h3>
                 </div>
                 
                 <div style={{ display: 'flex', gap: '6px', marginBottom: '15px' }}>
@@ -309,23 +309,23 @@ export default function StatsView({
         marginBottom: '25px', 
         display: 'flex', 
         gap: '20px', 
-        background: '#ffffff', 
-        border: '2px solid var(--primary-border)',
+        background: 'var(--card-bg)', 
+        border: '1.5px solid var(--card-border)',
         padding: '20px',
         borderRadius: '12px',
         flexWrap: 'wrap',
-        color: 'var(--primary-dark)'
+        color: 'var(--text-primary)'
       }}>
         <div style={{ flex: '1 1 200px' }}>
-          <h4 style={{ margin: '0 0 5px 0', textTransform: 'uppercase', fontSize: '10px', opacity: 0.8, letterSpacing: '0.05em', color: 'var(--primary-dark)' }}>Active Cycle Bidding Metric</h4>
+          <h4 style={{ margin: '0 0 5px 0', textTransform: 'uppercase', fontSize: '10px', opacity: 0.8, letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>Active Cycle Bidding Metric</h4>
           <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--selected-highlight)' }}>
             🎯 {turnData.biddingMetric}
           </div>
           <span style={{ fontSize: '11px', opacity: 0.7 }}>Submit bids using this metric to win five-turn cycle rewards</span>
         </div>
         <div className="cycle-reward-pane">
-          <h4 style={{ margin: '0 0 5px 0', textTransform: 'uppercase', fontSize: '10px', opacity: 0.8, letterSpacing: '0.05em', color: 'var(--primary-dark)' }}>Current Cycle Reward</h4>
-          <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>
+          <h4 style={{ margin: '0 0 5px 0', textTransform: 'uppercase', fontSize: '10px', opacity: 0.8, letterSpacing: '0.05em', color: 'var(--text-secondary)' }}>Current Cycle Reward</h4>
+          <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
             🏆 {turnData.currentRewardName || 'None'}
           </div>
           <p style={{ margin: '4px 0 0 0', fontSize: '12px', opacity: 0.9, lineHeight: 1.4 }}>{turnData.currentRewardDescription || 'No reward description'}</p>
@@ -489,13 +489,13 @@ export default function StatsView({
 
       {/* Commentary Section */}
       <div style={{ 
-        border: '1px solid var(--primary-border)', 
+        border: '1.5px solid var(--card-border)', 
         borderRadius: '12px', 
         marginBottom: '25px', 
-        background: '#ffffff', 
-        color: '#000000', 
+        background: 'var(--card-bg)', 
+        color: 'var(--text-primary)', 
         overflow: 'hidden', 
-        boxShadow: '0 4px 12px rgba(33,60,81,0.05)' 
+        boxShadow: '0 4px 12px rgba(0,0,0,0.2)' 
       }}>
         {/* Header */}
         <div 
@@ -505,7 +505,7 @@ export default function StatsView({
             justifyContent: 'space-between', 
             alignItems: 'center', 
             padding: '15px 20px', 
-            background: 'rgba(101, 148, 177, 0.05)', 
+            background: 'rgba(255, 255, 255, 0.02)', 
             borderBottom: commentaryExpanded ? '1px solid var(--primary-border)' : 'none',
             cursor: 'pointer',
             userSelect: 'none'
@@ -517,18 +517,18 @@ export default function StatsView({
               transition: 'transform 0.2s', 
               transform: commentaryExpanded ? 'rotate(90deg)' : 'rotate(0deg)', 
               display: 'inline-block', 
-              color: 'var(--primary-dark)' 
+              color: 'var(--text-primary)' 
             }}>
               ▶
             </span>
-            <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.05em', color: 'var(--primary-dark)', fontWeight: 'bold' }}>
+            <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.05em', color: 'var(--text-primary)', fontWeight: 'bold' }}>
               📢 Political Commentary Feed
             </h4>
           </div>
 
           {/* Filter Dropdown */}
           <div onClick={(e) => e.stopPropagation()}>
-            <label htmlFor="commentary-filter" style={{ marginRight: '8px', fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>Filter:</label>
+            <label htmlFor="commentary-filter" style={{ marginRight: '8px', fontSize: '11px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Filter:</label>
             <select 
               id="commentary-filter"
               value={commentaryFilter}
@@ -537,8 +537,8 @@ export default function StatsView({
                 padding: '4px 8px',
                 borderRadius: '6px',
                 border: '1px solid var(--primary-border)',
-                background: '#ffffff',
-                color: 'var(--primary-dark)',
+                background: 'var(--primary-dark)',
+                color: '#ffffff',
                 fontSize: '11px',
                 fontWeight: 'bold',
                 cursor: 'pointer',
@@ -557,7 +557,7 @@ export default function StatsView({
         {commentaryExpanded && (
           <div style={{ padding: '20px' }}>
             {(!turnData.lastRoundCommentary || turnData.lastRoundCommentary.length === 0) ? (
-              <p style={{ margin: 0, fontSize: '13px', opacity: 0.8, color: '#000000' }}>
+              <p style={{ margin: 0, fontSize: '13px', opacity: 0.8, color: 'var(--text-secondary)' }}>
                 No commentary available yet. Submit a turn to generate reports.
               </p>
             ) : (() => {
@@ -568,7 +568,7 @@ export default function StatsView({
 
               if (filtered.length === 0) {
                 return (
-                  <p style={{ margin: 0, fontSize: '13px', opacity: 0.8, color: '#d23f31', fontWeight: 'bold' }}>
+                  <p style={{ margin: 0, fontSize: '13px', opacity: 0.8, color: '#ef4444', fontWeight: 'bold' }}>
                     No commentary found matching this party.
                   </p>
                 );
@@ -577,7 +577,7 @@ export default function StatsView({
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '350px', overflowY: 'auto', paddingRight: '10px' }}>
                   {filtered.map((line, i) => (
-                    <div key={i} style={{ fontSize: '13px', borderBottom: '1px solid rgba(101, 148, 177, 0.1)', paddingBottom: '8px', lineHeight: 1.5, color: '#000000' }}>
+                    <div key={i} style={{ fontSize: '13px', borderBottom: '1px solid var(--primary-border)', paddingBottom: '8px', lineHeight: 1.5, color: 'var(--text-primary)' }}>
                       💬 {line}
                     </div>
                   ))}

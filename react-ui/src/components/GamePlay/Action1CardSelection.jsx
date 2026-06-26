@@ -17,9 +17,8 @@ export default function Action1CardSelection({
           Draft and execute a political action card. Offensive cards require targeting an opponent.
         </p>
       )}
-
       {/* Card Category Filter Bar */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px', borderBottom: '1px solid rgba(101, 148, 177, 0.2)', paddingBottom: '12px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px', borderBottom: '1px solid var(--primary-border)', paddingBottom: '12px' }}>
         {[
           { key: 'agitation_movement', label: 'Agitation ✊' },
           { key: 'governance', label: 'Governance 🏛️' },
@@ -39,9 +38,9 @@ export default function Action1CardSelection({
               style={{
                 padding: '6px 14px',
                 fontSize: '11px',
-                background: isActive ? 'var(--primary-dark)' : '#ffffff',
-                color: isActive ? '#ffffff' : 'var(--primary-dark)',
-                border: isActive ? '2px solid var(--primary-dark)' : '1px solid var(--primary-border)',
+                background: isActive ? 'var(--button-hover-bg)' : 'var(--primary-dark)',
+                color: '#ffffff',
+                border: isActive ? '1.5px solid var(--selected-highlight)' : '1.5px solid var(--primary-border)',
                 boxShadow: 'none',
                 borderRadius: '20px',
                 fontWeight: 'bold',
@@ -65,7 +64,7 @@ export default function Action1CardSelection({
 
           if (filtered.length === 0) {
             return (
-              <p style={{ color: 'gray', fontStyle: 'italic', fontSize: '13px', textAlign: 'center', width: '100%', gridColumn: '1 / -1', padding: '20px 0' }}>
+              <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic', fontSize: '13px', textAlign: 'center', width: '100%', gridColumn: '1 / -1', padding: '20px 0' }}>
                 No cards available in this category.
               </p>
             );
@@ -84,30 +83,30 @@ export default function Action1CardSelection({
                   setTargetPartyId('');
                 }}
                 style={{
-                  border: isCardSelected ? '2px solid #a855f7' : '1.5px solid var(--primary-border)',
+                  border: isCardSelected ? '2px solid var(--selected-highlight)' : '1.5px solid var(--primary-border)',
                   borderRadius: '10px',
                   padding: '12px',
-                  background: isCardSelected ? '#e9d5ff' : '#f5f3ff',
+                  background: isCardSelected ? 'rgba(56, 189, 248, 0.2)' : '#334155',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  boxShadow: isCardSelected ? '0 4px 12px rgba(168, 85, 247, 0.2)' : 'none'
+                  boxShadow: isCardSelected ? '0 4px 15px rgba(56, 189, 248, 0.2)' : 'none'
                 }}
                 onMouseEnter={(e) => {
-                  if (!isCardSelected) e.currentTarget.style.background = '#ede9fe';
+                  if (!isCardSelected) e.currentTarget.style.background = '#475569';
                 }}
                 onMouseLeave={(e) => {
-                  if (!isCardSelected) e.currentTarget.style.background = '#f5f3ff';
+                  if (!isCardSelected) e.currentTarget.style.background = '#334155';
                 }}
               >
-                <div style={{ fontSize: '10px', color: 'var(--primary-dark)', opacity: 0.7, textTransform: 'uppercase', fontWeight: 'bold' }}>{card.category?.replace('_', ' ')}</div>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', margin: '4px 0 6px 0', color: 'var(--primary-dark)' }}>🃏 {card.name}</div>
-                <div style={{ fontSize: '11px', color: 'var(--card-text)' }}>Cost: <b>{card.cost} Coins</b></div>
+                <div style={{ fontSize: '10px', color: 'var(--text-secondary)', opacity: 0.8, textTransform: 'uppercase', fontWeight: 'bold' }}>{card.category?.replace('_', ' ')}</div>
+                <div style={{ fontSize: '14px', fontWeight: 'bold', margin: '4px 0 6px 0', color: 'var(--text-primary)' }}>🃏 {card.name}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Cost: <b style={{ color: 'var(--text-primary)' }}>{card.cost} Coins</b></div>
                 {card.visibleEffects && (
-                  <div style={{ marginTop: '8px', fontSize: '11px', background: 'rgba(0,0,0,0.03)', padding: '6px', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ color: '#0d9488', fontWeight: 'bold' }}>
+                  <div style={{ marginTop: '8px', fontSize: '11px', background: 'rgba(0,0,0,0.2)', padding: '6px', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{ color: '#22c55e', fontWeight: 'bold' }}>
                       Self: {selfEffects.length > 0 ? selfEffects.map(([key, val]) => formatEffectValue(key, val)).join('   ') : 'None'}
                     </div>
-                    <div style={{ color: '#be123c', fontWeight: 'bold' }}>
+                    <div style={{ color: '#ef4444', fontWeight: 'bold' }}>
                       Opposition: {oppEffects.length > 0 ? oppEffects.map(([key, val]) => formatEffectValue(key, val)).join('   ') : 'None'}
                     </div>
                   </div>
@@ -119,8 +118,8 @@ export default function Action1CardSelection({
       </div>
 
       {selectedCard && cardRequiresTarget(selectedCard) && (
-        <div style={{ marginTop: '15px', padding: '12px', border: '1px dashed var(--primary-border)', borderRadius: '8px', background: 'rgba(101, 148, 177, 0.03)' }}>
-          <label htmlFor="card-target-select" style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'var(--primary-dark)' }}>
+        <div style={{ marginTop: '15px', padding: '12px', border: '1px dashed var(--primary-border)', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.03)' }}>
+          <label htmlFor="card-target-select" style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'var(--text-secondary)' }}>
             🎯 Select Opponent Target:
           </label>
           <select 
@@ -129,12 +128,13 @@ export default function Action1CardSelection({
             onChange={(e) => setTargetPartyId(e.target.value)}
             style={{
               width: '100%',
-              padding: '8px',
+              padding: '10px',
               borderRadius: '6px',
-              border: '1px solid var(--primary-border)',
-              background: '#ffffff',
-              color: 'var(--primary-dark)',
-              fontSize: '13px'
+              border: '1.5px solid var(--primary-border)',
+              background: 'var(--primary-dark)',
+              color: '#ffffff',
+              fontSize: '13px',
+              outline: 'none'
             }}
           >
             <option value="">-- Choose Opponent Party --</option>
@@ -147,7 +147,7 @@ export default function Action1CardSelection({
 
       {selectedCard && (
         <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', color: 'var(--primary-dark)' }}>
+          <span style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
             Selected Move: <b>{selectedCard.name}</b>
           </span>
           <button 
@@ -155,7 +155,7 @@ export default function Action1CardSelection({
               setSelectedCard(null);
               setTargetPartyId('');
             }}
-            style={{ padding: '6px 12px', fontSize: '11px', background: 'transparent', color: '#d23f31', border: '1px solid #d23f31' }}
+            style={{ padding: '6px 12px', fontSize: '11px', background: 'transparent', color: '#ef4444', border: '1px solid #ef4444' }}
           >
             Deselect
           </button>

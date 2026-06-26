@@ -1,29 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   /* Base App Theme */
-  --primary-background: #E6E6FA; /* Lavender */
-  --text-primary: #000000;
-  --text-secondary: #475569;
+  --primary-background: #0a0f1d; /* Midnight Blue */
+  --text-primary: #f8fafc;       /* Light Slate text */
+  --text-secondary: #94a3b8;     /* Muted Slate text */
   
   /* Primary Elements & Borders */
-  --primary-dark: #213C51;       /* Deep Blue */
-  --primary-border: #6594B1;     /* Steel Blue */
+  --primary-dark: #0f172a;       /* Dark slate dashboard header / background */
+  --primary-border: #1e293b;     /* Slate border */
   
   /* Interactive Elements (Buttons, Inputs) */
-  --button-bg: #213C51;
+  --button-bg: #312e81;          /* Dark Indigo button bg */
   --button-text: #ffffff;
-  --button-hover-bg: #192e3e;
-  --button-disabled-bg: #192e3e;
-  --button-disabled-text: rgba(255, 255, 255, 0.6);
+  --button-hover-bg: #4338ca;    /* Indigo hover */
+  --button-disabled-bg: #0f172a;
+  --button-disabled-text: rgba(255, 255, 255, 0.3);
   
   /* Selected State */
-  --selected-highlight: #22c55e; /* Green */
+  --selected-highlight: #38bdf8; /* Sky blue matching landing page */
   
   /* Unified Dashboard & Cards */
-  --card-bg: #ffffff;            /* Clean White */
-  --card-border: #6594B1;        /* Steel Blue */
-  --card-text: #213C51;          /* Deep Blue */
+  --card-bg: #111827;            /* Premium dark card background */
+  --card-border: rgba(99, 102, 241, 0.2);
+  --card-text: #f8fafc;
 }
 
 html, body {
@@ -31,7 +31,7 @@ html, body {
   padding: 0;
   background-color: var(--primary-background);
   color: var(--text-primary);
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Outfit', 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
@@ -44,11 +44,11 @@ html, body {
 /* Custom Text Selection Highlight */
 ::selection {
   background-color: var(--selected-highlight);
-  color: #ffffff;
+  color: #000000;
 }
 ::-moz-selection {
   background-color: var(--selected-highlight);
-  color: #ffffff;
+  color: #000000;
 }
 
 /* Global Button Styles */
@@ -57,20 +57,20 @@ button {
   color: var(--button-text);
   border: 1px solid var(--button-bg);
   border-radius: 8px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Outfit', 'Montserrat', sans-serif;
   font-weight: 600;
   font-size: 14px;
   letter-spacing: 0.03em;
   padding: 10px 20px;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(33, 60, 81, 0.15);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.15);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 button:hover:not(:disabled) {
   background-color: var(--button-hover-bg);
   border-color: var(--button-hover-bg);
-  box-shadow: 0 6px 12px rgba(33, 60, 81, 0.25);
+  box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
   transform: translateY(-2px);
 }
 
@@ -81,7 +81,7 @@ button:active:not(:disabled) {
 button:disabled {
   background-color: var(--button-disabled-bg);
   color: var(--button-disabled-text);
-  border-color: rgba(33, 60, 81, 0.1);
+  border-color: rgba(255, 255, 255, 0.05);
   box-shadow: none;
   cursor: not-allowed;
 }
@@ -90,7 +90,7 @@ button.selected {
   background-color: var(--button-bg);
   color: var(--selected-highlight);
   border: 1.5px solid var(--selected-highlight);
-  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 4px 10px rgba(56, 189, 248, 0.25);
 }
 
 button.selected:hover {
@@ -99,17 +99,36 @@ button.selected:hover {
 }
 
 /* Global Inputs */
-input[type="text"], input[type="password"], input[type="email"], input[type="number"], select {
+input[type="text"], input[type="password"], input[type="email"], input[type="number"] {
   background-color: var(--primary-dark);
   color: #ffffff;
   border: 1.5px solid var(--primary-border);
   border-radius: 4px;
   padding: 10px 12px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Outfit', 'Montserrat', sans-serif;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
   width: 100%;
+}
+
+select {
+  background-color: #1e293b; /* Lighter slate background for dropdowns */
+  color: #ffffff;
+  border: 1.5px solid var(--primary-border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-family: 'Outfit', 'Montserrat', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  cursor: pointer;
+}
+
+select option {
+  background-color: #1e293b; /* Match options with the lighter background */
+  color: #ffffff;
 }
 
 input:focus, select:focus {
@@ -117,26 +136,26 @@ input:focus, select:focus {
 }
 
 input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .unified-card {
   background-color: var(--card-bg);
-  border: 2px solid var(--card-border);
+  border: 2.5px solid var(--card-border);
   color: var(--card-text);
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 10px rgba(33, 60, 81, 0.05);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes pulse-soft {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 4px 20px rgba(56, 189, 248, 0.4);
   }
 }
 
@@ -164,14 +183,14 @@ input::placeholder {
 }
 
 .game-title-banner {
-  background: var(--primary-border);
+  background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+  border: 1.5px solid rgba(99, 102, 241, 0.35);
   padding: 30px;
   border-radius: 16px;
-  border: 2px solid var(--primary-dark);
   margin-bottom: 25px;
   text-align: center;
   color: #ffffff;
-  box-shadow: 0 10px 30px rgba(33,60,81,0.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
 .game-title-h1 {
@@ -214,7 +233,7 @@ input::placeholder {
   right: 25px;
   top: 50%;
   transform: translateY(-50%);
-  background: linear-gradient(135deg, var(--selected-highlight) 0%, #15803d 100%);
+  background: linear-gradient(135deg, var(--selected-highlight) 0%, #0284c7 100%);
   color: #ffffff;
   width: 64px;
   height: 64px;
@@ -223,7 +242,7 @@ input::placeholder {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 8px 25px rgba(34, 19, 94, 0.4);
+  box-shadow: 0 8px 25px rgba(56, 189, 248, 0.3);
   z-index: 1000;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 3px solid #ffffff;
@@ -232,7 +251,7 @@ input::placeholder {
 
 .floating-nav-arrow:hover {
   transform: translateY(-50%) scale(1.12);
-  box-shadow: 0 12px 30px rgba(34, 19, 94, 0.6);
+  box-shadow: 0 12px 30px rgba(56, 189, 248, 0.5);
 }
 
 .create-party-grid {

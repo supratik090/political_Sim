@@ -16,12 +16,12 @@ export default function Action5PlayReward({
   return (
     <div>
       {!hasRewards ? (
-        <p style={{ margin: 0, fontSize: '13px', opacity: 0.8, color: 'gray', fontStyle: 'italic' }}>
+        <p style={{ margin: 0, fontSize: '13px', opacity: 0.8, color: 'var(--text-secondary)', fontStyle: 'italic' }}>
           No inventory rewards held. Win bidding rounds to earn rewards!
         </p>
       ) : (
         <div>
-          <label htmlFor="reward-select" style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'var(--primary-dark)' }}>
+          <label htmlFor="reward-select" style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'var(--text-secondary)' }}>
             🎁 Select a Reward to Play:
           </label>
           <select
@@ -38,8 +38,8 @@ export default function Action5PlayReward({
               padding: '8px',
               borderRadius: '6px',
               border: '1px solid var(--primary-border)',
-              background: '#ffffff',
-              color: 'var(--primary-dark)',
+              background: 'var(--primary-dark)',
+              color: '#ffffff',
               fontSize: '13px',
               marginBottom: '15px'
             }}
@@ -51,11 +51,11 @@ export default function Action5PlayReward({
           </select>
 
           {selectedRewardKey && selectedReward && (
-            <div style={{ padding: '12px', background: 'rgba(0,0,0,0.02)', borderRadius: '8px', marginBottom: '15px' }}>
-              <div style={{ fontSize: '12px', color: 'var(--primary-dark)' }}><b>Effect:</b> {selectedReward.description}</div>
+            <div style={{ padding: '12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', marginBottom: '15px', border: '1px solid var(--primary-border)' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-primary)' }}><b>Effect:</b> {selectedReward.description}</div>
               {selectedReward.requiresTarget && (
                 <div style={{ marginTop: '12px' }}>
-                  <label htmlFor="reward-target-select" style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'var(--primary-dark)' }}>
+                  <label htmlFor="reward-target-select" style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'var(--text-secondary)' }}>
                     🎯 Select Target Party:
                   </label>
                   <select
@@ -71,8 +71,8 @@ export default function Action5PlayReward({
                       padding: '8px',
                       borderRadius: '6px',
                       border: '1px solid var(--primary-border)',
-                      background: '#ffffff',
-                      color: 'var(--primary-dark)',
+                      background: 'var(--primary-dark)',
+                      color: '#ffffff',
                       fontSize: '13px'
                     }}
                   >

@@ -50,18 +50,18 @@ export default function Action6PartyBuilding({
       {/* Completed Projects */}
       {completedProjects.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
-          <h5 style={{ margin: '0 0 10px 0', fontSize: '13px', color: 'var(--primary-dark)', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '4px' }}>Completed Infrastructure</h5>
+          <h5 style={{ margin: '0 0 10px 0', fontSize: '13px', color: 'var(--text-primary)', borderBottom: '1px solid var(--primary-border)', paddingBottom: '4px' }}>Completed Infrastructure</h5>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {completedProjects.map((proj, idx) => {
               const pDef = PROJECT_DEFS[proj.projectKey] || {};
               const projId = proj.id || proj.projectKey;
               return (
-                <div key={proj.id || `${proj.projectKey}-completed-${idx}`} style={{ border: '1px solid #22c55e', borderRadius: '8px', padding: '12px', background: 'rgba(34,197,94,0.02)' }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '13px', color: 'var(--primary-dark)' }}>{pDef.name || proj.projectKey}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--card-text)', marginTop: '2px' }}>Yield: {pDef.yield}</div>
+                <div key={proj.id || `${proj.projectKey}-completed-${idx}`} style={{ border: '1px solid #22c55e', borderRadius: '8px', padding: '12px', background: 'rgba(34,197,94,0.05)' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '13px', color: 'var(--text-primary)' }}>{pDef.name || proj.projectKey}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Yield: {pDef.yield}</div>
                   {pDef.offensive ? (
                     <div style={{ marginTop: '8px' }}>
-                      <label htmlFor={`target-${projId}`} style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>🎯 Target:</label>
+                      <label htmlFor={`target-${projId}`} style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'var(--text-secondary)' }}>🎯 Target:</label>
                       <select 
                         id={`target-${projId}`}
                         value={proj.targetPartyId || ''} 
@@ -70,7 +70,7 @@ export default function Action6PartyBuilding({
                           handleSetProjectTarget(projId, e.target.value);
                           setPartyBuildingConfirmed(false);
                         }}
-                        style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}
+                        style={{ padding: '6px 10px', fontSize: '12px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)' }}
                       >
                         <option value="">-- Select Target Opponent --</option>
                         {turnData.parties.filter(opp => opp.id !== turnData.activeHumanPartyId).map(opp => (
@@ -91,7 +91,7 @@ export default function Action6PartyBuilding({
       {/* Selected Projects */}
       {selectedProjects.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
-          <h5 style={{ margin: '0 0 10px 0', fontSize: '13px', color: 'var(--primary-dark)', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '4px' }}>Projects in Progress</h5>
+          <h5 style={{ margin: '0 0 10px 0', fontSize: '13px', color: 'var(--text-primary)', borderBottom: '1px solid var(--primary-border)', paddingBottom: '4px' }}>Projects in Progress</h5>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {selectedProjects.map((proj, idx) => {
               const pDef = PROJECT_DEFS[proj.projectKey] || {};
@@ -112,9 +112,9 @@ export default function Action6PartyBuilding({
               const canAfford = canAffordCost(costForContrib, activeParty.stats);
 
               return (
-                <div key={proj.id || `${proj.projectKey}-in-progress-${idx}`} style={{ border: '1px solid var(--primary-border)', borderRadius: '8px', padding: '12px', background: '#ffffff' }}>
+                <div key={proj.id || `${proj.projectKey}-in-progress-${idx}`} style={{ border: '1.5px solid var(--primary-border)', borderRadius: '8px', padding: '12px', background: 'var(--primary-dark)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '13px', color: 'var(--primary-dark)' }}>{pDef.name || proj.projectKey}</div>
+                    <div style={{ fontWeight: 'bold', fontSize: '13px', color: 'var(--text-primary)' }}>{pDef.name || proj.projectKey}</div>
                     {isDraft && (
                       <button 
                         disabled={partyBuildingConfirmed}
@@ -122,28 +122,28 @@ export default function Action6PartyBuilding({
                           setDraftProjectKeys(prev => prev.filter(k => k !== proj.id && k !== proj.projectKey));
                           setPartyBuildingConfirmed(false);
                         }}
-                        style={{ background: 'transparent', color: '#d23f31', border: 'none', padding: 0, fontSize: '12px', cursor: 'pointer' }}
+                        style={{ background: 'transparent', color: '#ef4444', border: 'none', padding: 0, fontSize: '12px', cursor: 'pointer' }}
                       >
                         ❌ Remove
                       </button>
                     )}
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--card-text)', marginTop: '2px' }}>Total Cost: {pDef.cost} | Yield: {pDef.yield}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>Total Cost: {pDef.cost} | Yield: {pDef.yield}</div>
                   
                   <div style={{ marginTop: '8px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px' }}>
-                      <span>Funding: <b>{progress}%</b></span>
+                      <span style={{ color: 'var(--text-secondary)' }}>Funding: <b style={{ color: 'var(--text-primary)' }}>{progress}%</b></span>
                       {chosenContrib > 0 && <span style={{ color: '#22c55e', marginLeft: '6px' }}>+ {chosenContrib}%</span>}
                     </div>
-                    <div style={{ width: '100%', height: '8px', background: 'rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
-                      <div style={{ width: `${progress}%`, background: 'var(--primary-dark)' }} />
+                    <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
+                      <div style={{ width: `${progress}%`, background: 'var(--selected-highlight)' }} />
                       <div style={{ width: `${chosenContrib}%`, background: '#22c55e' }} />
                     </div>
                   </div>
 
                   <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <label htmlFor={`contrib-${projId}`} style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>Add Funding %:</label>
+                      <label htmlFor={`contrib-${projId}`} style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Add Funding %:</label>
                       <select
                         id={`contrib-${projId}`}
                         value={chosenContrib}
@@ -153,7 +153,7 @@ export default function Action6PartyBuilding({
                           setFundingContributions(prev => ({ ...prev, [projId]: val }));
                           setPartyBuildingConfirmed(false);
                         }}
-                        style={{ padding: '3px', fontSize: '11px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}
+                        style={{ padding: '6px 10px', fontSize: '11px', borderRadius: '4px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)' }}
                       >
                         {presets.map(val => (
                           <option key={val} value={val}>+{val}%</option>
@@ -161,7 +161,7 @@ export default function Action6PartyBuilding({
                       </select>
                     </div>
 
-                    <div style={{ fontSize: '11px', color: canAfford ? 'var(--card-text)' : '#d23f31', fontWeight: chosenContrib > 0 ? 'bold' : 'normal' }}>
+                    <div style={{ fontSize: '11px', color: canAfford ? 'var(--text-secondary)' : '#ef4444', fontWeight: chosenContrib > 0 ? 'bold' : 'normal' }}>
                       Cost: {costForContrib.coins} Coins
                       {costForContrib.morale > 0 && `, ${costForContrib.morale} Morale`}
                       {costForContrib.corruption > 0 && `, ${costForContrib.corruption} Corruption`}
@@ -198,13 +198,13 @@ export default function Action6PartyBuilding({
 
       {/* Available Projects */}
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '4px' }}>
-          <h5 style={{ margin: 0, fontSize: '13px', color: 'var(--primary-dark)' }}>Build Infrastructure</h5>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '1px solid var(--primary-border)', paddingBottom: '4px' }}>
+          <h5 style={{ margin: 0, fontSize: '13px', color: 'var(--text-primary)' }}>Build Infrastructure</h5>
           <select 
             value={projectCategoryFilter}
             disabled={partyBuildingConfirmed}
             onChange={(e) => setProjectCategoryFilter(e.target.value)}
-            style={{ padding: '3px', fontSize: '11px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}
+            style={{ padding: '6px 10px', fontSize: '11px', background: 'var(--primary-dark)', color: '#ffffff', border: '1.5px solid var(--primary-border)', borderRadius: '4px' }}
           >
             <option value="BUILD">Build Party</option>
             <option value="OFFENSIVE">Target Opponents</option>
@@ -212,15 +212,15 @@ export default function Action6PartyBuilding({
         </div>
 
         {filteredAvail.length === 0 ? (
-          <p style={{ margin: 0, fontSize: '11px', color: 'gray', fontStyle: 'italic' }}>No projects available in this category.</p>
+          <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }}>No projects available in this category.</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
             {filteredAvail.map(avail => (
-              <div key={avail.key} style={{ border: '1px dashed var(--primary-border)', borderRadius: '8px', padding: '10px', background: 'rgba(0,0,0,0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div key={avail.key} style={{ border: '1.5px dashed var(--primary-border)', borderRadius: '8px', padding: '10px', background: 'rgba(255,255,255,0.02)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
-                  <div style={{ fontWeight: 'bold', fontSize: '12px', color: 'var(--primary-dark)' }}>{avail.name}</div>
-                  <div style={{ fontSize: '10px', color: 'gray', marginTop: '2px' }}>Cost: {avail.cost}</div>
-                  <div style={{ fontSize: '10px', color: 'var(--card-text)', marginTop: '4px' }}>Yield: {avail.yield}</div>
+                  <div style={{ fontWeight: 'bold', fontSize: '12px', color: 'var(--text-primary)' }}>{avail.name}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '2px' }}>Cost: {avail.cost}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '4px' }}>Yield: {avail.yield}</div>
                 </div>
                 <button
                   disabled={partyBuildingConfirmed}
