@@ -16,6 +16,37 @@ public class ElectionResolver {
     }
 
     public void conductElection(GameSession session, String reason, boolean isNoConfidenceElection) {
+        // Distribute undecided support proportionally to all active parties so undecided becomes 0
+        if (session.getPublicState() != null) {
+            int undecided = session.getPublicState().getUndecidedSupport();
+            if (undecided > 0) {
+                int totalActiveSupport = session.getParties().stream()
+                        .filter(PartyState::isActive)
+                        .mapToInt(p -> p.getStats().getPublicSupport())
+                        .sum();
+                if (totalActiveSupport > 0) {
+                    int distributed = 0;
+                    List<PartyState> activeParties = new ArrayList<>(session.getParties().stream()
+                            .filter(PartyState::isActive)
+                            .toList());
+                    // Sort to handle rounding remainder cleanly
+                    activeParties.sort(Comparator.comparingInt((PartyState p) -> p.getStats().getPublicSupport()).reversed());
+                    for (int i = 0; i < activeParties.size(); i++) {
+                        PartyState party = activeParties.get(i);
+                        int share;
+                        if (i == activeParties.size() - 1) {
+                            share = undecided - distributed;
+                        } else {
+                            share = (int) Math.round((double) party.getStats().getPublicSupport() * undecided / totalActiveSupport);
+                        }
+                        party.getStats().setPublicSupport(party.getStats().getPublicSupport() + share);
+                        distributed += share;
+                    }
+                }
+                session.getPublicState().setUndecidedSupport(0);
+            }
+        }
+
         List<PartyState> ranking = new ArrayList<>(session.getParties().stream()
                 .filter(PartyState::isActive)
                 .toList());

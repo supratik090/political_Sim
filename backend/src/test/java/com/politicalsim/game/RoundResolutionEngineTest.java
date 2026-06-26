@@ -32,7 +32,7 @@ class RoundResolutionEngineTest {
         session.setParties(List.of(target, other1, other2));
 
         RewardDefinition reward = new RewardDefinition(
-                "reward_rally_8_support",
+                "reward_rally_10_support",
                 "Grassroots Rally",
                 "Boost public support by 8% of yourself.",
                 false,
@@ -75,7 +75,7 @@ class RoundResolutionEngineTest {
         session.setParties(List.of(target, other1, cervix));
 
         RewardDefinition reward = new RewardDefinition(
-                "reward_rally_8_support",
+                "reward_rally_10_support",
                 "Grassroots Rally",
                 "Boost public support by 8% of yourself.",
                 false,
@@ -158,7 +158,7 @@ class RoundResolutionEngineTest {
         session.getCurrentRoundSubmissions().add(sub);
         
         // 1. Setup held reward
-        HeldReward hr = new HeldReward("reward_donation_40_coins", "Private Donation", "Gift 40 coins", 15, false, "self");
+        HeldReward hr = new HeldReward("reward_donation_100_coins", "Private Donation", "Gift 40 coins", 15, false, "self");
         session.getPartyHeldRewards().computeIfAbsent(partyA.getId(), k -> new ArrayList<>()).add(hr);
         
         // 2. Setup project contribution
@@ -281,8 +281,8 @@ class RoundResolutionEngineTest {
         assertEquals(GameStatus.VICTORY, session.getStatus());
         assertEquals("Human Party", session.getLastElectionWinner());
         org.junit.jupiter.api.Assertions.assertTrue(session.isLastElectionHeld());
-        assertEquals(50, session.getLastElectionVoteShares().get("Human Party"));
-        assertEquals(40, session.getLastElectionVoteShares().get("AI Party"));
-        assertEquals(10, session.getLastElectionVoteShares().get("Undecided Voters"));
+        assertEquals(56, session.getLastElectionVoteShares().get("Human Party"));
+        assertEquals(44, session.getLastElectionVoteShares().get("AI Party"));
+        assertEquals(0, session.getLastElectionVoteShares().get("Undecided Voters"));
     }
 }

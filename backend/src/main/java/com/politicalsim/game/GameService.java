@@ -1637,6 +1637,89 @@ public class GameService {
         if (party.getIdeology() == com.politicalsim.party.Ideology.ANTI_CORRUPTION) {
             score -= projectDef.getCostCorruption() * 2.0;
         }
+
+        // 4. Repeat Penalties: Reduce priority for projects already completed
+        long completedCount = 0;
+        if (party.getProjects() != null) {
+            completedCount = party.getProjects().stream()
+                .filter(p -> p.getProjectKey().equals(projectDef.name()) && p.getProgressPercent() >= 100)
+                .count();
+        }
+        if (completedCount > 0) {
+            if (!projectDef.isRequiresTarget()) {
+                // Unique infrastructure projects should not be spammed
+                if (projectDef == BuildingProject.PARTY_HQ || projectDef == BuildingProject.IT_CELL 
+                    || projectDef == BuildingProject.CADRE_OFFICE || projectDef == BuildingProject.THINK_TANK 
+                    || projectDef == BuildingProject.TRAINING_ACADEMY || projectDef == BuildingProject.YOUTH_WING 
+                    || projectDef == BuildingProject.MEDIA_HOUSE) {
+                    score -= completedCount * 50.0;
+                } else {
+                    // Event-type projects can be repeated but with penalty
+                    score -= completedCount * 15.0;
+                }
+            } else {
+                // Offensive projects targeting other players
+                score -= completedCount * 12.0;
+            }
+        }
+
+        // 5. Threat Recognition & Support Crisis
+        long hostileProjectsTargetingMe = 0;
+        for (PartyState other : session.getParties()) {
+            if (other.getId().equals(party.getId())) continue;
+            if (other.getProjects() == null) continue;
+            for (ProjectState otherProj : other.getProjects()) {
+                if (otherProj.getProgressPercent() >= 100 && party.getId().equals(otherProj.getTargetPartyId())) {
+                    hostileProjectsTargetingMe++;
+                }
+            }
+        }
+
+        int maxOpponentSupport = session.getParties().stream()
+            .filter(p -> !p.getId().equals(party.getId()))
+            .mapToInt(p -> p.getStats().getPublicSupport())
+            .max().orElse(0);
+        int supportGap = maxOpponentSupport - party.getStats().getPublicSupport();
+
+        if (hostileProjectsTargetingMe > 0 || supportGap > 15 || party.getStats().getPublicSupport() < 25) {
+            // Boost offensive projects to target opponents when under threat
+            if (projectDef.isRequiresTarget()) {
+                score += 20.0 + (hostileProjectsTargetingMe * 5.0) + (supportGap * 0.5);
+            }
+            // Boost projects that give support if undecided support is available
+            if (projectDef.getBenefitSupport() > 0 && session.getPublicState() != null 
+                && session.getPublicState().getUndecidedSupport() > 0) {
+                score += projectDef.getBenefitSupport() * 25.0;
+            }
+        }
+
+        // 6. Grudge System Integration
+        Map<String, Map<String, Integer>> grudges = session.getGrudges();
+        if (grudges != null && grudges.containsKey(party.getId())) {
+            Map<String, Integer> myGrudges = grudges.get(party.getId());
+            int maxGrudgeValue = myGrudges.values().stream().mapToInt(Integer::intValue).max().orElse(0);
+            if (maxGrudgeValue > 0 && projectDef.isRequiresTarget()) {
+                score += maxGrudgeValue * 8.0;
+            }
+        }
+
+        // 7. Resource Situational Alignment
+        PartyStats stats = party.getStats();
+        if (stats != null) {
+            if (stats.getCoins() < 100) {
+                score += projectDef.getBenefitCoins() * 15.0;
+                score -= projectDef.getCostCoins() * 0.5;
+            }
+            if (stats.getPartyMorale() < 40) {
+                score += projectDef.getBenefitMorale() * 20.0;
+            }
+            if (stats.getCorruptionScore() > 50) {
+                score -= projectDef.getBenefitCorruption() * 20.0; // benefitCorruption is negative for reduction
+            }
+            if (stats.getMediaImage() < 40) {
+                score += projectDef.getBenefitMedia() * 15.0;
+            }
+        }
         
         return score;
     }

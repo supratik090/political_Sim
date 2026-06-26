@@ -23,7 +23,11 @@ public enum BuildingProject {
     CORRUPTION_EXPOSE,
     CAMPAIGN_SABOTAGE,
     AUDIT_HARASSMENT,
-    MEDIA_SMEAR;
+    MEDIA_SMEAR,
+    WHISTLEBLOWER_FORUM,
+    CITIZEN_OUTREACH,
+    PROTEST_STRIKE,
+    LEAK_INTERNAL_MEMO;
 
     public static class ProjectConfig {
         public String name;

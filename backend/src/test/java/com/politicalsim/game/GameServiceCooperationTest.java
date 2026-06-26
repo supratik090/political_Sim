@@ -121,7 +121,9 @@ class GameServiceCooperationTest {
         sessionService = new MockGameSessionService(session);
         aiDecisionService = new AiDecisionService();
         scenarioRepository = Mockito.mock(ScenarioDefinitionRepository.class);
-        gameService = new GameService(sessionService, roundEngine, null, null, null, scenarioRepository, aiDecisionService);
+        com.politicalsim.content.MonthlyIssueDefinitionRepository issueRepository = Mockito.mock(com.politicalsim.content.MonthlyIssueDefinitionRepository.class);
+        Mockito.when(issueRepository.findByScenarioKey(Mockito.anyString())).thenReturn(new ArrayList<>());
+        gameService = new GameService(sessionService, roundEngine, null, null, issueRepository, scenarioRepository, aiDecisionService);
     }
 
     @Test
@@ -271,7 +273,7 @@ class GameServiceCooperationTest {
 
         // Hostile reward
         RewardDefinition hostileReward = new RewardDefinition(
-            "reward_sabotage_20_morale",
+            "reward_sabotage_30_morale",
             "Morale Sabotage",
             "Deduct 20 morale from an opponent party.",
             true,
@@ -289,7 +291,7 @@ class GameServiceCooperationTest {
         // Build submission
         RoundSubmission sub = new RoundSubmission();
         sub.setPartyId("party_a");
-        sub.setSelectedRewardKey("reward_sabotage_20_morale");
+        sub.setSelectedRewardKey("reward_sabotage_30_morale");
         sub.setRewardTargetPartyId("party_b");
         session.setCurrentRoundSubmissions(List.of(sub));
 
@@ -347,7 +349,7 @@ class GameServiceCooperationTest {
 
         // Turn 5 triggers cycle-complete check (cycleTurn = 5)
         session.setTurnNumber(5);
-        session.setCurrentRewardKey("reward_grant_50_coins");
+        session.setCurrentRewardKey("reward_grant_100_coins");
 
         // Set round wins: Party A has 2 wins, Party B has 1 win
         session.getPartyRoundWins().put("party_a", 2);
@@ -355,7 +357,7 @@ class GameServiceCooperationTest {
 
         // Add the reward definition to REWARD_POOL so getReward can find it
         RewardDefinition activeReward = new RewardDefinition(
-            "reward_grant_50_coins",
+            "reward_grant_100_coins",
             "Federal Funding Grant",
             "Gift 50 coins to a selected party.",
             true,
@@ -378,9 +380,9 @@ class GameServiceCooperationTest {
         assertNotNull(heldRewards);
         assertEquals(1, heldRewards.size());
         
-        // Verify that the allocated reward matches the current active reward "reward_grant_50_coins"
+        // Verify that the allocated reward matches the current active reward "reward_grant_100_coins"
         HeldReward awarded = heldRewards.get(0);
-        assertEquals("reward_grant_50_coins", awarded.getRewardKey());
+        assertEquals("reward_grant_100_coins", awarded.getRewardKey());
         assertEquals("Federal Funding Grant", awarded.getName());
 
         // Verify that round wins were reset to 0
@@ -405,11 +407,14 @@ class GameServiceCooperationTest {
 
         Mockito.when(scenarioRepository.findAll()).thenReturn(List.of(sd1, sd2));
 
-        // 1. With no won games, 2006 scenario should not be visible/present
+        // 1. With no won games, 2006 scenario should be LOCKED
         sessionService.setSessionList(new ArrayList<>());
         CampaignProgressResponse resp = gameService.getCampaignProgress("user123");
-        boolean has2006 = resp.getScenarios().stream().anyMatch(s -> "west_bengal_2006".equals(s.getScenarioKey()));
-        assertFalse(has2006);
+        ScenarioProgressView view2006Before = resp.getScenarios().stream()
+                .filter(s -> "west_bengal_2006".equals(s.getScenarioKey()))
+                .findFirst().orElse(null);
+        assertNotNull(view2006Before);
+        assertEquals("LOCKED", view2006Before.getStatus());
 
         // 2. Once west_bengal_2000 is won, west_bengal_2006 should be AVAILABLE
         GameSession wonGame = new GameSession();

@@ -1144,10 +1144,8 @@ public class RoundResolutionEngine {
 
     public void normalizePublicSupport(GameSession session) {
         int turn = session.getTurnNumber();
-        int minUndecided = 0;
-        if (turn < 45) {
-            minUndecided = 10;
-        }
+        // Progressive reduction: starts at 10% and reduces by 2% every 10 turns (0% after turn 50)
+        int minUndecided = Math.max(0, 10 - 2 * ((turn - 1) / 10));
         int maxPartyTotal = 100 - minUndecided;
 
         int total = session.getParties().stream()
