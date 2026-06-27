@@ -1,15 +1,102 @@
 import React, { useState, useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { fetchTurnView, advanceTurn, fundProject, setProjectTarget } from '../../api/apiClient';
+import { fetchTurnView, advanceTurn, fundProject, setProjectTarget, fetchBuildingProjects } from '../../api/apiClient';
 import { getPartyColor, cardRequiresTarget } from './gameUtils';
 import StatsView from './StatsView';
 import ActionsView from './ActionsView';
+import { getPartyThemeByName } from '../../constants/partyThemes';
+import { PROJECT_DEFS } from './constants';
+
+const PROJECT_EMOJIS = {
+  PARTY_HQ: '🏢',
+  IT_CELL: '💻',
+  CADRE_OFFICE: '🏘️',
+  THINK_TANK: '🧠',
+  TRAINING_ACADEMY: '🏫',
+  YOUTH_WING: '✊',
+  MEGA_RALLY: '📢',
+  PRIME_LEADER_VISIT: '⭐',
+  FOUNDATION_DAY: '🎉',
+  PARTY_CONGRESS: '🤝',
+  DISSENT_NEWSPAPER: '📰',
+  MEDIA_HOUSE: '📺',
+  PARTY_DISSENT: '📣',
+  CORRUPTION_EXPOSE: '🔍',
+  CAMPAIGN_SABOTAGE: '💣',
+  AUDIT_HARASSMENT: '💼',
+  MEDIA_SMEAR: '📻',
+  WHISTLEBLOWER_FORUM: '🔍',
+  CITIZEN_OUTREACH: '🤝',
+  PROTEST_STRIKE: '✊',
+  LEAK_INTERNAL_MEMO: '📄'
+};
+
+function formatProjectDefinitions(backendDefs) {
+  const getCostString = (proj) => {
+    const parts = [];
+    if (proj.costCoins) parts.push(`${proj.costCoins} Coins`);
+    if (proj.costMorale) parts.push(`${proj.costMorale} Morale`);
+    if (proj.costCorruption) parts.push(`${proj.costCorruption} Corruption`);
+    if (proj.costMedia) parts.push(`${proj.costMedia} Media Image`);
+    if (proj.costSupport) parts.push(`${proj.costSupport}% Support`);
+    return parts.length > 0 ? parts.join(', ') : 'Free';
+  };
+
+  const getYieldString = (proj) => {
+    const parts = [];
+    const prefix = proj.requiresTarget ? '💥 ' : '';
+    if (proj.benefitCoins) parts.push(`💰 ${proj.benefitCoins > 0 ? '+' : ''}${proj.benefitCoins} Coins`);
+    if (proj.benefitMorale) parts.push(`${proj.requiresTarget ? '' : '✊ '}${proj.benefitMorale > 0 ? '+' : ''}${proj.benefitMorale} Morale`);
+    if (proj.benefitCorruption) parts.push(`${proj.requiresTarget ? '' : '⚖️ '}${proj.benefitCorruption > 0 ? '+' : ''}${proj.benefitCorruption} Corruption`);
+    if (proj.benefitMedia) parts.push(`${proj.requiresTarget ? '' : '📢 '}${proj.benefitMedia > 0 ? '+' : ''}${proj.benefitMedia} Media Image`);
+    if (proj.benefitSupport) parts.push(`${proj.requiresTarget ? '' : '📈 '}${proj.benefitSupport > 0 ? '+' : ''}${proj.benefitSupport}% Public Support`);
+    const suffix = proj.requiresTarget ? ' to Target per turn' : ' per turn';
+    return prefix + (parts.length > 0 ? parts.join(', ') : 'None') + suffix;
+  };
+
+  const newDefs = {};
+  Object.entries(backendDefs).forEach(([key, proj]) => {
+    newDefs[key] = {
+      name: `${PROJECT_EMOJIS[key] || '🏗️'} ${proj.name}`,
+      cost: getCostString(proj),
+      costCoins: proj.costCoins || 0,
+      costMorale: proj.costMorale || 0,
+      costCorruption: proj.costCorruption || 0,
+      costMedia: proj.costMedia || 0,
+      costSupport: proj.costSupport || 0,
+      yield: getYieldString(proj),
+      offensive: proj.requiresTarget || false
+    };
+  });
+  return newDefs;
+}
+
+function hexToRgbStr(hex) {
+  let c = hex.replace('#', '');
+  if (c.length === 3) {
+    c = c.split('').map(x => x + x).join('');
+  }
+  const r = parseInt(c.substring(0, 2), 16);
+  const g = parseInt(c.substring(2, 4), 16);
+  const b = parseInt(c.substring(4, 6), 16);
+  return isNaN(r) || isNaN(g) || isNaN(b) ? '101, 148, 177' : `${r}, ${g}, ${b}`;
+}
 
 export default function GamePlayBoard() {
   const [activeView, setActiveView] = useState('INFO');
   const { activeGameId, turnData, setTurnData } = useGameStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [projectDefs, setProjectDefs] = useState(PROJECT_DEFS);
+
+  useEffect(() => {
+    fetchBuildingProjects()
+      .then(data => {
+        const formatted = formatProjectDefinitions(data);
+        setProjectDefs(formatted);
+      })
+      .catch(err => console.error("Failed to load building projects from backend, using fallbacks:", err));
+  }, []);
   const [commentaryExpanded, setCommentaryExpanded] = useState(false);
   const [commentaryFilter, setCommentaryFilter] = useState('ALL');
 
@@ -34,7 +121,14 @@ export default function GamePlayBoard() {
 
   const activeParty = turnData?.parties?.find(p => p.id === turnData.activeHumanPartyId) || turnData?.parties?.find(p => p.playerControlled);
   const playerPartyName = turnData?.activeHumanPartyName || activeParty?.name;
-  const playerPartyColor = getPartyColor(activeParty);
+  
+  const partyTheme = getPartyThemeByName(playerPartyName || '');
+  const isDefaultFallback = partyTheme.symbolName === 'Flag';
+  const customColor = activeParty?.color;
+  const hasCustomColor = customColor && customColor !== '#ffffff' && customColor !== '#fff' && customColor !== '';
+  const playerPartyColor = (isDefaultFallback && hasCustomColor) ? customColor : partyTheme.color;
+  const playerPartyColorRgb = (isDefaultFallback && hasCustomColor) ? hexToRgbStr(customColor) : partyTheme.rgb;
+  const SymbolIcon = partyTheme.SymbolIcon;
 
   const resetLocalStates = () => {
     setSelectedCard(null);
@@ -342,18 +436,15 @@ export default function GamePlayBoard() {
   }
 
   return (
-    <div className="game-board-container">
+    <div className="game-board-container" style={{
+      '--party-primary-color': playerPartyColor,
+      '--party-primary-color-rgb': playerPartyColorRgb
+    }}>
       {/* Title Banner */}
-      <div className="game-title-banner">
-        <span style={{ fontSize: '12px', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.15em', display: 'block', marginBottom: '5px', opacity: 0.9 }} className="banner-subtitle">
+      <div className="game-title-banner" style={{ padding: '24px 20px', background: 'var(--party-primary-color)' }}>
+        <h1 className="game-title-h1" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           GRAND CAMPAIGN BOARD
-        </span>
-        <h1 className="game-title-h1">
-          Indian Politics Simulation
         </h1>
-        <p className="game-title-p">
-          Command campaign strategies, form coalitions, and win state elections.
-        </p>
         {playerPartyName && (
           <div style={{ 
             marginTop: '15px', 
@@ -396,85 +487,96 @@ export default function GamePlayBoard() {
         </button>
       </div>
 
-      {/* View Content */}
-      <div className="unified-card game-content-card" style={{ minHeight: '400px' }}>
-        {loading && <div style={{ textAlign: 'center', padding: '50px 0' }}>⌛ Loading Campaign State...</div>}
-        {error && <div style={{ color: '#d23f31', textAlign: 'center', padding: '50px 0' }}>⚠️ {error}</div>}
-        
-        {!turnData && !loading && !error && (
-          <div style={{ textAlign: 'center', padding: '50px 0' }}>
-            No campaign data loaded. Please return to the Dashboard to load or start a campaign.
+      {/* View Content inside Curved Layout Wrapper */}
+      <div className="game-layout-wrapper">
+        {/* Left themed sidebar */}
+        <div className="themed-left-sidebar">
+          <div className="themed-symbol-badge">
+            <SymbolIcon size={32} color={playerPartyColor} />
           </div>
-        )}
+        </div>
 
-        {activeView === 'INFO' && turnData && (
-          <StatsView
-            turnData={turnData}
-            commentaryExpanded={commentaryExpanded}
-            setCommentaryExpanded={setCommentaryExpanded}
-            commentaryFilter={commentaryFilter}
-            setCommentaryFilter={setCommentaryFilter}
-          />
-        )}
+        {/* Right Content */}
+        <div className="themed-right-content">
+          {loading && <div style={{ textAlign: 'center', padding: '50px 0' }}>⌛ Loading Campaign State...</div>}
+          {error && <div style={{ color: '#d23f31', textAlign: 'center', padding: '50px 0' }}>⚠️ {error}</div>}
+          
+          {!turnData && !loading && !error && (
+            <div style={{ textAlign: 'center', padding: '50px 0' }}>
+              No campaign data loaded. Please return to the Dashboard to load or start a campaign.
+            </div>
+          )}
 
-        {activeView === 'ACTION' && turnData && (
-          <ActionsView
-            turnData={turnData}
-            activeParty={activeParty}
-            loading={loading}
-            handleAdvanceTurn={handleAdvanceTurn}
-            handleSkipTurn={handleSkipTurn}
-            
-            // Action 1 props
-            selectedCard={selectedCard}
-            setSelectedCard={setSelectedCard}
-            targetPartyId={targetPartyId}
-            setTargetPartyId={setTargetPartyId}
-            cardCategoryFilter={cardCategoryFilter}
-            setCardCategoryFilter={setCardCategoryFilter}
+          {activeView === 'INFO' && turnData && (
+            <StatsView
+              turnData={turnData}
+              commentaryExpanded={commentaryExpanded}
+              setCommentaryExpanded={setCommentaryExpanded}
+              commentaryFilter={commentaryFilter}
+              setCommentaryFilter={setCommentaryFilter}
+            />
+          )}
 
-            // Action 2 props
-            selectedNewsReactions={selectedNewsReactions}
-            setSelectedNewsReactions={setSelectedNewsReactions}
+          {activeView === 'ACTION' && turnData && (
+            <ActionsView
+              turnData={turnData}
+              activeParty={activeParty}
+              loading={loading}
+              handleAdvanceTurn={handleAdvanceTurn}
+              handleSkipTurn={handleSkipTurn}
+              projectDefs={projectDefs}
+              
+              // Action 1 props
+              selectedCard={selectedCard}
+              setSelectedCard={setSelectedCard}
+              targetPartyId={targetPartyId}
+              setTargetPartyId={setTargetPartyId}
+              cardCategoryFilter={cardCategoryFilter}
+              setCardCategoryFilter={setCardCategoryFilter}
 
-            // Action 3 props
-            selectedIssueOptionKey={selectedIssueOptionKey}
-            setSelectedIssueOptionKey={setSelectedIssueOptionKey}
+              // Action 2 props
+              selectedNewsReactions={selectedNewsReactions}
+              setSelectedNewsReactions={setSelectedNewsReactions}
 
-            // Action 4 props
-            bidAmount={bidAmount}
-            setBidAmount={setBidAmount}
-            bidConfirmed={bidConfirmed}
-            setBidConfirmed={setBidConfirmed}
+              // Action 3 props
+              selectedIssueOptionKey={selectedIssueOptionKey}
+              setSelectedIssueOptionKey={setSelectedIssueOptionKey}
 
-            // Action 5 props
-            selectedRewardKey={selectedRewardKey}
-            setSelectedRewardKey={setSelectedRewardKey}
-            rewardTargetPartyId={rewardTargetPartyId}
-            setRewardTargetPartyId={setRewardTargetPartyId}
-            rewardConfirmed={rewardConfirmed}
-            setRewardConfirmed={setRewardConfirmed}
+              // Action 4 props
+              bidAmount={bidAmount}
+              setBidAmount={setBidAmount}
+              bidConfirmed={bidConfirmed}
+              setBidConfirmed={setBidConfirmed}
 
-            // Action 6 props
-            projectCategoryFilter={projectCategoryFilter}
-            setProjectCategoryFilter={setProjectCategoryFilter}
-            draftProjectKeys={draftProjectKeys}
-            setDraftProjectKeys={setDraftProjectKeys}
-            fundingContributions={fundingContributions}
-            setFundingContributions={setFundingContributions}
-            partyBuildingConfirmed={partyBuildingConfirmed}
-            setPartyBuildingConfirmed={setPartyBuildingConfirmed}
-            handleFundProject={handleFundProject}
-            handleSetProjectTarget={handleSetProjectTarget}
+              // Action 5 props
+              selectedRewardKey={selectedRewardKey}
+              setSelectedRewardKey={setSelectedRewardKey}
+              rewardTargetPartyId={rewardTargetPartyId}
+              setRewardTargetPartyId={setRewardTargetPartyId}
+              rewardConfirmed={rewardConfirmed}
+              setRewardConfirmed={setRewardConfirmed}
 
-            // Action 7 props
-            handleCooperationUpdate={setTurnData}
+              // Action 6 props
+              projectCategoryFilter={projectCategoryFilter}
+              setProjectCategoryFilter={setProjectCategoryFilter}
+              draftProjectKeys={draftProjectKeys}
+              setDraftProjectKeys={setDraftProjectKeys}
+              fundingContributions={fundingContributions}
+              setFundingContributions={setFundingContributions}
+              partyBuildingConfirmed={partyBuildingConfirmed}
+              setPartyBuildingConfirmed={setPartyBuildingConfirmed}
+              handleFundProject={handleFundProject}
+              handleSetProjectTarget={handleSetProjectTarget}
 
-            // Accordion state
-            activeAccordion={activeAccordion}
-            setActiveAccordion={setActiveAccordion}
-          />
-        )}
+              // Action 7 props
+              handleCooperationUpdate={setTurnData}
+
+              // Accordion state
+              activeAccordion={activeAccordion}
+              setActiveAccordion={setActiveAccordion}
+            />
+          )}
+        </div>
       </div>
 
       {/* Floating Center-Right Navigation Arrow */}

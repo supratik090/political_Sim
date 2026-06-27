@@ -88,11 +88,11 @@ export default function Action3PartyDecision({
         /* High-tech TV Breaking News style container */
         <div style={{
           background: 'radial-gradient(circle at center, #1e1b4b 0%, #09090b 100%)',
-          border: '3px solid #ef4444',
+          border: '3px solid var(--party-primary-color)',
           borderRadius: '12px',
           padding: '20px',
           color: '#f4f4f5',
-          boxShadow: '0 10px 30px rgba(239, 68, 68, 0.15)',
+          boxShadow: '0 10px 30px rgba(var(--party-primary-color-rgb), 0.15)',
           position: 'relative',
           overflow: 'hidden',
           animation: 'scanline-flicker 0.15s infinite'
@@ -112,7 +112,7 @@ export default function Action3PartyDecision({
 
           {/* TV Header Bar */}
           <div style={{
-            background: 'linear-gradient(90deg, #ef4444 0%, #991b1b 100%)',
+            background: 'var(--party-primary-color)',
             color: '#ffffff',
             padding: '6px 14px',
             borderRadius: '6px',
@@ -140,7 +140,7 @@ export default function Action3PartyDecision({
             </div>
             <span style={{ 
               background: '#ffffff', 
-              color: '#ef4444', 
+              color: 'var(--party-primary-color)', 
               fontSize: '9px', 
               padding: '1px 6px', 
               borderRadius: '3px',
@@ -209,11 +209,11 @@ export default function Action3PartyDecision({
                       fontSize: '12.5px',
                       lineHeight: '1.4',
                       background: isSelected 
-                        ? 'linear-gradient(135deg, #10b981 0%, #047857 100%)' 
+                        ? 'var(--party-primary-color)' 
                         : 'linear-gradient(180deg, #1f2937 0%, #111827 100%)',
                       color: '#ffffff',
-                      border: isSelected ? '1px solid #34d399' : '1px solid rgba(255, 255, 255, 0.12)',
-                      boxShadow: isSelected ? '0 4px 15px rgba(16, 185, 129, 0.3)' : 'none',
+                      border: isSelected ? '1px solid var(--party-primary-color)' : '1px solid rgba(255, 255, 255, 0.12)',
+                      boxShadow: isSelected ? '0 4px 15px rgba(var(--party-primary-color-rgb), 0.3)' : 'none',
                       fontWeight: isSelected ? '700' : 'normal',
                       transition: 'all 0.15s ease',
                       cursor: 'pointer',
@@ -242,7 +242,7 @@ export default function Action3PartyDecision({
                       height: '20px',
                       borderRadius: '50%',
                       background: isSelected ? '#ffffff' : 'rgba(255,255,255,0.1)',
-                      color: isSelected ? '#047857' : '#ffffff',
+                      color: isSelected ? 'var(--party-primary-color)' : '#ffffff',
                       fontSize: '10px',
                       fontWeight: '900'
                     }}>

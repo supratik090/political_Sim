@@ -1,5 +1,6 @@
 import React from 'react';
 import { getPartyColor, checkDefeatWarnings, renderStatDelta } from './gameUtils';
+import { getPartyThemeByName } from '../../constants/partyThemes';
 
 export default function StatsView({
   turnData,
@@ -175,12 +176,16 @@ export default function StatsView({
           const lastSub = (turnData.lastRoundSubmissions || []).find(sub => sub.partyId === party.id);
           const lastPlayedCard = lastSub ? lastSub.cardName : 'None / Pass';
           const isDefeated = party.role === 'DEFEATED';
+          
+          const theme = getPartyThemeByName(party.name);
+          const partyColor = theme.color;
+          const WatermarkIcon = theme.WatermarkIcon;
 
           return (
             <div key={party.id} className="unified-card" style={{
               border: isDefeated 
                 ? '2px solid #ef4444' 
-                : (isPlayer ? '2px solid var(--selected-highlight)' : '1px solid var(--primary-border)'),
+                : (isPlayer ? `2.5px solid ${partyColor}` : '1.5px solid var(--primary-border)'),
               position: 'relative',
               padding: '20px',
               display: 'flex',
@@ -188,114 +193,141 @@ export default function StatsView({
               justifyContent: 'space-between',
               boxShadow: isDefeated 
                 ? '0 4px 12px rgba(239, 68, 68, 0.1)' 
-                : (isPlayer ? '0 0 15px rgba(31, 143, 95, 0.15)' : 'none'),
+                : (isPlayer ? `0 0 15px rgba(${theme.rgb}, 0.15)` : 'none'),
               background: isDefeated ? '#f8fafc' : '#ffffff',
-              opacity: isDefeated ? 0.85 : 1
+              opacity: isDefeated ? 0.85 : 1,
+              overflow: 'hidden'
             }}>
-              {isPlayer && (
-                <span style={{
-                  position: 'absolute',
-                  top: '-12px',
-                  left: '20px',
-                  background: 'var(--selected-highlight)',
-                  color: 'var(--primary-dark)',
-                  fontSize: '9px',
-                  fontWeight: 900,
-                  padding: '2px 8px',
-                  borderRadius: '10px',
-                  textTransform: 'uppercase'
-                }}>
-                  YOUR PARTY
-                </span>
-              )}
-              {isDefeated && (
-                <span style={{
-                  position: 'absolute',
-                  top: '-12px',
-                  right: '20px',
-                  background: '#ef4444',
-                  color: '#ffffff',
-                  fontSize: '9px',
-                  fontWeight: 900,
-                  padding: '2px 8px',
-                  borderRadius: '10px',
-                  textTransform: 'uppercase'
-                }}>
-                  ❌ DEFEATED
-                </span>
-              )}
-
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
-                  <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: getPartyColor(party), display: 'inline-block', border: '1px solid rgba(0,0,0,0.1)' }} />
-                  <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--primary-dark)' }}>{party.name}</h3>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '6px', marginBottom: '15px' }}>
-                  <span style={{ fontSize: '10px', padding: '2px 6px', background: party.role === 'DEFEATED' ? '#ef4444' : 'var(--primary-dark)', borderRadius: '4px', opacity: 0.9, fontWeight: 'bold', color: '#ffffff' }}>
-                    {party.role}
-                  </span>
-                  <span style={{ fontSize: '10px', padding: '2px 6px', background: 'var(--primary-dark)', borderRadius: '4px', opacity: 0.9, fontWeight: 'bold', color: '#ffffff' }}>
-                    {party.controllerType === 'HUMAN' ? 'PLAYER' : 'AI'}
-                  </span>
-                </div>
-
-                {/* Stat Metrics Grid */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', color: 'var(--card-text)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
-                    <span>💰 Coins (Reserves)</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span style={{ fontWeight: 'bold', color: stats.coins <= 15 ? '#d23f31' : 'var(--card-text)' }}>
-                        {stats.coins} {stats.coins <= 15 && '⚠️'}
-                      </span>
-                      {renderStatDelta(partyDeltas.coins, false, false)}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
-                    <span>✊ Party Morale</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span style={{ fontWeight: 'bold', color: stats.partyMorale <= 15 ? '#d23f31' : 'var(--card-text)' }}>
-                        {stats.partyMorale} {stats.partyMorale <= 15 && '⚠️'}
-                      </span>
-                      {renderStatDelta(partyDeltas.partyMorale, false, false)}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
-                    <span>⚖️ Corruption Score</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span style={{ fontWeight: 'bold', color: stats.corruptionScore >= 80 ? '#d23f31' : 'var(--card-text)' }}>
-                        {stats.corruptionScore}% {stats.corruptionScore >= 80 && '⚠️'}
-                      </span>
-                      {renderStatDelta(partyDeltas.corruptionScore, true, true)}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
-                    <span>📢 Media Image</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span style={{ fontWeight: 'bold' }}>{stats.mediaImage}</span>
-                      {renderStatDelta(partyDeltas.mediaImage, false, false)}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
-                    <span>📈 Voter Support</span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span style={{ fontWeight: 'bold', color: stats.publicSupport <= 8 ? '#d23f31' : 'var(--card-text)' }}>
-                        {stats.publicSupport}% {stats.publicSupport <= 8 && '⚠️'}
-                      </span>
-                      {renderStatDelta(partyDeltas.publicSupport, true, false)}
-                    </span>
-                  </div>
-                </div>
+              {/* Faded top-right watermark icon */}
+              <div style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                opacity: 0.04,
+                pointerEvents: 'none',
+                zIndex: 0,
+                transform: 'rotate(-10deg)'
+              }}>
+                <WatermarkIcon size={64} />
               </div>
 
-              {/* Last Action and Bids */}
-              <div style={{ marginTop: '20px', borderTop: '1px solid rgba(101, 148, 177, 0.2)', paddingTop: '15px', color: 'var(--card-text)' }}>
-                <div style={{ fontSize: '12px', marginBottom: '5px' }}>
-                  <b>Last Card:</b> <span style={{ opacity: 0.9 }}>{lastPlayedCard}</span>
+              {/* Bottom-right diagonal triangle ribbon */}
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                width: '40px',
+                height: '40px',
+                background: partyColor,
+                clipPath: 'polygon(100% 0, 0 100%, 100% 100%)',
+                opacity: 0.85,
+                pointerEvents: 'none',
+                zIndex: 1
+              }} />
+
+              {/* Card content container */}
+              <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between', width: '100%' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    {isPlayer ? (
+                      <span style={{
+                        background: 'var(--selected-highlight)',
+                        color: 'var(--primary-dark)',
+                        fontSize: '9px',
+                        fontWeight: 900,
+                        padding: '3px 8px',
+                        borderRadius: '10px',
+                        textTransform: 'uppercase'
+                      }}>
+                        YOUR PARTY
+                      </span>
+                    ) : <div />}
+                    {isDefeated && (
+                      <span style={{
+                        background: '#ef4444',
+                        color: '#ffffff',
+                        fontSize: '9px',
+                        fontWeight: 900,
+                        padding: '3px 8px',
+                        borderRadius: '10px',
+                        textTransform: 'uppercase'
+                      }}>
+                        ❌ DEFEATED
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: getPartyColor(party), display: 'inline-block', border: '1px solid rgba(0,0,0,0.1)' }} />
+                    <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--primary-dark)' }}>{party.name}</h3>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '6px', marginBottom: '15px' }}>
+                    <span style={{ fontSize: '10px', padding: '2px 6px', background: party.role === 'DEFEATED' ? '#ef4444' : 'var(--primary-dark)', borderRadius: '4px', opacity: 0.9, fontWeight: 'bold', color: '#ffffff' }}>
+                      {party.role}
+                    </span>
+                    <span style={{ fontSize: '10px', padding: '2px 6px', background: 'var(--primary-dark)', borderRadius: '4px', opacity: 0.9, fontWeight: 'bold', color: '#ffffff' }}>
+                      {party.controllerType === 'HUMAN' ? 'PLAYER' : 'AI'}
+                    </span>
+                  </div>
+
+                  {/* Stat Metrics Grid */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', color: 'var(--card-text)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
+                      <span>💰 Coins (Reserves)</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ fontWeight: 'bold', color: stats.coins <= 15 ? '#d23f31' : 'var(--card-text)' }}>
+                          {stats.coins} {stats.coins <= 15 && '⚠️'}
+                        </span>
+                        {renderStatDelta(partyDeltas.coins, false, false)}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
+                      <span>✊ Party Morale</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ fontWeight: 'bold', color: stats.partyMorale <= 15 ? '#d23f31' : 'var(--card-text)' }}>
+                          {stats.partyMorale} {stats.partyMorale <= 15 && '⚠️'}
+                        </span>
+                        {renderStatDelta(partyDeltas.partyMorale, false, false)}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
+                      <span>⚖️ Corruption Score</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ fontWeight: 'bold', color: stats.corruptionScore >= 80 ? '#d23f31' : 'var(--card-text)' }}>
+                          {stats.corruptionScore}% {stats.corruptionScore >= 80 && '⚠️'}
+                        </span>
+                        {renderStatDelta(partyDeltas.corruptionScore, true, true)}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
+                      <span>📢 Media Image</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ fontWeight: 'bold' }}>{stats.mediaImage}</span>
+                        {renderStatDelta(partyDeltas.mediaImage, false, false)}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center' }}>
+                      <span>📈 Voter Support</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ fontWeight: 'bold', color: stats.publicSupport <= 8 ? '#d23f31' : 'var(--card-text)' }}>
+                          {stats.publicSupport}% {stats.publicSupport <= 8 && '⚠️'}
+                        </span>
+                        {renderStatDelta(partyDeltas.publicSupport, true, false)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: '12px' }}>
-                  <b>Last Bid:</b> <span style={{ opacity: 0.9 }}>{lastBid !== undefined ? `${lastBid} ${turnData.lastRoundBiddingMetric || ''}` : 'None'}</span>
-                  {wonBidding && <span style={{ marginLeft: '5px', color: 'var(--selected-highlight)', fontWeight: 'bold' }}>🏆 Won</span>}
+
+                {/* Last Action and Bids */}
+                <div style={{ marginTop: '20px', borderTop: '1px solid rgba(101, 148, 177, 0.2)', paddingTop: '15px', color: 'var(--card-text)' }}>
+                  <div style={{ fontSize: '12px', marginBottom: '5px' }}>
+                    <b>Last Card:</b> <span style={{ opacity: 0.9 }}>{lastPlayedCard}</span>
+                  </div>
+                  <div style={{ fontSize: '12px' }}>
+                    <b>Last Bid:</b> <span style={{ opacity: 0.9 }}>{lastBid !== undefined ? `${lastBid} ${turnData.lastRoundBiddingMetric || ''}` : 'None'}</span>
+                    {wonBidding && <span style={{ marginLeft: '5px', color: 'var(--selected-highlight)', fontWeight: 'bold' }}>🏆 Won</span>}
+                  </div>
                 </div>
               </div>
 

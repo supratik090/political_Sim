@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createCooperationOffer, respondToCooperationOffer } from '../../api/apiClient';
-import { PROJECT_DEFS } from './constants';
 
-export default function Action7Cooperation({ turnData, onActionComplete }) {
+export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS = {}, onActionComplete }) {
   const activePartyId = turnData.activeHumanPartyId;
   const activeParty = turnData.parties.find(p => p.id === activePartyId);
   const otherParties = turnData.parties.filter(p => p.id !== activePartyId);

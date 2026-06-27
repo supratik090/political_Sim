@@ -101,6 +101,11 @@ public class GameController {
         return gameService.respondToCooperationOffer(gameId, offerId, accept);
     }
 
+    @GetMapping("/building-projects/definitions")
+    public Map<com.politicalsim.party.BuildingProject, com.politicalsim.party.BuildingProject.ProjectConfig> getBuildingProjectDefinitions() {
+        return com.politicalsim.party.BuildingProject.getConfigs();
+    }
+
     @ExceptionHandler(GameNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleGameNotFound(GameNotFoundException exception) {

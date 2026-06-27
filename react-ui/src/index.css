@@ -8,7 +8,7 @@
   
   /* Primary Elements & Borders */
   --primary-dark: #213C51;       /* Deep Blue */
-  --primary-border: #6594B1;     /* Steel Blue */
+  --primary-border: #b0cbe0;     /* Lighter Steel Blue */
   
   /* Interactive Elements (Buttons, Inputs) */
   --button-bg: #213C51;
@@ -22,7 +22,7 @@
   
   /* Unified Dashboard & Cards */
   --card-bg: #ffffff;            /* Clean White */
-  --card-border: #6594B1;        /* Steel Blue */
+  --card-border: #b0cbe0;        /* Lighter Steel Blue */
   --card-text: #213C51;          /* Deep Blue */
 }
 
@@ -355,5 +355,127 @@ input::placeholder {
     border-radius: 8px;
   }
 }
+
+/* --- Party Theming Classes --- */
+.game-layout-wrapper {
+  display: flex;
+  background: var(--card-bg);
+  border: 2px solid var(--party-primary-color, var(--primary-dark));
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(33, 60, 81, 0.08);
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.themed-left-sidebar {
+  width: 76px;
+  background: var(--party-primary-color, var(--primary-border));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
+  position: relative;
+  flex-shrink: 0;
+  transition: background-color 0.3s ease;
+}
+
+.themed-symbol-badge {
+  width: 50px;
+  height: 50px;
+  background: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  border: 3px solid #ffffff;
+  transition: all 0.3s ease;
+}
+
+.themed-right-content {
+  flex: 1;
+  padding: 30px;
+  border-left: 4px double var(--party-primary-color, var(--primary-dark));
+  background: #ffffff;
+  min-width: 0; /* Prevents flex overflow */
+}
+
+/* Action Card Custom Watermarks & Corner Ribbons */
+.themed-action-card {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff !important;
+  border: 1.5px solid rgba(var(--party-primary-color-rgb, 33, 60, 81), 0.15) !important;
+  transition: all 0.25s ease !important;
+}
+
+.themed-action-card:hover {
+  border-color: var(--party-primary-color, var(--primary-dark)) !important;
+  box-shadow: 0 6px 16px rgba(var(--party-primary-color-rgb, 33, 60, 81), 0.1) !important;
+  transform: translateY(-2px);
+}
+
+.themed-card-watermark {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+  transform: rotate(-15deg);
+}
+
+.themed-card-ribbon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  background: var(--party-primary-color, var(--primary-dark));
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 4px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.themed-card-ribbon-icon {
+  margin-right: 2px;
+  margin-bottom: 2px;
+  filter: brightness(0) invert(1); /* Forces SVG to white */
+}
+
+/* Mobile responsive layout overrides */
+@media (max-width: 768px) {
+  .game-layout-wrapper {
+    flex-direction: column;
+    border-radius: 12px;
+  }
+
+  .themed-left-sidebar {
+    width: 100%;
+    height: 60px;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 20px;
+    padding-top: 0;
+    align-items: center;
+  }
+
+  .themed-symbol-badge {
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+  }
+
+  .themed-right-content {
+    padding: 15px;
+    border-left: none;
+    border-top: 4px double var(--party-primary-color, var(--primary-dark));
+  }
+}
+
 
 

@@ -19,15 +19,15 @@ export default function ActionSection({ num, title, isCompleted, isOptional, act
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '15px 20px',
-          background: isExpanded ? 'rgba(101, 148, 177, 0.08)' : 'rgba(101, 148, 177, 0.02)',
+          background: isExpanded ? 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.08)' : 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.02)',
           cursor: 'pointer',
-          borderBottom: isExpanded ? '1px solid var(--primary-border)' : 'none',
+          borderBottom: isExpanded ? '1px solid var(--party-primary-color, var(--primary-border))' : 'none',
           userSelect: 'none'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{
-            background: 'var(--primary-dark)',
+            background: 'var(--party-primary-color, var(--primary-dark))',
             color: '#ffffff',
             width: '24px',
             height: '24px',

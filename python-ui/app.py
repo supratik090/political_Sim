@@ -198,10 +198,8 @@ def game_main():
 
     # Title Banner Card
     st.markdown(
-        f"""<div style="background: #6594B1; padding: 30px; border-radius: 16px; border: 2px solid #213C51; margin-bottom: 25px; text-align: center; box-shadow: 0 10px 30px rgba(33,60,81,0.1); font-family: 'Montserrat', sans-serif;">
-<span style="font-size: 12px; color: #ffffff !important; text-transform: uppercase; font-weight: 800; letter-spacing: 0.15em; display: block; margin-bottom: 5px; opacity: 0.9;">GRAND CAMPAIGN BOARD</span>
-<h1 style="font-size: 40px; font-weight: 900; color: #ffffff !important; margin: 0; letter-spacing: -0.02em;">Indian Politics Simulation</h1>
-<p style="font-size: 15px; color: #ffffff !important; margin-top: 8px; opacity: 0.95;">Command campaign strategies, form coalitions, and win state elections across the Indian union.</p>
+        f"""<div style="background: #6594B1; padding: 24px 20px; border-radius: 16px; border: 2px solid #213C51; margin-bottom: 25px; text-align: center; box-shadow: 0 10px 30px rgba(33,60,81,0.1); font-family: 'Montserrat', sans-serif;">
+<h1 style="font-size: 36px; font-weight: 900; color: #ffffff !important; margin: 0; text-transform: uppercase; letter-spacing: 0.08em;">GRAND CAMPAIGN BOARD</h1>
 <div style="display: inline-block; background-color: #213C51; border: 1px solid #213C51; padding: 6px 18px; border-radius: 20px; color: #ffffff !important; font-weight: 800; font-size: 14px; margin-top: 15px; text-transform: uppercase; letter-spacing: 0.05em;">
 📅 Campaign Era: {current_era}
 </div>

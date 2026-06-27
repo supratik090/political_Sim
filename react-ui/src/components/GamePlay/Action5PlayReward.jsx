@@ -95,8 +95,8 @@ export default function Action5PlayReward({
               onClick={() => setRewardConfirmed(!rewardConfirmed)}
               disabled={selectedRewardKey !== '' && rewardRequiresTarget && !rewardTargetPartyId}
               style={{
-                background: rewardConfirmed ? 'var(--selected-highlight)' : 'var(--primary-dark)',
-                borderColor: rewardConfirmed ? 'var(--selected-highlight)' : 'var(--primary-dark)',
+                background: rewardConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--primary-dark))',
+                borderColor: rewardConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--primary-dark))',
                 color: rewardConfirmed ? 'var(--primary-dark)' : '#ffffff',
                 fontWeight: 'bold',
                 padding: '8px 25px'

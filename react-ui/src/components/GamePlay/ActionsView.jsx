@@ -15,6 +15,7 @@ export default function ActionsView({
   loading,
   handleAdvanceTurn,
   handleSkipTurn,
+  projectDefs,
   
   // Action 1 props
   selectedCard,
@@ -216,6 +217,7 @@ export default function ActionsView({
         <Action6PartyBuilding
           turnData={turnData}
           activeParty={activeParty}
+          projectDefs={projectDefs}
           projectCategoryFilter={projectCategoryFilter}
           setProjectCategoryFilter={setProjectCategoryFilter}
           draftProjectKeys={draftProjectKeys}
@@ -240,6 +242,7 @@ export default function ActionsView({
       >
         <Action7Cooperation
           turnData={turnData}
+          projectDefs={projectDefs}
           onActionComplete={handleCooperationUpdate}
         />
       </ActionSection>

@@ -30,7 +30,7 @@ export default function Action4Bid({
 
       {/* Present Bidding Scenario Across Parties */}
       {turnData.lastRoundBids && (
-        <div style={{ background: '#f5f3ff', border: '1px solid var(--primary-border)', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
+        <div style={{ background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.02)', border: '1.5px solid var(--party-primary-color, var(--primary-border))', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
           <h5 style={{ margin: '0 0 10px 0', color: 'var(--primary-dark)', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             📊 Present Bidding Scenario (Last Round Bids)
           </h5>
@@ -58,7 +58,7 @@ export default function Action4Bid({
       )}
 
       {/* Current Cycle Standings */}
-      <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
+      <div style={{ background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.04)', border: '1.5px dashed var(--party-primary-color, var(--primary-border))', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
         <h5 style={{ margin: '0 0 10px 0', color: '#1e3a8a', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           🏆 Current 5-Turn Cycle Standings
         </h5>
@@ -104,32 +104,12 @@ export default function Action4Bid({
         </div>
       </div>
 
-      <div style={{ textAlign: 'center', fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: 'var(--primary-dark)' }}>
+      <div style={{ textAlign: 'left', fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: 'var(--primary-dark)' }}>
         🗳️ Stake: <span style={{ color: 'var(--selected-highlight)', fontSize: '18px' }}>{bidAmount}</span> / {maxBid} ({bidMetric})
         <span style={{ fontWeight: 'normal', opacity: 0.7, marginLeft: '8px' }}>(Remaining: {maxBid - bidAmount})</span>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '320px', margin: '0 auto 20px auto' }}>
-        {/* Option 1: Pass */}
-        <button
-          disabled={bidConfirmed}
-          onClick={() => {
-            setBidAmount(0);
-          }}
-          style={{
-            width: '100%',
-            padding: '10px',
-            background: bidAmount === 0 ? 'var(--primary-dark)' : '#ffffff',
-            color: bidAmount === 0 ? '#ffffff' : 'var(--primary-dark)',
-            border: '1.5px solid var(--primary-border)',
-            fontWeight: 'bold',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}
-        >
-          💤 Pass (Bid 0)
-        </button>
-
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '350px', margin: '0 0 20px 0' }}>
         {/* Option 2: Number Box */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <label htmlFor="custom-bid-input" style={{ fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap', color: 'var(--primary-dark)' }}>Bid Amount:</label>
@@ -146,25 +126,54 @@ export default function Action4Bid({
               if (v > maxBid) v = maxBid;
               setBidAmount(v);
             }}
-            style={{ flex: 1, padding: '8px' }}
+            style={{ flex: 1, padding: '8px', borderRadius: '4px', border: '1px solid var(--primary-border)' }}
           />
         </div>
-      </div>
 
-      <div style={{ textAlign: 'center' }}>
-        <button
-          onClick={() => setBidConfirmed(!bidConfirmed)}
-          disabled={bidAmount < 0 || bidAmount > maxBid}
-          style={{
-            background: bidConfirmed ? 'var(--selected-highlight)' : 'var(--primary-dark)',
-            borderColor: bidConfirmed ? 'var(--selected-highlight)' : 'var(--primary-dark)',
-            color: bidConfirmed ? 'var(--primary-dark)' : '#ffffff',
-            fontWeight: 'bold',
-            padding: '8px 25px'
-          }}
-        >
-          {bidConfirmed ? '✅ Bid Locked' : '🔒 Confirm Bid'}
-        </button>
+        {/* Buttons Row */}
+        <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+          {/* Option 1: Pass */}
+          <button
+            disabled={bidConfirmed}
+            onClick={() => {
+              setBidAmount(0);
+            }}
+            style={{
+              flex: 1,
+              minWidth: '150px',
+              padding: '10px 15px',
+              background: bidAmount === 0 ? 'var(--party-primary-color, var(--primary-dark))' : '#ffffff',
+              color: bidAmount === 0 ? '#ffffff' : 'var(--party-primary-color, var(--primary-dark))',
+              border: '1.5px solid var(--party-primary-color, var(--party-primary-color))',
+              fontWeight: 'bold',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13px'
+            }}
+          >
+            💤 Pass (Bid 0)
+          </button>
+
+          <button
+            onClick={() => setBidConfirmed(!bidConfirmed)}
+            disabled={bidAmount < 0 || bidAmount > maxBid}
+            style={{
+              flex: 1,
+              minWidth: '150px',
+              padding: '10px 15px',
+              background: bidConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--primary-dark))',
+              borderColor: bidConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--party-primary-color))',
+              color: bidConfirmed ? 'var(--primary-dark)' : '#ffffff',
+              fontWeight: 'bold',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              border: '1.5px solid transparent'
+            }}
+          >
+            {bidConfirmed ? '✅ Bid Locked' : '🔒 Confirm Bid'}
+          </button>
+        </div>
       </div>
     </div>
   );

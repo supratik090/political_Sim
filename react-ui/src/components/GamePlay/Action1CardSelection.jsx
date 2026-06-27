@@ -1,5 +1,6 @@
 import React from 'react';
 import { cardRequiresTarget, formatEffectValue } from './gameUtils';
+import { getSymbolIconComponent } from '../../constants/partyThemes';
 
 export default function Action1CardSelection({
   turnData,
@@ -10,6 +11,9 @@ export default function Action1CardSelection({
   cardCategoryFilter,
   setCardCategoryFilter
 }) {
+  const activeParty = turnData?.parties?.find(p => p.id === turnData.activeHumanPartyId) || turnData?.parties?.find(p => p.playerControlled);
+  const SymbolIcon = getSymbolIconComponent(activeParty?.symbol || 'Flag');
+
   return (
     <div>
       {turnData.turnNumber <= 2 && (
@@ -39,9 +43,9 @@ export default function Action1CardSelection({
               style={{
                 padding: '6px 14px',
                 fontSize: '11px',
-                background: isActive ? 'var(--primary-dark)' : '#ffffff',
-                color: isActive ? '#ffffff' : 'var(--primary-dark)',
-                border: isActive ? '2px solid var(--primary-dark)' : '1px solid var(--primary-border)',
+                background: isActive ? 'var(--party-primary-color, var(--primary-dark))' : '#ffffff',
+                color: isActive ? '#ffffff' : 'var(--party-primary-color, var(--primary-dark))',
+                border: isActive ? '2px solid var(--party-primary-color, var(--primary-dark))' : '1px solid rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.3)',
                 boxShadow: 'none',
                 borderRadius: '20px',
                 fontWeight: 'bold',
@@ -83,35 +87,53 @@ export default function Action1CardSelection({
                   setSelectedCard(card);
                   setTargetPartyId('');
                 }}
+                className="themed-action-card"
                 style={{
-                  border: isCardSelected ? '2px solid #a855f7' : '1.5px solid var(--primary-border)',
+                  border: isCardSelected ? '2.5px solid var(--party-primary-color)' : '1.5px solid rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.15)',
                   borderRadius: '10px',
                   padding: '12px',
-                  background: isCardSelected ? '#e9d5ff' : '#f5f3ff',
+                  background: isCardSelected ? 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.08)' : '#ffffff',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
-                  boxShadow: isCardSelected ? '0 4px 12px rgba(168, 85, 247, 0.2)' : 'none'
+                  boxShadow: isCardSelected ? '0 4px 12px rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.15)' : 'none',
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
                 onMouseEnter={(e) => {
-                  if (!isCardSelected) e.currentTarget.style.background = '#ede9fe';
+                  if (!isCardSelected) e.currentTarget.style.background = 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.02)';
                 }}
                 onMouseLeave={(e) => {
-                  if (!isCardSelected) e.currentTarget.style.background = '#f5f3ff';
+                  if (!isCardSelected) e.currentTarget.style.background = '#ffffff';
                 }}
               >
-                <div style={{ fontSize: '10px', color: 'var(--primary-dark)', opacity: 0.7, textTransform: 'uppercase', fontWeight: 'bold' }}>{card.category?.replace('_', ' ')}</div>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', margin: '4px 0 6px 0', color: 'var(--primary-dark)' }}>🃏 {card.name}</div>
-                <div style={{ fontSize: '11px', color: 'var(--card-text)' }}>Cost: <b>{card.cost} Coins</b></div>
-                {card.visibleEffects && (
-                  <div style={{ marginTop: '8px', fontSize: '11px', background: 'rgba(0,0,0,0.03)', padding: '6px', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ color: '#0d9488', fontWeight: 'bold' }}>
-                      Self: {selfEffects.length > 0 ? selfEffects.map(([key, val]) => formatEffectValue(key, val)).join('   ') : 'None'}
-                    </div>
-                    <div style={{ color: '#be123c', fontWeight: 'bold' }}>
-                      Opposition: {oppEffects.length > 0 ? oppEffects.map(([key, val]) => formatEffectValue(key, val)).join('   ') : 'None'}
-                    </div>
+                {/* Background Watermark */}
+                <div className="themed-card-watermark">
+                  <SymbolIcon size={80} color="var(--party-primary-color)" />
+                </div>
+
+                {/* Bottom Right Corner Ribbon */}
+                <div className="themed-card-ribbon">
+                  <SymbolIcon size={12} color="#ffffff" style={{ marginRight: '1px', marginBottom: '1px', filter: 'brightness(0) invert(1)' }} />
+                </div>
+
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                  <div style={{ fontSize: '10px', color: 'var(--party-primary-color)', opacity: 0.9, textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.03em' }}>{card.category?.replace('_', ' ')}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 'bold', margin: '4px 0 6px 0', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <SymbolIcon size={16} color="var(--party-primary-color)" />
+                    <span>{card.name}</span>
                   </div>
-                )}
+                  <div style={{ fontSize: '11px', color: 'var(--card-text)' }}>Cost: <b>{card.cost} Coins</b></div>
+                  {card.visibleEffects && (
+                    <div style={{ marginTop: '8px', fontSize: '11px', background: 'rgba(0,0,0,0.03)', padding: '6px', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ color: '#0d9488', fontWeight: 'bold' }}>
+                        Self: {selfEffects.length > 0 ? selfEffects.map(([key, val]) => formatEffectValue(key, val)).join('   ') : 'None'}
+                      </div>
+                      <div style={{ color: '#be123c', fontWeight: 'bold' }}>
+                        Opposition: {oppEffects.length > 0 ? oppEffects.map(([key, val]) => formatEffectValue(key, val)).join('   ') : 'None'}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           });

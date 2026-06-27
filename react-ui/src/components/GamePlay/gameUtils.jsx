@@ -1,10 +1,16 @@
 import React from 'react';
+import { getPartyThemeByName } from '../../constants/partyThemes';
 
 export const getPartyColor = (party) => {
-  if (party && party.color && party.color !== '#ffffff' && party.color !== '#fff' && party.color !== '') {
+  if (!party) return '#6594B1';
+  const theme = getPartyThemeByName(party.name || '');
+  if (theme && theme.symbolName !== 'Flag') {
+    return theme.color;
+  }
+  if (party.color && party.color !== '#ffffff' && party.color !== '#fff' && party.color !== '') {
     return party.color;
   }
-  const role = party?.role || '';
+  const role = party.role || '';
   if (role === 'GOVERNMENT') return '#E15554'; // Coral Red
   if (role === 'OPPOSITION') return '#3F88C5'; // Steel Blue
   return '#17B890'; // Mint Green (Third Party)

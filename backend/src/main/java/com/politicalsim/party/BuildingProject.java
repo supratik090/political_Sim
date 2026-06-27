@@ -137,4 +137,8 @@ public enum BuildingProject {
         ProjectConfig c = configs.get(this);
         return c != null ? c.requiresTarget : false;
     }
+
+    public static Map<BuildingProject, ProjectConfig> getConfigs() {
+        return configs;
+    }
 }
