@@ -697,14 +697,83 @@ public class GameService {
             // 1. Assign/Modify targets for completed offensive projects
             for (ProjectState project : party.getProjects()) {
                 if (project.getProgressPercent() >= 100) {
-                    BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
-                    if (projectDef.isRequiresTarget()) {
-                        PartyState target = aiDecisionService.chooseOpponentForProject(session, party, projectDef);
-                        if (target != null) {
-                            project.setTargetPartyId(target.getId());
-                            project.setTargetPartyName(target.getName());
+                    try {
+                        BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
+                        if (projectDef.isRequiresTarget()) {
+                            PartyState target = aiDecisionService.chooseOpponentForProject(session, party, projectDef);
+                            if (target != null) {
+                                project.setTargetPartyId(target.getId());
+                                project.setTargetPartyName(target.getName());
+                            }
                         }
+                    } catch (Exception e) {}
+                }
+            }
+
+            // 1b. AI Project Salvage: If in crisis mode and suffering coin crisis (coins <= 80), destroy lowest-utility completed project
+            int supportPressureVal = 0;
+            for (PartyState other : session.getParties()) {
+                if (other.getId().equals(party.getId())) continue;
+                if (other.getProjects() == null) continue;
+                for (ProjectState otherProj : other.getProjects()) {
+                    if (otherProj.getProgressPercent() >= 100 && party.getId().equals(otherProj.getTargetPartyId())) {
+                        try {
+                            BuildingProject otherProjDef = BuildingProject.valueOf(otherProj.getProjectKey());
+                            if (otherProjDef.getBenefitSupport() < 0) {
+                                supportPressureVal += Math.abs(otherProjDef.getBenefitSupport());
+                            }
+                        } catch (Exception e) {}
                     }
+                }
+            }
+            final int supportPressureValFinal = supportPressureVal;
+            boolean isCoinCrisisInitial = party.getStats().getCoins() <= 80;
+            boolean isSupportCrisisInitial = party.getStats().getPublicSupport() <= 15 || supportPressureValFinal >= 5;
+            boolean isMoraleCrisisInitial = party.getStats().getPartyMorale() <= 25;
+            boolean isCorruptionCrisisInitial = party.getStats().getCorruptionScore() >= 75;
+            boolean isCrisisModeInitial = isCoinCrisisInitial || isSupportCrisisInitial || isMoraleCrisisInitial || isCorruptionCrisisInitial;
+
+            if (isCrisisModeInitial && isCoinCrisisInitial && party.getProjects() != null) {
+                ProjectState toDestroy = null;
+                double lowestScore = 99999.0;
+                for (ProjectState project : party.getProjects()) {
+                    if (project.getProgressPercent() >= 100) {
+                        try {
+                            BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
+                            // Avoid destroying projects that help with support if we are also in support crisis
+                            if (isSupportCrisisInitial && (projectDef.getBenefitSupport() > 0 || (projectDef.isRequiresTarget() && projectDef.getBenefitSupport() < 0))) {
+                                continue;
+                            }
+                            double retentionScore = aiDecisionService.scoreProjectForRetention(project.getProjectKey());
+                            if (retentionScore < lowestScore) {
+                                lowestScore = retentionScore;
+                                toDestroy = project;
+                            }
+                        } catch (Exception e) {}
+                    }
+                }
+                if (toDestroy != null) {
+                    try {
+                        BuildingProject projectDef = BuildingProject.valueOf(toDestroy.getProjectKey());
+                        int refundCoins = (int) Math.ceil((double) projectDef.getCostCoins() * toDestroy.getProgressPercent() / 100.0);
+                        int refundMorale = (int) Math.ceil((double) projectDef.getCostMorale() * toDestroy.getProgressPercent() / 100.0);
+                        int refundMedia = (int) Math.ceil((double) projectDef.getCostMedia() * toDestroy.getProgressPercent() / 100.0);
+                        int refundCorruption = (int) Math.ceil((double) projectDef.getCostCorruption() * toDestroy.getProgressPercent() / 100.0);
+                        
+                        party.getStats().setCoins(party.getStats().getCoins() + refundCoins);
+                        party.getStats().setPartyMorale(Math.min(100, party.getStats().getPartyMorale() + refundMorale));
+                        party.getStats().setMediaImage(Math.min(100, party.getStats().getMediaImage() + refundMedia));
+                        party.getStats().setCorruptionScore(Math.max(0, party.getStats().getCorruptionScore() - refundCorruption));
+                        
+                        party.getProjects().remove(toDestroy);
+                        
+                        String salvageMsg = party.getName() + " destroyed completed project '" + projectDef.getName() 
+                            + "' to recover " + refundCoins + " Coins due to resource shortage.";
+                        session.getLastRoundCommentary().add("🛠️ " + salvageMsg);
+                        
+                        // Re-evaluate coin crisis after salvage
+                        isCoinCrisisInitial = party.getStats().getCoins() <= 80;
+                    } catch (Exception e) {}
                 }
             }
 
@@ -724,17 +793,17 @@ public class GameService {
             int bidReserveMorale = ("PARTY_MORALE".equalsIgnoreCase(metric) || "MORALE".equalsIgnoreCase(metric)) ? bid : 0;
 
             // 3. Compute discretionary funds (Safety reserve of 30 coins, 25 morale, 25 media, 15 support)
-            // If the party is in any warning/defeat hazard zone, conserve all resources (disc = 0)
-            boolean isInWarningZone = party.getStats().getCoins() <= 30
-                    || party.getStats().getPartyMorale() <= 25
-                    || party.getStats().getPublicSupport() <= 12
-                    || party.getStats().getCorruptionScore() >= 75;
+            boolean isCoinCrisis = party.getStats().getCoins() <= 80;
+            boolean isSupportCrisis = party.getStats().getPublicSupport() <= 15 || supportPressureValFinal >= 5;
+            boolean isMoraleCrisis = party.getStats().getPartyMorale() <= 25;
+            boolean isCorruptionCrisis = party.getStats().getCorruptionScore() >= 75;
+            boolean isCrisisMode = isCoinCrisis || isSupportCrisis || isMoraleCrisis || isCorruptionCrisis;
 
-            int maxCoinsSpend = (int) (party.getStats().getCoins() * 0.30);
-            int maxMoraleSpend = (int) (party.getStats().getPartyMorale() * 0.30);
-            int maxMediaSpend = (int) (party.getStats().getMediaImage() * 0.30);
-            int maxSupportSpend = (int) (party.getStats().getPublicSupport() * 0.30);
-            int maxCorruptionSpend = (int) ((100 - party.getStats().getCorruptionScore()) * 0.30);
+            int maxCoinsSpend = (int) (party.getStats().getCoins() * 0.60);
+            int maxMoraleSpend = (int) (party.getStats().getPartyMorale() * 0.50);
+            int maxMediaSpend = (int) (party.getStats().getMediaImage() * 0.50);
+            int maxSupportSpend = (int) (party.getStats().getPublicSupport() * 0.50);
+            int maxCorruptionSpend = (int) ((100 - party.getStats().getCorruptionScore()) * 0.50);
 
             int discCoins = 0;
             int discMorale = 0;
@@ -742,12 +811,12 @@ public class GameService {
             int discSupport = 0;
             int discCorruption = 0;
 
-            if (!isInWarningZone) {
+            if (!isCoinCrisis) {
                 discCoins = party.getStats().getCoins() - projectedCardCost - bidReserveCoins - 30;
-                discMorale = party.getStats().getPartyMorale() - bidReserveMorale - 25;
+                discMorale = party.getStats().getPartyMorale() - bidReserveMorale - (isMoraleCrisis ? 10 : 25);
                 discMedia = party.getStats().getMediaImage() - 25;
-                discSupport = party.getStats().getPublicSupport() - 15;
-                discCorruption = 60 - party.getStats().getCorruptionScore();
+                discSupport = party.getStats().getPublicSupport() - (isSupportCrisis ? 5 : 15);
+                discCorruption = 75 - party.getStats().getCorruptionScore();
             }
 
             discCoins = Math.max(0, Math.min(discCoins, maxCoinsSpend));
@@ -756,29 +825,54 @@ public class GameService {
             discSupport = Math.max(0, Math.min(discSupport, maxSupportSpend));
             discCorruption = Math.max(0, Math.min(discCorruption, maxCorruptionSpend));
             
-            // 4. Fund projects with discretionary funds (re-enabled for AI with a 10% resource cap)
+            // 4. Fund projects with discretionary funds (re-enabled for AI with a 60% coin cap and crisis filtering)
             String projectBasis = "";
-            if (isInWarningZone) {
-                projectBasis = "Project strategy: Froze all project funding due to active warning thresholds.";
+            if (isCoinCrisis) {
+                projectBasis = "Project strategy: Froze all project funding due to low coin reserves.";
             } else if (discCoins <= 0) {
                 projectBasis = "Project strategy: Conserved resources (no discretionary budget left above safety reserves).";
+            } else if (isCrisisMode) {
+                projectBasis = "Project strategy: Restricted funding to crisis-relief projects due to active warning thresholds.";
             } else {
                 projectBasis = "Project strategy: Decided not to fund any projects (could not afford any progress steps or no projects available).";
             }
 
-            if (discCoins > 0 && !isInWarningZone) {
+            if (discCoins > 0 && !isCoinCrisis) {
                 List<ProjectScore> scoredProjects = new ArrayList<>();
                 for (ProjectState project : party.getProjects()) {
                     if (project.getProgressPercent() < 100) {
-                        BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
-                        double score = scoreProjectForAi(session, party, decision, projectDef);
-                        scoredProjects.add(new ProjectScore(project, projectDef, score));
+                        try {
+                            BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
+                            
+                            // Crisis filtering:
+                            if (isSupportCrisis) {
+                                boolean helpsSupport = (!projectDef.isRequiresTarget() && projectDef.getBenefitSupport() > 0)
+                                        || (projectDef.isRequiresTarget() && projectDef.getBenefitSupport() < 0);
+                                if (!helpsSupport) continue;
+                            }
+                            if (isMoraleCrisis) {
+                                boolean helpsMorale = (!projectDef.isRequiresTarget() && projectDef.getBenefitMorale() > 0)
+                                        || (projectDef.isRequiresTarget() && projectDef.getBenefitMorale() < 0);
+                                if (!helpsMorale) continue;
+                            }
+                            if (isCorruptionCrisis) {
+                                boolean helpsCorruption = (!projectDef.isRequiresTarget() && projectDef.getBenefitCorruption() < 0)
+                                        || (projectDef.isRequiresTarget() && projectDef.getBenefitCorruption() > 0);
+                                if (!helpsCorruption) continue;
+                            }
+
+                            double score = scoreProjectForAi(session, party, decision, projectDef);
+                            scoredProjects.add(new ProjectScore(project, projectDef, score));
+                        } catch (Exception e) {}
                     }
                 }
                 
                 scoredProjects.sort((a, b) -> Double.compare(b.score(), a.score()));
                 
+                int projectsFundedThisTurn = 0;
                 for (ProjectScore ps : scoredProjects) {
+                    if (projectsFundedThisTurn >= 2) break;
+                    
                     int remaining = 100 - ps.project().getProgressPercent();
                     if (remaining <= 0) continue;
                     
@@ -839,10 +933,13 @@ public class GameService {
                         discSupport -= bestSupportCost;
                         discCorruption -= bestCorruptionCost;
                         
-                        projectBasis = "Project strategy: Funded project '" + ps.projectDef().getName() + "' (Progress: +" + bestProgress + "%, Cost: " 
-                            + (bestCoinsCost > 0 ? bestCoinsCost + " Coins" : "") 
-                            + (bestMoraleCost > 0 ? ", " + bestMoraleCost + " Morale" : "")
-                            + ") to gain passive benefits.";
+                        String stepMsg = "Funded project '" + ps.projectDef().getName() + "' (Progress: +" + bestProgress + "%)";
+                        if (projectsFundedThisTurn == 0) {
+                            projectBasis = "Project strategy: " + stepMsg;
+                        } else {
+                            projectBasis += ", and " + stepMsg;
+                        }
+                        projectsFundedThisTurn++;
 
                         if (ps.project().getProgressPercent() >= 100) {
                             boolean hasIncomplete = party.getProjects().stream()
@@ -859,8 +956,10 @@ public class GameService {
                                 }
                             }
                         }
-                        break; // ONLY FUND ONE PROJECT PER TURN
                     }
+                }
+                if (projectsFundedThisTurn > 0) {
+                    projectBasis += " to gain passive benefits.";
                 }
             }
 
@@ -1525,6 +1624,55 @@ public class GameService {
         Map<String, Map<String, Integer>> contribs = session.getProjectContributionsThisTurn();
         Map<String, Integer> partyContribs = contribs.computeIfAbsent(partyId, k -> new java.util.LinkedHashMap<>());
         partyContribs.put(project.getProjectKey(), partyContribs.getOrDefault(project.getProjectKey(), 0) + actualProgress);
+
+        gameSessionService.save(session);
+        return getTurnView(gameId);
+    }
+
+    public TurnView destroyProject(String gameId, String partyId, String projectIdOrKey) {
+        GameSession session = getGame(gameId);
+        if (session.getStatus() != GameStatus.ACTIVE) {
+            throw new IllegalArgumentException("The game has already ended (Status: " + session.getStatus() + ").");
+        }
+        PartyState party = session.getParties().stream()
+                .filter(p -> p.getId().equals(partyId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Party not found: " + partyId));
+
+        ProjectState project = party.getProjects().stream()
+                .filter(p -> (p.getId() != null && p.getId().equals(projectIdOrKey)) || p.getProjectKey().equals(projectIdOrKey))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + projectIdOrKey));
+
+        BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
+        int progress = project.getProgressPercent();
+
+        if (progress <= 0) {
+            throw new IllegalArgumentException("Cannot destroy project with no progress built.");
+        }
+
+        // Calculate refund
+        int refundCoins = (int) Math.ceil((double) projectDef.getCostCoins() * progress / 100.0);
+        int refundMorale = (int) Math.ceil((double) projectDef.getCostMorale() * progress / 100.0);
+        int refundCorruption = (int) Math.ceil((double) projectDef.getCostCorruption() * progress / 100.0);
+        int refundMedia = (int) Math.ceil((double) projectDef.getCostMedia() * progress / 100.0);
+        int refundSupport = (int) Math.ceil((double) projectDef.getCostSupport() * progress / 100.0);
+
+        // Refund stats
+        party.getStats().setCoins(party.getStats().getCoins() + refundCoins);
+        party.getStats().setPartyMorale(Math.min(100, party.getStats().getPartyMorale() + refundMorale));
+        party.getStats().setMediaImage(Math.min(100, party.getStats().getMediaImage() + refundMedia));
+        party.getStats().setCorruptionScore(Math.max(0, party.getStats().getCorruptionScore() - refundCorruption));
+        if (refundSupport > 0) {
+            party.getStats().setPublicSupport(Math.min(100, party.getStats().getPublicSupport() + refundSupport));
+        }
+
+        party.getProjects().remove(project);
+
+        String salvageMsg = party.getName() + " destroyed project '" + projectDef.getName() 
+                + "' and recovered spent resources: " + refundCoins + " Coins" 
+                + (refundMorale > 0 ? ", " + refundMorale + " Morale" : "") + ".";
+        session.getLastRoundCommentary().add("🛠️ " + salvageMsg);
 
         gameSessionService.save(session);
         return getTurnView(gameId);

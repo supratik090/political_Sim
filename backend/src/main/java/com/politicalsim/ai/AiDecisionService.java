@@ -49,6 +49,9 @@ public class AiDecisionService {
         // opponent may be null when ALL other active parties have non-aggression pacts with this party
         boolean hasTargetableOpponent = opponent != null;
 
+        // Coin Crisis Override (coins <= 80)
+        if (stats.getCoins() <= 80) return AiIntent.RAISE_FUNDS;
+
         // ── CHANGE 1: Survival override — thresholds scale with riskTolerance ───────
         // Cautious parties (low riskTolerance) panic earlier; bold ones push slightly longer.
         // riskTolerance range 0.0-1.0; factor maps to threshold multiplier 1.1 (cautious) → 0.9 (bold).
@@ -382,8 +385,11 @@ public class AiDecisionService {
 
         if (stats.getCoins() < card.getCost()) {
             score -= weight(profile, "unaffordableBasePenalty") + (card.getCost() - stats.getCoins());
+        } else if (stats.getCoins() <= 80 && netCoinEffect > 0) {
+            // Encourage playing coin-generating cards when in crisis (coins <= 80)
+            score += netCoinEffect * 4.0;
         } else if (stats.getCoins() < 100 && netCoinEffect > 0) {
-            // Encourage playing coin-generating cards when in crisis
+            // Encourage playing coin-generating cards when in minor shortage
             score += netCoinEffect * 2.5;
         } else {
             // Apply dynamic, progressive coin safety penalty to prevent spending down to critical levels
