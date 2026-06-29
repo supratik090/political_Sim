@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -43,6 +44,7 @@ class DiagnosticDbTest {
     // Test 1: Scenario Key Inventory
     // ──────────────────────────────────────────────────────────────────────────
     @Test
+    @Disabled("Diagnostic/Interactive test")
     void printAvailableScenarioKeysInDb() {
         System.out.println("\n========== DB SCENARIO KEYS LIST START ==========");
 
@@ -75,6 +77,7 @@ class DiagnosticDbTest {
     // Test 2: Recent 5 Game Sessions (summary)
     // ──────────────────────────────────────────────────────────────────────────
     @Test
+    @Disabled("Diagnostic/Interactive test")
     void printLastGameSessionDetails() {
         System.out.println("\n========== DB DIAGNOSTIC TEST START ==========");
         List<GameSession> sessions = repository.findAllByOrderByCurrentDateDesc();
@@ -129,6 +132,7 @@ class DiagnosticDbTest {
     // Test 3: Deep AI Performance Analyzer — most recent game of any scenario
     // ──────────────────────────────────────────────────────────────────────────
     @Test
+    @Disabled("Diagnostic/Interactive test")
     void analyzeAiPerformanceInLastGame() {
         System.out.println("\n========== AI PERFORMANCE DEEP ANALYSIS ==========");
 
@@ -279,5 +283,37 @@ class DiagnosticDbTest {
         }
 
         System.out.println("\n========== ANALYSIS COMPLETE ==========\n");
+    }
+
+    @Test
+    @Disabled("Diagnostic/Interactive test")
+    void exportDatabaseSeedData() throws Exception {
+        System.out.println("\n========== EXPORTING SEED DATA ==========");
+        java.io.File dir = new java.io.File("../seed-data/startup");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        mapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+        mapper.enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT);
+        
+        List<ScenarioDefinition> scenarios = scenarioDefinitionRepository.findAll();
+        mapper.writeValue(new java.io.File(dir, "scenarios.json"), scenarios);
+        System.out.println("Exported " + scenarios.size() + " scenarios.");
+        
+        List<CardDefinition> cards = cardRepository.findAll();
+        mapper.writeValue(new java.io.File(dir, "cards.json"), cards);
+        System.out.println("Exported " + cards.size() + " cards.");
+        
+        List<NewsDefinition> news = newsRepository.findAll();
+        mapper.writeValue(new java.io.File(dir, "news.json"), news);
+        System.out.println("Exported " + news.size() + " news.");
+        
+        List<MonthlyIssueDefinition> issues = issueRepository.findAll();
+        mapper.writeValue(new java.io.File(dir, "issues.json"), issues);
+        System.out.println("Exported " + issues.size() + " issues.");
+        
+        System.out.println("========== EXPORT COMPLETE ==========\n");
     }
 }

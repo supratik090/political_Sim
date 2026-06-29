@@ -1,0 +1,2224 @@
+[ {
+  "id" : "6a2ad70fdb7b180e895a57c1",
+  "scenarioKey" : "uttar_pradesh_2001",
+  "name" : "Uttar Pradesh 2001",
+  "description" : "Gangetic plains heartland campaign, identity alliances, and grassroots mobilizations.",
+  "stateName" : "Uttar Pradesh",
+  "startDate" : [ 2001, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "BJP",
+  "oppositionPartyName" : "SP",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 45,
+    "corruptionScore" : 38,
+    "mediaImage" : 42,
+    "publicSupport" : 28
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 60,
+    "corruptionScore" : 50,
+    "mediaImage" : 40,
+    "publicSupport" : 32
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "bjp",
+    "name" : "BJP",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 45,
+      "corruptionScore" : 38,
+      "mediaImage" : 42,
+      "publicSupport" : 28
+    }
+  }, {
+    "partyKey" : "samajwadi_party",
+    "name" : "SP",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 60,
+      "corruptionScore" : 50,
+      "mediaImage" : 40,
+      "publicSupport" : 32
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 30,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1,
+    "scandalFatigueLimit" : 5,
+    "noConfidenceSupportThreshold" : 35,
+    "noConfidenceMoraleThreshold" : 35,
+    "electionCoinReductionPercent" : 70,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a2ad70fdb7b180e895a57c2",
+  "scenarioKey" : "tamil_nadu_2001",
+  "name" : "Tamil Nadu 2001",
+  "description" : "Dravidian self-respect movements, welfare populism premiums, and cinematic campaigns.",
+  "stateName" : "Tamil Nadu",
+  "startDate" : [ 2001, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "AIADMK",
+  "oppositionPartyName" : "DMK",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 68,
+    "corruptionScore" : 72,
+    "mediaImage" : 40,
+    "publicSupport" : 31
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 40,
+    "corruptionScore" : 55,
+    "mediaImage" : 50,
+    "publicSupport" : 31
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "aiadmk",
+    "name" : "AIADMK",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 68,
+      "corruptionScore" : 72,
+      "mediaImage" : 40,
+      "publicSupport" : 31
+    }
+  }, {
+    "partyKey" : "dmk",
+    "name" : "DMK",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 40,
+      "corruptionScore" : 55,
+      "mediaImage" : 50,
+      "publicSupport" : 31
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 28,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a2ad70fdb7b180e895a57c3",
+  "scenarioKey" : "rajasthan_2001",
+  "name" : "Rajasthan 2001",
+  "description" : "Desert borderlands contest, alternating power cycles, and royalty narratives.",
+  "stateName" : "Rajasthan",
+  "startDate" : [ 2001, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "INC",
+  "oppositionPartyName" : "BJP",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 65,
+    "corruptionScore" : 40,
+    "mediaImage" : 58,
+    "publicSupport" : 45
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 42,
+    "corruptionScore" : 35,
+    "mediaImage" : 45,
+    "publicSupport" : 33
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "inc",
+    "name" : "INC",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 65,
+      "corruptionScore" : 40,
+      "mediaImage" : 58,
+      "publicSupport" : 45
+    }
+  }, {
+    "partyKey" : "bjp",
+    "name" : "BJP",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 42,
+      "corruptionScore" : 35,
+      "mediaImage" : 45,
+      "publicSupport" : 33
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 12,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a2ae590269ecd28a29fafaa",
+  "scenarioKey" : "west_bengal_2006",
+  "name" : "West Bengal 2006",
+  "description" : "Bengal campaign during a period of massive industrialization debates and intense agricultural activism.",
+  "stateName" : "West Bengal",
+  "startDate" : [ 2006, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "Left Front",
+  "oppositionPartyName" : "TMC",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 78,
+    "corruptionScore" : 55,
+    "mediaImage" : 48,
+    "publicSupport" : 50
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 38,
+    "corruptionScore" : 22,
+    "mediaImage" : 52,
+    "publicSupport" : 27
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "left_front_cpim",
+    "name" : "Left Front",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 78,
+      "corruptionScore" : 55,
+      "mediaImage" : 48,
+      "publicSupport" : 50
+    }
+  }, {
+    "partyKey" : "aitc",
+    "name" : "TMC",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 38,
+      "corruptionScore" : 22,
+      "mediaImage" : 52,
+      "publicSupport" : 27
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 13,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1,
+    "scandalFatigueLimit" : 5,
+    "noConfidenceSupportThreshold" : 35,
+    "noConfidenceMoraleThreshold" : 35,
+    "electionCoinReductionPercent" : 70,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a2ae590269ecd28a29fafab",
+  "scenarioKey" : "maharashtra_2006",
+  "name" : "Maharashtra 2006",
+  "description" : "Maharashtra politics defined by complex multi-polar coalitions, urban infrastructure push, and rural distress.",
+  "stateName" : "Maharashtra",
+  "startDate" : [ 2006, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "INC",
+  "oppositionPartyName" : "Shiv Sena",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 58,
+    "corruptionScore" : 65,
+    "mediaImage" : 42,
+    "publicSupport" : 35
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 52,
+    "corruptionScore" : 45,
+    "mediaImage" : 48,
+    "publicSupport" : 34
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "inc",
+    "name" : "INC",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 58,
+      "corruptionScore" : 65,
+      "mediaImage" : 42,
+      "publicSupport" : 35
+    }
+  }, {
+    "partyKey" : "shiv_sena",
+    "name" : "Shiv Sena",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 52,
+      "corruptionScore" : 45,
+      "mediaImage" : 48,
+      "publicSupport" : 34
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 21,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a2ae590269ecd28a29fafac",
+  "scenarioKey" : "uttar_pradesh_2006",
+  "name" : "Uttar Pradesh 2006",
+  "description" : "UP elections with shifting caste alliances, law and order debates, and infrastructure promises.",
+  "stateName" : "Uttar Pradesh",
+  "startDate" : [ 2006, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "SP",
+  "oppositionPartyName" : "BSP",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 55,
+    "corruptionScore" : 68,
+    "mediaImage" : 32,
+    "publicSupport" : 38
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 65,
+    "corruptionScore" : 55,
+    "mediaImage" : 45,
+    "publicSupport" : 30
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "samajwadi_party",
+    "name" : "SP",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 55,
+      "corruptionScore" : 68,
+      "mediaImage" : 32,
+      "publicSupport" : 38
+    }
+  }, {
+    "partyKey" : "bsp",
+    "name" : "BSP",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 65,
+      "corruptionScore" : 55,
+      "mediaImage" : 45,
+      "publicSupport" : 30
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 22,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a2ae590269ecd28a29fafad",
+  "scenarioKey" : "tamil_nadu_2006",
+  "name" : "Tamil Nadu 2006",
+  "description" : "Tamil Nadu campaign with aggressive freebie schemes, regional pride assertions, and intense bipolar rivalry.",
+  "stateName" : "Tamil Nadu",
+  "startDate" : [ 2006, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "DMK",
+  "oppositionPartyName" : "AIADMK",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 72,
+    "corruptionScore" : 52,
+    "mediaImage" : 55,
+    "publicSupport" : 44
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 55,
+    "corruptionScore" : 65,
+    "mediaImage" : 48,
+    "publicSupport" : 33
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "dmk",
+    "name" : "DMK",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 72,
+      "corruptionScore" : 52,
+      "mediaImage" : 55,
+      "publicSupport" : 44
+    }
+  }, {
+    "partyKey" : "aiadmk",
+    "name" : "AIADMK",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 55,
+      "corruptionScore" : 65,
+      "mediaImage" : 48,
+      "publicSupport" : 33
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 13,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a2ae590269ecd28a29fafae",
+  "scenarioKey" : "rajasthan_2006",
+  "name" : "Rajasthan 2006",
+  "description" : "Rajasthan's traditional bi-annual power shift contest with development promises vs. anti-incumbency.",
+  "stateName" : "Rajasthan",
+  "startDate" : [ 2006, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "BJP",
+  "oppositionPartyName" : "INC",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 55,
+    "corruptionScore" : 50,
+    "mediaImage" : 45,
+    "publicSupport" : 39
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 58,
+    "corruptionScore" : 38,
+    "mediaImage" : 52,
+    "publicSupport" : 36
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "bjp",
+    "name" : "BJP",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 55,
+      "corruptionScore" : 50,
+      "mediaImage" : 45,
+      "publicSupport" : 39
+    }
+  }, {
+    "partyKey" : "inc",
+    "name" : "INC",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 58,
+      "corruptionScore" : 38,
+      "mediaImage" : 52,
+      "publicSupport" : 36
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 15,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a2c3c893ff48d6977665716",
+  "scenarioKey" : "maharashtra_2001",
+  "name" : "Maharashra  2001",
+  "description" : "Maharastra 2001 to 2006 period",
+  "stateName" : "Maharashtra",
+  "startDate" : [ 2000, 12, 31 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "INC",
+  "oppositionPartyName" : "Shiv Sena",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 62,
+    "corruptionScore" : 52,
+    "mediaImage" : 50,
+    "publicSupport" : 40
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 48,
+    "corruptionScore" : 48,
+    "mediaImage" : 45,
+    "publicSupport" : 30
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 15
+  },
+  "politicalParties" : [ {
+    "partyKey" : "inc",
+    "name" : "INC",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : {
+      "style" : "STRENGTH_BUILDER",
+      "riskTolerance" : 0.35,
+      "scandalPreference" : 0.25,
+      "welfarePreference" : 0.65,
+      "coalitionPreference" : 0.45,
+      "mediaPreference" : 0.55,
+      "ideologyStrictness" : 0.7,
+      "intentThresholds" : {
+        "governmentNoConfidenceSupport" : 30.0,
+        "governmentNoConfidenceMorale" : 35.0,
+        "noConfidenceRiskTolerance" : 0.55,
+        "lowCoins" : 65.0,
+        "corruptionCrisis" : 48.0,
+        "mediaCrisis" : 34.0,
+        "lowMorale" : 38.0,
+        "electionWindowMonths" : 6.0,
+        "electionSupportTarget" : 42.0,
+        "opponentCorruptionAttack" : 38.0,
+        "scandalAttackPreference" : 0.55,
+        "lowSupport" : 34.0,
+        "needMoraleLow" : 45.0,
+        "needMediaLow" : 45.0,
+        "needSupportLow" : 30.0,
+        "needCorruptionHigh" : 40.0,
+        "needCoinsLow" : 100.0,
+        "reactionSupportCrisis" : 25.0
+      },
+      "scoringWeights" : {
+        "cardAiPriority" : 2.0,
+        "cardPublicImpact" : 1.5,
+        "cardRiskBase" : 2.0,
+        "selfPublicSupport" : 4.0,
+        "selfMediaBase" : 1.5,
+        "selfMorale" : 2.0,
+        "selfCorruptionPenaltyBase" : 2.5,
+        "selfCoins" : 0.2,
+        "opponentPublicSupportDamage" : 3.0,
+        "opponentMediaDamage" : 1.5,
+        "opponentCorruptionGainBase" : 1.5,
+        "intentFit" : 8.0,
+        "roleCategoryFit" : 5.0,
+        "opponentScandalWeakness" : 8.0,
+        "welfareCategoryFit" : 4.0,
+        "mediaCategoryFit" : 4.0,
+        "categoryPreference" : 5.0,
+        "needMoraleBoost" : 7.0,
+        "needMediaBoost" : 7.0,
+        "needSupportBoost" : 8.0,
+        "needCorruptionDefenseBoost" : 8.0,
+        "needLowCoinFundBoost" : 6.0,
+        "unaffordableBasePenalty" : 30.0,
+        "lowCoinCostPenalty" : 0.35,
+        "reactionIntentBoost" : 2.0,
+        "reactionCrisisSupportBoost" : 2.0,
+        "reactionRiskBase" : 0.08,
+        "reactionRiskToleranceDiscount" : 0.06,
+        "ideologyStrongFit" : 5.0,
+        "ideologyWeakFit" : -4.0,
+        "ideologyCategoryFit" : 3.0,
+        "electionCategoryBoost" : 6.0,
+        "electionScandalPenalty" : -3.0
+      },
+      "categoryPreferences" : {
+        "governance" : 0.9,
+        "defensive_counter" : 0.8,
+        "positive_service" : 0.7,
+        "media_narrative" : 0.55
+      }
+    },
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 62,
+      "corruptionScore" : 52,
+      "mediaImage" : 50,
+      "publicSupport" : 40
+    }
+  }, {
+    "partyKey" : "shiv_sena",
+    "name" : "Shiv Sena",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : {
+      "style" : "AGGRESSIVE_ATTACKER",
+      "riskTolerance" : 0.7,
+      "scandalPreference" : 0.8,
+      "welfarePreference" : 0.5,
+      "coalitionPreference" : 0.4,
+      "mediaPreference" : 0.65,
+      "ideologyStrictness" : 0.75,
+      "intentThresholds" : {
+        "governmentNoConfidenceSupport" : 30.0,
+        "governmentNoConfidenceMorale" : 35.0,
+        "noConfidenceRiskTolerance" : 0.55,
+        "lowCoins" : 65.0,
+        "corruptionCrisis" : 48.0,
+        "mediaCrisis" : 34.0,
+        "lowMorale" : 38.0,
+        "electionWindowMonths" : 6.0,
+        "electionSupportTarget" : 42.0,
+        "opponentCorruptionAttack" : 38.0,
+        "scandalAttackPreference" : 0.55,
+        "lowSupport" : 34.0,
+        "needMoraleLow" : 45.0,
+        "needMediaLow" : 45.0,
+        "needSupportLow" : 30.0,
+        "needCorruptionHigh" : 40.0,
+        "needCoinsLow" : 100.0,
+        "reactionSupportCrisis" : 25.0
+      },
+      "scoringWeights" : {
+        "cardAiPriority" : 2.0,
+        "cardPublicImpact" : 1.5,
+        "cardRiskBase" : 2.0,
+        "selfPublicSupport" : 4.0,
+        "selfMediaBase" : 1.5,
+        "selfMorale" : 2.0,
+        "selfCorruptionPenaltyBase" : 2.5,
+        "selfCoins" : 0.2,
+        "opponentPublicSupportDamage" : 3.0,
+        "opponentMediaDamage" : 1.5,
+        "opponentCorruptionGainBase" : 1.5,
+        "intentFit" : 8.0,
+        "roleCategoryFit" : 5.0,
+        "opponentScandalWeakness" : 8.0,
+        "welfareCategoryFit" : 4.0,
+        "mediaCategoryFit" : 4.0,
+        "categoryPreference" : 5.0,
+        "needMoraleBoost" : 7.0,
+        "needMediaBoost" : 7.0,
+        "needSupportBoost" : 8.0,
+        "needCorruptionDefenseBoost" : 8.0,
+        "needLowCoinFundBoost" : 6.0,
+        "unaffordableBasePenalty" : 30.0,
+        "lowCoinCostPenalty" : 0.35,
+        "reactionIntentBoost" : 2.0,
+        "reactionCrisisSupportBoost" : 2.0,
+        "reactionRiskBase" : 0.08,
+        "reactionRiskToleranceDiscount" : 0.06,
+        "ideologyStrongFit" : 5.0,
+        "ideologyWeakFit" : -4.0,
+        "ideologyCategoryFit" : 3.0,
+        "electionCategoryBoost" : 6.0,
+        "electionScandalPenalty" : -3.0
+      },
+      "categoryPreferences" : {
+        "scandal_accusation" : 0.95,
+        "agitation_movement" : 0.8,
+        "media_narrative" : 0.75,
+        "positive_service" : 0.5
+      }
+    },
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 48,
+      "corruptionScore" : 48,
+      "mediaImage" : 45,
+      "publicSupport" : 30
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : {
+      "style" : "BALANCED_STRATEGIST",
+      "riskTolerance" : 0.45,
+      "scandalPreference" : 0.35,
+      "welfarePreference" : 0.55,
+      "coalitionPreference" : 0.8,
+      "mediaPreference" : 0.45,
+      "ideologyStrictness" : 0.7,
+      "intentThresholds" : {
+        "governmentNoConfidenceSupport" : 30.0,
+        "governmentNoConfidenceMorale" : 35.0,
+        "noConfidenceRiskTolerance" : 0.55,
+        "lowCoins" : 65.0,
+        "corruptionCrisis" : 48.0,
+        "mediaCrisis" : 34.0,
+        "lowMorale" : 38.0,
+        "electionWindowMonths" : 6.0,
+        "electionSupportTarget" : 42.0,
+        "opponentCorruptionAttack" : 38.0,
+        "scandalAttackPreference" : 0.55,
+        "lowSupport" : 34.0,
+        "needMoraleLow" : 45.0,
+        "needMediaLow" : 45.0,
+        "needSupportLow" : 30.0,
+        "needCorruptionHigh" : 40.0,
+        "needCoinsLow" : 100.0,
+        "reactionSupportCrisis" : 25.0
+      },
+      "scoringWeights" : {
+        "cardAiPriority" : 2.0,
+        "cardPublicImpact" : 1.5,
+        "cardRiskBase" : 2.0,
+        "selfPublicSupport" : 4.0,
+        "selfMediaBase" : 1.5,
+        "selfMorale" : 2.0,
+        "selfCorruptionPenaltyBase" : 2.5,
+        "selfCoins" : 0.2,
+        "opponentPublicSupportDamage" : 3.0,
+        "opponentMediaDamage" : 1.5,
+        "opponentCorruptionGainBase" : 1.5,
+        "intentFit" : 8.0,
+        "roleCategoryFit" : 5.0,
+        "opponentScandalWeakness" : 8.0,
+        "welfareCategoryFit" : 4.0,
+        "mediaCategoryFit" : 4.0,
+        "categoryPreference" : 5.0,
+        "needMoraleBoost" : 7.0,
+        "needMediaBoost" : 7.0,
+        "needSupportBoost" : 8.0,
+        "needCorruptionDefenseBoost" : 8.0,
+        "needLowCoinFundBoost" : 6.0,
+        "unaffordableBasePenalty" : 30.0,
+        "lowCoinCostPenalty" : 0.35,
+        "reactionIntentBoost" : 2.0,
+        "reactionCrisisSupportBoost" : 2.0,
+        "reactionRiskBase" : 0.08,
+        "reactionRiskToleranceDiscount" : 0.06,
+        "ideologyStrongFit" : 5.0,
+        "ideologyWeakFit" : -4.0,
+        "ideologyCategoryFit" : 3.0,
+        "electionCategoryBoost" : 6.0,
+        "electionScandalPenalty" : -3.0
+      },
+      "categoryPreferences" : {
+        "positive_service" : 0.75,
+        "organization_resource" : 0.7,
+        "ideology_identity" : 0.65,
+        "media_narrative" : 0.45
+      }
+    },
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 15
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 15,
+    "mood" : "Restless",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 0.35,
+    "scandalFatigueLimit" : 5,
+    "noConfidenceSupportThreshold" : 30,
+    "noConfidenceMoraleThreshold" : 35,
+    "electionCoinReductionPercent" : 70,
+    "publicMemoryDecayPerTurn" : 0.1
+  },
+  "active" : true
+}, {
+  "id" : "6a2c92be1a6f4c239e48b16c",
+  "scenarioKey" : "garbage",
+  "name" : "NA",
+  "description" : "Western coalition politics, urban-rural divides, and co-operative sugar lobby rivalries.",
+  "stateName" : "Maharashtra",
+  "startDate" : [ 2001, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "Tiger Front",
+  "oppositionPartyName" : "Elephant Congress",
+  "thirdPartyName" : "Peacock Party",
+  "governmentStartingStats" : {
+    "coins" : 250,
+    "partyMorale" : 70,
+    "corruptionScore" : 40,
+    "mediaImage" : 50,
+    "publicSupport" : 44
+  },
+  "oppositionStartingStats" : {
+    "coins" : 150,
+    "partyMorale" : 55,
+    "corruptionScore" : 25,
+    "mediaImage" : 45,
+    "publicSupport" : 32
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 110,
+    "partyMorale" : 50,
+    "corruptionScore" : 20,
+    "mediaImage" : 40,
+    "publicSupport" : 14
+  },
+  "politicalParties" : [ {
+    "partyKey" : "tiger_front",
+    "name" : "Tiger Front",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 250,
+      "partyMorale" : 70,
+      "corruptionScore" : 40,
+      "mediaImage" : 50,
+      "publicSupport" : 44
+    }
+  }, {
+    "partyKey" : "elephant_congress",
+    "name" : "Elephant Congress",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 150,
+      "partyMorale" : 55,
+      "corruptionScore" : 25,
+      "mediaImage" : 45,
+      "publicSupport" : 32
+    }
+  }, {
+    "partyKey" : "peacock_party",
+    "name" : "Peacock Party",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 110,
+      "partyMorale" : 50,
+      "corruptionScore" : 20,
+      "mediaImage" : 40,
+      "publicSupport" : 14
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 10,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1,
+    "scandalFatigueLimit" : 5,
+    "noConfidenceSupportThreshold" : 35,
+    "noConfidenceMoraleThreshold" : 35,
+    "electionCoinReductionPercent" : 70,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : false
+}, {
+  "id" : "6a2c96e0f027167bd597c5fe",
+  "scenarioKey" : "west_bengal_2000",
+  "name" : "West Bengal 2000",
+  "description" : "Turbulent time in West Bengal during Left from rule 2001 to 2006",
+  "stateName" : "West Bengal",
+  "startDate" : [ 2001, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "Left Front",
+  "oppositionPartyName" : "TMC",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 72,
+    "corruptionScore" : 42,
+    "mediaImage" : 55,
+    "publicSupport" : 52
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 55,
+    "corruptionScore" : 28,
+    "mediaImage" : 48,
+    "publicSupport" : 22
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 15
+  },
+  "politicalParties" : [ {
+    "partyKey" : "left_front_cpim",
+    "name" : "Left Front",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 72,
+      "corruptionScore" : 42,
+      "mediaImage" : 55,
+      "publicSupport" : 52
+    }
+  }, {
+    "partyKey" : "aitc",
+    "name" : "TMC",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 55,
+      "corruptionScore" : 28,
+      "mediaImage" : 48,
+      "publicSupport" : 22
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : null,
+    "symbol" : null,
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 15
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 11,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
+    "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1,
+    "scandalFatigueLimit" : 5,
+    "noConfidenceSupportThreshold" : 35,
+    "noConfidenceMoraleThreshold" : 35,
+    "electionCoinReductionPercent" : 70,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a3d3a373ea3807b67059bc9",
+  "scenarioKey" : "bihar_2001",
+  "name" : "Bihar 2001",
+  "description" : "Heartland governance battle amid crime-governance trade-offs, caste arithmetic, and rural development gaps.",
+  "stateName" : "Bihar",
+  "startDate" : [ 2001, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "RJD",
+  "oppositionPartyName" : "NDA (BJP+JD-U)",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 52,
+    "corruptionScore" : 72,
+    "mediaImage" : 30,
+    "publicSupport" : 30
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 58,
+    "corruptionScore" : 38,
+    "mediaImage" : 48,
+    "publicSupport" : 36
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "rjd",
+    "name" : "RJD",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#E15554",
+    "symbol" : "Flag",
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 52,
+      "corruptionScore" : 72,
+      "mediaImage" : 30,
+      "publicSupport" : 30
+    }
+  }, {
+    "partyKey" : "nda_bjpu",
+    "name" : "NDA (BJP+JD-U)",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#3F88C5",
+    "symbol" : "Hand",
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 58,
+      "corruptionScore" : 38,
+      "mediaImage" : 48,
+      "publicSupport" : 36
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : "#17B890",
+    "symbol" : "Star",
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 24,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Governance", "Development" ],
+    "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a3d3a373ea3807b67059bca",
+  "scenarioKey" : "bihar_2006",
+  "name" : "Bihar 2006",
+  "description" : "Nitish Kumar's good governance wave confronts Lalu's entrenched social base post-2005 mandate.",
+  "stateName" : "Bihar",
+  "startDate" : [ 2006, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "JD-U",
+  "oppositionPartyName" : "RJD",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 72,
+    "corruptionScore" : 25,
+    "mediaImage" : 62,
+    "publicSupport" : 36
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 38,
+    "corruptionScore" : 68,
+    "mediaImage" : 28,
+    "publicSupport" : 28
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "jdu",
+    "name" : "JD-U",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#E15554",
+    "symbol" : "Flag",
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 72,
+      "corruptionScore" : 25,
+      "mediaImage" : 62,
+      "publicSupport" : 36
+    }
+  }, {
+    "partyKey" : "rjd",
+    "name" : "RJD",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#3F88C5",
+    "symbol" : "Hand",
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 38,
+      "corruptionScore" : 68,
+      "mediaImage" : 28,
+      "publicSupport" : 28
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : "#17B890",
+    "symbol" : "Star",
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 26,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Governance", "Development" ],
+    "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a3d3a373ea3807b67059bcb",
+  "scenarioKey" : "goa_2001",
+  "name" : "Goa 2001",
+  "description" : "India's smallest state battleground — tourism economy, mining royalty politics, and coastal development debates.",
+  "stateName" : "Goa",
+  "startDate" : [ 2001, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "INC",
+  "oppositionPartyName" : "BJP",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 58,
+    "corruptionScore" : 45,
+    "mediaImage" : 50,
+    "publicSupport" : 38
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 50,
+    "corruptionScore" : 40,
+    "mediaImage" : 45,
+    "publicSupport" : 32
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "inc",
+    "name" : "INC",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#E15554",
+    "symbol" : "Flag",
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 58,
+      "corruptionScore" : 45,
+      "mediaImage" : 50,
+      "publicSupport" : 38
+    }
+  }, {
+    "partyKey" : "bjp",
+    "name" : "BJP",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#3F88C5",
+    "symbol" : "Hand",
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 50,
+      "corruptionScore" : 40,
+      "mediaImage" : 45,
+      "publicSupport" : 32
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : "#17B890",
+    "symbol" : "Star",
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 20,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Governance", "Development" ],
+    "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1,
+    "scandalFatigueLimit" : 5,
+    "noConfidenceSupportThreshold" : 35,
+    "noConfidenceMoraleThreshold" : 35,
+    "electionCoinReductionPercent" : 70,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a3d3a373ea3807b67059bcc",
+  "scenarioKey" : "goa_2006",
+  "name" : "Goa 2006",
+  "description" : "Goa's revolving-door politics — coalition instability, mining boom controversies, and resort development tensions.",
+  "stateName" : "Goa",
+  "startDate" : [ 2006, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "INC",
+  "oppositionPartyName" : "BJP",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 55,
+    "corruptionScore" : 50,
+    "mediaImage" : 48,
+    "publicSupport" : 36
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 52,
+    "corruptionScore" : 42,
+    "mediaImage" : 46,
+    "publicSupport" : 34
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "inc",
+    "name" : "INC",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#E15554",
+    "symbol" : "Flag",
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 55,
+      "corruptionScore" : 50,
+      "mediaImage" : 48,
+      "publicSupport" : 36
+    }
+  }, {
+    "partyKey" : "bjp",
+    "name" : "BJP",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#3F88C5",
+    "symbol" : "Hand",
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 52,
+      "corruptionScore" : 42,
+      "mediaImage" : 46,
+      "publicSupport" : 34
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : "#17B890",
+    "symbol" : "Star",
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 20,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Governance", "Development" ],
+    "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a3d3a373ea3807b67059bcd",
+  "scenarioKey" : "delhi_2001",
+  "name" : "Delhi 2001",
+  "description" : "National Capital Territory politics — urban infrastructure, power supply, and water politics under Sheila Dikshit.",
+  "stateName" : "Delhi",
+  "startDate" : [ 2001, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "INC",
+  "oppositionPartyName" : "BJP",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 68,
+    "corruptionScore" : 35,
+    "mediaImage" : 62,
+    "publicSupport" : 48
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 48,
+    "corruptionScore" : 38,
+    "mediaImage" : 45,
+    "publicSupport" : 34
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "inc",
+    "name" : "INC",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#E15554",
+    "symbol" : "Flag",
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 68,
+      "corruptionScore" : 35,
+      "mediaImage" : 62,
+      "publicSupport" : 48
+    }
+  }, {
+    "partyKey" : "bjp",
+    "name" : "BJP",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#3F88C5",
+    "symbol" : "Hand",
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 48,
+      "corruptionScore" : 38,
+      "mediaImage" : 45,
+      "publicSupport" : 34
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : "#17B890",
+    "symbol" : "Star",
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 8,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Governance", "Development" ],
+    "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a3d3a373ea3807b67059bce",
+  "scenarioKey" : "delhi_2006",
+  "name" : "Delhi 2006",
+  "description" : "Delhi mid-term politics — Commonwealth Games preparation, infrastructure boom, and early anti-incumbency signals.",
+  "stateName" : "Delhi",
+  "startDate" : [ 2006, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "INC",
+  "oppositionPartyName" : "BJP",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 65,
+    "corruptionScore" : 40,
+    "mediaImage" : 58,
+    "publicSupport" : 46
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 50,
+    "corruptionScore" : 35,
+    "mediaImage" : 48,
+    "publicSupport" : 34
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "inc",
+    "name" : "INC",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#E15554",
+    "symbol" : "Flag",
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 65,
+      "corruptionScore" : 40,
+      "mediaImage" : 58,
+      "publicSupport" : 46
+    }
+  }, {
+    "partyKey" : "bjp",
+    "name" : "BJP",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#3F88C5",
+    "symbol" : "Hand",
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 50,
+      "corruptionScore" : 35,
+      "mediaImage" : 48,
+      "publicSupport" : 34
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : "#17B890",
+    "symbol" : "Star",
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 10,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Governance", "Development" ],
+    "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a3d3a373ea3807b67059bcf",
+  "scenarioKey" : "andhra_pradesh_2001",
+  "name" : "Andhra Pradesh 2001",
+  "description" : "Telugu pride politics — irrigation battles, Chandrababu Naidu's tech-first governance, and Congress revival.",
+  "stateName" : "Andhra Pradesh",
+  "startDate" : [ 2001, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "TDP",
+  "oppositionPartyName" : "INC",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 65,
+    "corruptionScore" : 48,
+    "mediaImage" : 55,
+    "publicSupport" : 42
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 48,
+    "corruptionScore" : 38,
+    "mediaImage" : 45,
+    "publicSupport" : 28
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "tdp",
+    "name" : "TDP",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#E15554",
+    "symbol" : "Flag",
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 65,
+      "corruptionScore" : 48,
+      "mediaImage" : 55,
+      "publicSupport" : 42
+    }
+  }, {
+    "partyKey" : "inc",
+    "name" : "INC",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#3F88C5",
+    "symbol" : "Hand",
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 48,
+      "corruptionScore" : 38,
+      "mediaImage" : 45,
+      "publicSupport" : 28
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : "#17B890",
+    "symbol" : "Star",
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 20,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Governance", "Development" ],
+    "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a3d3a373ea3807b67059bd0",
+  "scenarioKey" : "andhra_pradesh_2006",
+  "name" : "Andhra Pradesh 2006",
+  "description" : "YSR's welfare revolution confronts TDP's development legacy in Andhra's most consequential mid-decade contest.",
+  "stateName" : "Andhra Pradesh",
+  "startDate" : [ 2006, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "INC (YSR)",
+  "oppositionPartyName" : "TDP",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 72,
+    "corruptionScore" : 42,
+    "mediaImage" : 58,
+    "publicSupport" : 42
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 48,
+    "corruptionScore" : 45,
+    "mediaImage" : 42,
+    "publicSupport" : 34
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "inc_ysr",
+    "name" : "INC (YSR)",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#E15554",
+    "symbol" : "Flag",
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 72,
+      "corruptionScore" : 42,
+      "mediaImage" : 58,
+      "publicSupport" : 42
+    }
+  }, {
+    "partyKey" : "tdp",
+    "name" : "TDP",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#3F88C5",
+    "symbol" : "Hand",
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 48,
+      "corruptionScore" : 45,
+      "mediaImage" : 42,
+      "publicSupport" : 34
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : "#17B890",
+    "symbol" : "Star",
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 14,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Governance", "Development" ],
+    "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a3d3a373ea3807b67059bd1",
+  "scenarioKey" : "kerala_2001",
+  "name" : "Kerala 2001",
+  "description" : "God's Own Country elections — LDF vs UDF alternation, labor movement politics, and Gulf remittance economy.",
+  "stateName" : "Kerala",
+  "startDate" : [ 2001, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "INC-UDF",
+  "oppositionPartyName" : "LDF (CPI-M)",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 65,
+    "corruptionScore" : 38,
+    "mediaImage" : 55,
+    "publicSupport" : 44
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 60,
+    "corruptionScore" : 42,
+    "mediaImage" : 52,
+    "publicSupport" : 42
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "inc_udf",
+    "name" : "INC-UDF",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#E15554",
+    "symbol" : "Flag",
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 65,
+      "corruptionScore" : 38,
+      "mediaImage" : 55,
+      "publicSupport" : 44
+    }
+  }, {
+    "partyKey" : "cpi_m_ldf",
+    "name" : "LDF (CPI-M)",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#3F88C5",
+    "symbol" : "Hand",
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 60,
+      "corruptionScore" : 42,
+      "mediaImage" : 52,
+      "publicSupport" : 42
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : "#17B890",
+    "symbol" : "Star",
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 4,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Governance", "Development" ],
+    "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+}, {
+  "id" : "6a3d3a373ea3807b67059bd2",
+  "scenarioKey" : "kerala_2006",
+  "name" : "Kerala 2006",
+  "description" : "VS Achuthanandan's corruption-fight mandate clashes with UDF's development narrative in Kerala's alternating democracy.",
+  "stateName" : "Kerala",
+  "startDate" : [ 2006, 1, 1 ],
+  "cycleLengthMonths" : 60,
+  "governmentPartyName" : "LDF (CPI-M)",
+  "oppositionPartyName" : "INC-UDF",
+  "thirdPartyName" : "Youth Development Party (YDP)",
+  "governmentStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 72,
+    "corruptionScore" : 35,
+    "mediaImage" : 58,
+    "publicSupport" : 44
+  },
+  "oppositionStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 55,
+    "corruptionScore" : 40,
+    "mediaImage" : 52,
+    "publicSupport" : 42
+  },
+  "thirdPartyStartingStats" : {
+    "coins" : 400,
+    "partyMorale" : 80,
+    "corruptionScore" : 10,
+    "mediaImage" : 65,
+    "publicSupport" : 10
+  },
+  "politicalParties" : [ {
+    "partyKey" : "cpi_m_ldf",
+    "name" : "LDF (CPI-M)",
+    "startingRole" : "GOVERNMENT",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#E15554",
+    "symbol" : "Flag",
+    "ideology" : "DEVELOPMENT_FIRST",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 72,
+      "corruptionScore" : 35,
+      "mediaImage" : 58,
+      "publicSupport" : 44
+    }
+  }, {
+    "partyKey" : "inc_udf",
+    "name" : "INC-UDF",
+    "startingRole" : "OPPOSITION",
+    "defaultControllerType" : "COMPUTER",
+    "color" : "#3F88C5",
+    "symbol" : "Hand",
+    "ideology" : "ANTI_CORRUPTION",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 55,
+      "corruptionScore" : 40,
+      "mediaImage" : 52,
+      "publicSupport" : 42
+    }
+  }, {
+    "partyKey" : "ydp",
+    "name" : "Youth Development Party (YDP)",
+    "startingRole" : "THIRD_PARTY",
+    "defaultControllerType" : "HUMAN",
+    "color" : "#17B890",
+    "symbol" : "Star",
+    "ideology" : "REGIONAL_PRIDE",
+    "aiProfile" : null,
+    "startingStats" : {
+      "coins" : 400,
+      "partyMorale" : 80,
+      "corruptionScore" : 10,
+      "mediaImage" : 65,
+      "publicSupport" : 10
+    }
+  } ],
+  "publicState" : {
+    "undecidedSupport" : 4,
+    "mood" : "Watchful",
+    "mainIssues" : [ "Jobs", "Governance", "Development" ],
+    "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
+  },
+  "ruleWeights" : {
+    "antiIncumbencyGrowthPerTurn" : 1.0,
+    "scandalFatigueLimit" : 5.0,
+    "noConfidenceSupportThreshold" : 35.0,
+    "noConfidenceMoraleThreshold" : 35.0,
+    "electionCoinReductionPercent" : 70.0,
+    "publicMemoryDecayPerTurn" : 0.4
+  },
+  "active" : true
+} ]

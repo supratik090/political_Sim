@@ -298,7 +298,7 @@ Action 7 is integrated into the monthly Campaign wizard as an optional section (
     *   *Workshop*: Vertically stacked form elements to select a target partner, toggle pact or exchange mode, define offered assets, specify requested returns, and submit proposals.
 
 ### 5. Verification & Tests
-The integration is covered by automated unit tests in [GameServiceCooperationTest.java](file:///Users/supratikde/Desktop/DEV/Political%20party%20Sim/backend/src/test/java/com/politicalsim/game/GameServiceCooperationTest.java):
+The integration is covered by automated unit tests in [GameServiceCooperationTest.java](backend/src/test/java/com/politicalsim/game/GameServiceCooperationTest.java):
 *   `testCreateExchangeOfferAcceptedByAI`: Validates that mathematically fair exchanges are accepted and assets are correctly swapped.
 *   `testCreateExchangeOfferRejectedByAISafetyLimits`: Confirms AI rejects deals violating its safety bounds.
 *   `testCreateNonAggressionPactWithPayment`: Verifies pact setup, asset transfers, and active treaty registration.
