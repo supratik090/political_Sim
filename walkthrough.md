@@ -122,7 +122,7 @@ Apart from playing cards, parties can invest in long-term building projects (e.g
 
 ## 🛠️ Part 2: Backend Architecture & Systems
 
-The game backend is a Spring Boot application connecting to MongoDB, serving a React UI and a Streamlit developer tool.
+The game backend is a Spring Boot application connecting to MongoDB, serving a React UI.
 
 ### 1. File Packages & Responsibilities
 ```text
@@ -231,12 +231,11 @@ $$\text{Score} = \text{BasePlayWeight} + \text{IntentFitBonus} + \text{IdeologyA
 
 ### 4. UI Carry Forward Option Checkbox
 - **`DashboardHome.jsx` (React UI)**: Added a checkbox in the campaign creation screen to let players choose whether to carry forward their completed projects. The checkbox defaults to `false` and is only visible when starting a next-series scenario (ends with `_2006`).
-- **`app.py` (Streamlit Python UI)**: Added the corresponding `st.checkbox` for scenario configurations ending with `_2006` that passes `retainInstitutions` in the API payload, defaulting to `False`.
 
 ### 5. Campaign Display Names in Status Lists
 - **`GameSession.java`**: Added the `scenarioName` field. Added a getter with a fallback title case formatter (e.g., converting `"west_bengal_2000"` to `"West Bengal 2000"`) to automatically resolve display names for older campaigns.
 - **`GameSessionService.java`**: Automatically populates `scenarioName` from the scenario definition upon game creation.
-- React and Python UIs automatically show the correct display name because they consume the serialized `scenarioName` property.
+- The React UI automatically shows the correct display name because it consumes the serialized `scenarioName` property.
 
 ---
 

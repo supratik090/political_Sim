@@ -2,7 +2,7 @@
 
 A premium, card-based political strategy simulation inspired by state-level campaign dynamics in India. Manage resources, draft campaign tactics, respond to news cycles, fund projects, and survive political crises to win government office.
 
-For a detailed explanation of the gameplay mechanics, backend architecture, and AI decision-making algorithms, see **[walkthrough.md](file:///Users/supratikde/Desktop/DEV/Political%20party%20Sim/walkthrough.md)**.
+For a detailed explanation of the gameplay mechanics, backend architecture, and AI decision-making algorithms, see **[walkthrough.md](walkthrough.md)**.
 
 ---
 
@@ -10,7 +10,7 @@ For a detailed explanation of the gameplay mechanics, backend architecture, and 
 *   **Java**: JDK 17 or higher
 *   **Maven**: For building and running the Spring Boot backend
 *   **Database**: MongoDB running locally (default: `mongodb://localhost:27017/political_sim`) or a cloud MongoDB Atlas instance
-*   **Python**: Python 3.10 or higher (for developer seeding scripts and the Streamlit test interface)
+*   **Python**: Python 3.10 or higher (for content seeding scripts)
 *   **NodeJS / npm**: For building and running the production React UI frontend
 
 ---
@@ -69,7 +69,6 @@ The database must be populated with cards, news stories, and issues before playi
 
 ### Step 4: Run the Frontends
 
-#### A. Running the React Production UI (Recommended)
 1.  Navigate to the `react-ui` directory:
     ```bash
     cd react-ui
@@ -84,44 +83,23 @@ The database must be populated with cards, news stories, and issues before playi
     ```
     Open `http://localhost:5173/` in your browser.
 
-#### B. Running the Streamlit Test Frontend
-1.  Navigate to the `python-ui` directory:
-    ```bash
-    cd python-ui
-    ```
-2.  Set up and activate a Python virtual environment:
-    ```bash
-    python3 -m venv .venv
-    source .venv/bin/activate
-    ```
-3.  Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  Run the application:
-    ```bash
-    streamlit run app.py
-    ```
-    Open `http://localhost:8501/` in your browser.
-
 ---
 
 ## 🔑 Authentication
 The game isolates active sessions per user:
 1.  **Developer Bypass Login**: Enter any mock email address (e.g., `player@example.com`) to bypass Google credentials and log in locally.
-2.  **Google OAuth 2.0 Integration**: Set client credentials in the environment before launching Streamlit/React:
+2.  **Google OAuth 2.0 Integration**: Set client credentials in the environment before launching React:
     ```bash
     export GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
     export GOOGLE_CLIENT_SECRET="your-client-secret"
-    export GOOGLE_REDIRECT_URI="http://localhost:8501/"
+    export GOOGLE_REDIRECT_URI="http://localhost:5173/"
     ```
 
 ---
 
 ## 🛠️ Admin Console
 You can access the rule-building dashboard to create or edit cards, news items, and scenarios:
-*   Streamlit: Visit the **🛠️ Admin Console** tab or navigate directly to `http://localhost:8501/admin`.
-*   React: Select the **Admin Console** link in the navigation menu.
+*   Select the **Admin Console** link in the navigation menu on the React UI.
 
 ---
 
@@ -132,4 +110,4 @@ You can access the rule-building dashboard to create or edit cards, news items, 
 3.  Go to the service's **Settings** tab.
 4.  Set the **Root Directory** to `/backend`. Railway will detect `pom.xml` and build using Nixpacks.
 5.  In the **Variables** tab, add your remote MongoDB connection string as `MONGODB_URI`.
-6.  Generate a domain under **Networking** and update your React/Streamlit configuration files to point to the new domain.
+6.  Generate a domain under **Networking** and update your React configuration files to point to the new domain.

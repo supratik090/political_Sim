@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { loginUser, registerUser } from '../../api/apiClient';
+import { loginUser, registerUser, fetchScenarios } from '../../api/apiClient';
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -10,6 +10,13 @@ export default function AuthScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const login = useGameStore((state) => state.login);
+
+  useEffect(() => {
+    // Wake up the backend server on mount to reduce initial user waiting time
+    fetchScenarios().catch(err => {
+      console.warn("Background server warmup call pending/failed:", err);
+    });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
