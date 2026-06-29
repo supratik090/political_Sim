@@ -97,6 +97,12 @@ public class RoundResolutionEngine {
         List<String> commentary = new ArrayList<>();
         List<String> resultLines = new ArrayList<>();
 
+        boolean isTriple = session.getTripleImpactTurn() == session.getTurnNumber();
+        if (isTriple) {
+            commentary.add("🚨 CRITICAL BREAKING NEWS: Severe political climate! News and Monthly Issue events have TRIPLED (3x) impact on all parties this turn!");
+            resultLines.add("📺 TRIPLE IMPACT EVENT ACTIVE: All news reaction and issue outcomes had 3x the usual effects.");
+        }
+
         // Trigger crisis from monthly news
         List<NewsDefinition> currentNewsList = getCurrentNews(session);
         if (currentNewsList != null && !currentNewsList.isEmpty()) {
@@ -492,7 +498,38 @@ public class RoundResolutionEngine {
             }
         }
 
+        String secretMetric = session.getSecretMetric();
+        String mappedKey = null;
+        if ("COINS".equalsIgnoreCase(secretMetric)) mappedKey = "coins";
+        else if ("MORALE".equalsIgnoreCase(secretMetric)) mappedKey = "partyMorale";
+        else if ("MEDIA_IMAGE".equalsIgnoreCase(secretMetric)) mappedKey = "mediaImage";
+        else if ("CORRUPTION".equalsIgnoreCase(secretMetric)) mappedKey = "corruptionScore";
+        else if ("PUBLIC_SUPPORT".equalsIgnoreCase(secretMetric)) mappedKey = "publicSupport";
+
+        boolean hasPositiveSecretMetric = false;
+        Map<String, Object> rawSelfEffects = partyEffect(card.getVisibleEffects(), "selfParty");
+        if (mappedKey != null && rawSelfEffects != null) {
+            int val = intValue(rawSelfEffects.get(mappedKey));
+            if ("corruptionScore".equals(mappedKey)) {
+                if (val < 0) hasPositiveSecretMetric = true;
+            } else {
+                if (val > 0) hasPositiveSecretMetric = true;
+            }
+        }
+
+        boolean hasOppositionTarget = (opponent != null);
+        boolean shouldTriple = hasPositiveSecretMetric || hasOppositionTarget;
+
         Map<String, Object> selfEffects = new LinkedHashMap<>(partyEffect(card.getVisibleEffects(), "selfParty"));
+        if (shouldTriple) {
+            selfEffects = tripleCardEffects(selfEffects, false);
+            String reason = hasPositiveSecretMetric ? "matching the round's secret boost" : "targeting opposition";
+            if (hasPositiveSecretMetric && hasOppositionTarget) {
+                reason = "matching the round's secret boost and targeting opposition";
+            }
+            commentary.add("🔥 TRIPLE IMPACT ACTIVE: " + actor.getName() + "'s card '" + card.getName() + "' received a 3x multiplier for " + reason + "!");
+        }
+
         if (selfEffects.containsKey("coins")) {
             int effectCoins = intValue(selfEffects.get("coins"));
             if (effectCoins < 0) {
@@ -509,6 +546,9 @@ public class RoundResolutionEngine {
         if (opponent != null) {
             Map<String, Object> oppEffects = partyEffect(card.getVisibleEffects(), "opponentParty");
             if (oppEffects != null && !oppEffects.isEmpty()) {
+                if (shouldTriple) {
+                    oppEffects = tripleCardEffects(oppEffects, true);
+                }
                 int c = intValue(oppEffects.get("coins"));
                 int m = intValue(oppEffects.get("partyMorale"));
                 int s = intValue(oppEffects.get("publicSupport"));
@@ -517,8 +557,8 @@ public class RoundResolutionEngine {
                 if (c < 0 || m < 0 || s < 0 || med < 0 || corr > 0) {
                     checkAndProcessPactViolation(session, actor, opponent, "card '" + card.getName() + "'", commentary);
                 }
+                applyEffects(session, opponent, oppEffects, supportPressure);
             }
-            applyEffects(session, opponent, oppEffects, supportPressure);
             
             // Record grudge: opponent holds a grudge against actor
             Map<String, Map<String, Integer>> grudges = session.getGrudges();
@@ -526,6 +566,35 @@ public class RoundResolutionEngine {
             opponentGrudges.put(actor.getId(), opponentGrudges.getOrDefault(actor.getId(), 0) + 1);
         }
         applyRiskRoll(session, actor, opponent, card, supportPressure, commentary);
+    }
+
+    private Map<String, Object> tripleCardEffects(Map<String, Object> effects, boolean isOpponent) {
+        if (effects == null) {
+            return Map.of();
+        }
+        Map<String, Object> tripled = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : effects.entrySet()) {
+            if (entry.getValue() instanceof Number) {
+                int val = ((Number) entry.getValue()).intValue();
+                if (isOpponent) {
+                    if ("corruptionScore".equals(entry.getKey())) {
+                        if (val > 0) val *= 3;
+                    } else {
+                        if (val < 0) val *= 3;
+                    }
+                } else {
+                    if ("corruptionScore".equals(entry.getKey())) {
+                        if (val < 0) val *= 3;
+                    } else {
+                        if (val > 0) val *= 3;
+                    }
+                }
+                tripled.put(entry.getKey(), val);
+            } else {
+                tripled.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return tripled;
     }
 
     @SuppressWarnings("unchecked")
@@ -549,6 +618,7 @@ public class RoundResolutionEngine {
                              Map<String, Integer> supportPressure, List<String> commentary) {
         int coinAward = 0;
         List<NewsDefinition> newsItems = getCurrentNews(session);
+        boolean isTriple = session.getTripleImpactTurn() == session.getTurnNumber();
         for (Map.Entry<String, String> entry : selectedReactions.entrySet()) {
             NewsReactionDefinition reaction = findReaction(newsItems, entry.getKey(), entry.getValue());
             NewsDefinition news = findNews(newsItems, entry.getKey());
@@ -556,8 +626,8 @@ public class RoundResolutionEngine {
                 coinAward += 1;
                 continue;
             }
-            applyEffects(session, actor, partyEffect(reaction.getEffects(), "playerParty"), supportPressure);
-            applyReactionRisk(session, actor, reaction, supportPressure, commentary);
+            applyEffects(session, actor, partyEffect(reaction.getEffects(), "playerParty"), supportPressure, isTriple);
+            applyReactionRisk(session, actor, reaction, supportPressure, commentary, isTriple);
 
             // Adjust active crisis duration based on Government reactions
             if (session.getActiveCrisisKey() != null && news != null && news.getCrisisTriggerKey() != null) {
@@ -617,22 +687,28 @@ public class RoundResolutionEngine {
         if (option == null) {
             return;
         }
-        applyEffects(session, actor, partyEffect(option.getEffects(), "selfParty"), supportPressure);
-        applyIssueRisk(session, actor, option, supportPressure, commentary);
+        boolean isTriple = session.getTripleImpactTurn() == session.getTurnNumber();
+        applyEffects(session, actor, partyEffect(option.getEffects(), "selfParty"), supportPressure, isTriple);
+        applyIssueRisk(session, actor, option, supportPressure, commentary, isTriple);
         commentary.add("💬 Issue Handling: " + actor.getName() + " resolved monthly issue '" + issue.getTitle() + "' by choosing: '" + option.getText() + "'. Effects: " + formatEffectsObject(option.getEffects(), "selfParty"));
         scheduleIssueDelayedEffects(session, actor, issue, option, commentary);
     }
 
     private void applyIssueRisk(GameSession session, PartyState actor, IssueOptionDefinition option,
-                                Map<String, Integer> supportPressure, List<String> commentary) {
+                                Map<String, Integer> supportPressure, List<String> commentary, boolean triple) {
         int chance = intValue(option.getRisk().get("chance"));
         if (chance <= 0 || !riskHit(session, "issue:" + actor.getId() + ":" + option.getOptionKey(), chance)) {
             return;
         }
-        applyEffects(session, actor, riskEffect(option.getRisk(), "selfParty"), supportPressure);
+        applyEffects(session, actor, riskEffect(option.getRisk(), "selfParty"), supportPressure, triple);
         Object badOutcome = option.getRisk().get("badOutcome");
         commentary.add("Surprise: " + actor.getName() + "'s issue response backfired"
                 + (badOutcome == null ? "." : ": " + badOutcome + "."));
+    }
+
+    private void applyIssueRisk(GameSession session, PartyState actor, IssueOptionDefinition option,
+                                Map<String, Integer> supportPressure, List<String> commentary) {
+        applyIssueRisk(session, actor, option, supportPressure, commentary, false);
     }
 
     private void resolveDueDelayedEffects(GameSession session, Map<String, Integer> supportPressure, List<String> commentary) {
@@ -778,8 +854,24 @@ public class RoundResolutionEngine {
     }
 
     private void applyEffects(GameSession session, PartyState party, Map<String, Object> effects, Map<String, Integer> supportPressure) {
-        applyPartyEffectsWithoutSupport(session, party.getStats(), effects);
-        supportPressure.computeIfPresent(party.getId(), (id, value) -> value + intValue(effects.get("publicSupport")));
+        applyEffects(session, party, effects, supportPressure, false);
+    }
+
+    private void applyEffects(GameSession session, PartyState party, Map<String, Object> effects, Map<String, Integer> supportPressure, boolean triple) {
+        Map<String, Object> finalEffects = effects;
+        if (triple && effects != null) {
+            finalEffects = new java.util.LinkedHashMap<>();
+            for (Map.Entry<String, Object> entry : effects.entrySet()) {
+                if (entry.getValue() instanceof Number) {
+                    finalEffects.put(entry.getKey(), ((Number) entry.getValue()).intValue() * 3);
+                } else {
+                    finalEffects.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+        final Map<String, Object> lambdaEffects = finalEffects;
+        applyPartyEffectsWithoutSupport(session, party.getStats(), lambdaEffects);
+        supportPressure.computeIfPresent(party.getId(), (id, value) -> value + intValue(lambdaEffects.get("publicSupport")));
     }
 
     private void applyPartyEffectsWithoutSupport(GameSession session, PartyStats stats, Map<String, Object> effects) {
@@ -818,15 +910,20 @@ public class RoundResolutionEngine {
     }
 
     private void applyReactionRisk(GameSession session, PartyState actor, NewsReactionDefinition reaction,
-                                   Map<String, Integer> supportPressure, List<String> commentary) {
+                                   Map<String, Integer> supportPressure, List<String> commentary, boolean triple) {
         int chance = intValue(reaction.getRisk().get("chance"));
         if (chance <= 0 || !riskHit(session, "news:" + actor.getId() + ":" + reaction.getReactionKey(), chance)) {
             return;
         }
-        applyEffects(session, actor, riskEffect(reaction.getRisk(), "playerParty"), supportPressure);
+        applyEffects(session, actor, riskEffect(reaction.getRisk(), "playerParty"), supportPressure, triple);
         Object badOutcome = reaction.getRisk().get("badOutcome");
         commentary.add("Surprise: " + actor.getName() + "'s news response backfired"
                 + (badOutcome == null ? "." : ": " + badOutcome + "."));
+    }
+
+    private void applyReactionRisk(GameSession session, PartyState actor, NewsReactionDefinition reaction,
+                                   Map<String, Integer> supportPressure, List<String> commentary) {
+        applyReactionRisk(session, actor, reaction, supportPressure, commentary, false);
     }
 
     private boolean riskHit(GameSession session, String key, int chance) {

@@ -175,8 +175,8 @@ class RoundResolutionEngineTest {
         org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("funded project 'Party Headquarters'")));
         org.junit.jupiter.api.Assertions.assertTrue(results.stream().anyMatch(r -> r.contains("funded project 'Party Headquarters'")));
         
-        // Assert coin movement is logged (Party A had a net change of -35 coins)
-        org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("Party A had a net change of -35 coins")));
+        // Assert coin movement is logged (Party A had a net change of -30 coins)
+        org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("Party A had a net change of -30 coins")));
         
         // Assert held rewards are logged
         org.junit.jupiter.api.Assertions.assertTrue(commentary.stream().anyMatch(c -> c.contains("Party A is holding reward: Private Donation")));

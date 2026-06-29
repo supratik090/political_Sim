@@ -86,8 +86,8 @@ public class GameService {
         }
 
         List<GameSession> userGames = new ArrayList<>();
-        if (userId != null && !userId.isBlank()) {
-            userGames = gameSessionService.listGames(userId);
+        if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
+            userGames = gameSessionService.listGames(userId.trim().toLowerCase());
         }
 
         List<String> wonScenarioKeys = new ArrayList<>();
@@ -241,6 +241,9 @@ public class GameService {
                             for (ProjectState proj : playerParty.getProjects()) {
                                 if (key.equals(proj.getProjectKey())) {
                                     proj.setProgressPercent(100);
+                                    if (proj.getCompletionTurn() == 0) {
+                                        proj.setCompletionTurn(session.getTurnNumber());
+                                    }
                                     proj.setJustCompleted(false);
                                 }
                             }
@@ -269,11 +272,11 @@ public class GameService {
     }
 
     private GameSession findPrecedingWonSession(String userId, String scenarioKey) {
-        if (userId == null || userId.isBlank()) return null;
+        if (userId == null || userId.isBlank() || "null".equalsIgnoreCase(userId) || "undefined".equalsIgnoreCase(userId)) return null;
         String precedingKey = getPrecedingScenarioKey(scenarioKey);
         if (precedingKey == null) return null;
 
-        List<GameSession> userGames = gameSessionService.listGames(userId);
+        List<GameSession> userGames = gameSessionService.listGames(userId.trim().toLowerCase());
         for (GameSession g : userGames) {
             String skey = g.getScenarioKey();
             if (skey == null) continue;
@@ -313,11 +316,19 @@ public class GameService {
     }
 
     public List<GameSession> listGames(String userId) {
-        return gameSessionService.listGames(userId);
+        if (userId == null || userId.isBlank() || "null".equalsIgnoreCase(userId) || "undefined".equalsIgnoreCase(userId)) {
+            return new ArrayList<>();
+        }
+        return gameSessionService.listGames(userId.trim().toLowerCase());
     }
 
     public TurnView getTurnView(String gameId) {
         GameSession session = getGame(gameId);
+        ensureSecretMetricInitialized(session);
+        if (session.getTripleImpactTurn() <= 0) {
+            session.setTripleImpactTurn(5 * ((session.getTurnNumber() - 1) / 5) + new java.util.Random().nextInt(5) + 1);
+            gameSessionService.save(session);
+        }
         NoConfidenceStatus noConfidence = getNoConfidenceStatus(session);
         List<CardDefinition> availableCards = getAvailableHumanCards(session);
         List<NewsDefinition> currentNews = getCurrentNews(session);
@@ -379,12 +390,17 @@ public class GameService {
                 session.getLastElectionWinner(),
                 session.getLastElectionVoteShares(),
                 session.getCooperationOffers(),
-                session.getActivePacts()
+                session.getActivePacts(),
+                session.getTripleImpactTurn() == session.getTurnNumber(),
+                session.getLastRoundSecretMetric()
         );
     }
 
     public TurnView advanceTurn(String gameId, TurnAdvanceRequest request) {
         GameSession session = getGame(gameId);
+        if (session.getTripleImpactTurn() <= 0) {
+            session.setTripleImpactTurn(5 * ((session.getTurnNumber() - 1) / 5) + new java.util.Random().nextInt(5) + 1);
+        }
         if (session.getStatus() != GameStatus.ACTIVE) {
             throw new IllegalArgumentException("The game has already ended (Status: " + session.getStatus() + ").");
         }
@@ -489,28 +505,54 @@ public class GameService {
         boolean noConfidencePlayed = roundResolutionEngine.resolveRound(session);
         boolean noConfidenceSucceeded = false;
         if (noConfidencePlayed) {
-            PartyState humanParty = session.getParties().stream()
-                .filter(p -> p.getControllerType() == com.politicalsim.party.ControllerType.HUMAN)
+            RoundSubmission noConfSub = session.getCurrentRoundSubmissions().stream()
+                .filter(s -> s.getCardKey() != null && s.getCardKey().contains("no_confidence"))
                 .findFirst().orElse(null);
+            PartyState motionProposer = null;
+            if (noConfSub != null) {
+                motionProposer = session.getParties().stream()
+                    .filter(p -> p.getId().equals(noConfSub.getPartyId()))
+                    .findFirst().orElse(null);
+            }
             PartyState govParty = session.getGovernmentParty();
-            if (humanParty != null && govParty != null && humanParty.getStats().getPublicSupport() > govParty.getStats().getPublicSupport()) {
-                noConfidenceSucceeded = true;
-            } else {
-                session.getLastRoundCommentary().add("The Opposition's No-Confidence Motion failed to gather enough support. The government survives the vote and continues in office.");
-                session.setLastResults(List.of("No-Confidence Motion failed: Government survives."));
+            if (motionProposer != null && govParty != null) {
+                if (motionProposer.getStats().getPublicSupport() > govParty.getStats().getPublicSupport()) {
+                    noConfidenceSucceeded = true;
+                } else {
+                    session.getLastRoundCommentary().add("The Opposition's No-Confidence Motion failed to gather enough support. The government survives the vote and continues in office.");
+                    session.setLastResults(List.of("No-Confidence Motion failed: Government survives."));
+                }
             }
         }
 
+        boolean govDefeated = session.getGovernmentParty() != null && (!session.getGovernmentParty().isActive() || session.getGovernmentParty().getRole() == com.politicalsim.party.PartyRole.DEFEATED);
         boolean electionHeld = (noConfidencePlayed && noConfidenceSucceeded)
+                || govDefeated
                 || session.getMonthInCycle() >= CYCLE_LENGTH_MONTHS
                 || session.getTurnNumber() >= 60;
         if (electionHeld) {
-            roundResolutionEngine.conductElection(session, noConfidencePlayed ? "No-confidence motion triggered an early election." : "Mandatory 60-month election completed.", noConfidencePlayed);
+            String reason = "Mandatory 60-month election completed.";
+            if (noConfidencePlayed && noConfidenceSucceeded) {
+                reason = "No-confidence motion triggered an early election.";
+            } else if (govDefeated) {
+                reason = "Government collapsed due to critical resource failure, triggering an early election.";
+            }
+            roundResolutionEngine.conductElection(session, reason, noConfidencePlayed && noConfidenceSucceeded);
             session.setMonthInCycle(1);
         } else {
             session.setMonthInCycle(session.getMonthInCycle() + 1);
         }
-        session.setTurnNumber(session.getTurnNumber() + 1);
+        session.setLastRoundSecretMetric(session.getSecretMetric());
+        int nextTurn = session.getTurnNumber() + 1;
+        ensureSecretMetricInitialized(session);
+        if ((nextTurn - 1) % 30 == 0) {
+            java.util.Collections.shuffle(session.getSecretMetricSequence());
+        }
+        session.setSecretMetric(session.getSecretMetricSequence().get((nextTurn - 1) % 30));
+        session.setTurnNumber(nextTurn);
+        if ((session.getTurnNumber() - 1) % 5 == 0) {
+            session.setTripleImpactTurn(session.getTurnNumber() + new java.util.Random().nextInt(5));
+        }
         session.setCurrentDate(session.getCurrentDate().plusMonths(1));
 
         // Tick Non-Aggression pacts and cooperation offers
@@ -925,6 +967,9 @@ public class GameService {
                         }
 
                         ps.project().setProgressPercent(ps.project().getProgressPercent() + bestProgress);
+                        if (ps.project().getProgressPercent() == 100 && ps.project().getCompletionTurn() == 0) {
+                            ps.project().setCompletionTurn(session.getTurnNumber());
+                        }
                         
                         // Record AI contribution
                         Map<String, Map<String, Integer>> contribs = session.getProjectContributionsThisTurn();
@@ -1631,6 +1676,9 @@ public class GameService {
         }
 
         project.setProgressPercent(project.getProgressPercent() + actualProgress);
+        if (project.getProgressPercent() == 100 && project.getCompletionTurn() == 0) {
+            project.setCompletionTurn(session.getTurnNumber());
+        }
 
         if (project.getProgressPercent() >= 100) {
             boolean hasIncomplete = party.getProjects().stream()
@@ -2171,5 +2219,21 @@ public class GameService {
     }
 
     private record NoConfidenceStatus(boolean available, String reason) {
+    }
+
+    private void ensureSecretMetricInitialized(GameSession session) {
+        if (session.getSecretMetricSequence() == null || session.getSecretMetricSequence().isEmpty() || session.getSecretMetric() == null) {
+            java.util.List<String> list = new java.util.ArrayList<>();
+            for (int i = 0; i < 6; i++) {
+                list.add("COINS");
+                list.add("MORALE");
+                list.add("MEDIA_IMAGE");
+                list.add("CORRUPTION");
+                list.add("PUBLIC_SUPPORT");
+            }
+            java.util.Collections.shuffle(list);
+            session.setSecretMetricSequence(list);
+            session.setSecretMetric(list.get(0));
+        }
     }
 }

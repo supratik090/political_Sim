@@ -62,6 +62,21 @@ public class AiDecisionService {
         if (stats.getCoins()          < Math.round(35 * survivalFactor)) return AiIntent.RAISE_FUNDS;
         // ─────────────────────────────────────────────────────────────────────────────
 
+        if (party.getRole() != PartyRole.GOVERNMENT) {
+            int mySupport = stats.getPublicSupport();
+            int maxOtherSupport = 0;
+            for (PartyState p : session.getParties()) {
+                if (!p.getId().equals(party.getId()) && p.isActive() && p.getRole() != PartyRole.DEFEATED) {
+                    if (p.getStats().getPublicSupport() > maxOtherSupport) {
+                        maxOtherSupport = p.getStats().getPublicSupport();
+                    }
+                }
+            }
+            if (mySupport > maxOtherSupport + 5) {
+                return AiIntent.FORCE_NO_CONFIDENCE;
+            }
+        }
+
         if (party.getRole() != PartyRole.GOVERNMENT
                 && session.getGovernmentParty().getStats().getPublicSupport() < threshold(profile, "governmentNoConfidenceSupport")
                 && session.getGovernmentParty().getStats().getPartyMorale() < threshold(profile, "governmentNoConfidenceMorale")
@@ -207,6 +222,10 @@ public class AiDecisionService {
 
         double score = doubleValue(card.getWeights().get("basePlayWeight"));
         score += doubleValue(card.getWeights().get("aiPriorityWeight")) * weight(profile, "cardAiPriority");
+
+        if (intent == AiIntent.FORCE_NO_CONFIDENCE && card.getCardKey() != null && card.getCardKey().contains("no_confidence")) {
+            score += 200.0;
+        }
 
         // ── CHANGE 2: Progressive card diversity penalty ──────────────────────────────
         // Applies to ALL parties (human cards are never scored here, only AI cards are).

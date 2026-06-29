@@ -59,6 +59,8 @@ export default function ActionsView({
   handleFundProject,
   handleDestroyProject,
   handleSetProjectTarget,
+  fundedThisTurn = [],
+  setFundedThisTurn,
 
   // Action 7 props
   handleCooperationUpdate,
@@ -230,6 +232,8 @@ export default function ActionsView({
           handleFundProject={handleFundProject}
           handleDestroyProject={handleDestroyProject}
           handleSetProjectTarget={handleSetProjectTarget}
+          fundedThisTurn={fundedThisTurn}
+          setFundedThisTurn={setFundedThisTurn}
         />
       </ActionSection>
 

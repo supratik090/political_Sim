@@ -79,5 +79,15 @@ public class ProjectState {
     public void setTargetPartyName(String targetPartyName) {
         this.targetPartyName = targetPartyName;
     }
+
+    private int completionTurn;
+
+    public int getCompletionTurn() {
+        return completionTurn;
+    }
+
+    public void setCompletionTurn(int completionTurn) {
+        this.completionTurn = completionTurn;
+    }
 }
 

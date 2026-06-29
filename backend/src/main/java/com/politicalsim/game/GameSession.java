@@ -491,4 +491,45 @@ public class GameSession {
     public void setActivePacts(List<NonAggressionPact> activePacts) {
         this.activePacts = activePacts;
     }
+
+    private int tripleImpactTurn;
+
+    public int getTripleImpactTurn() {
+        return tripleImpactTurn;
+    }
+
+    public void setTripleImpactTurn(int tripleImpactTurn) {
+        this.tripleImpactTurn = tripleImpactTurn;
+    }
+
+    private String secretMetric;
+    private String lastRoundSecretMetric;
+    private java.util.List<String> secretMetricSequence = new java.util.ArrayList<>();
+
+    public String getSecretMetric() {
+        return secretMetric;
+    }
+
+    public void setSecretMetric(String secretMetric) {
+        this.secretMetric = secretMetric;
+    }
+
+    public String getLastRoundSecretMetric() {
+        return lastRoundSecretMetric;
+    }
+
+    public void setLastRoundSecretMetric(String lastRoundSecretMetric) {
+        this.lastRoundSecretMetric = lastRoundSecretMetric;
+    }
+
+    public java.util.List<String> getSecretMetricSequence() {
+        if (secretMetricSequence == null) {
+            secretMetricSequence = new java.util.ArrayList<>();
+        }
+        return secretMetricSequence;
+    }
+
+    public void setSecretMetricSequence(java.util.List<String> secretMetricSequence) {
+        this.secretMetricSequence = secretMetricSequence;
+    }
 }

@@ -65,7 +65,12 @@ function formatProjectDefinitions(backendDefs) {
       costMedia: proj.costMedia || 0,
       costSupport: proj.costSupport || 0,
       yield: getYieldString(proj),
-      offensive: proj.requiresTarget || false
+      offensive: proj.requiresTarget || false,
+      benefitCoins: proj.benefitCoins || 0,
+      benefitMorale: proj.benefitMorale || 0,
+      benefitCorruption: proj.benefitCorruption || 0,
+      benefitMedia: proj.benefitMedia || 0,
+      benefitSupport: proj.benefitSupport || 0
     };
   });
   return newDefs;
@@ -118,6 +123,7 @@ export default function GamePlayBoard() {
   const [projectCategoryFilter, setProjectCategoryFilter] = useState('BUILD');
   const [draftProjectKeys, setDraftProjectKeys] = useState([]);
   const [fundingContributions, setFundingContributions] = useState({});
+  const [fundedThisTurn, setFundedThisTurn] = useState([]);
 
   const activeParty = turnData?.parties?.find(p => p.id === turnData.activeHumanPartyId) || turnData?.parties?.find(p => p.playerControlled);
   const playerPartyName = turnData?.activeHumanPartyName || activeParty?.name;
@@ -141,6 +147,7 @@ export default function GamePlayBoard() {
     setRewardTargetPartyId('');
     setFundingContributions({});
     setDraftProjectKeys([]);
+    setFundedThisTurn([]);
     setRewardConfirmed(false);
     setPartyBuildingConfirmed(false);
     setCardCategoryFilter('agitation_movement');
@@ -256,6 +263,7 @@ export default function GamePlayBoard() {
         return next;
       });
       setDraftProjectKeys(prev => prev.filter(k => k !== projectKey));
+      setFundedThisTurn(prev => [...prev, projectKey]);
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to fund project.');
@@ -535,6 +543,7 @@ export default function GamePlayBoard() {
               setCommentaryExpanded={setCommentaryExpanded}
               commentaryFilter={commentaryFilter}
               setCommentaryFilter={setCommentaryFilter}
+              projectDefs={projectDefs}
             />
           )}
 
@@ -589,6 +598,8 @@ export default function GamePlayBoard() {
               handleFundProject={handleFundProject}
               handleDestroyProject={handleDestroyProject}
               handleSetProjectTarget={handleSetProjectTarget}
+              fundedThisTurn={fundedThisTurn}
+              setFundedThisTurn={setFundedThisTurn}
 
               // Action 7 props
               handleCooperationUpdate={setTurnData}

@@ -16,13 +16,24 @@ export default function Action6PartyBuilding({
   setPartyBuildingConfirmed,
   handleFundProject,
   handleDestroyProject,
-  handleSetProjectTarget
+  handleSetProjectTarget,
+  fundedThisTurn = []
 }) {
   if (!activeParty) return null;
 
   const activeProjects = activeParty.projects || [];
-  const completedProjects = activeProjects.filter(p => p.progressPercent >= 100);
-  const selectedProjects = activeProjects.filter(p => p.progressPercent < 100 && (p.progressPercent > 0 || draftProjectKeys.includes(p.id) || draftProjectKeys.includes(p.projectKey)));
+  const completedProjects = activeProjects
+    .filter(p => p.progressPercent >= 100)
+    .sort((a, b) => (a.completionTurn || 0) - (b.completionTurn || 0));
+  
+  const selectedProjects = activeProjects.filter(p => 
+    p.progressPercent < 100 && 
+    (p.progressPercent > 0 || draftProjectKeys.includes(p.id) || draftProjectKeys.includes(p.projectKey)) &&
+    !fundedThisTurn.includes(p.id) &&
+    !fundedThisTurn.includes(p.projectKey)
+  );
+  
+  const capReached = fundedThisTurn.length >= 3;
   
   const availableProjects = Object.entries(PROJECT_DEFS).map(([key, def]) => {
     const existing = activeProjects.find(p => p.projectKey === key && p.progressPercent < 100);
@@ -49,6 +60,12 @@ export default function Action6PartyBuilding({
         <p style={{ margin: '0 0 15px 0', fontSize: '13px', color: 'var(--card-text)' }}>
           Fund long-term construction projects for passive campaign yields or offensive targets.
         </p>
+      )}
+
+      {capReached && (
+        <div style={{ padding: '8px 12px', background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: '8px', color: '#b45309', fontSize: '12px', fontWeight: 'bold', marginBottom: '15px' }}>
+          ⚠️ Daily funding limit reached: You can contribute to at most 3 projects in a single turn.
+        </div>
       )}
 
       {/* Completed Projects */}
@@ -247,15 +264,16 @@ export default function Action6PartyBuilding({
                     <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
                       {chosenContrib > 0 && canAfford && (
                         <button
+                          disabled={partyBuildingConfirmed || capReached}
                           onClick={() => handleFundProject(projId, chosenContrib)}
                           style={{
                             padding: '6px 15px',
                             fontSize: '11px',
-                            background: '#22c55e',
+                            background: capReached ? 'gray' : '#22c55e',
                             color: '#ffffff',
                             border: 'none',
                             fontWeight: 'bold',
-                            cursor: 'pointer',
+                            cursor: capReached ? 'not-allowed' : 'pointer',
                             borderRadius: '4px'
                           }}
                         >
@@ -348,7 +366,7 @@ export default function Action6PartyBuilding({
                     <div style={{ fontSize: '10px', color: 'var(--card-text)', marginTop: '4px' }}>Yield: {avail.yield}</div>
                   </div>
                   <button
-                    disabled={partyBuildingConfirmed}
+                    disabled={partyBuildingConfirmed || capReached}
                     onClick={() => {
                       setDraftProjectKeys(prev => [...prev, avail.key]);
                       setPartyBuildingConfirmed(false);
@@ -358,9 +376,9 @@ export default function Action6PartyBuilding({
                       fontSize: '11px', 
                       marginTop: '8px', 
                       alignSelf: 'flex-start',
-                      cursor: 'pointer',
-                      background: 'var(--party-primary-color)',
-                      border: '1px solid var(--party-primary-color)',
+                      cursor: (partyBuildingConfirmed || capReached) ? 'not-allowed' : 'pointer',
+                      background: (partyBuildingConfirmed || capReached) ? 'gray' : 'var(--party-primary-color)',
+                      borderColor: (partyBuildingConfirmed || capReached) ? 'gray' : 'var(--party-primary-color)',
                       color: '#ffffff',
                       fontWeight: 'bold',
                       borderRadius: '4px'

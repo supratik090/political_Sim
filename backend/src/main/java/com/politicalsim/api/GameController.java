@@ -41,8 +41,8 @@ public class GameController {
 
     @GetMapping
     public List<GameSession> listGames(@org.springframework.web.bind.annotation.RequestParam(required = false) String userId) {
-        if (userId != null && !userId.isBlank()) {
-            return gameService.listGames(userId);
+        if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
+            return gameService.listGames(userId.trim().toLowerCase());
         }
         return gameService.listGames();
     }

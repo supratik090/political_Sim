@@ -7,7 +7,8 @@ export default function StatsView({
   commentaryExpanded,
   setCommentaryExpanded,
   commentaryFilter,
-  setCommentaryFilter
+  setCommentaryFilter,
+  projectDefs = {}
 }) {
   return (
     <div>
@@ -163,6 +164,137 @@ export default function StatsView({
           </div>
         );
       })()}
+
+      {/* Voter Support Doughnut Chart & Standings Overview */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '30px', 
+        background: '#ffffff', 
+        border: '2px solid var(--primary-border)',
+        padding: '25px',
+        borderRadius: '16px',
+        marginBottom: '25px',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        boxShadow: '0 4px 15px rgba(33,60,81,0.05)'
+      }}>
+        {/* Left: SVG Doughnut Chart */}
+        <div style={{ flex: '1 1 200px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+          {(() => {
+            const activeParties = (turnData.parties || []).filter(p => p.role !== 'DEFEATED');
+            const undecided = turnData.publicState?.undecidedSupport || 0;
+            const slices = activeParties.map(p => ({
+              name: p.name,
+              value: p.stats?.publicSupport || 0,
+              color: getPartyColor(p),
+              isPlayer: p.playerControlled
+            }));
+            if (undecided > 0) {
+              slices.push({
+                name: 'Undecided Voters',
+                value: undecided,
+                color: '#94a3b8',
+                isPlayer: false
+              });
+            }
+
+            const total = slices.reduce((acc, s) => acc + s.value, 0) || 100;
+            const radius = 35;
+            const circ = 2 * Math.PI * radius; // ~219.91
+            let cumulativePercent = 0;
+
+            return (
+              <div style={{ position: 'relative', width: '200px', height: '200px' }}>
+                <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+                  {slices.map((slice, idx) => {
+                    const pct = (slice.value / total) * 100;
+                    const strokeLength = (pct / 100) * circ;
+                    const strokeOffset = circ - (cumulativePercent / 100) * circ;
+                    cumulativePercent += pct;
+                    return (
+                      <circle
+                        key={idx}
+                        cx="50"
+                        cy="50"
+                        r={radius}
+                        fill="transparent"
+                        stroke={slice.color}
+                        strokeWidth="14"
+                        strokeDasharray={`${strokeLength} ${circ}`}
+                        strokeDashoffset={strokeOffset}
+                        style={{
+                          transition: 'stroke-dashoffset 0.8s ease-in-out, stroke-dasharray 0.8s ease-in-out',
+                          cursor: 'pointer'
+                        }}
+                        title={`${slice.name}: ${slice.value}%`}
+                      />
+                    );
+                  })}
+                </svg>
+                {/* Center text of the Doughnut Chart */}
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  textAlign: 'center',
+                  fontFamily: "'Inter', sans-serif"
+                }}>
+                  <div style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', opacity: 0.6, letterSpacing: '0.05em' }}>
+                    Voter Support
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: '900', color: 'var(--primary-dark)' }}>
+                    100%
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Right: Legend and Vote Shares */}
+        <div style={{ flex: '2 1 300px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <h3 style={{ margin: '0 0 5px 0', fontSize: '15px', color: 'var(--primary-dark)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+            Current Voter Support share
+          </h3>
+          {(() => {
+            const activeParties = (turnData.parties || []).filter(p => p.role !== 'DEFEATED');
+            const undecided = turnData.publicState?.undecidedSupport || 0;
+            const items = activeParties.map(p => ({
+              name: p.name,
+              value: p.stats?.publicSupport || 0,
+              color: getPartyColor(p),
+              isPlayer: p.playerControlled,
+              symbol: p.symbol,
+              role: p.role
+            }));
+            if (undecided > 0) {
+              items.push({
+                name: 'Undecided Voters',
+                value: undecided,
+                color: '#94a3b8',
+                isPlayer: false,
+                symbol: 'N/A',
+                role: 'UNDECIDED'
+              });
+            }
+
+            return items.map((item, idx) => (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: item.color, border: '1px solid rgba(0,0,0,0.1)', display: 'inline-block' }} />
+                  <span style={{ fontWeight: item.isPlayer ? 'bold' : 'normal', color: 'var(--primary-dark)' }}>
+                    {item.name} {item.isPlayer && '(You)'} <span style={{ fontSize: '10px', opacity: 0.6 }}>({item.symbol})</span>
+                  </span>
+                </div>
+                <div style={{ fontWeight: 'bold', color: 'var(--primary-dark)' }}>
+                  {item.value}%
+                </div>
+              </div>
+            ));
+          })()}
+        </div>
+      </div>
 
       {/* 3 Party Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '25px' }}>
@@ -355,13 +487,26 @@ export default function StatsView({
           </div>
           <span style={{ fontSize: '11px', opacity: 0.7 }}>Submit bids using this metric to win five-turn cycle rewards</span>
         </div>
-        <div className="cycle-reward-pane">
+        <div className="cycle-reward-pane" style={{ flex: '1 1 200px', borderLeft: '1px solid rgba(0,0,0,0.08)', paddingLeft: '20px' }}>
           <h4 style={{ margin: '0 0 5px 0', textTransform: 'uppercase', fontSize: '10px', opacity: 0.8, letterSpacing: '0.05em', color: 'var(--primary-dark)' }}>Current Cycle Reward</h4>
           <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>
             🏆 {turnData.currentRewardName || 'None'}
           </div>
           <p style={{ margin: '4px 0 0 0', fontSize: '12px', opacity: 0.9, lineHeight: 1.4 }}>{turnData.currentRewardDescription || 'No reward description'}</p>
         </div>
+        {turnData.lastRoundSecretMetric && (
+          <div style={{ flex: '1 1 200px', borderLeft: '1px solid rgba(0,0,0,0.08)', paddingLeft: '20px' }}>
+            <h4 style={{ margin: '0 0 5px 0', textTransform: 'uppercase', fontSize: '10px', opacity: 0.8, letterSpacing: '0.05em', color: 'var(--primary-dark)' }}>Active Reward</h4>
+            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#16a34a' }}>
+              ✨ {turnData.lastRoundSecretMetric === 'COINS' && '💰 Coins'}
+              {turnData.lastRoundSecretMetric === 'MORALE' && '✊ Morale'}
+              {turnData.lastRoundSecretMetric === 'MEDIA_IMAGE' && '📢 Media'}
+              {turnData.lastRoundSecretMetric === 'CORRUPTION' && '⚖️ Corruption'}
+              {turnData.lastRoundSecretMetric === 'PUBLIC_SUPPORT' && '📈 Support'}
+            </div>
+            <span style={{ fontSize: '11px', opacity: 0.7 }}>Matched cards/opposition targets received 3x effects!</span>
+          </div>
+        )}
       </div>
 
       {/* TV Breaking News alert for last results */}
@@ -618,6 +763,136 @@ export default function StatsView({
             })()}
           </div>
         )}
+      </div>
+
+      {/* Project View Section */}
+      <div style={{ 
+        border: '1px solid var(--primary-border)', 
+        borderRadius: '12px', 
+        marginBottom: '25px', 
+        background: '#ffffff', 
+        color: '#000000', 
+        overflow: 'hidden', 
+        boxShadow: '0 4px 12px rgba(33,60,81,0.05)' 
+      }}>
+        {/* Header */}
+        <div 
+          style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            padding: '15px 20px', 
+            background: 'rgba(101, 148, 177, 0.05)', 
+            borderBottom: '1px solid var(--primary-border)',
+            userSelect: 'none'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '14px' }}>🏗️</span>
+            <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.05em', color: 'var(--primary-dark)', fontWeight: 'bold' }}>
+              Completed Projects & Yield View
+            </h4>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div style={{ padding: '20px' }}>
+          {(() => {
+            const activeParties = (turnData.parties || []).filter(p => p.role !== 'DEFEATED');
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {activeParties.map(p => {
+                  const completedProjects = (p.projects || [])
+                    .filter(proj => proj.progressPercent === 100)
+                    .sort((a, b) => (a.completionTurn || 0) - (b.completionTurn || 0));
+                  
+                  // Compute Net Yield
+                  let netCoins = 0;
+                  let netMorale = 0;
+                  let netCorruption = 0;
+                  let netMedia = 0;
+                  let netSupport = 0;
+
+                  completedProjects.forEach(proj => {
+                    const rawKey = proj.projectKey;
+                    const def = projectDefs[rawKey];
+                    if (def) {
+                      netCoins += def.benefitCoins || 0;
+                      netMorale += def.benefitMorale || 0;
+                      netCorruption += def.benefitCorruption || 0;
+                      netMedia += def.benefitMedia || 0;
+                      netSupport += def.benefitSupport || 0;
+                    }
+                  });
+
+                  return (
+                    <div key={p.id} style={{ borderBottom: '1px solid rgba(101, 148, 177, 0.1)', paddingBottom: '15px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                        <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: getPartyColor(p) }} />
+                        <h5 style={{ margin: 0, fontSize: '14px', color: 'var(--primary-dark)' }}>
+                          {p.name} {p.playerControlled && '(You)'}
+                        </h5>
+                      </div>
+
+                      {completedProjects.length === 0 ? (
+                        <div style={{ fontSize: '12px', color: '#64748b', paddingLeft: '18px' }}>
+                          No completed projects yet.
+                        </div>
+                      ) : (
+                        <div style={{ paddingLeft: '18px' }}>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+                            {completedProjects.map(proj => {
+                              const def = projectDefs[proj.projectKey];
+                              const name = def ? def.name : proj.projectKey;
+                              return (
+                                <span 
+                                  key={proj.id} 
+                                  style={{ 
+                                    fontSize: '11px', 
+                                    background: 'rgba(101, 148, 177, 0.1)', 
+                                    color: 'var(--primary-dark)', 
+                                    padding: '4px 10px', 
+                                    borderRadius: '6px',
+                                    fontWeight: '600'
+                                  }}
+                                >
+                                  {name} {proj.targetPartyName && `🎯 ${proj.targetPartyName}`}
+                                </span>
+                              );
+                            })}
+                          </div>
+
+                          {/* Net Yield Row */}
+                          <div style={{ 
+                            fontSize: '12px', 
+                            background: 'rgba(23, 184, 144, 0.05)', 
+                            border: '1px solid rgba(23, 184, 144, 0.15)',
+                            padding: '8px 12px', 
+                            borderRadius: '8px', 
+                            display: 'inline-flex', 
+                            gap: '12px',
+                            color: '#15803d',
+                            fontWeight: '600'
+                          }}>
+                            <span>Net Yield:</span>
+                            {netCoins !== 0 && <span>💰 {netCoins > 0 ? '+' : ''}{netCoins} Coins</span>}
+                            {netMorale !== 0 && <span>✊ {netMorale > 0 ? '+' : ''}{netMorale} Morale</span>}
+                            {netCorruption !== 0 && <span>⚖️ {netCorruption > 0 ? '+' : ''}{netCorruption} Corruption</span>}
+                            {netMedia !== 0 && <span>📢 {netMedia > 0 ? '+' : ''}{netMedia} Media</span>}
+                            {netSupport !== 0 && <span>📈 {netSupport > 0 ? '+' : ''}{netSupport}% Support</span>}
+                            {netCoins === 0 && netMorale === 0 && netCorruption === 0 && netMedia === 0 && netSupport === 0 && (
+                              <span style={{ color: '#64748b' }}>No per-turn yields</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </div>
       </div>
     </div>
   );

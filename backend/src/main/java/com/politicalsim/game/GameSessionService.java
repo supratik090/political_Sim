@@ -51,9 +51,14 @@ public class GameSessionService {
 
     public GameSession createGame(CreateGameRequest request, RewardDefinition firstReward) {
         String key = request.getScenarioKey() == null ? "west_bengal_2000" : request.getScenarioKey();
-        String userId = request.getUserId() == null ? null : request.getUserId().trim().toLowerCase();
+        String userId = request.getUserId();
+        if (userId == null || userId.isBlank() || "null".equalsIgnoreCase(userId) || "undefined".equalsIgnoreCase(userId)) {
+            userId = null;
+        } else {
+            userId = userId.trim().toLowerCase();
+        }
         List<GameSession> active;
-        if (userId != null && !userId.isBlank()) {
+        if (userId != null) {
             active = repository.findByScenarioKeyAndStatusAndUserId(key, GameStatus.ACTIVE, userId);
         } else {
             active = repository.findByScenarioKeyAndStatus(key, GameStatus.ACTIVE);
@@ -80,6 +85,8 @@ public class GameSessionService {
         session.setStateName(blankToDefault(request.getStateName(), scenario == null ? defaultStateName : scenario.getStateName()));
         session.setTurnNumber(1);
         session.setMonthInCycle(1);
+        session.setTripleImpactTurn(new java.util.Random().nextInt(5) + 1);
+        initializeSecretMetricSequence(session);
         LocalDate scenarioStartDate = scenario == null ? LocalDate.of(2020, 10, 1) : scenario.getStartDate();
         session.setCurrentDate(request.getStartDate() == null ? scenarioStartDate : request.getStartDate());
         session.setStatus(GameStatus.ACTIVE);
@@ -164,7 +171,7 @@ public class GameSessionService {
     }
 
     public List<GameSession> listGames(String userId) {
-        if (userId != null && !userId.isBlank()) {
+        if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
             return repository.findAllByUserIdOrderByCurrentDateDesc(userId.trim().toLowerCase());
         }
         return repository.findAllByOrderByCurrentDateDesc();
@@ -331,5 +338,19 @@ public class GameSessionService {
 
     private String blankToDefault(String value, String defaultValue) {
         return value == null || value.isBlank() ? defaultValue : value;
+    }
+
+    private void initializeSecretMetricSequence(GameSession session) {
+        java.util.List<String> list = new java.util.ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            list.add("COINS");
+            list.add("MORALE");
+            list.add("MEDIA_IMAGE");
+            list.add("CORRUPTION");
+            list.add("PUBLIC_SUPPORT");
+        }
+        java.util.Collections.shuffle(list);
+        session.setSecretMetricSequence(list);
+        session.setSecretMetric(list.get(0));
     }
 }

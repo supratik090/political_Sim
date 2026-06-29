@@ -59,6 +59,8 @@ public record TurnView(
         String lastElectionWinner,
         Map<String, Integer> lastElectionVoteShares,
         List<CooperationOffer> cooperationOffers,
-        List<NonAggressionPact> activePacts
+        List<NonAggressionPact> activePacts,
+        boolean tripleImpactActive,
+        String lastRoundSecretMetric
 ) {
 }

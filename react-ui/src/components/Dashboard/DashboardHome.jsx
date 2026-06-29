@@ -47,6 +47,10 @@ export default function DashboardHome() {
     // When scenario changes, populate default parties
     if (scenarios.length > 0) {
       const scenario = scenarios[selectedScenarioIndex];
+      if (scenario) {
+        setSelectedYear(scenario.startYear);
+        setSelectedStateName(scenario.stateName);
+      }
       if (scenario && scenario.politicalParties) {
         setPartyConfigs(scenario.politicalParties.map(p => {
           const defaultColor = p.startingRole === 'GOVERNMENT' ? '#E15554' : p.startingRole === 'OPPOSITION' ? '#3F88C5' : '#17B890';
@@ -87,7 +91,7 @@ export default function DashboardHome() {
             description: s.description || def.description,
             stateName: s.stateName || def.stateName,
             status: s.status,
-            startYear: def.startDate ? parseInt(def.startDate.split('-')[0]) : 2001
+            startYear: s.scenarioKey?.endsWith('_2006') ? 2006 : 2001
           };
         });
       setAllScenarios(allScenariosData);
@@ -218,7 +222,15 @@ export default function DashboardHome() {
           <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>Select Scenario</label>
           <select 
             value={selectedScenarioIndex} 
-            onChange={(e) => setSelectedScenarioIndex(parseInt(e.target.value))}
+            onChange={(e) => {
+              const idx = parseInt(e.target.value);
+              setSelectedScenarioIndex(idx);
+              const scenario = scenarios[idx];
+              if (scenario) {
+                setSelectedYear(scenario.startYear);
+                setSelectedStateName(scenario.stateName);
+              }
+            }}
           >
             {scenarios.map((s, idx) => (
               <option key={s.id} value={idx}>{s.name} - "{s.description?.slice(0, 30)}..."</option>
