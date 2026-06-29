@@ -1,12 +1,15 @@
 .DS_Store
 .env
 backend/.env
+python-ui/.env
 react-ui/.env
 
 # Java / Maven
 backend/target/
 
+# Python
 
+*.pyc
 
 # Editors
 .idea/
