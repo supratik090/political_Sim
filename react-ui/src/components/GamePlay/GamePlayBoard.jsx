@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { fetchTurnView, advanceTurn, fundProject, setProjectTarget, fetchBuildingProjects } from '../../api/apiClient';
+import { fetchTurnView, advanceTurn, fundProject, destroyProject, setProjectTarget, fetchBuildingProjects } from '../../api/apiClient';
 import { getPartyColor, cardRequiresTarget } from './gameUtils';
 import StatsView from './StatsView';
 import ActionsView from './ActionsView';
@@ -255,9 +255,30 @@ export default function GamePlayBoard() {
         delete next[projectKey];
         return next;
       });
+      setDraftProjectKeys(prev => prev.filter(k => k !== projectKey));
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to fund project.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDestroyProject = async (projectKey) => {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await destroyProject(activeGameId, activeParty.id, projectKey);
+      setTurnData(data);
+      setFundingContributions(prev => {
+        const next = { ...prev };
+        delete next[projectKey];
+        return next;
+      });
+      setDraftProjectKeys(prev => prev.filter(k => k !== projectKey));
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Failed to destroy project.');
     } finally {
       setLoading(false);
     }
@@ -566,6 +587,7 @@ export default function GamePlayBoard() {
               partyBuildingConfirmed={partyBuildingConfirmed}
               setPartyBuildingConfirmed={setPartyBuildingConfirmed}
               handleFundProject={handleFundProject}
+              handleDestroyProject={handleDestroyProject}
               handleSetProjectTarget={handleSetProjectTarget}
 
               // Action 7 props

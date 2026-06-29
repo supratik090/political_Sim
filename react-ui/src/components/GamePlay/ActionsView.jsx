@@ -57,6 +57,7 @@ export default function ActionsView({
   partyBuildingConfirmed,
   setPartyBuildingConfirmed,
   handleFundProject,
+  handleDestroyProject,
   handleSetProjectTarget,
 
   // Action 7 props
@@ -227,6 +228,7 @@ export default function ActionsView({
           partyBuildingConfirmed={partyBuildingConfirmed}
           setPartyBuildingConfirmed={setPartyBuildingConfirmed}
           handleFundProject={handleFundProject}
+          handleDestroyProject={handleDestroyProject}
           handleSetProjectTarget={handleSetProjectTarget}
         />
       </ActionSection>

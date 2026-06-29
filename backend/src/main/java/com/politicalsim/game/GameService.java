@@ -407,8 +407,12 @@ public class GameService {
         // Validate bid
         String activeMetric = roundResolutionEngine.getBiddingMetricForTurn(session.getTurnNumber());
         int currentMetricValue = roundResolutionEngine.getStatValue(activeHumanParty, activeMetric);
-        if (request.getBid() < 0 || request.getBid() > currentMetricValue) {
-            throw new IllegalArgumentException("Bid of " + request.getBid() + " is invalid. Must be between 0 and your current " + activeMetric + " (" + currentMetricValue + ").");
+        int maxAllowedBid = currentMetricValue;
+        if ("CORRUPTION".equalsIgnoreCase(activeMetric)) {
+            maxAllowedBid = Math.max(0, 95 - activeHumanParty.getStats().getCorruptionScore());
+        }
+        if (request.getBid() < 0 || request.getBid() > maxAllowedBid) {
+            throw new IllegalArgumentException("Bid of " + request.getBid() + " is invalid. Must be between 0 and the maximum allowed for " + activeMetric + " (" + maxAllowedBid + ").");
         }
 
         // Validate optional reward play
@@ -1309,7 +1313,7 @@ public class GameService {
         }
         
         // 3. Resource-safe bid calculation
-        if (currentMetricValue <= 0) {
+        if (currentMetricValue <= 0 && !"CORRUPTION".equalsIgnoreCase(metric)) {
             return 0;
         }
 
@@ -1374,6 +1378,18 @@ public class GameService {
                     bid = minBid;
                 }
             }
+        } else if ("CORRUPTION".equalsIgnoreCase(metric)) {
+            int headroom = Math.max(0, 95 - stats.getCorruptionScore());
+            if (headroom > 0) {
+                int minBid = Math.max(1, (int) Math.ceil(headroom * 0.05 * bidMultiplier));
+                int maxBid = Math.min(20, (int) (headroom * 0.15 * bidMultiplier));
+                maxBid = Math.max(minBid, maxBid);
+                if (maxBid > minBid) {
+                    bid = minBid + new Random().nextInt(maxBid - minBid + 1);
+                } else {
+                    bid = minBid;
+                }
+            }
         } else if ("PARTY_MORALE".equalsIgnoreCase(metric) || "MORALE".equalsIgnoreCase(metric)) {
             int minReserve = Math.max(moraleReserve, 18); // Absolute safety reserve of 18 morale
             int usable = Math.max(0, currentMetricValue - minReserve);
@@ -1408,8 +1424,10 @@ public class GameService {
         }
         
         // 4. Enforce strict limits:
-        // - Capped at 20% of current metric value (to avoid losing too much in a single bid)
-        int maxAllowedBid = (int) (currentMetricValue * 0.20);
+        // - Capped at 20% of current metric value (or headroom for corruption)
+        int maxAllowedBid = "CORRUPTION".equalsIgnoreCase(metric)
+                ? (int) (Math.max(0, 95 - stats.getCorruptionScore()) * 0.20)
+                : (int) (currentMetricValue * 0.20);
         bid = Math.min(bid, maxAllowedBid);
 
         // - "go slow with min Bids at first turns" (First 15 turns)
@@ -1420,6 +1438,8 @@ public class GameService {
                 bid = Math.min(bid, 5);
             } else if ("PUBLIC_SUPPORT".equalsIgnoreCase(metric) || "SUPPORT".equalsIgnoreCase(metric)) {
                 bid = Math.min(bid, 1);
+            } else if ("CORRUPTION".equalsIgnoreCase(metric)) {
+                bid = Math.min(bid, 6);
             } else {
                 bid = Math.min(bid, 3);
             }

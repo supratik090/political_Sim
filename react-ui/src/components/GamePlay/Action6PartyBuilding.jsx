@@ -15,6 +15,7 @@ export default function Action6PartyBuilding({
   partyBuildingConfirmed,
   setPartyBuildingConfirmed,
   handleFundProject,
+  handleDestroyProject,
   handleSetProjectTarget
 }) {
   if (!activeParty) return null;
@@ -106,6 +107,30 @@ export default function Action6PartyBuilding({
                     ) : (
                       <span style={{ fontSize: '10px', color: '#22c55e', fontWeight: 'bold', marginTop: '6px', display: 'inline-block' }}>🛡️ Passive yield active</span>
                     )}
+                    <div style={{ marginTop: '10px', borderTop: '1px solid rgba(34,197,94,0.15)', paddingTop: '6px' }}>
+                      <button
+                        disabled={partyBuildingConfirmed}
+                        onClick={() => {
+                          const refundCoins = pDef.costCoins || 0;
+                          if (window.confirm(`Are you sure you want to destroy completed project '${pDef.name || proj.projectKey}'? You will receive a refund of ${refundCoins} Coins.`)) {
+                            handleDestroyProject(projId);
+                          }
+                        }}
+                        style={{
+                          padding: '4px 8px',
+                          fontSize: '11px',
+                          background: '#ef4444',
+                          color: '#ffffff',
+                          border: 'none',
+                          fontWeight: 'bold',
+                          cursor: 'pointer',
+                          borderRadius: '4px',
+                          boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)'
+                        }}
+                      >
+                        🗑️ Destroy &amp; Refund ({pDef.costCoins || 0} 💰)
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -219,8 +244,8 @@ export default function Action6PartyBuilding({
                       </div>
                     </div>
 
-                    {chosenContrib > 0 && canAfford && (
-                      <div style={{ marginTop: '12px', textAlign: 'left' }}>
+                    <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+                      {chosenContrib > 0 && canAfford && (
                         <button
                           onClick={() => handleFundProject(projId, chosenContrib)}
                           style={{
@@ -236,8 +261,33 @@ export default function Action6PartyBuilding({
                         >
                           🏗️ Confirm Funding
                         </button>
-                      </div>
-                    )}
+                      )}
+
+                      {progress > 0 && (
+                        <button
+                          disabled={partyBuildingConfirmed}
+                          onClick={() => {
+                            const refundCoins = Math.ceil((pDef.costCoins || 0) * progress / 100.0);
+                            if (window.confirm(`Are you sure you want to scrap in-progress project '${pDef.name || proj.projectKey}'? You will receive a refund of ${refundCoins} Coins.`)) {
+                              handleDestroyProject(projId);
+                            }
+                          }}
+                          style={{
+                            padding: '6px 15px',
+                            fontSize: '11px',
+                            background: '#ef4444',
+                            color: '#ffffff',
+                            border: 'none',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                            borderRadius: '4px',
+                            boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)'
+                          }}
+                        >
+                          🗑️ Scrap &amp; Refund ({Math.ceil((pDef.costCoins || 0) * progress / 100.0)} 💰)
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               );

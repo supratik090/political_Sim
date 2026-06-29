@@ -475,7 +475,10 @@ export default function DashboardHome() {
               if (scenario) {
                 if (scenario.status === 'LOCKED') {
                   fillColor = '#cbd5e1';
-                } else if (scenario.status === 'AVAILABLE' || scenario.status === 'IN_PROGRESS') {
+                } else if (scenario.status === 'IN_PROGRESS') {
+                  fillColor = '#f59e0b';
+                  cursor = 'pointer';
+                } else if (scenario.status === 'AVAILABLE') {
                   fillColor = '#22c55e';
                   cursor = 'pointer';
                 } else if (scenario.status === 'WON') {
@@ -529,7 +532,11 @@ export default function DashboardHome() {
         <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '15px', flexWrap: 'wrap', fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ width: '12px', height: '12px', backgroundColor: '#22c55e', borderRadius: '3px', border: '1px solid #94a3b8' }} />
-            <span>Available / Active</span>
+            <span>Available</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ width: '12px', height: '12px', backgroundColor: '#f59e0b', borderRadius: '3px', border: '1px solid #94a3b8' }} />
+            <span>In Progress</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ width: '12px', height: '12px', backgroundColor: '#3b82f6', borderRadius: '3px', border: '1px solid #94a3b8' }} />
@@ -657,9 +664,11 @@ export default function DashboardHome() {
       {/* Map Column */}
       {renderMapCard()}
 
-      {/* Campaigns list Column */}
+      {/* Campaigns list / Action Column */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {renderTable()}
+        {view === 'TABLE' && renderTable()}
+        {view === 'CREATE' && renderCreate()}
+        {view === 'LOAD' && renderLoad()}
       </div>
     </div>
   );
@@ -684,9 +693,7 @@ export default function DashboardHome() {
         </p>
       </div>
 
-      {view === 'TABLE' && renderDashboardGrid()}
-      {view === 'CREATE' && renderCreate()}
-      {view === 'LOAD' && renderLoad()}
+      {renderDashboardGrid()}
     </div>
   );
 }

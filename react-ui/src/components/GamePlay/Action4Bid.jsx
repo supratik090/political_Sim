@@ -18,7 +18,10 @@ export default function Action4Bid({
     'MEDIA': 'mediaImage',
     'PUBLIC_SUPPORT': 'publicSupport'
   };
-  const maxBid = activePartyStats[metricMap[bidMetric.toUpperCase()] || 'coins'] || 0;
+  let maxBid = activePartyStats[metricMap[bidMetric.toUpperCase()] || 'coins'] || 0;
+  if (bidMetric.toUpperCase() === 'CORRUPTION') {
+    maxBid = Math.max(0, 95 - (activePartyStats.corruptionScore || 0));
+  }
 
   return (
     <div>

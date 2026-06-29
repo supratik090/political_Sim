@@ -77,6 +77,14 @@ public class GameController {
         return gameService.fundProject(gameId, partyId, projectKey, progress);
     }
 
+    @PostMapping("/{gameId}/parties/{partyId}/projects/destroy")
+    public TurnView destroyProject(
+            @PathVariable String gameId,
+            @PathVariable String partyId,
+            @RequestParam String projectKey) {
+        return gameService.destroyProject(gameId, partyId, projectKey);
+    }
+
     @PostMapping("/{gameId}/parties/{partyId}/projects/{projectKey}/target")
     public TurnView setProjectTarget(
             @PathVariable String gameId,

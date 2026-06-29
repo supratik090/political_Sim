@@ -77,6 +77,8 @@ export const forfeitGame = (gameId) => apiPost(`/api/games/${gameId}/forfeit`);
 export const deleteGame = (gameId) => apiDelete(`/api/games/${gameId}`);
 export const fundProject = (gameId, partyId, projectKey, progress) => 
   apiPost(`/api/games/${gameId}/parties/${partyId}/projects/fund?projectKey=${projectKey}&progress=${progress}`);
+export const destroyProject = (gameId, partyId, projectKey) => 
+  apiPost(`/api/games/${gameId}/parties/${partyId}/projects/destroy?projectKey=${projectKey}`);
 export const setProjectTarget = (gameId, partyId, projectKey, targetPartyId) => 
   apiPost(`/api/games/${gameId}/parties/${partyId}/projects/${projectKey}/target?targetPartyId=${targetPartyId}`);
 export const createCooperationOffer = (gameId, payload) => apiPost(`/api/games/${gameId}/cooperation/offer`, payload);

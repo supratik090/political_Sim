@@ -1150,7 +1150,7 @@ public class AiDecisionService {
         return sorted;
     }
 
-    private double scoreProjectForRetention(String projectKey) {
+    public double scoreProjectForRetention(String projectKey) {
         try {
             BuildingProject project = BuildingProject.valueOf(projectKey);
             double score = 0.0;
