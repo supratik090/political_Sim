@@ -42,6 +42,9 @@ For a detailed explanation of the gameplay mechanics, backend architecture, and 
 
 ### Step 2: Run the Frontend
 
+Choose one of the frontend clients below to start:
+
+#### Option A: React UI (Web)
 1.  Navigate to the `react-ui` directory:
     ```bash
     cd react-ui
@@ -55,6 +58,24 @@ For a detailed explanation of the gameplay mechanics, backend architecture, and 
     npm run dev
     ```
     Open `http://localhost:5173/` in your browser.
+
+#### Option B: Flutter UI (Web, Desktop, Mobile)
+1.  Navigate to the `flutter-ui` directory:
+    ```bash
+    cd flutter-ui
+    ```
+2.  Fetch packages and dependencies:
+    ```bash
+    flutter pub get
+    ```
+3.  Run the application on Chrome (Web):
+    ```bash
+    flutter run -d chrome --web-port 5174
+    ```
+    Or run on local emulators (Android/iOS) or native desktop targets by launching:
+    ```bash
+    flutter run
+    ```
 
 ---
 

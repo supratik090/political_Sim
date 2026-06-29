@@ -30,6 +30,7 @@ import java.util.UUID;
 public class RoundResolutionEngine {
 
     public static final List<RewardDefinition> REWARD_POOL = new java.util.concurrent.CopyOnWriteArrayList<>();
+    public static final int HIDDEN_RULE_TURN_WALKOVER = 10;
 
     static {
         loadRewardsFromClasspath();
@@ -961,7 +962,7 @@ public class RoundResolutionEngine {
             List<String> firedRules = session.getFiredHiddenRuleKeysByParty()
                     .computeIfAbsent(party.getId(), id -> new ArrayList<>());
             for (HiddenMetricRule rule : hiddenMetricRules()) {
-                if (firedRules.contains(rule.key()) || !hiddenRuleMatches(rule.key(), party.getStats())) {
+                if (session.getTurnNumber() < HIDDEN_RULE_TURN_WALKOVER ||firedRules.contains(rule.key()) || !hiddenRuleMatches(rule.key(), party.getStats())) {
                     continue;
                 }
                 applyHiddenRuleEffect(party.getStats(), rule);

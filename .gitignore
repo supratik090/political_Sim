@@ -1,20 +1,15 @@
 .DS_Store
 .env
 backend/.env
-python-ui/.env
 react-ui/.env
 
 # Java / Maven
 backend/target/
 
-# Python
-python-ui/.venv/
-python-ui/__pycache__/
-*.pyc
+
 
 # Editors
 .idea/
 .vscode/
 
-# Flutter UI
-flutter-ui/
+
