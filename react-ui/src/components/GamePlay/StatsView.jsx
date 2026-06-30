@@ -922,11 +922,11 @@ export default function StatsView({
                           }}>
                             <span>Net Yield:</span>
                             {netCoins !== 0 && <span>💰 {netCoins > 0 ? '+' : ''}{netCoins} Coins</span>}
+                            {netSupport !== 0 && <span>📈 {netSupport > 0 ? '+' : ''}{netSupport}% Support</span>}
                             {netMorale !== 0 && <span>✊ {netMorale > 0 ? '+' : ''}{netMorale} Morale</span>}
                             {netCorruption !== 0 && <span>⚖️ {netCorruption > 0 ? '+' : ''}{netCorruption} Corruption</span>}
                             {netMedia !== 0 && <span>📢 {netMedia > 0 ? '+' : ''}{netMedia} Media</span>}
-                            {netSupport !== 0 && <span>📈 {netSupport > 0 ? '+' : ''}{netSupport}% Support</span>}
-                            {netCoins === 0 && netMorale === 0 && netCorruption === 0 && netMedia === 0 && netSupport === 0 && (
+                           {netCoins === 0 && netMorale === 0 && netCorruption === 0 && netMedia === 0 && netSupport === 0 && (
                               <span style={{ color: '#64748b' }}>No per-turn yields</span>
                             )}
                           </div>

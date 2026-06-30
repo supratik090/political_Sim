@@ -78,7 +78,7 @@
     "costSupport": 0,
     "benefitCoins": 0,
     "benefitMorale": 3,
-    "benefitCorruption": 2,
+    "benefitCorruption": -2,
     "benefitMedia": 0,
     "benefitSupport": 1,
     "requiresTarget": false
@@ -162,7 +162,7 @@
     "costSupport": 0,
     "benefitCoins": 0,
     "benefitMorale": 0,
-    "benefitCorruption": 0,
+    "benefitCorruption": -1,
     "benefitMedia": -4,
     "benefitSupport": 0,
     "requiresTarget": true
@@ -176,7 +176,7 @@
     "costSupport": 0,
     "benefitCoins": 0,
     "benefitMorale": -5,
-    "benefitCorruption": 0,
+    "benefitCorruption": 5,
     "benefitMedia": 0,
     "benefitSupport": 0,
     "requiresTarget": true
@@ -204,7 +204,7 @@
     "costSupport": 0,
     "benefitCoins": -5,
     "benefitMorale": -2,
-    "benefitCorruption": 0,
+    "benefitCorruption": -1,
     "benefitMedia": -1,
     "benefitSupport": 0,
     "requiresTarget": true
