@@ -20,6 +20,9 @@ public class CreateGameRequest {
     private String userId;
     private List<CreatePartySetupRequest> partySetups = new ArrayList<>();
 
+    private boolean isMultiplayer;
+    private Integer turnDurationSeconds;
+
     public String getPlayerPartyName() {
         return playerPartyName;
     }
@@ -82,6 +85,22 @@ public class CreateGameRequest {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public boolean isMultiplayer() {
+        return isMultiplayer;
+    }
+
+    public void setMultiplayer(boolean multiplayer) {
+        isMultiplayer = multiplayer;
+    }
+
+    public Integer getTurnDurationSeconds() {
+        return turnDurationSeconds;
+    }
+
+    public void setTurnDurationSeconds(Integer turnDurationSeconds) {
+        this.turnDurationSeconds = turnDurationSeconds;
     }
 
     private boolean retainInstitutions;

@@ -5,18 +5,18 @@ export default function LandingPage({ onPlayNow }) {
 
   const screenshots = [
     {
-      url: '/dashboard_mockup.png',
+      url: '/stats_initial.png',
       title: 'Campaign Command Center',
       desc: 'Analyze live state maps, track your core metrics (Coins, Morale, Support), and manage long-term infrastructure building projects like Mega Rallies and IT Cells.'
     },
     {
-      url: '/newspaper_mockup.png',
-      title: 'The State Chronicle Newspaper',
+      url: '/actions_tab.png',
+      title: 'Action Strategy & News',
       desc: 'React to monthly state-wide news events and regional crises. Select your stance wisely—every choice shapes public opinion and risks surprise backlashes.'
     },
     {
-      url: '/diplomacy_mockup.png',
-      title: 'Bilateral Diplomacy Hub',
+      url: '/actions_expanded.png',
+      title: 'Bilateral Diplomacy Hub & Bids',
       desc: 'Form coalition alliances, negotiate Non-Aggression Pacts, and trade assets (Coins, Morale, Support, or buildings) with other human or computer-controlled parties.'
     }
   ];

@@ -19,7 +19,7 @@ logging:
     # Your app packages — full DEBUG
     com.politicalsim: INFO
     # Spring Security — show filter chain decisions, CORS, blocked requests
-    org.springframework.security: DEBUG
+    org.springframework.security: INFO
     # Spring Web — show incoming requests, mapped routes
     org.springframework.web: INFO
     # MongoDB — show queries

@@ -23,6 +23,18 @@ On each monthly turn, players step through a structured campaign wizard interfac
 
 Once all players lock their turns, the round resolves, applying all actions and advancing the timeline.
 
+```carousel
+![Campaign Command Center](/Users/supratikde/.gemini/antigravity/brain/53b3610e-dbcd-45b4-a8db-e8d883c98f6b/artifacts/stats_initial.png)
+<!-- slide -->
+![Actions & Cards](/Users/supratikde/.gemini/antigravity/brain/53b3610e-dbcd-45b4-a8db-e8d883c98f6b/artifacts/actions_tab.png)
+<!-- slide -->
+![Expanded Action Selection](/Users/supratikde/.gemini/antigravity/brain/53b3610e-dbcd-45b4-a8db-e8d883c98f6b/artifacts/actions_expanded.png)
+<!-- slide -->
+![Turn Resolution Commentary](/Users/supratikde/.gemini/antigravity/brain/53b3610e-dbcd-45b4-a8db-e8d883c98f6b/artifacts/commentary.png)
+<!-- slide -->
+![Updated Board State](/Users/supratikde/.gemini/antigravity/brain/53b3610e-dbcd-45b4-a8db-e8d883c98f6b/artifacts/stats_after_turn.png)
+```
+
 ---
 
 ### 2. Core Political Party Stats

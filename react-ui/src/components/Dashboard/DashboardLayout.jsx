@@ -38,6 +38,11 @@ export default function DashboardLayout({ children }) {
         
         {/* Right Side: Buttons */}
         <div className="dashboard-top-nav-buttons" style={{ margin: 0 }}>
+          {currentScreen !== 'HOW_TO_PLAY' && (
+            <button onClick={() => setScreen('HOW_TO_PLAY')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>
+              📖 How to Play
+            </button>
+          )}
           {currentScreen !== 'HOME' && (
             <button onClick={() => setScreen('HOME')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>
               🏠 Home

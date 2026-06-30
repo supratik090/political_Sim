@@ -28,6 +28,11 @@ public class GameSession {
     private GameStatus status;
     private String createdAt = java.time.Instant.now().toString();
     private String playerPartyId;
+    private boolean isMultiplayer;
+    private String joinCode;
+    private Map<String, String> humanPlayerMap = new LinkedHashMap<>();
+    private java.time.LocalDateTime turnStartTime;
+    private Integer turnDurationSeconds;
     private List<String> playerPartyIds = new ArrayList<>();
     private List<PartyState> parties = new ArrayList<>();
     private PartyState governmentParty;
@@ -72,6 +77,49 @@ public class GameSession {
 
     public String getId() {
         return id;
+    }
+
+    public boolean isMultiplayer() {
+        return isMultiplayer;
+    }
+
+    public void setMultiplayer(boolean multiplayer) {
+        isMultiplayer = multiplayer;
+    }
+
+    public String getJoinCode() {
+        return joinCode;
+    }
+
+    public void setJoinCode(String joinCode) {
+        this.joinCode = joinCode;
+    }
+
+    public Map<String, String> getHumanPlayerMap() {
+        if (humanPlayerMap == null) {
+            humanPlayerMap = new LinkedHashMap<>();
+        }
+        return humanPlayerMap;
+    }
+
+    public void setHumanPlayerMap(Map<String, String> humanPlayerMap) {
+        this.humanPlayerMap = humanPlayerMap;
+    }
+
+    public java.time.LocalDateTime getTurnStartTime() {
+        return turnStartTime;
+    }
+
+    public void setTurnStartTime(java.time.LocalDateTime turnStartTime) {
+        this.turnStartTime = turnStartTime;
+    }
+
+    public Integer getTurnDurationSeconds() {
+        return turnDurationSeconds;
+    }
+
+    public void setTurnDurationSeconds(Integer turnDurationSeconds) {
+        this.turnDurationSeconds = turnDurationSeconds;
     }
 
     public void setId(String id) {

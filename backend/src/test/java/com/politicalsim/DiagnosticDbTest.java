@@ -77,7 +77,6 @@ class DiagnosticDbTest {
     // Test 2: Recent 5 Game Sessions (summary)
     // ──────────────────────────────────────────────────────────────────────────
     @Test
-    @Disabled("Diagnostic/Interactive test")
     void printLastGameSessionDetails() {
         System.out.println("\n========== DB DIAGNOSTIC TEST START ==========");
         List<GameSession> sessions = repository.findAllByOrderByCurrentDateDesc();
@@ -132,7 +131,6 @@ class DiagnosticDbTest {
     // Test 3: Deep AI Performance Analyzer — most recent game of any scenario
     // ──────────────────────────────────────────────────────────────────────────
     @Test
-    @Disabled("Diagnostic/Interactive test")
     void analyzeAiPerformanceInLastGame() {
         System.out.println("\n========== AI PERFORMANCE DEEP ANALYSIS ==========");
 
@@ -142,9 +140,9 @@ class DiagnosticDbTest {
             return;
         }
 
-        // Try west_bengal_2001 first, fall back to most recent
+        // Try uttar pradesh first, fall back to most recent
         GameSession session = all.stream()
-                .filter(g -> g.getScenarioKey() != null && g.getScenarioKey().contains("2001"))
+                .filter(g -> g.getScenarioKey() != null && g.getScenarioKey().contains("uttar"))
                 .findFirst()
                 .orElse(all.get(0));
 

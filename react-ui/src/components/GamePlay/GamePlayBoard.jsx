@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { fetchTurnView, advanceTurn, fundProject, destroyProject, setProjectTarget, fetchBuildingProjects } from '../../api/apiClient';
 import { getPartyColor, cardRequiresTarget } from './gameUtils';
@@ -7,6 +7,9 @@ import ActionsView from './ActionsView';
 import { getPartyThemeByName } from '../../constants/partyThemes';
 import { PROJECT_DEFS } from './constants';
 import RoundResolutionModal from './RoundResolutionModal';
+import SkipTurnConfirmationModal from './SkipTurnConfirmationModal';
+import GameTutorial from './GameTutorial';
+import { useMultiplayer } from '../../hooks/useMultiplayer';
 
 const PROJECT_EMOJIS = {
   PARTY_HQ: '🏢',
@@ -90,10 +93,16 @@ function hexToRgbStr(hex) {
 
 export default function GamePlayBoard() {
   const [activeView, setActiveView] = useState('INFO');
-  const { activeGameId, turnData, setTurnData } = useGameStore();
+  const { user, activeGameId, turnData, setTurnData } = useGameStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [projectDefs, setProjectDefs] = useState(PROJECT_DEFS);
+  
+  // Multiplayer
+  const { isConnected, messages, sendMessage, gameUpdateTick, triggerGameUpdate } = useMultiplayer(activeGameId, user?.id || user?.email, user?.name);
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [showChat, setShowChat] = useState(false);
+  const [chatInput, setChatInput] = useState('');
 
   useEffect(() => {
     fetchBuildingProjects()
@@ -120,6 +129,7 @@ export default function GamePlayBoard() {
   const [partyBuildingConfirmed, setPartyBuildingConfirmed] = useState(false);
   const [cardCategoryFilter, setCardCategoryFilter] = useState('agitation_movement');
   const [showResolutionReport, setShowResolutionReport] = useState(false);
+  const [showSkipModal, setShowSkipModal] = useState(false);
 
   // Project building draft states
   const [projectCategoryFilter, setProjectCategoryFilter] = useState('BUILD');
@@ -178,6 +188,40 @@ export default function GamePlayBoard() {
     loadTurnData(true);
   }, [activeGameId]);
 
+  useEffect(() => {
+    if (gameUpdateTick > 0) {
+      loadTurnData(false);
+    }
+  }, [gameUpdateTick]);
+
+  useEffect(() => {
+    if (turnData?.turnStartTime && turnData?.turnDurationSeconds) {
+      const interval = setInterval(() => {
+        const start = new Date(turnData.turnStartTime).getTime();
+        const duration = turnData.turnDurationSeconds * 1000;
+        const now = Date.now();
+      const remaining = Math.max(0, Math.floor((start + duration - now) / 1000));
+      setTimeLeft(remaining);
+    }, 1000);
+    return () => clearInterval(interval);
+  } else {
+    setTimeLeft(null);
+  }
+}, [turnData]);
+
+const prevTurnNumberRef = useRef(turnData?.turnNumber);
+useEffect(() => {
+  if (turnData && prevTurnNumberRef.current !== undefined) {
+    if (turnData.turnNumber > prevTurnNumberRef.current) {
+      // Turn was advanced (e.g. by time running out or other players submitting)
+      setShowResolutionReport(true);
+      setActiveView('INFO');
+      setActiveAccordion(1);
+    }
+  }
+  prevTurnNumberRef.current = turnData?.turnNumber;
+}, [turnData]);
+
   const handleAdvanceTurn = async () => {
     setLoading(true);
     setError('');
@@ -194,6 +238,7 @@ export default function GamePlayBoard() {
 
       const result = await advanceTurn(activeGameId, payload);
       setTurnData(result);
+      if (turnData.isMultiplayer) triggerGameUpdate();
       resetLocalStates();
       setShowResolutionReport(true);
       setActiveView('INFO');
@@ -206,11 +251,12 @@ export default function GamePlayBoard() {
     }
   };
 
-  const handleSkipTurn = async () => {
-    if (!window.confirm("Are you sure you want to skip this turn? Your party will pass its card play, place a 0 bid, and submit routine/default responses to news and issues.")) {
-      return;
-    }
-    
+  const handleSkipTurn = () => {
+    setShowSkipModal(true);
+  };
+
+  const executeSkipTurn = async () => {
+    setShowSkipModal(false);
     setLoading(true);
     setError('');
     try {
@@ -243,6 +289,7 @@ export default function GamePlayBoard() {
 
       const result = await advanceTurn(activeGameId, payload);
       setTurnData(result);
+      if (turnData.isMultiplayer) triggerGameUpdate();
       resetLocalStates();
       setShowResolutionReport(true);
       setActiveView('INFO');
@@ -473,6 +520,7 @@ export default function GamePlayBoard() {
       '--party-primary-color': playerPartyColor,
       '--party-primary-color-rgb': playerPartyColorRgb
     }}>
+      <GameTutorial />
       {/* Title Banner */}
       <div className="game-title-banner" style={{ padding: '24px 20px', background: 'var(--party-primary-color)' }}>
         <h1 className="game-title-h1" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
@@ -502,6 +550,23 @@ export default function GamePlayBoard() {
             </span>
           </div>
         )}
+        {turnData?.isMultiplayer && turnData?.joinCode && (
+          <div style={{ 
+            marginTop: '15px', 
+            marginLeft: '15px',
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            background: 'var(--primary-dark)',
+            padding: '8px 16px',
+            borderRadius: '20px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+          }}>
+            <span style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '0.05em', color: '#ffffff' }}>
+              JOIN CODE: <span style={{ color: 'var(--accent-teal)', fontWeight: '900', letterSpacing: '2px', marginLeft: '4px' }}>{turnData.joinCode}</span>
+            </span>
+          </div>
+        )}
       </div>
 
       {/* View Toggle Bar */}
@@ -518,6 +583,22 @@ export default function GamePlayBoard() {
         >
           🃏 Actions &amp; Cards
         </button>
+        {turnData?.isMultiplayer && (
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '15px' }}>
+            {timeLeft !== null && (
+              <div style={{ padding: '8px 15px', background: timeLeft < 30 ? '#ef4444' : '#3b82f6', color: '#fff', borderRadius: '8px', fontWeight: 'bold' }}>
+                ⏱️ Turn Ends In: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+              </div>
+            )}
+            <button 
+              className={`view-toggle-button ${showChat ? 'selected' : ''}`}
+              onClick={() => setShowChat(!showChat)}
+              style={{ backgroundColor: 'var(--accent-teal)' }}
+            >
+              💬 Chat
+            </button>
+          </div>
+        )}
       </div>
 
       {/* View Content inside Curved Layout Wrapper */}
@@ -614,6 +695,67 @@ export default function GamePlayBoard() {
               setActiveAccordion={setActiveAccordion}
             />
           )}
+
+          {/* Chat Drawer Overlay */}
+          {showChat && turnData?.isMultiplayer && (
+            <div style={{
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              width: '350px',
+              height: '500px',
+              backgroundColor: '#fff',
+              borderRadius: '16px',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+              display: 'flex',
+              flexDirection: 'column',
+              zIndex: 1000,
+              border: '2px solid var(--primary-border)'
+            }}>
+              <div style={{ padding: '15px', borderBottom: '1px solid var(--primary-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--primary-dark)', color: '#fff', borderTopLeftRadius: '14px', borderTopRightRadius: '14px' }}>
+                <h3 style={{ margin: 0 }}>Multiplayer Chat</h3>
+                <button onClick={() => setShowChat(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '20px', cursor: 'pointer' }}>×</button>
+              </div>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: '#f8fafc' }}>
+                {messages.map((m, idx) => (
+                  <div key={idx} style={{ alignSelf: m.senderId === (user?.id || user?.email) ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
+                    <div style={{ fontSize: '10px', color: '#64748b', marginBottom: '2px', textAlign: m.senderId === (user?.id || user?.email) ? 'right' : 'left' }}>
+                      {m.senderName}
+                    </div>
+                    <div style={{ padding: '8px 12px', borderRadius: '12px', backgroundColor: m.senderId === (user?.id || user?.email) ? '#3b82f6' : '#e2e8f0', color: m.senderId === (user?.id || user?.email) ? '#fff' : '#0f172a' }}>
+                      {m.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: '15px', borderTop: '1px solid var(--primary-border)', display: 'flex', gap: '10px' }}>
+                <input 
+                  type="text" 
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && chatInput.trim()) {
+                      sendMessage(chatInput.trim());
+                      setChatInput('');
+                    }
+                  }}
+                  placeholder="Type a message..."
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                />
+                <button 
+                  onClick={() => {
+                    if (chatInput.trim()) {
+                      sendMessage(chatInput.trim());
+                      setChatInput('');
+                    }
+                  }}
+                  style={{ padding: '10px 15px', borderRadius: '8px', backgroundColor: 'var(--accent-teal)', color: '#fff', border: 'none', cursor: 'pointer' }}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -636,6 +778,14 @@ export default function GamePlayBoard() {
         activeParty={activeParty}
         partyColor={playerPartyColor}
         projectDefs={projectDefs}
+      />
+
+      {/* Skip Turn Confirmation Modal */}
+      <SkipTurnConfirmationModal
+        isOpen={showSkipModal}
+        onConfirm={executeSkipTurn}
+        onCancel={() => setShowSkipModal(false)}
+        partyColor={playerPartyColor}
       />
     </div>
   );

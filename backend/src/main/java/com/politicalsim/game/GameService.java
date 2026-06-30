@@ -324,6 +324,18 @@ public class GameService {
         }
         return gameSessionService.listGames(userId.trim().toLowerCase());
     }
+    
+    public GameSession getGameByJoinCode(String joinCode) {
+        return gameSessionService.getGameByJoinCode(joinCode);
+    }
+    
+    public GameSession joinGame(String userId, String joinCode, String partyId) {
+        return gameSessionService.joinGame(userId, joinCode, partyId);
+    }
+    
+    public GameSession startGame(String gameId, String userId) {
+        return gameSessionService.startGame(gameId, userId);
+    }
 
     public TurnView getTurnView(String gameId) {
         GameSession session = getGame(gameId);
@@ -1149,7 +1161,7 @@ public class GameService {
         }
     }
 
-    private List<NewsDefinition> getCurrentNews(GameSession session) {
+    public List<NewsDefinition> getCurrentNews(GameSession session) {
         String monthTag = session.getCurrentDate().getYear() + "-" + String.format("%02d", session.getCurrentDate().getMonthValue());
         return getNewsForScenario(session.getScenarioKey()).stream()
                 .filter(NewsDefinition::isActive)
@@ -1159,7 +1171,7 @@ public class GameService {
                 .toList();
     }
 
-    private MonthlyIssueDefinition getCurrentIssue(GameSession session, PartyState party) {
+    public MonthlyIssueDefinition getCurrentIssue(GameSession session, PartyState party) {
         // Preserve the pre-shuffled order stored in gameIssues — do NOT re-sort here.
         List<MonthlyIssueDefinition> issues = getIssuesForSession(session).stream()
                 .filter(MonthlyIssueDefinition::isActive)
@@ -1278,7 +1290,7 @@ public class GameService {
         return getAvailableCardsForParty(session, activeHumanParty);
     }
 
-    private List<CardDefinition> getAvailableCardsForParty(GameSession session, PartyState party) {
+    public List<CardDefinition> getAvailableCardsForParty(GameSession session, PartyState party) {
         List<CardDefinition> cards = new java.util.ArrayList<>(
             getCardsForSession(session).stream()
                 .filter(CardDefinition::isActive)

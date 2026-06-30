@@ -20,6 +20,9 @@ export default function DashboardHome() {
   const [selectedScenarioIndex, setSelectedScenarioIndex] = useState(0);
   const [partyConfigs, setPartyConfigs] = useState([]);
   const [retainInstitutions, setRetainInstitutions] = useState(false);
+  const [isMultiplayer, setIsMultiplayer] = useState(false);
+  const [turnDurationSeconds, setTurnDurationSeconds] = useState(180);
+  const [createdMultiplayerGame, setCreatedMultiplayerGame] = useState(null);
 
   useEffect(() => {
     if (currentScreen === 'HOME') {
@@ -114,6 +117,8 @@ export default function DashboardHome() {
         userId: user.id || user.email,
         scenarioKey: scenario.scenarioKey,
         retainInstitutions: retainInstitutions,
+        isMultiplayer: isMultiplayer,
+        turnDurationSeconds: isMultiplayer ? turnDurationSeconds : null,
         partySetups: partyConfigs.map(config => ({
           partyKey: config.partyKey,
           partyName: config.name,
@@ -129,7 +134,11 @@ export default function DashboardHome() {
       
       const gameData = await createGame(payload);
       setActiveGame(gameData.id);
-      setScreen('GAME');
+      if (gameData.status === 'LOBBY') {
+          setCreatedMultiplayerGame(gameData);
+      } else {
+          setScreen('GAME');
+      }
     } catch (err) {
       console.error(err);
       alert('Failed to create game. Check console for details.');
@@ -138,9 +147,13 @@ export default function DashboardHome() {
     }
   };
 
-  const handleLoadGame = (gameId) => {
+  const handleLoadGame = (gameId, status) => {
     setActiveGame(gameId);
-    setScreen('GAME');
+    if (status === 'LOBBY') {
+        setScreen('LOBBY');
+    } else {
+        setScreen('GAME');
+    }
   };
 
   const handleDeleteGame = async (gameId) => {
@@ -202,6 +215,7 @@ export default function DashboardHome() {
       <div style={{ display: 'flex', gap: '15px', marginTop: '30px', justifyContent: 'center' }}>
         <button onClick={() => setView('CREATE')} disabled={loading}>🎮 Create Campaign</button>
         <button onClick={() => setView('LOAD')} disabled={loading}>📂 Load Saved Campaign</button>
+        <button onClick={() => setScreen('JOIN_GAME')} disabled={loading}>🤝 Join Multiplayer</button>
       </div>
     </div>
   );
@@ -277,6 +291,33 @@ export default function DashboardHome() {
           </div>
         )}
 
+        <div style={{ margin: '20px 0', padding: '15px', border: '1px solid var(--primary-border)', borderRadius: '8px', backgroundColor: 'rgba(101, 148, 177, 0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <input 
+              type="checkbox" 
+              id="isMultiplayer"
+              checked={isMultiplayer} 
+              onChange={(e) => setIsMultiplayer(e.target.checked)} 
+              style={{ width: 'auto', margin: 0 }}
+            />
+            <label htmlFor="isMultiplayer" style={{ fontWeight: 'bold', cursor: 'pointer', color: 'var(--primary-dark)' }}>
+              Enable Multiplayer (Play with friends)
+            </label>
+          </div>
+          {isMultiplayer && (
+            <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '25px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Turn Timer (seconds):</label>
+              <input 
+                type="number" 
+                value={turnDurationSeconds} 
+                onChange={(e) => setTurnDurationSeconds(parseInt(e.target.value) || 60)} 
+                style={{ width: '80px', padding: '5px' }}
+                min="30" max="900"
+              />
+            </div>
+          )}
+        </div>
+
         {currentScenario?.scenarioKey?.endsWith('_2006') && (
           <div style={{ margin: '20px 0', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
             <input 
@@ -302,7 +343,7 @@ export default function DashboardHome() {
   };
 
   const renderLoad = () => {
-    const activeGames = games.filter(game => game.status === 'ACTIVE');
+    const activeGames = games.filter(game => game.status === 'ACTIVE' || game.status === 'LOBBY');
     return (
       <div className="unified-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -319,7 +360,9 @@ export default function DashboardHome() {
                 <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Status: {game.status} | Started: {formatDate(game.createdAt)}</span>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => handleLoadGame(game.id)}>Load Game</button>
+                <button onClick={() => handleLoadGame(game.id, game.status)}>
+                  {game.status === 'LOBBY' ? 'Enter Lobby' : 'Load Game'}
+                </button>
                 <button 
                   onClick={() => handleDeleteGame(game.id)} 
                   style={{ backgroundColor: '#D9534F', color: '#ffffff', border: 'none' }}
@@ -572,7 +615,7 @@ export default function DashboardHome() {
           );
           if (!scenario) return null;
 
-          const activeGame = games.find(g => g.scenarioKey === scenario.scenarioKey && g.status === 'ACTIVE');
+          const activeGame = games.find(g => g.scenarioKey === scenario.scenarioKey && (g.status === 'ACTIVE' || g.status === 'LOBBY'));
 
           return (
             <div style={{
@@ -651,10 +694,10 @@ export default function DashboardHome() {
 
                 {activeGame && (
                   <button 
-                    onClick={() => handleLoadGame(activeGame.id)}
+                    onClick={() => handleLoadGame(activeGame.id, activeGame.status)}
                     style={{ fontSize: '12px', padding: '8px 15px', backgroundColor: 'var(--selected-highlight)', borderColor: 'var(--selected-highlight)' }}
                   >
-                    📂 Resume Active Session
+                    📂 {activeGame.status === 'LOBBY' ? 'Enter Lobby' : 'Resume Active Session'}
                   </button>
                 )}
               </div>
@@ -676,6 +719,33 @@ export default function DashboardHome() {
         {view === 'CREATE' && renderCreate()}
         {view === 'LOAD' && renderLoad()}
       </div>
+
+      {createdMultiplayerGame && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div className="unified-card" style={{ width: '400px', textAlign: 'center', padding: '30px' }}>
+            <h2 style={{ margin: '0 0 15px 0', color: 'var(--primary-dark)' }}>Campaign Created!</h2>
+            <p style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+              Share this 6-digit code with your friends so they can join your campaign.
+            </p>
+            <div style={{ fontSize: '48px', fontWeight: '900', letterSpacing: '6px', color: 'var(--accent-teal)', marginBottom: '30px', padding: '15px', backgroundColor: '#f1f5f9', borderRadius: '12px', border: '2px dashed var(--primary-border)' }}>
+              {createdMultiplayerGame.joinCode}
+            </div>
+            <button 
+              onClick={() => {
+                setCreatedMultiplayerGame(null);
+                setScreen('LOBBY');
+              }}
+              style={{ width: '100%', padding: '15px', fontSize: '16px' }}
+            >
+              Proceed to Lobby
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 

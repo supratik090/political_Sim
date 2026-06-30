@@ -70,6 +70,12 @@ export async function apiDelete(path) {
 // Game API bindings
 export const createGame = (payload) => apiPost('/api/games', payload);
 export const fetchTurnView = (gameId) => apiGet(`/api/games/${gameId}/turn-view`);
+export const getGame = (gameId) => apiGet(`/api/games/${gameId}`);
+export const getGameByJoinCode = (joinCode) => apiGet(`/api/games/join-code/${joinCode}`);
+export const joinGameLobby = (userId, joinCode, partyId) => 
+  apiPost(`/api/games/join?userId=${userId}&joinCode=${joinCode}&partyId=${partyId}`);
+export const startGame = (gameId, userId) => 
+  apiPost(`/api/games/${gameId}/start?userId=${userId}`);
 export const fetchBuildingProjects = () => apiGet('/api/games/building-projects/definitions');
 export const listGames = (userId) => apiGet('/api/games', userId ? { userId } : {});
 export const advanceTurn = (gameId, payload) => apiPost(`/api/games/${gameId}/turn/advance`, payload);

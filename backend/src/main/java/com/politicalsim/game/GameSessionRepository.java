@@ -9,4 +9,6 @@ public interface GameSessionRepository extends MongoRepository<GameSession, Stri
     List<GameSession> findByScenarioKeyAndStatus(String scenarioKey, GameStatus status);
     List<GameSession> findByScenarioKeyAndStatusAndUserId(String scenarioKey, GameStatus status, String userId);
     List<GameSession> findAllByUserIdOrderByCurrentDateDesc(String userId);
+    List<GameSession> findByJoinCodeAndStatus(String joinCode, GameStatus status);
+    List<GameSession> findByStatus(GameStatus status);
 }

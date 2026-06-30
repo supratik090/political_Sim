@@ -39,6 +39,21 @@ public class GameController {
         return gameService.getGame(gameId);
     }
 
+    @GetMapping("/join-code/{joinCode}")
+    public GameSession getGameByJoinCode(@PathVariable String joinCode) {
+        return gameService.getGameByJoinCode(joinCode);
+    }
+
+    @PostMapping("/join")
+    public GameSession joinGame(@RequestParam String userId, @RequestParam String joinCode, @RequestParam String partyId) {
+        return gameService.joinGame(userId, joinCode, partyId);
+    }
+
+    @PostMapping("/{gameId}/start")
+    public GameSession startGame(@PathVariable String gameId, @RequestParam(required = false) String userId) {
+        return gameService.startGame(gameId, userId);
+    }
+
     @GetMapping
     public List<GameSession> listGames(@org.springframework.web.bind.annotation.RequestParam(required = false) String userId) {
         if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {

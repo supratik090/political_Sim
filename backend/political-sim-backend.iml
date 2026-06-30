@@ -94,6 +94,9 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-jcl:6.1.14" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.springframework:spring-test:6.1.14" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.xmlunit:xmlunit-core:2.9.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-websocket:3.3.5" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-messaging:6.1.14" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-websocket:6.1.14" level="project" />
     <orderEntry type="library" name="Maven: org.mindrot:jbcrypt:0.4" level="project" />
   </component>
 </module>

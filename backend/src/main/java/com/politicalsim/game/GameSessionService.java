@@ -89,10 +89,21 @@ public class GameSessionService {
         initializeSecretMetricSequence(session);
         LocalDate scenarioStartDate = scenario == null ? LocalDate.of(2020, 10, 1) : scenario.getStartDate();
         session.setCurrentDate(request.getStartDate() == null ? scenarioStartDate : request.getStartDate());
-        session.setStatus(GameStatus.ACTIVE);
         session.setPlayerPartyId(playerPartyIds.get(0));
         session.setPlayerPartyIds(playerPartyIds);
         session.setActiveHumanPlayerIndex(0);
+        
+        session.setMultiplayer(request.isMultiplayer());
+        if (request.isMultiplayer()) {
+            session.setJoinCode(UUID.randomUUID().toString().substring(0, 6).toUpperCase());
+            session.setTurnDurationSeconds(request.getTurnDurationSeconds() != null ? request.getTurnDurationSeconds() : 180);
+            session.setStatus(GameStatus.LOBBY);
+            if (userId != null) {
+                session.getHumanPlayerMap().put(playerPartyIds.get(0), userId);
+            }
+        } else {
+            session.setStatus(GameStatus.ACTIVE);
+        }
         session.setParties(parties);
         session.setGovernmentParty(governmentParty);
         session.setOppositionParty(oppositionParty);
@@ -218,6 +229,59 @@ public class GameSessionService {
             remainder--;
         }
         session.getPublicState().setUndecidedSupport(100 - maxPartyTotal);
+    }
+
+    public GameSession getGameByJoinCode(String joinCode) {
+        return repository.findByJoinCodeAndStatus(joinCode.toUpperCase(), GameStatus.LOBBY).stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid join code or game not in lobby"));
+    }
+
+    public GameSession joinGame(String userId, String joinCode, String partyId) {
+        if (userId == null || userId.isBlank()) {
+            throw new IllegalArgumentException("User ID is required to join a game");
+        }
+        
+        GameSession session = repository.findByJoinCodeAndStatus(joinCode.toUpperCase(), GameStatus.LOBBY).stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid join code or game not in lobby"));
+        
+        if (session.getHumanPlayerMap().containsValue(userId)) {
+            throw new IllegalArgumentException("User already in lobby");
+        }
+        
+        PartyState party = session.getParties().stream()
+                .filter(p -> p.getId().equals(partyId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid party ID"));
+                
+        if (session.getHumanPlayerMap().containsKey(partyId)) {
+            throw new IllegalArgumentException("Party already claimed by another player");
+        }
+        
+        session.getHumanPlayerMap().put(partyId, userId);
+        party.setControllerType(ControllerType.HUMAN);
+        
+        if (!session.getPlayerPartyIds().contains(partyId)) {
+            session.getPlayerPartyIds().add(partyId);
+        }
+        
+        return repository.save(session);
+    }
+    
+    public GameSession startGame(String gameId, String userId) {
+        GameSession session = getGame(gameId);
+        if (session.getStatus() != GameStatus.LOBBY) {
+            throw new IllegalArgumentException("Game is not in lobby");
+        }
+        
+        if (userId != null && !userId.equals(session.getUserId())) {
+            throw new IllegalArgumentException("Only the creator can start the game");
+        }
+        
+        session.setStatus(GameStatus.ACTIVE);
+        session.setTurnStartTime(java.time.LocalDateTime.now());
+        return repository.save(session);
     }
 
     private List<PartyState> buildParties(CreateGameRequest request) {

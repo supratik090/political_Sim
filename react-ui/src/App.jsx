@@ -4,8 +4,12 @@ import AuthScreen from './components/Auth/AuthScreen';
 import LandingPage from './components/LandingPage';
 import DashboardLayout from './components/Dashboard/DashboardLayout';
 import DashboardHome from './components/Dashboard/DashboardHome';
+import HowToPlay from './components/Dashboard/HowToPlay';
 import GamePlayBoard from './components/GamePlay/GamePlayBoard';
 import AdminConsole from './components/Admin/AdminConsole';
+
+import Lobby from './components/Dashboard/Lobby';
+import JoinGame from './components/Dashboard/JoinGame';
 
 const ADMIN_USERNAME = 'AdminUserFoo';
 
@@ -20,7 +24,6 @@ function App() {
     }
     return (
       <div style={{ position: 'relative' }}>
-        {/* Simple floating back button */}
         <button 
           onClick={() => setIsPlayClicked(false)}
           style={{
@@ -48,6 +51,15 @@ function App() {
     <DashboardLayout>
       <div style={{ display: currentScreen === 'HOME' ? 'block' : 'none' }}>
         <DashboardHome />
+      </div>
+      <div style={{ display: currentScreen === 'HOW_TO_PLAY' ? 'block' : 'none' }}>
+        <HowToPlay />
+      </div>
+      <div style={{ display: currentScreen === 'JOIN_GAME' ? 'block' : 'none' }}>
+        <JoinGame />
+      </div>
+      <div style={{ display: currentScreen === 'LOBBY' ? 'block' : 'none' }}>
+        {currentScreen === 'LOBBY' && <Lobby />}
       </div>
       {isAdmin && (
         <div style={{ display: currentScreen === 'ADMIN' ? 'block' : 'none' }}>
