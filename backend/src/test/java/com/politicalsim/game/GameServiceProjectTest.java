@@ -77,7 +77,7 @@ class GameServiceProjectTest {
 
         RoundResolutionEngine roundEngine = new RoundResolutionEngine(null, null, null);
         sessionService = new MockGameSessionService(session);
-        gameService = new GameService(sessionService, roundEngine, null, null, null, null, null);
+        gameService = new GameService(sessionService, roundEngine, null, null, null, null, null, null);
     }
 
     @Test

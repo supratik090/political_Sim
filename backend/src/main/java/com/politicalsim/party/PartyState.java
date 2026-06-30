@@ -15,6 +15,7 @@ public class PartyState {
     private AiProfile aiProfile;
     private PartyStats stats;
     private boolean active = true;
+    private boolean brokeStateActive = false;
     private java.util.List<ProjectState> projects = defaultProjectsList();
 
     private static java.util.List<ProjectState> defaultProjectsList() {
@@ -147,6 +148,14 @@ public class PartyState {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public boolean isBrokeStateActive() {
+        return brokeStateActive;
+    }
+
+    public void setBrokeStateActive(boolean brokeStateActive) {
+        this.brokeStateActive = brokeStateActive;
     }
 
     public java.util.List<ProjectState> getProjects() {

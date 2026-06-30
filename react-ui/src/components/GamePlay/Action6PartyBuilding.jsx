@@ -8,8 +8,6 @@ export default function Action6PartyBuilding({
   projectDefs: PROJECT_DEFS = {},
   projectCategoryFilter,
   setProjectCategoryFilter,
-  draftProjectKeys,
-  setDraftProjectKeys,
   fundingContributions,
   setFundingContributions,
   partyBuildingConfirmed,
@@ -28,7 +26,7 @@ export default function Action6PartyBuilding({
   
   const selectedProjects = activeProjects.filter(p => 
     p.progressPercent < 100 && 
-    (p.progressPercent > 0 || draftProjectKeys.includes(p.id) || draftProjectKeys.includes(p.projectKey)) &&
+    p.progressPercent > 0 &&
     !fundedThisTurn.includes(p.id) &&
     !fundedThisTurn.includes(p.projectKey)
   );
@@ -37,15 +35,13 @@ export default function Action6PartyBuilding({
   
   const availableProjects = Object.entries(PROJECT_DEFS).map(([key, def]) => {
     const existing = activeProjects.find(p => p.projectKey === key && p.progressPercent < 100);
-    const isDraft = existing ? draftProjectKeys.includes(existing.id) || draftProjectKeys.includes(existing.projectKey) : false;
     return {
       key,
       ...def,
       progress: existing ? existing.progressPercent : 0,
-      isDraft,
       id: existing ? existing.id : null
     };
-  }).filter(p => p.progress === 0 && !p.isDraft);
+  }).filter(p => p.progress === 0 && !fundedThisTurn.includes(p.key));
 
   const filteredAvail = availableProjects.filter(p => {
     if (projectCategoryFilter === 'BUILD') return !p.offensive;
@@ -164,7 +160,6 @@ export default function Action6PartyBuilding({
             {selectedProjects.map((proj, idx) => {
               const pDef = PROJECT_DEFS[proj.projectKey] || {};
               const projId = proj.id || proj.projectKey;
-              const isDraft = draftProjectKeys.includes(proj.id) || draftProjectKeys.includes(proj.projectKey);
               const progress = proj.progressPercent || 0;
               const remaining = 100 - progress;
 
@@ -205,18 +200,6 @@ export default function Action6PartyBuilding({
                   <div style={{ position: 'relative', zIndex: 2 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#1d4ed8' }}>{pDef.name || proj.projectKey}</div>
-                      {isDraft && (
-                        <button 
-                          disabled={partyBuildingConfirmed}
-                          onClick={() => {
-                            setDraftProjectKeys(prev => prev.filter(k => k !== proj.id && k !== proj.projectKey));
-                            setPartyBuildingConfirmed(false);
-                          }}
-                          style={{ background: 'transparent', color: '#d23f31', border: 'none', padding: 0, fontSize: '12px', cursor: 'pointer' }}
-                        >
-                          ❌ Remove
-                        </button>
-                      )}
                     </div>
                     <div style={{ fontSize: '11px', color: 'var(--card-text)', marginTop: '2px' }}>Total Cost: {pDef.cost} | Yield: {pDef.yield}</div>
                     
@@ -333,62 +316,98 @@ export default function Action6PartyBuilding({
           <p style={{ margin: 0, fontSize: '11px', color: 'gray', fontStyle: 'italic' }}>No projects available in this category.</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
-            {filteredAvail.map(avail => (
-              <div 
-                key={avail.key} 
-                className="themed-action-card"
-                style={{ 
-                  border: '2.5px dashed #94a3b8', 
-                  borderRadius: '8px', 
-                  padding: '10px', 
-                  background: 'rgba(148, 163, 184, 0.04)', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  justifyContent: 'space-between',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
-              >
-                {/* Faint Background Watermark */}
-                <div className="themed-card-watermark">
-                  <SymbolIcon size={64} color="#cbd5e1" />
-                </div>
+            {filteredAvail.map(avail => {
+              const presets = [20, 40, 60, 80, 100];
+              const chosenContrib = fundingContributions[avail.key] || 0;
+              const costForContrib = getProgressCost(avail, chosenContrib);
+              const canAfford = canAffordCost(costForContrib, activeParty.stats);
 
-                {/* Bottom Right Corner Ribbon */}
-                <div className="themed-card-ribbon">
-                  <SymbolIcon size={10} color="#ffffff" style={{ marginRight: '1px', marginBottom: '1px', filter: 'brightness(0) invert(1)' }} />
-                </div>
-
-                <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-                  <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>{avail.name}</div>
-                    <div style={{ fontSize: '10px', color: 'gray', marginTop: '2px' }}>Cost: {avail.cost}</div>
-                    <div style={{ fontSize: '10px', color: 'var(--card-text)', marginTop: '4px' }}>Yield: {avail.yield}</div>
+              return (
+                <div 
+                  key={avail.key} 
+                  className="themed-action-card"
+                  style={{ 
+                    border: '2.5px dashed #94a3b8', 
+                    borderRadius: '8px', 
+                    padding: '10px', 
+                    background: 'rgba(148, 163, 184, 0.04)', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    justifyContent: 'space-between',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                >
+                  {/* Faint Background Watermark */}
+                  <div className="themed-card-watermark">
+                    <SymbolIcon size={64} color="#cbd5e1" />
                   </div>
-                  <button
-                    disabled={partyBuildingConfirmed || capReached}
-                    onClick={() => {
-                      setDraftProjectKeys(prev => [...prev, avail.key]);
-                      setPartyBuildingConfirmed(false);
-                    }}
-                    style={{ 
-                      padding: '6px 12px', 
-                      fontSize: '11px', 
-                      marginTop: '8px', 
-                      alignSelf: 'flex-start',
-                      cursor: (partyBuildingConfirmed || capReached) ? 'not-allowed' : 'pointer',
-                      background: (partyBuildingConfirmed || capReached) ? 'gray' : 'var(--party-primary-color)',
-                      borderColor: (partyBuildingConfirmed || capReached) ? 'gray' : 'var(--party-primary-color)',
-                      color: '#ffffff',
-                      fontWeight: 'bold',
-                      borderRadius: '4px'
-                    }}
-                  >
-                    Select Project
-                  </button>
+
+                  {/* Bottom Right Corner Ribbon */}
+                  <div className="themed-card-ribbon">
+                    <SymbolIcon size={10} color="#ffffff" style={{ marginRight: '1px', marginBottom: '1px', filter: 'brightness(0) invert(1)' }} />
+                  </div>
+
+                  <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>{avail.name}</div>
+                      <div style={{ fontSize: '10px', color: 'gray', marginTop: '2px' }}>Total Cost: {avail.cost}</div>
+                      <div style={{ fontSize: '10px', color: 'var(--card-text)', marginTop: '4px' }}>Yield: {avail.yield}</div>
+                      
+                      <div style={{ marginTop: '12px' }}>
+                        <label htmlFor={`new-contrib-${avail.key}`} style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'var(--primary-dark)' }}>Start Funding %:</label>
+                        <select
+                          id={`new-contrib-${avail.key}`}
+                          value={chosenContrib}
+                          disabled={partyBuildingConfirmed}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value);
+                            setFundingContributions(prev => ({ ...prev, [avail.key]: val }));
+                            setPartyBuildingConfirmed(false);
+                          }}
+                          style={{ width: '100%', padding: '4px', fontSize: '11px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}
+                        >
+                          <option value="0">-- Select Funding --</option>
+                          {presets.map(val => (
+                            <option key={val} value={val}>{val}%</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {chosenContrib > 0 && (
+                        <div style={{ fontSize: '10px', marginTop: '6px', color: canAfford ? 'var(--card-text)' : '#d23f31', fontWeight: 'bold' }}>
+                          Cost: {costForContrib.coins} Coins
+                          {costForContrib.morale > 0 && `, ${costForContrib.morale} Morale`}
+                          {costForContrib.corruption > 0 && `, ${costForContrib.corruption} Corruption`}
+                          {costForContrib.media > 0 && `, ${costForContrib.media} Media`}
+                          {costForContrib.support > 0 && `, ${costForContrib.support}% Support`}
+                          {!canAfford && " ⚠️ (CANNOT AFFORD)"}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <button
+                      disabled={partyBuildingConfirmed || capReached || chosenContrib === 0 || !canAfford}
+                      onClick={() => handleFundProject(avail.key, chosenContrib)}
+                      style={{ 
+                        padding: '6px 12px', 
+                        fontSize: '11px', 
+                        marginTop: '12px', 
+                        alignSelf: 'flex-start',
+                        cursor: (partyBuildingConfirmed || capReached || chosenContrib === 0 || !canAfford) ? 'not-allowed' : 'pointer',
+                        background: (partyBuildingConfirmed || capReached || chosenContrib === 0 || !canAfford) ? 'gray' : 'var(--party-primary-color)',
+                        borderColor: (partyBuildingConfirmed || capReached || chosenContrib === 0 || !canAfford) ? 'gray' : 'var(--party-primary-color)',
+                        color: '#ffffff',
+                        fontWeight: 'bold',
+                        borderRadius: '4px'
+                      }}
+                    >
+                      🏗️ Confirm Funding
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

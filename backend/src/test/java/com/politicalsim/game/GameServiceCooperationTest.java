@@ -123,7 +123,7 @@ class GameServiceCooperationTest {
         scenarioRepository = Mockito.mock(ScenarioDefinitionRepository.class);
         com.politicalsim.content.MonthlyIssueDefinitionRepository issueRepository = Mockito.mock(com.politicalsim.content.MonthlyIssueDefinitionRepository.class);
         Mockito.when(issueRepository.findByScenarioKey(Mockito.anyString())).thenReturn(new ArrayList<>());
-        gameService = new GameService(sessionService, roundEngine, null, null, issueRepository, scenarioRepository, aiDecisionService);
+        gameService = new GameService(sessionService, roundEngine, null, null, issueRepository, scenarioRepository, aiDecisionService, null);
     }
 
     @Test
@@ -368,6 +368,7 @@ class GameServiceCooperationTest {
             0,
             0
         );
+
         RoundResolutionEngine.REWARD_POOL.add(activeReward);
 
         List<String> commentary = new ArrayList<>();

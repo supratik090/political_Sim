@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ActionSection from './ActionSection';
 import Action1CardSelection from './Action1CardSelection';
 import Action2NewsReaction from './Action2NewsReaction';
@@ -50,8 +50,6 @@ export default function ActionsView({
   // Action 6 props
   projectCategoryFilter,
   setProjectCategoryFilter,
-  draftProjectKeys,
-  setDraftProjectKeys,
   fundingContributions,
   setFundingContributions,
   partyBuildingConfirmed,
@@ -83,10 +81,42 @@ export default function ActionsView({
   const isRewardTargetSelected = !rewardRequiresTarget || rewardTargetPartyId !== '';
   const isRewardCompleted = !hasRewards || selectedRewardKey === '' || (rewardConfirmed && isRewardTargetSelected);
 
-  const hasPartyBuildingDrafts = draftProjectKeys.length > 0 || Object.values(fundingContributions).some(v => v > 0);
+  const hasPartyBuildingDrafts = Object.values(fundingContributions).some(v => v > 0);
   const isPartyBuildingCompleted = !hasPartyBuildingDrafts || partyBuildingConfirmed;
   
   const allActionsReady = isCardCompleted && isNewsCompleted && isIssueCompleted && isBidCompleted && isRewardCompleted && isPartyBuildingCompleted;
+
+  const prevCardCompleted = useRef(isCardCompleted);
+  useEffect(() => {
+    if (!prevCardCompleted.current && isCardCompleted && activeAccordion === 1) {
+      setActiveAccordion(2);
+    }
+    prevCardCompleted.current = isCardCompleted;
+  }, [isCardCompleted, activeAccordion, setActiveAccordion]);
+
+  const prevNewsCompleted = useRef(isNewsCompleted);
+  useEffect(() => {
+    if (!prevNewsCompleted.current && isNewsCompleted && activeAccordion === 2) {
+      setActiveAccordion(3);
+    }
+    prevNewsCompleted.current = isNewsCompleted;
+  }, [isNewsCompleted, activeAccordion, setActiveAccordion]);
+
+  const prevIssueCompleted = useRef(isIssueCompleted);
+  useEffect(() => {
+    if (!prevIssueCompleted.current && isIssueCompleted && activeAccordion === 3) {
+      setActiveAccordion(4);
+    }
+    prevIssueCompleted.current = isIssueCompleted;
+  }, [isIssueCompleted, activeAccordion, setActiveAccordion]);
+
+  const prevBidCompleted = useRef(isBidCompleted);
+  useEffect(() => {
+    if (!prevBidCompleted.current && isBidCompleted && activeAccordion === 4) {
+      setActiveAccordion(5);
+    }
+    prevBidCompleted.current = isBidCompleted;
+  }, [isBidCompleted, activeAccordion, setActiveAccordion]);
 
   return (
     <div>
@@ -223,8 +253,6 @@ export default function ActionsView({
           projectDefs={projectDefs}
           projectCategoryFilter={projectCategoryFilter}
           setProjectCategoryFilter={setProjectCategoryFilter}
-          draftProjectKeys={draftProjectKeys}
-          setDraftProjectKeys={setDraftProjectKeys}
           fundingContributions={fundingContributions}
           setFundingContributions={setFundingContributions}
           partyBuildingConfirmed={partyBuildingConfirmed}

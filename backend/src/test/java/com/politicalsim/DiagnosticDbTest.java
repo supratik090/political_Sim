@@ -286,7 +286,6 @@ class DiagnosticDbTest {
     }
 
     @Test
-    @Disabled("Diagnostic/Interactive test")
     void exportDatabaseSeedData() throws Exception {
         System.out.println("\n========== EXPORTING SEED DATA ==========");
         java.io.File dir = new java.io.File("../seed-data/startup");

@@ -1149,6 +1149,17 @@ public class AiDecisionService {
             if (recipient.getStats().getPartyMorale() - offer.getRequestedMorale() < 18) return false;
             if (recipient.getStats().getPublicSupport() - offer.getRequestedSupport() < 10) return false;
             
+            // FIRE SALE ACCEPTANCE RULE:
+            // If the sender is offering exactly 100 Coins for 10 Morale, it's a Fire Sale.
+            // As long as the recipient has healthy Morale (> 30), they will accept it.
+            if (offer.getOfferedCoins() == 100 && offer.getRequestedMorale() == 10 && 
+                offer.getOfferedMorale() == 0 && offer.getOfferedSupport() == 0 && 
+                offer.getRequestedCoins() == 0) {
+                if (recipient.getStats().getPartyMorale() >= 30) {
+                    return true;
+                }
+            }
+
             return receivedUtility >= 1.05 * givenUtility;
         }
         return false;

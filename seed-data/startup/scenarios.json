@@ -28,7 +28,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "bjp",
@@ -67,7 +67,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : null,
+    "color" : "#D8B4FE",
     "symbol" : null,
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -76,11 +76,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 30,
+    "undecidedSupport" : 25,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
     "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
@@ -124,7 +124,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "aiadmk",
@@ -163,7 +163,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : null,
+    "color" : "#D8B4FE",
     "symbol" : null,
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -172,11 +172,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 28,
+    "undecidedSupport" : 23,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
     "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
@@ -220,7 +220,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "inc",
@@ -259,7 +259,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : null,
+    "color" : "#D8B4FE",
     "symbol" : null,
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -268,11 +268,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 12,
+    "undecidedSupport" : 7,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
     "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
@@ -316,7 +316,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "left_front_cpim",
@@ -355,7 +355,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : null,
+    "color" : "#D8B4FE",
     "symbol" : null,
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -364,11 +364,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 13,
+    "undecidedSupport" : 8,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
     "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
@@ -412,7 +412,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "inc",
@@ -451,7 +451,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : null,
+    "color" : "#D8B4FE",
     "symbol" : null,
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -460,11 +460,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 21,
+    "undecidedSupport" : 16,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
     "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
@@ -508,7 +508,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "samajwadi_party",
@@ -547,7 +547,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : null,
+    "color" : "#D8B4FE",
     "symbol" : null,
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -556,11 +556,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 22,
+    "undecidedSupport" : 17,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
     "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
@@ -604,7 +604,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "dmk",
@@ -643,7 +643,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : null,
+    "color" : "#D8B4FE",
     "symbol" : null,
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -652,11 +652,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 13,
+    "undecidedSupport" : 8,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
     "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
@@ -700,7 +700,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "bjp",
@@ -739,7 +739,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : null,
+    "color" : "#D8B4FE",
     "symbol" : null,
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -748,11 +748,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 15,
+    "undecidedSupport" : 10,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Rural distress", "Cadre dominance" ],
     "memoryHint" : "Voters remember long incumbency, but the opposition still needs credibility."
@@ -772,7 +772,7 @@
   "name" : "Maharashra  2001",
   "description" : "Maharastra 2001 to 2006 period",
   "stateName" : "Maharashtra",
-  "startDate" : [ 2000, 12, 31 ],
+  "startDate" : [ 2001, 1, 1 ],
   "cycleLengthMonths" : 60,
   "governmentPartyName" : "INC",
   "oppositionPartyName" : "Shiv Sena",
@@ -973,7 +973,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : null,
+    "color" : "#D8B4FE",
     "symbol" : null,
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : {
@@ -1234,7 +1234,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : null,
+    "color" : "#D8B4FE",
     "symbol" : null,
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -1291,7 +1291,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "rjd",
@@ -1330,7 +1330,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : "#17B890",
+    "color" : "#D8B4FE",
     "symbol" : "Star",
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -1339,11 +1339,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 24,
+    "undecidedSupport" : 19,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Governance", "Development" ],
     "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
@@ -1387,7 +1387,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "jdu",
@@ -1426,7 +1426,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : "#17B890",
+    "color" : "#D8B4FE",
     "symbol" : "Star",
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -1435,11 +1435,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 26,
+    "undecidedSupport" : 21,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Governance", "Development" ],
     "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
@@ -1483,7 +1483,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "inc",
@@ -1522,7 +1522,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : "#17B890",
+    "color" : "#D8B4FE",
     "symbol" : "Star",
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -1531,11 +1531,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 20,
+    "undecidedSupport" : 15,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Governance", "Development" ],
     "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
@@ -1579,7 +1579,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "inc",
@@ -1618,7 +1618,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : "#17B890",
+    "color" : "#D8B4FE",
     "symbol" : "Star",
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -1627,11 +1627,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 20,
+    "undecidedSupport" : 15,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Governance", "Development" ],
     "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
@@ -1675,7 +1675,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "inc",
@@ -1714,7 +1714,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : "#17B890",
+    "color" : "#D8B4FE",
     "symbol" : "Star",
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -1723,11 +1723,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 8,
+    "undecidedSupport" : 3,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Governance", "Development" ],
     "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
@@ -1771,7 +1771,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "inc",
@@ -1810,7 +1810,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : "#17B890",
+    "color" : "#D8B4FE",
     "symbol" : "Star",
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -1819,11 +1819,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 10,
+    "undecidedSupport" : 5,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Governance", "Development" ],
     "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
@@ -1867,7 +1867,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "tdp",
@@ -1906,7 +1906,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : "#17B890",
+    "color" : "#D8B4FE",
     "symbol" : "Star",
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -1915,11 +1915,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 20,
+    "undecidedSupport" : 15,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Governance", "Development" ],
     "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
@@ -1963,7 +1963,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "inc_ysr",
@@ -2002,7 +2002,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : "#17B890",
+    "color" : "#D8B4FE",
     "symbol" : "Star",
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -2011,11 +2011,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 14,
+    "undecidedSupport" : 9,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Governance", "Development" ],
     "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
@@ -2059,7 +2059,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "inc_udf",
@@ -2098,7 +2098,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : "#17B890",
+    "color" : "#D8B4FE",
     "symbol" : "Star",
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -2107,11 +2107,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 4,
+    "undecidedSupport" : 0,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Governance", "Development" ],
     "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."
@@ -2155,7 +2155,7 @@
     "partyMorale" : 80,
     "corruptionScore" : 10,
     "mediaImage" : 65,
-    "publicSupport" : 10
+    "publicSupport" : 15
   },
   "politicalParties" : [ {
     "partyKey" : "cpi_m_ldf",
@@ -2194,7 +2194,7 @@
     "name" : "Youth Development Party (YDP)",
     "startingRole" : "THIRD_PARTY",
     "defaultControllerType" : "HUMAN",
-    "color" : "#17B890",
+    "color" : "#D8B4FE",
     "symbol" : "Star",
     "ideology" : "REGIONAL_PRIDE",
     "aiProfile" : null,
@@ -2203,11 +2203,11 @@
       "partyMorale" : 80,
       "corruptionScore" : 10,
       "mediaImage" : 65,
-      "publicSupport" : 10
+      "publicSupport" : 15
     }
   } ],
   "publicState" : {
-    "undecidedSupport" : 4,
+    "undecidedSupport" : 0,
     "mood" : "Watchful",
     "mainIssues" : [ "Jobs", "Governance", "Development" ],
     "memoryHint" : "Voters weigh the incumbent's track record against the opposition's promises."

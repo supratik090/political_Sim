@@ -53,6 +53,7 @@ public class GameService {
     private final ScenarioDefinitionRepository scenarioRepository;
     private final AiDecisionService aiDecisionService;
     private final CooperationResolver cooperationResolver;
+    private final com.politicalsim.ai.BrokeFightBackService brokeFightBackService;
 
     public GameService(
             GameSessionService gameSessionService,
@@ -61,7 +62,8 @@ public class GameService {
             NewsDefinitionRepository newsRepository,
             MonthlyIssueDefinitionRepository issueRepository,
             ScenarioDefinitionRepository scenarioRepository,
-            AiDecisionService aiDecisionService
+            AiDecisionService aiDecisionService,
+            com.politicalsim.ai.BrokeFightBackService brokeFightBackService
     ) {
         this.gameSessionService = gameSessionService;
         this.roundResolutionEngine = roundResolutionEngine;
@@ -70,6 +72,7 @@ public class GameService {
         this.issueRepository = issueRepository;
         this.scenarioRepository = scenarioRepository;
         this.aiDecisionService = aiDecisionService;
+        this.brokeFightBackService = brokeFightBackService;
         this.cooperationResolver = new CooperationResolver(this);
     }
 
@@ -779,49 +782,6 @@ public class GameService {
             boolean isCorruptionCrisisInitial = party.getStats().getCorruptionScore() >= 75;
             boolean isCrisisModeInitial = isCoinCrisisInitial || isSupportCrisisInitial || isMoraleCrisisInitial || isCorruptionCrisisInitial;
 
-            if (isCrisisModeInitial && isCoinCrisisInitial && party.getProjects() != null) {
-                ProjectState toDestroy = null;
-                double lowestScore = 99999.0;
-                for (ProjectState project : party.getProjects()) {
-                    if (project.getProgressPercent() >= 100) {
-                        try {
-                            BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
-                            // Avoid destroying projects that help with support if we are also in support crisis
-                            if (isSupportCrisisInitial && (projectDef.getBenefitSupport() > 0 || (projectDef.isRequiresTarget() && projectDef.getBenefitSupport() < 0))) {
-                                continue;
-                            }
-                            double retentionScore = aiDecisionService.scoreProjectForRetention(project.getProjectKey());
-                            if (retentionScore < lowestScore) {
-                                lowestScore = retentionScore;
-                                toDestroy = project;
-                            }
-                        } catch (Exception e) {}
-                    }
-                }
-                if (toDestroy != null) {
-                    try {
-                        BuildingProject projectDef = BuildingProject.valueOf(toDestroy.getProjectKey());
-                        int refundCoins = (int) Math.ceil((double) projectDef.getCostCoins() * toDestroy.getProgressPercent() / 100.0);
-                        int refundMorale = (int) Math.ceil((double) projectDef.getCostMorale() * toDestroy.getProgressPercent() / 100.0);
-                        int refundMedia = (int) Math.ceil((double) projectDef.getCostMedia() * toDestroy.getProgressPercent() / 100.0);
-                        int refundCorruption = (int) Math.ceil((double) projectDef.getCostCorruption() * toDestroy.getProgressPercent() / 100.0);
-                        
-                        party.getStats().setCoins(party.getStats().getCoins() + refundCoins);
-                        party.getStats().setPartyMorale(Math.min(100, party.getStats().getPartyMorale() + refundMorale));
-                        party.getStats().setMediaImage(Math.min(100, party.getStats().getMediaImage() + refundMedia));
-                        party.getStats().setCorruptionScore(Math.max(0, party.getStats().getCorruptionScore() - refundCorruption));
-                        
-                        party.getProjects().remove(toDestroy);
-                        
-                        String salvageMsg = party.getName() + " destroyed completed project '" + projectDef.getName() 
-                            + "' to recover " + refundCoins + " Coins due to resource shortage.";
-                        session.getLastRoundCommentary().add("🛠️ " + salvageMsg);
-                        
-                        // Re-evaluate coin crisis after salvage
-                        isCoinCrisisInitial = party.getStats().getCoins() <= 80;
-                    } catch (Exception e) {}
-                }
-            }
 
             // 2. Compute reserves
             int cardCost = decision.card().getCost();
@@ -1012,6 +972,52 @@ public class GameService {
                 }
             }
 
+            // AI Diplomatic Cooperation (Propose Non-Aggression Pact)
+            if (session.getTurnNumber() > 2 && session.getTurnNumber() < 55) {
+                // If AI is under pressure but not broke, seek a pact
+                boolean wantsPact = (party.getStats().getPublicSupport() < 25 || party.getStats().getCoins() < 80) && party.getStats().getCoins() > 20;
+                if (wantsPact && new java.util.Random().nextDouble() < 0.25) {
+                    PartyState rival = aiDecisionService.chooseOpponent(session, party, null); // Find biggest threat
+                    if (rival != null && rival.isActive()) {
+                        boolean alreadyHasPact = session.getActivePacts() != null && session.getActivePacts().stream()
+                            .anyMatch(p -> (p.getPartyAId().equals(party.getId()) && p.getPartyBId().equals(rival.getId())) ||
+                                           (p.getPartyAId().equals(rival.getId()) && p.getPartyBId().equals(party.getId())));
+                        if (!alreadyHasPact) {
+                            CooperationOffer pactOffer = new CooperationOffer();
+                            pactOffer.setId(java.util.UUID.randomUUID().toString());
+                            pactOffer.setTurnCreated(session.getTurnNumber());
+                            pactOffer.setStatus(CooperationOffer.OfferStatus.PENDING);
+                            pactOffer.setType(CooperationOffer.OfferType.NON_AGGRESSION);
+                            pactOffer.setSenderPartyId(party.getId());
+                            pactOffer.setSenderPartyName(party.getName());
+                            pactOffer.setRecipientPartyId(rival.getId());
+                            pactOffer.setRecipientPartyName(rival.getName());
+                            pactOffer.setDurationTurns(10);
+                            
+                            // AI offers to pay coins to secure the pact since it feels threatened
+                            pactOffer.setSenderPaysPact(true);
+                            pactOffer.setPactPaymentResource("COINS");
+                            pactOffer.setPactPaymentValue(15);
+                            
+                            if (session.getCooperationOffers() == null) {
+                                session.setCooperationOffers(new java.util.ArrayList<>());
+                            }
+                            
+                            if (rival.getControllerType() == com.politicalsim.party.ControllerType.COMPUTER) {
+                                boolean accepted = aiDecisionService.evaluateCooperationOffer(session, rival, pactOffer);
+                                if (accepted) {
+                                    cooperationResolver.executeCooperationTrade(session, pactOffer);
+                                    pactOffer.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
+                                } else {
+                                    pactOffer.setStatus(CooperationOffer.OfferStatus.REJECTED);
+                                }
+                            }
+                            session.getCooperationOffers().add(pactOffer);
+                        }
+                    }
+                }
+            }
+
             // AI Reward Play Selection
             List<HeldReward> heldRewards = session.getPartyHeldRewards().get(party.getId());
             if (heldRewards != null && !heldRewards.isEmpty()) {
@@ -1122,6 +1128,21 @@ public class GameService {
 
             String explanation = strategyBasis + " " + bidBasis + " " + projectBasis;
             submission.setAiDecisionBasis(explanation);
+
+            // --- CRISIS FIGHT BACK ---
+            boolean isCrisisNow = brokeFightBackService.isCrisisActive(party);
+            if (isCrisisNow && !party.isBrokeStateActive()) {
+                party.setBrokeStateActive(true);
+                session.getLastRoundCommentary().add("🚨 " + party.getName() + " has entered a critical resource crisis and is fighting for survival!");
+            } else if (!isCrisisNow && party.isBrokeStateActive()) {
+                party.setBrokeStateActive(false);
+                session.getLastRoundCommentary().add("✅ " + party.getName() + " has successfully recovered from their resource crisis.");
+            }
+
+            if (party.isBrokeStateActive()) {
+                brokeFightBackService.executeCrisisResponse(session, party, submission);
+                submission.setAiDecisionBasis(explanation + " [CRISIS OVERRIDE APPLIED]");
+            }
 
             session.getCurrentRoundSubmissions().add(submission);
             generateAiProactiveOffer(session, party);

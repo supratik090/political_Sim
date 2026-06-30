@@ -103,12 +103,18 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
       const created = newOffers[newOffers.length - 1];
       if (created && recipientParty?.controllerType === 'COMPUTER') {
         if (created.status === 'ACCEPTED') {
-          setSuccessMsg(`✅ Proposal accepted by ${recipientParty.name}! The transaction has been resolved.`);
+          const msg = `✅ Proposal accepted by ${recipientParty.name}! The transaction has been resolved.`;
+          setSuccessMsg(msg);
+          window.alert(msg);
         } else if (created.status === 'REJECTED') {
-          setErrorMsg(`❌ Proposal rejected by ${recipientParty.name}.`);
+          const msg = `❌ Proposal rejected by ${recipientParty.name}.`;
+          setErrorMsg(msg);
+          window.alert(msg);
         }
       } else {
-        setSuccessMsg(`🤝 Proposal successfully sent to ${recipientParty?.name || 'partner'}.`);
+        const msg = `🤝 Proposal successfully sent to ${recipientParty?.name || 'partner'}.`;
+        setSuccessMsg(msg);
+        window.alert(msg);
       }
       
       // Reset input fields
@@ -257,7 +263,7 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
               id="partner-select"
               value={recipientId}
               onChange={(e) => setRecipientId(e.target.value)}
-              style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', background: '#fff', border: '1px solid var(--primary-border)' }}
+              style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}
             >
               {otherParties.map(p => (
                 <option key={p.id} value={p.id}>{p.name} ({p.role})</option>
@@ -324,7 +330,7 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div>
                 <label htmlFor="duration-select" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Pact Duration:</label>
-                <select id="duration-select" value={durationTurns} onChange={(e) => setDurationTurns(parseInt(e.target.value))} style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }}>
+                <select id="duration-select" value={durationTurns} onChange={(e) => setDurationTurns(parseInt(e.target.value))} style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}>
                   <option value={5}>5 Months</option>
                   <option value={10}>10 Months</option>
                   <option value={15}>15 Months</option>
@@ -354,7 +360,7 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
 
                   <div>
                     <label htmlFor="payment-asset" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Asset Type:</label>
-                    <select id="payment-asset" value={pactPaymentResource} onChange={(e) => setPactPaymentResource(e.target.value)} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }}>
+                    <select id="payment-asset" value={pactPaymentResource} onChange={(e) => setPactPaymentResource(e.target.value)} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}>
                       <option value="COINS">Coins</option>
                       <option value="MORALE">Morale</option>
                       <option value="SUPPORT">Public Support</option>

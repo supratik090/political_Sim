@@ -666,13 +666,7 @@ export default function DashboardHome() {
   };
 
   const renderDashboardGrid = () => (
-    <div className="dashboard-grid" style={{
-      display: 'grid',
-      gridTemplateColumns: '1.2fr 1fr',
-      gap: '24px',
-      alignItems: 'start',
-      marginTop: '10px'
-    }}>
+    <div className="dashboard-grid">
       {/* Map Column */}
       {renderMapCard()}
 
