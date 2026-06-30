@@ -274,8 +274,8 @@ export const getPartyThemeByName = (partyName) => {
   // 11. Youth Development Party (YDP)
   if (name.includes('youth') || name.includes('ydp')) {
     return {
-      color: '#0ABAB5',
-      rgb: '10, 186, 181',
+      color: '#D8B4FE',
+      rgb: '216, 180, 254',
       symbolName: 'Ashoka Chakra',
       SymbolIcon: AshokaChakraIcon,
       WatermarkIcon: (props) => <AshokaChakraIcon {...props} style={{ opacity: 0.1 }} />

@@ -101,16 +101,16 @@ public class ScenarioSeeder implements CommandLineRunner {
                 "RJD", "rjd", "NDA (BJP+JD-U)", "nda_bjpu",
                 400, 52, 72, 30, 30,
                 400, 58, 38, 48, 36,
-                400, 80, 10, 65, 10,
-                24, 2001);
+                400, 80, 10, 65, 15,
+                19, 2001);
 
         seedScenarioWithParties("bihar_2006", "Bihar 2006", "Bihar",
                 "Nitish Kumar's good governance wave confronts Lalu's entrenched social base post-2005 mandate.",
                 "JD-U", "jdu", "RJD", "rjd",
                 400, 72, 25, 62, 36,
                 400, 38, 68, 28, 28,
-                400, 80, 10, 65, 10,
-                26, 2006);
+                400, 80, 10, 65, 15,
+                21, 2006);
 
         // Goa
         seedScenarioWithParties("goa_2001", "Goa 2001", "Goa",
@@ -118,16 +118,16 @@ public class ScenarioSeeder implements CommandLineRunner {
                 "INC", "inc", "BJP", "bjp",
                 400, 58, 45, 50, 38,
                 400, 50, 40, 45, 32,
-                400, 80, 10, 65, 10,
-                20, 2001);
+                400, 80, 10, 65, 15,
+                15, 2001);
 
         seedScenarioWithParties("goa_2006", "Goa 2006", "Goa",
                 "Goa's revolving-door politics — coalition instability, mining boom controversies, and resort development tensions.",
                 "INC", "inc", "BJP", "bjp",
                 400, 55, 50, 48, 36,
                 400, 52, 42, 46, 34,
-                400, 80, 10, 65, 10,
-                20, 2006);
+                400, 80, 10, 65, 15,
+                15, 2006);
 
         // Delhi
         seedScenarioWithParties("delhi_2001", "Delhi 2001", "Delhi",
@@ -135,16 +135,16 @@ public class ScenarioSeeder implements CommandLineRunner {
                 "INC", "inc", "BJP", "bjp",
                 400, 68, 35, 62, 48,
                 400, 48, 38, 45, 34,
-                400, 80, 10, 65, 10,
-                8, 2001);
+                400, 80, 10, 65, 15,
+                3, 2001);
 
         seedScenarioWithParties("delhi_2006", "Delhi 2006", "Delhi",
                 "Delhi mid-term politics — Commonwealth Games preparation, infrastructure boom, and early anti-incumbency signals.",
                 "INC", "inc", "BJP", "bjp",
                 400, 65, 40, 58, 46,
                 400, 50, 35, 48, 34,
-                400, 80, 10, 65, 10,
-                10, 2006);
+                400, 80, 10, 65, 15,
+                5, 2006);
 
         // Andhra Pradesh
         seedScenarioWithParties("andhra_pradesh_2001", "Andhra Pradesh 2001", "Andhra Pradesh",
@@ -152,33 +152,33 @@ public class ScenarioSeeder implements CommandLineRunner {
                 "TDP", "tdp", "INC", "inc",
                 400, 65, 48, 55, 42,
                 400, 48, 38, 45, 28,
-                400, 80, 10, 65, 10,
-                20, 2001);
+                400, 80, 10, 65, 15,
+                15, 2001);
 
         seedScenarioWithParties("andhra_pradesh_2006", "Andhra Pradesh 2006", "Andhra Pradesh",
                 "YSR's welfare revolution confronts TDP's development legacy in Andhra's most consequential mid-decade contest.",
                 "INC (YSR)", "inc_ysr", "TDP", "tdp",
                 400, 72, 42, 58, 42,
                 400, 48, 45, 42, 34,
-                400, 80, 10, 65, 10,
-                14, 2006);
+                400, 80, 10, 65, 15,
+                9, 2006);
 
         // Kerala
         seedScenarioWithParties("kerala_2001", "Kerala 2001", "Kerala",
                 "God's Own Country elections — LDF vs UDF alternation, labor movement politics, and Gulf remittance economy.",
                 "INC-UDF", "inc_udf", "LDF (CPI-M)", "cpi_m_ldf",
-                400, 65, 38, 55, 44,
+                400, 65, 38, 55, 43,
                 400, 60, 42, 52, 42,
-                400, 80, 10, 65, 10,
-                4, 2001);
+                400, 80, 10, 65, 15,
+                0, 2001);
 
         seedScenarioWithParties("kerala_2006", "Kerala 2006", "Kerala",
                 "VS Achuthanandan's corruption-fight mandate clashes with UDF's development narrative in Kerala's alternating democracy.",
                 "LDF (CPI-M)", "cpi_m_ldf", "INC-UDF", "inc_udf",
-                400, 72, 35, 58, 44,
+                400, 72, 35, 58, 43,
                 400, 55, 40, 52, 42,
-                400, 80, 10, 65, 10,
-                4, 2006);
+                400, 80, 10, 65, 15,
+                0, 2006);
     }
 
     private void seedScenario(String key, String name, String stateName, String description,
@@ -338,7 +338,7 @@ public class ScenarioSeeder implements CommandLineRunner {
         third.setDefaultControllerType(ControllerType.HUMAN);
         third.setIdeology(Ideology.REGIONAL_PRIDE);
         third.setStartingStats(new PartyStats(thirdCoins, thirdMorale, thirdCorruption, thirdMedia, thirdSupport));
-        third.setColor("#17B890");
+        third.setColor("#D8B4FE");
         third.setSymbol("Star");
         parties.add(third);
 

@@ -6,6 +6,7 @@ import StatsView from './StatsView';
 import ActionsView from './ActionsView';
 import { getPartyThemeByName } from '../../constants/partyThemes';
 import { PROJECT_DEFS } from './constants';
+import RoundResolutionModal from './RoundResolutionModal';
 
 const PROJECT_EMOJIS = {
   PARTY_HQ: '🏢',
@@ -118,6 +119,7 @@ export default function GamePlayBoard() {
   const [rewardConfirmed, setRewardConfirmed] = useState(false);
   const [partyBuildingConfirmed, setPartyBuildingConfirmed] = useState(false);
   const [cardCategoryFilter, setCardCategoryFilter] = useState('agitation_movement');
+  const [showResolutionReport, setShowResolutionReport] = useState(false);
 
   // Project building draft states
   const [projectCategoryFilter, setProjectCategoryFilter] = useState('BUILD');
@@ -193,6 +195,7 @@ export default function GamePlayBoard() {
       const result = await advanceTurn(activeGameId, payload);
       setTurnData(result);
       resetLocalStates();
+      setShowResolutionReport(true);
       setActiveView('INFO');
       setActiveAccordion(1);
     } catch (err) {
@@ -241,6 +244,7 @@ export default function GamePlayBoard() {
       const result = await advanceTurn(activeGameId, payload);
       setTurnData(result);
       resetLocalStates();
+      setShowResolutionReport(true);
       setActiveView('INFO');
       setActiveAccordion(1);
     } catch (err) {
@@ -544,6 +548,7 @@ export default function GamePlayBoard() {
               commentaryFilter={commentaryFilter}
               setCommentaryFilter={setCommentaryFilter}
               projectDefs={projectDefs}
+              onOpenResolutionReport={() => setShowResolutionReport(true)}
             />
           )}
 
@@ -622,6 +627,16 @@ export default function GamePlayBoard() {
           <span style={{ fontSize: '28px', fontWeight: 'bold' }}>➔</span>
         </div>
       )}
+
+      {/* Round Resolution Summary Modal */}
+      <RoundResolutionModal
+        isOpen={showResolutionReport}
+        onClose={() => setShowResolutionReport(false)}
+        turnData={turnData}
+        activeParty={activeParty}
+        partyColor={playerPartyColor}
+        projectDefs={projectDefs}
+      />
     </div>
   );
 }

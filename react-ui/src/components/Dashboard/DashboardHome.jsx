@@ -486,12 +486,12 @@ export default function DashboardHome() {
 
               if (scenario) {
                 if (scenario.status === 'LOCKED') {
-                  fillColor = '#cbd5e1';
+                  fillColor = '#94a3b8';
                 } else if (scenario.status === 'IN_PROGRESS') {
-                  fillColor = '#f59e0b';
+                  fillColor = '#8b5cf6';
                   cursor = 'pointer';
                 } else if (scenario.status === 'AVAILABLE') {
-                  fillColor = '#22c55e';
+                  fillColor = '#06b6d4';
                   cursor = 'pointer';
                 } else if (scenario.status === 'WON') {
                   winningColor = getWinnerColorForScenario(scenario.scenarioKey);
@@ -543,11 +543,11 @@ export default function DashboardHome() {
         {/* Legend */}
         <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '15px', flexWrap: 'wrap', fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#22c55e', borderRadius: '3px', border: '1px solid #94a3b8' }} />
+            <span style={{ width: '12px', height: '12px', backgroundColor: '#06b6d4', borderRadius: '3px', border: '1px solid #94a3b8' }} />
             <span>Available</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#f59e0b', borderRadius: '3px', border: '1px solid #94a3b8' }} />
+            <span style={{ width: '12px', height: '12px', backgroundColor: '#8b5cf6', borderRadius: '3px', border: '1px solid #94a3b8' }} />
             <span>In Progress</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -555,7 +555,7 @@ export default function DashboardHome() {
             <span>Won (Party color)</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#cbd5e1', borderRadius: '3px', border: '1px solid #94a3b8' }} />
+            <span style={{ width: '12px', height: '12px', backgroundColor: '#94a3b8', borderRadius: '3px', border: '1px solid #94a3b8' }} />
             <span>Locked</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>

@@ -2,13 +2,28 @@ import React from 'react';
 import { getPartyColor, checkDefeatWarnings, renderStatDelta } from './gameUtils';
 import { getPartyThemeByName } from '../../constants/partyThemes';
 
+const getCleanSymbol = (name, symbol) => {
+  const normName = (name || '').toLowerCase().trim();
+  if (normName.includes('aiadmk')) return 'Two Leaves';
+  if (normName.includes('dmk')) return 'Rising Sun';
+  if (normName.includes('jdu') || normName.includes('jd-u')) return 'Arrow';
+  if (normName.includes('rjd')) return 'Lantern';
+  if (normName.includes('bjp')) return 'Lotus';
+  if (normName.includes('inc') || normName.includes('congress') || normName.includes('udf')) return 'Hand';
+  if (normName.includes('cpim') || normName.includes('cpi-m') || normName.includes('cpi(m)') || normName.includes('ldf')) return 'Hammer & Sickle';
+  if (normName.includes('tmc') || normName.includes('trinamool')) return 'Twin Flowers';
+  if (normName.includes('ydp') || normName.includes('youth')) return 'Ashoka Chakra';
+  return symbol && symbol !== 'undefined' ? symbol : 'Flag';
+};
+
 export default function StatsView({
   turnData,
   commentaryExpanded,
   setCommentaryExpanded,
   commentaryFilter,
   setCommentaryFilter,
-  projectDefs = {}
+  projectDefs = {},
+  onOpenResolutionReport
 }) {
   return (
     <div>
@@ -165,15 +180,15 @@ export default function StatsView({
         );
       })()}
 
-      {/* Voter Support Doughnut Chart & Standings Overview */}
+      {/* Doughnut Chart and Vote Shares */}
       <div style={{ 
         display: 'flex', 
         gap: '30px', 
+        marginBottom: '25px', 
         background: '#ffffff', 
         border: '2px solid var(--primary-border)',
         padding: '25px',
-        borderRadius: '16px',
-        marginBottom: '25px',
+        borderRadius: '12px',
         flexWrap: 'wrap',
         alignItems: 'center',
         boxShadow: '0 4px 15px rgba(33,60,81,0.05)'
@@ -182,23 +197,26 @@ export default function StatsView({
         <div style={{ flex: '1 1 200px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
           {(() => {
             const activeParties = (turnData.parties || []).filter(p => p.role !== 'DEFEATED');
-            const undecided = turnData.publicState?.undecidedSupport || 0;
+            const partiesSum = activeParties.reduce((sum, p) => sum + (p.stats?.publicSupport || 0), 0);
+            const undecidedSupport = Math.max(0, 100 - partiesSum);
+
             const slices = activeParties.map(p => ({
               name: p.name,
               value: p.stats?.publicSupport || 0,
               color: getPartyColor(p),
               isPlayer: p.playerControlled
             }));
-            if (undecided > 0) {
+
+            if (undecidedSupport > 0) {
               slices.push({
                 name: 'Undecided Voters',
-                value: undecided,
-                color: '#94a3b8',
+                value: undecidedSupport,
+                color: '#9ca3af', // Gray
                 isPlayer: false
               });
             }
 
-            const total = slices.reduce((acc, s) => acc + s.value, 0) || 100;
+            const total = 100;
             const radius = 35;
             const circ = 2 * Math.PI * radius; // ~219.91
             let cumulativePercent = 0;
@@ -209,7 +227,7 @@ export default function StatsView({
                   {slices.map((slice, idx) => {
                     const pct = (slice.value / total) * 100;
                     const strokeLength = (pct / 100) * circ;
-                    const strokeOffset = circ - (cumulativePercent / 100) * circ;
+                    const strokeOffset = - (cumulativePercent / 100) * circ;
                     cumulativePercent += pct;
                     return (
                       <circle
@@ -259,20 +277,26 @@ export default function StatsView({
           </h3>
           {(() => {
             const activeParties = (turnData.parties || []).filter(p => p.role !== 'DEFEATED');
-            const undecided = turnData.publicState?.undecidedSupport || 0;
-            const items = activeParties.map(p => ({
-              name: p.name,
-              value: p.stats?.publicSupport || 0,
-              color: getPartyColor(p),
-              isPlayer: p.playerControlled,
-              symbol: p.symbol,
-              role: p.role
-            }));
-            if (undecided > 0) {
+            const partiesSum = activeParties.reduce((sum, p) => sum + (p.stats?.publicSupport || 0), 0);
+            const undecidedSupport = Math.max(0, 100 - partiesSum);
+
+            const items = activeParties.map(p => {
+              const cleanedSymbol = getCleanSymbol(p.name, p.symbol);
+              return {
+                name: p.name,
+                value: p.stats?.publicSupport || 0,
+                color: getPartyColor(p),
+                isPlayer: p.playerControlled,
+                symbol: cleanedSymbol,
+                role: p.role
+              };
+            });
+
+            if (undecidedSupport > 0) {
               items.push({
                 name: 'Undecided Voters',
-                value: undecided,
-                color: '#94a3b8',
+                value: undecidedSupport,
+                color: '#9ca3af', // Gray
                 isPlayer: false,
                 symbol: 'N/A',
                 role: 'UNDECIDED'
@@ -284,7 +308,9 @@ export default function StatsView({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: item.color, border: '1px solid rgba(0,0,0,0.1)', display: 'inline-block' }} />
                   <span style={{ fontWeight: item.isPlayer ? 'bold' : 'normal', color: 'var(--primary-dark)' }}>
-                    {item.name} {item.isPlayer && '(You)'} <span style={{ fontSize: '10px', opacity: 0.6 }}>({item.symbol})</span>
+                    {item.name} {item.isPlayer && '(You)'} {item.symbol && item.symbol !== 'N/A' && (
+                      <span style={{ fontSize: '10px', opacity: 0.6 }}>({item.symbol})</span>
+                    )}
                   </span>
                 </div>
                 <div style={{ fontWeight: 'bold', color: 'var(--primary-dark)' }}>
@@ -485,7 +511,27 @@ export default function StatsView({
           <div style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--selected-highlight)' }}>
             🎯 {turnData.biddingMetric}
           </div>
-          <span style={{ fontSize: '11px', opacity: 0.7 }}>Submit bids using this metric to win five-turn cycle rewards</span>
+          <span style={{ fontSize: '11px', opacity: 0.7, display: 'block', marginBottom: '8px' }}>Submit bids using this metric to win five-turn cycle rewards</span>
+          {turnData.turnNumber > 1 && (
+            <button 
+              onClick={onOpenResolutionReport}
+              style={{
+                padding: '6px 12px',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                backgroundColor: 'var(--party-primary-color, var(--primary-dark))',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              📊 View Turn Report
+            </button>
+          )}
         </div>
         <div className="cycle-reward-pane" style={{ flex: '1 1 200px', borderLeft: '1px solid rgba(0,0,0,0.08)', paddingLeft: '20px' }}>
           <h4 style={{ margin: '0 0 5px 0', textTransform: 'uppercase', fontSize: '10px', opacity: 0.8, letterSpacing: '0.05em', color: 'var(--primary-dark)' }}>Current Cycle Reward</h4>

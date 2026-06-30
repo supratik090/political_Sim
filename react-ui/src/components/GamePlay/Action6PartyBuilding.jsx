@@ -184,17 +184,17 @@ export default function Action6PartyBuilding({
                   key={proj.id || `${proj.projectKey}-in-progress-${idx}`} 
                   className="themed-action-card"
                   style={{ 
-                    border: '2.5px solid var(--party-primary-color)', 
+                    border: '2.5px solid #3b82f6', 
                     borderRadius: '8px', 
                     padding: '12px', 
-                    background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.08)',
+                    background: 'rgba(59, 130, 246, 0.06)',
                     position: 'relative',
                     overflow: 'hidden'
                   }}
                 >
                   {/* Faint Background Watermark */}
                   <div className="themed-card-watermark">
-                    <SymbolIcon size={64} color="var(--party-primary-color)" />
+                    <SymbolIcon size={64} color="#93c5fd" />
                   </div>
 
                   {/* Bottom Right Corner Ribbon */}
@@ -204,7 +204,7 @@ export default function Action6PartyBuilding({
 
                   <div style={{ position: 'relative', zIndex: 2 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ fontWeight: 'bold', fontSize: '13px', color: 'var(--party-primary-color)' }}>{pDef.name || proj.projectKey}</div>
+                      <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#1d4ed8' }}>{pDef.name || proj.projectKey}</div>
                       {isDraft && (
                         <button 
                           disabled={partyBuildingConfirmed}
@@ -226,7 +226,7 @@ export default function Action6PartyBuilding({
                         {chosenContrib > 0 && <span style={{ color: '#22c55e', marginLeft: '6px' }}>+ {chosenContrib}%</span>}
                       </div>
                       <div style={{ width: '100%', height: '8px', background: 'rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
-                        <div style={{ width: `${progress}%`, background: 'var(--party-primary-color, var(--primary-dark))' }} />
+                        <div style={{ width: `${progress}%`, background: '#3b82f6' }} />
                         <div style={{ width: `${chosenContrib}%`, background: '#22c55e' }} />
                       </div>
                     </div>
@@ -338,10 +338,10 @@ export default function Action6PartyBuilding({
                 key={avail.key} 
                 className="themed-action-card"
                 style={{ 
-                  border: '2.5px dashed rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.35)', 
+                  border: '2.5px dashed #94a3b8', 
                   borderRadius: '8px', 
                   padding: '10px', 
-                  background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.01)', 
+                  background: 'rgba(148, 163, 184, 0.04)', 
                   display: 'flex', 
                   flexDirection: 'column', 
                   justifyContent: 'space-between',
@@ -351,7 +351,7 @@ export default function Action6PartyBuilding({
               >
                 {/* Faint Background Watermark */}
                 <div className="themed-card-watermark">
-                  <SymbolIcon size={64} color="var(--party-primary-color)" />
+                  <SymbolIcon size={64} color="#cbd5e1" />
                 </div>
 
                 {/* Bottom Right Corner Ribbon */}
@@ -361,7 +361,7 @@ export default function Action6PartyBuilding({
 
                 <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
                   <div>
-                    <div style={{ fontWeight: 'bold', fontSize: '12px', color: 'var(--party-primary-color)' }}>{avail.name}</div>
+                    <div style={{ fontWeight: 'bold', fontSize: '12px', color: '#475569' }}>{avail.name}</div>
                     <div style={{ fontSize: '10px', color: 'gray', marginTop: '2px' }}>Cost: {avail.cost}</div>
                     <div style={{ fontSize: '10px', color: 'var(--card-text)', marginTop: '4px' }}>Yield: {avail.yield}</div>
                   </div>

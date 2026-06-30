@@ -1,5 +1,22 @@
 import React from 'react';
 
+function deterministicShuffle(array, seedString) {
+  if (!array || array.length === 0) return [];
+  let hash = 0;
+  for (let i = 0; i < seedString.length; i++) {
+    hash = seedString.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const val = Math.abs(Math.sin(hash + i) * 10000);
+    const j = Math.floor((val - Math.floor(val)) * (i + 1));
+    const temp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = temp;
+  }
+  return arr;
+}
+
 export default function Action2NewsReaction({
   turnData,
   selectedNewsReactions,
@@ -57,7 +74,11 @@ export default function Action2NewsReaction({
         newsItems.map((news, index) => {
           const newsKey = news.newsKey || news.issueKey;
           const currentReaction = selectedNewsReactions[newsKey];
-          const options = news.reactionOptions || news.options || [];
+          const rawOptions = news.reactionOptions || news.options || [];
+          
+          const options = React.useMemo(() => {
+            return deterministicShuffle(rawOptions, `${turnData.id || ''}-${turnData.turnNumber}-${newsKey}`);
+          }, [rawOptions, turnData.id, turnData.turnNumber, newsKey]);
           return (
             <div key={newsKey} style={{ marginBottom: index === newsItems.length - 1 ? 0 : '30px' }}>
               {index > 0 && (
