@@ -407,7 +407,11 @@ public class GameService {
                 session.getCooperationOffers(),
                 session.getActivePacts(),
                 session.getTripleImpactTurn() == session.getTurnNumber(),
-                session.getLastRoundSecretMetric()
+                session.getLastRoundSecretMetric(),
+                session.isMultiplayer(),
+                session.getJoinCode(),
+                session.getTurnStartTime(),
+                session.getTurnDurationSeconds()
         );
     }
 
@@ -569,6 +573,9 @@ public class GameService {
             session.setTripleImpactTurn(session.getTurnNumber() + new java.util.Random().nextInt(5));
         }
         session.setCurrentDate(session.getCurrentDate().plusMonths(1));
+        if (session.isMultiplayer()) {
+            session.setTurnStartTime(java.time.LocalDateTime.now());
+        }
 
         // Tick Non-Aggression pacts and cooperation offers
         if (session.getActivePacts() != null) {

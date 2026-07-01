@@ -10,6 +10,7 @@ import com.politicalsim.publicmood.PublicState;
 import com.politicalsim.game.CooperationOffer;
 import com.politicalsim.game.NonAggressionPact;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,10 @@ public record TurnView(
         List<CooperationOffer> cooperationOffers,
         List<NonAggressionPact> activePacts,
         boolean tripleImpactActive,
-        String lastRoundSecretMetric
+        String lastRoundSecretMetric,
+        boolean isMultiplayer,
+        String joinCode,
+        LocalDateTime turnStartTime,
+        Integer turnDurationSeconds
 ) {
 }

@@ -2,6 +2,7 @@ package com.politicalsim.api;
 
 import com.politicalsim.party.Ideology;
 import com.politicalsim.party.PartyRole;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,10 +88,12 @@ public class CreateGameRequest {
         this.userId = userId;
     }
 
+    @JsonProperty("isMultiplayer")
     public boolean isMultiplayer() {
         return isMultiplayer;
     }
 
+    @JsonProperty("isMultiplayer")
     public void setMultiplayer(boolean multiplayer) {
         isMultiplayer = multiplayer;
     }

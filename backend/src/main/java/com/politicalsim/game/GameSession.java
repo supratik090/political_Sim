@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Document(collection = "game_sessions")
 public class GameSession {
@@ -79,10 +80,12 @@ public class GameSession {
         return id;
     }
 
+    @JsonProperty("isMultiplayer")
     public boolean isMultiplayer() {
         return isMultiplayer;
     }
 
+    @JsonProperty("isMultiplayer")
     public void setMultiplayer(boolean multiplayer) {
         isMultiplayer = multiplayer;
     }
