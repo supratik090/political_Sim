@@ -161,47 +161,54 @@ public class ProjectResolver {
                         }
                     }
                 } else {
-                    if (def.getBenefitCoins() != 0) {
-                        party.getStats().setCoins(party.getStats().getCoins() + def.getBenefitCoins());
-                        deltas.get(party.getId()).coins += def.getBenefitCoins();
-                        if (logCommentary) {
-                            commentary.add("  💰 Received +" + def.getBenefitCoins() + " Coins.");
-                        }
-                    }
-                    if (def.getBenefitMorale() != 0) {
-                        party.getStats().setPartyMorale(Math.min(100, party.getStats().getPartyMorale() + def.getBenefitMorale()));
-                        deltas.get(party.getId()).morale += def.getBenefitMorale();
-                        if (logCommentary) {
-                            commentary.add("  ⚡ Received +" + def.getBenefitMorale() + " Morale.");
-                        }
-                    }
-                    if (def.getBenefitMedia() != 0) {
-                        party.getStats().setMediaImage(Math.min(100, party.getStats().getMediaImage() + def.getBenefitMedia()));
-                        deltas.get(party.getId()).media += def.getBenefitMedia();
-                        if (logCommentary) {
-                            commentary.add("  📢 Received +" + def.getBenefitMedia() + " Media Image.");
-                        }
-                    }
-                    if (def.getBenefitCorruption() != 0) {
-                        party.getStats().setCorruptionScore(Math.max(0, party.getStats().getCorruptionScore() + def.getBenefitCorruption()));
-                        deltas.get(party.getId()).corruption += def.getBenefitCorruption();
-                        if (logCommentary) {
-                            commentary.add("  🛡️ Reduced Corruption by " + Math.abs(def.getBenefitCorruption()) + ".");
-                        }
-                    }
-                    if (def.getBenefitSupport() != 0) {
-                        int undecided = session.getPublicState().getUndecidedSupport();
-                        int supportGain = Math.min(undecided, def.getBenefitSupport());
-                        if (supportGain > 0) {
-                            party.getStats().setPublicSupport(party.getStats().getPublicSupport() + supportGain);
-                            session.getPublicState().setUndecidedSupport(undecided - supportGain);
-                            deltas.get(party.getId()).support += supportGain;
+                    boolean projectHostile = def.getBenefitCoins() < 0 
+                                          || def.getBenefitMorale() < 0 
+                                          || def.getBenefitMedia() < 0 
+                                          || def.getBenefitCorruption() > 0 
+                                          || def.getBenefitSupport() < 0;
+                    if (!projectHostile) {
+                        if (def.getBenefitCoins() != 0) {
+                            party.getStats().setCoins(party.getStats().getCoins() + def.getBenefitCoins());
+                            deltas.get(party.getId()).coins += def.getBenefitCoins();
                             if (logCommentary) {
-                                commentary.add("  📈 Gained +" + supportGain + "% Public Support from Undecided voters.");
+                                commentary.add("  💰 Received +" + def.getBenefitCoins() + " Coins.");
                             }
-                        } else {
+                        }
+                        if (def.getBenefitMorale() != 0) {
+                            party.getStats().setPartyMorale(Math.min(100, party.getStats().getPartyMorale() + def.getBenefitMorale()));
+                            deltas.get(party.getId()).morale += def.getBenefitMorale();
                             if (logCommentary) {
-                                commentary.add("  📈 No Undecided voters available to gain support.");
+                                commentary.add("  ⚡ Received +" + def.getBenefitMorale() + " Morale.");
+                            }
+                        }
+                        if (def.getBenefitMedia() != 0) {
+                            party.getStats().setMediaImage(Math.min(100, party.getStats().getMediaImage() + def.getBenefitMedia()));
+                            deltas.get(party.getId()).media += def.getBenefitMedia();
+                            if (logCommentary) {
+                                commentary.add("  📢 Received +" + def.getBenefitMedia() + " Media Image.");
+                            }
+                        }
+                        if (def.getBenefitCorruption() != 0) {
+                            party.getStats().setCorruptionScore(Math.max(0, party.getStats().getCorruptionScore() + def.getBenefitCorruption()));
+                            deltas.get(party.getId()).corruption += def.getBenefitCorruption();
+                            if (logCommentary) {
+                                commentary.add("  🛡️ Reduced Corruption by " + Math.abs(def.getBenefitCorruption()) + ".");
+                            }
+                        }
+                        if (def.getBenefitSupport() != 0) {
+                            int undecided = session.getPublicState().getUndecidedSupport();
+                            int supportGain = Math.min(undecided, def.getBenefitSupport());
+                            if (supportGain > 0) {
+                                party.getStats().setPublicSupport(party.getStats().getPublicSupport() + supportGain);
+                                session.getPublicState().setUndecidedSupport(undecided - supportGain);
+                                deltas.get(party.getId()).support += supportGain;
+                                if (logCommentary) {
+                                    commentary.add("  📈 Gained +" + supportGain + "% Public Support from Undecided voters.");
+                                }
+                            } else {
+                                if (logCommentary) {
+                                    commentary.add("  📈 No Undecided voters available to gain support.");
+                                }
                             }
                         }
                     }

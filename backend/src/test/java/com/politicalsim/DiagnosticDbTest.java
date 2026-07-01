@@ -284,6 +284,123 @@ class DiagnosticDbTest {
     }
 
     @Test
+    void printYdpSupportChangeForAndhra2001() {
+        System.out.println("\n========== YDP SUPPORT CHANGE FOR ANDHRA 2001 ==========");
+        // Find the most recent game session for Andhra 2001 scenario
+        GameSession session = repository.findAllByOrderByCurrentDateDesc().stream()
+                .filter(s -> s.getScenarioKey() != null && s.getScenarioKey().contains("andhra_pradesh_2001"))
+                .findFirst()
+                .orElse(null);
+        if (session == null) {
+            System.out.println("No Andhra 2001 game session found.");
+            return;
+        }
+        // Identify YDP party id
+        String ydpId = session.getParties().stream()
+                .filter(p -> p.getName().toLowerCase().contains("youth") || p.getName().toLowerCase().contains("ydp"))
+                .map(p -> p.getId())
+                .findFirst()
+                .orElse(null);
+        if (ydpId == null) {
+            System.out.println("YDP party not found in session.");
+            return;
+        }
+        // Get last metric delta for YDP support if available
+        Integer delta = null;
+        if (session.getLastMetricDeltas() != null && session.getLastMetricDeltas().containsKey(ydpId)) {
+            Map<String, Integer> partyDelta = session.getLastMetricDeltas().get(ydpId);
+            if (partyDelta != null) {
+                delta = partyDelta.get("support");
+            }
+        }
+        // Get current support
+        int currentSupport = session.getParties().stream()
+                .filter(p -> p.getId().equals(ydpId))
+                .mapToInt(p -> p.getStats().getPublicSupport())
+                .findFirst()
+                .orElse(-1);
+        System.out.println("YDP current support: " + currentSupport + "%");
+        if (delta != null) {
+            System.out.println("Last round support delta for YDP: " + delta + "%");
+        } else {
+            System.out.println("No support delta data available for YDP.");
+        }
+        System.out.println("========== END YDP SUPPORT ANALYSIS ==========");
+    }
+
+    @Test
+    void printYdpProjectsInfo() {
+        System.out.println("\n========== YDP PROJECTS INFO ===========");
+        GameSession session = repository.findAllByOrderByCurrentDateDesc().stream()
+                .filter(s -> s.getScenarioKey() != null && s.getScenarioKey().contains("andhra_pradesh_2001"))
+                .findFirst()
+                .orElse(null);
+        if (session == null) {
+            System.out.println("No Andhra 2001 game session found.");
+            return;
+        }
+        PartyState ydp = session.getParties().stream()
+                .filter(p -> p.getName().toLowerCase().contains("youth") || p.getName().toLowerCase().contains("ydp"))
+                .findFirst()
+                .orElse(null);
+        if (ydp == null) {
+            System.out.println("YDP party not found.");
+            return;
+        }
+        if (ydp.getProjects() == null || ydp.getProjects().isEmpty()) {
+            System.out.println("YDP has no projects.");
+            return;
+        }
+        for (var proj : ydp.getProjects()) {
+            com.politicalsim.party.BuildingProject def = com.politicalsim.party.BuildingProject.valueOf(proj.getProjectKey());
+            int prog = proj.getProgressPercent();
+            System.out.printf("  - %s : %d%% completed (Benefits: Coins=%d, Morale=%d, Media=%d, Corruption=%d, Support=%d)\n",
+                    def.getName(), prog, def.getBenefitCoins(), def.getBenefitMorale(), def.getBenefitMedia(),
+                    def.getBenefitCorruption(), def.getBenefitSupport());
+        }
+    }
+
+    @Test
+    void printYdpPassiveYieldTotals() {
+
+        // Find the most recent Andhra 2001 session
+        GameSession session = repository.findAllByOrderByCurrentDateDesc().stream()
+                .filter(s -> s.getScenarioKey() != null && s.getScenarioKey().contains("andhra_pradesh_2001"))
+                .findFirst()
+                .orElse(null);
+        if (session == null) {
+            System.out.println("No Andhra 2001 game session found.");
+            return;
+        }
+        // Locate YDP party
+        PartyState ydp = session.getParties().stream()
+                .filter(p -> p.getName().toLowerCase().contains("youth") || p.getName().toLowerCase().contains("ydp"))
+                .findFirst()
+                .orElse(null);
+        if (ydp == null) {
+            System.out.println("YDP party not found.");
+            return;
+        }
+        // Sum passive yields from all funded projects (including partial progress)
+        int totalCoins = 0, totalMorale = 0, totalMedia = 0, totalCorruption = 0, totalSupport = 0;
+        if (ydp.getProjects() != null) {
+            for (var proj : ydp.getProjects()) {
+                if (proj.getProgressPercent() <= 0) continue;
+                com.politicalsim.party.BuildingProject def = com.politicalsim.party.BuildingProject.valueOf(proj.getProjectKey());
+                double factor = proj.getProgressPercent() / 100.0;
+                totalCoins += (int) Math.round(def.getBenefitCoins() * factor);
+                totalMorale += (int) Math.round(def.getBenefitMorale() * factor);
+                totalMedia += (int) Math.round(def.getBenefitMedia() * factor);
+                totalCorruption += (int) Math.round(def.getBenefitCorruption() * factor);
+                totalSupport += (int) Math.round(def.getBenefitSupport() * factor);
+            }
+        }
+        System.out.println("YDP total passive yields from all projects this turn:");
+        System.out.println("  Coins: " + totalCoins + " | Morale: " + totalMorale + " | Media: " + totalMedia + " | Corruption: " + totalCorruption + " | Support: " + totalSupport + "%");
+        System.out.println("========== END YDP PASSIVE YIELD TOTALS ==========");
+    }
+
+    @Test
     void exportDatabaseSeedData() throws Exception {
         System.out.println("\n========== EXPORTING SEED DATA ==========");
         java.io.File dir = new java.io.File("../seed-data/startup");
@@ -312,5 +429,45 @@ class DiagnosticDbTest {
         System.out.println("Exported " + issues.size() + " issues.");
         
         System.out.println("========== EXPORT COMPLETE ==========\n");
+    }
+
+
+    @Test
+    void printYdpProjectsSupportInfo() {
+        System.out.println("\n========== YDP PROJECT SUPPORT INFO ==========");
+        GameSession session = repository.findAllByOrderByCurrentDateDesc().stream()
+                .filter(s -> s.getScenarioKey() != null && s.getScenarioKey().contains("andhra_pradesh_2001"))
+                .findFirst()
+                .orElse(null);
+        if (session == null) {
+            System.out.println("No Andhra 2001 game session found.");
+            return;
+        }
+
+        PartyState ydp = session.getParties().stream()
+                .filter(p -> p.getName().toLowerCase().contains("youth") || p.getName().toLowerCase().contains("ydp"))
+                .findFirst()
+                .orElse(null);
+        if (ydp == null) {
+            System.out.println("YDP party not found.");
+            return;
+        }
+
+        if (ydp.getProjects() == null || ydp.getProjects().isEmpty()) {
+            System.out.println("YDP has no projects.");
+            return;
+        }
+
+        int cumulativeSupport = 0;
+        for (var proj : ydp.getProjects()) {
+            com.politicalsim.party.BuildingProject def = com.politicalsim.party.BuildingProject.valueOf(proj.getProjectKey());
+            int prog = proj.getProgressPercent();                     // progress %
+            int supportBenefit = (int) Math.round(def.getBenefitSupport() * prog / 100.0);
+            cumulativeSupport += supportBenefit;
+            System.out.printf("  - %s : %d%% progress → support benefit = %d%%%n",
+                    def.getName(), prog, supportBenefit);
+        }
+        System.out.println("Cumulative YDP support from all projects (scaled) = " + cumulativeSupport + "%");
+        System.out.println("========== END YDP PROJECT SUPPORT INFO ==========");
     }
 }
