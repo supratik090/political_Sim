@@ -1,19 +1,33 @@
-# Stage 1: Build using Maven
-FROM maven:3.8.8-eclipse-temurin-17 AS build
-WORKDIR /app
+# syntax=docker/dockerfile:1.4
 
-# Since Render is now starting inside the /backend folder,
-# COPY . . will copy everything inside /backend into the container
-COPY . .
+# ---------- Builder stage ----------
+# Use a Maven image with a recent version and JDK 17.
+# The cache mount speeds up repeated builds by persisting the Maven repository.
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
+WORKDIR /src
 
-RUN mvn clean package -DskipTests
+# Copy only the pom.xml first to leverage Docker layer caching for dependencies.
+COPY pom.xml .
+# Download dependencies (including plugins) without compiling the code.
+# The cache mount stores the local Maven repository between builds.
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -B dependency:go-offline
 
-# Stage 2: Tiny lightweight runtime
+# Now copy the source code and build the JAR.
+COPY src ./src
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -B -DskipTests clean package
+
+# ---------- Runtime stage ----------
+# Use a minimal JDK distribution (Alpine) for the final image.
 FROM eclipse-temurin:17-jdk-alpine
 VOLUME /tmp
 
-# The jar file is generated inside target/ (not backend/target/)
-COPY --from=build /app/target/political-sim-backend-0.0.1-SNAPSHOT.jar app.jar
+# Copy the built JAR from the builder stage.
+COPY --from=builder /src/target/political-sim-backend-0.0.1-SNAPSHOT.jar /app.jar
 
-ENTRYPOINT ["java","-jar","/app.jar"]
+# Expose the port the Spring Boot app listens on.
 EXPOSE 7810
+
+# Run the application.
+ENTRYPOINT ["java","-jar","/app.jar"]
