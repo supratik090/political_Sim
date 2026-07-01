@@ -26,7 +26,7 @@ export default function RoundResolutionModal({
   ];
 
   // Calculate completed projects & yields
-  const completedProjects = (activeParty.projects || []).filter(p => p.progressPercent === 100);
+  const completedProjects = (activeParty.projects || []).filter(p => p.progressPercent === 100 && p.completionTurn === lastTurnNum);
   
   let netCoins = 0;
   let netMorale = 0;
