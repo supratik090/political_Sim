@@ -25,6 +25,18 @@ export default function StatsView({
   projectDefs = {},
   onOpenResolutionReport
 }) {
+  // In multiplayer: the current user's party is identified by activeHumanPartyId.
+  // humanPlayerMap: { partyId -> userId } — contains ALL human players.
+  // We use activeHumanPartyId to show "You", and show "Player" for other human parties.
+  const myPartyId = turnData.activeHumanPartyId;
+  const humanPlayerMap = turnData.humanPlayerMap || {};
+
+  const getPartyLabel = (party) => {
+    if (party.id === myPartyId) return '(You)';
+    if (humanPlayerMap[party.id]) return '(Player)';
+    return '';
+  };
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '15px', flexWrap: 'wrap' }}>
@@ -106,7 +118,7 @@ export default function StatsView({
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '600', marginBottom: '4px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color, display: 'inline-block' }} />
-                      <span>{partyName} {partyObj?.playerControlled && '(You)'}</span>
+                      <span>{partyName} {partyObj && partyObj.id === myPartyId && '(You)'}</span>
                     </div>
                     <span>{share}%</span>
                   </div>
@@ -150,7 +162,7 @@ export default function StatsView({
       {(() => {
         const allWarnings = [];
         turnData.parties.forEach(p => {
-          if (!p.playerControlled) return;
+          if (p.id !== myPartyId) return; // only warn for current player's party
           const pWarns = checkDefeatWarnings(p);
           pWarns.forEach(w => allWarnings.push({ partyName: p.name, partyColor: getPartyColor(p), message: w }));
         });
@@ -204,7 +216,7 @@ export default function StatsView({
               name: p.name,
               value: p.stats?.publicSupport || 0,
               color: getPartyColor(p),
-              isPlayer: p.playerControlled
+              isPlayer: p.id === myPartyId
             }));
 
             if (undecidedSupport > 0) {
@@ -282,11 +294,12 @@ export default function StatsView({
 
             const items = activeParties.map(p => {
               const cleanedSymbol = getCleanSymbol(p.name, p.symbol);
-              return {
+            return {
                 name: p.name,
                 value: p.stats?.publicSupport || 0,
                 color: getPartyColor(p),
-                isPlayer: p.playerControlled,
+                isPlayer: p.id === myPartyId,
+                isOtherHuman: !!(humanPlayerMap[p.id]) && p.id !== myPartyId,
                 symbol: cleanedSymbol,
                 role: p.role
               };
@@ -308,8 +321,11 @@ export default function StatsView({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: item.color, border: '1px solid rgba(0,0,0,0.1)', display: 'inline-block' }} />
                   <span style={{ fontWeight: item.isPlayer ? 'bold' : 'normal', color: 'var(--primary-dark)' }}>
-                    {item.name} {item.isPlayer && '(You)'} {item.symbol && item.symbol !== 'N/A' && (
-                      <span style={{ fontSize: '10px', opacity: 0.6 }}>({item.symbol})</span>
+                    {item.name}
+                    {item.isPlayer && <span style={{ marginLeft: '4px', fontSize: '10px', background: 'var(--selected-highlight)', color: '#fff', padding: '1px 5px', borderRadius: '6px', fontWeight: 700 }}> You</span>}
+                    {item.isOtherHuman && <span style={{ marginLeft: '4px', fontSize: '10px', background: 'var(--primary-dark)', color: '#fff', padding: '1px 5px', borderRadius: '6px', fontWeight: 700 }}>Player</span>}
+                    {item.symbol && item.symbol !== 'N/A' && (
+                      <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px' }}>({item.symbol})</span>
                     )}
                   </span>
                 </div>
@@ -326,7 +342,8 @@ export default function StatsView({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '25px' }}>
         {turnData.parties.map(party => {
           const stats = party.stats || {};
-          const isPlayer = party.playerControlled;
+          const isPlayer = party.id === myPartyId;
+          const isOtherHuman = !!(humanPlayerMap[party.id]) && !isPlayer;
           const lastBid = turnData.lastRoundBids?.[party.id];
           const wonBidding = turnData.lastRoundWinnerPartyId === party.id;
           const partyDeltas = turnData.lastMetricDeltas?.[party.id] || {};
@@ -398,6 +415,18 @@ export default function StatsView({
                         textTransform: 'uppercase'
                       }}>
                         YOUR PARTY
+                      </span>
+                    ) : isOtherHuman ? (
+                      <span style={{
+                        background: 'var(--primary-dark)',
+                        color: '#ffffff',
+                        fontSize: '9px',
+                        fontWeight: 900,
+                        padding: '3px 8px',
+                        borderRadius: '10px',
+                        textTransform: 'uppercase'
+                      }}>
+                        👤 PLAYER
                       </span>
                     ) : <div />}
                     {isDefeated && (
@@ -876,7 +905,7 @@ export default function StatsView({
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
                         <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: getPartyColor(p) }} />
                         <h5 style={{ margin: 0, fontSize: '14px', color: 'var(--primary-dark)' }}>
-                          {p.name} {p.playerControlled && '(You)'}
+                          {p.name} {p.id === myPartyId && '(You)'}
                         </h5>
                       </div>
 

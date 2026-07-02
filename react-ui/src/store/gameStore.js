@@ -33,6 +33,11 @@ export const useGameStore = create((set, get) => ({
   
   // Actions to mutate local turn state
   setTurnData: (data) => set({ turnData: data, localDecisions: { selectedNewsOptions: {}, selectedCard: null, targetPartyId: null, bidAmount: 0, isDone: false } }),
+
+  // Multiplayer timer (shared so top-nav can display countdown)
+  timeLeft: null,
+  setTimeLeft: (t) => set({ timeLeft: t }),
+
   
   selectNewsOption: (newsKey, optionKey) => set((state) => ({
     localDecisions: {

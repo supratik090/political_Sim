@@ -10,6 +10,7 @@ import RoundResolutionModal from './RoundResolutionModal';
 import SkipTurnConfirmationModal from './SkipTurnConfirmationModal';
 import GameTutorial from './GameTutorial';
 import { useMultiplayer } from '../../hooks/useMultiplayer';
+import ChatDrawer from '../../components/Chat/ChatDrawer';
 
 const PROJECT_EMOJIS = {
   PARTY_HQ: '🏢',
@@ -93,14 +94,13 @@ function hexToRgbStr(hex) {
 
 export default function GamePlayBoard() {
   const [activeView, setActiveView] = useState('INFO');
-  const { user, activeGameId, turnData, setTurnData } = useGameStore();
+  const { user, activeGameId, turnData, setTurnData, setTimeLeft } = useGameStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [projectDefs, setProjectDefs] = useState(PROJECT_DEFS);
   
   // Multiplayer
   const { isConnected, messages, sendMessage, gameUpdateTick, triggerGameUpdate } = useMultiplayer(activeGameId, user?.id || user?.email, user?.name);
-  const [timeLeft, setTimeLeft] = useState(null);
   const [showChat, setShowChat] = useState(false);
   const [chatInput, setChatInput] = useState('');
 
@@ -571,34 +571,18 @@ useEffect(() => {
 
       {/* View Toggle Bar */}
       <div className="view-toggle-bar">
-        <button 
+        <button
           className={`view-toggle-button ${activeView === 'INFO' ? 'selected' : ''}`}
           onClick={() => setActiveView('INFO')}
         >
           📊 Stats &amp; Commentary
         </button>
-        <button 
+        <button
           className={`view-toggle-button ${activeView === 'ACTION' ? 'selected' : ''}`}
           onClick={() => setActiveView('ACTION')}
         >
           🃏 Actions &amp; Cards
         </button>
-        {turnData?.isMultiplayer && (
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '15px' }}>
-            {timeLeft !== null && (
-              <div style={{ padding: '8px 15px', background: timeLeft < 30 ? '#ef4444' : '#3b82f6', color: '#fff', borderRadius: '8px', fontWeight: 'bold' }}>
-                ⏱️ Turn Ends In: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-              </div>
-            )}
-            <button 
-              className={`view-toggle-button ${showChat ? 'selected' : ''}`}
-              onClick={() => setShowChat(!showChat)}
-              style={{ backgroundColor: 'var(--accent-teal)' }}
-            >
-              💬 Chat
-            </button>
-          </div>
-        )}
       </div>
 
       {/* View Content inside Curved Layout Wrapper */}
@@ -696,68 +680,55 @@ useEffect(() => {
             />
           )}
 
-          {/* Chat Drawer Overlay */}
-          {showChat && turnData?.isMultiplayer && (
-            <div style={{
-              position: 'fixed',
-              bottom: '20px',
-              right: '20px',
-              width: '350px',
-              height: '500px',
-              backgroundColor: '#fff',
-              borderRadius: '16px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-              display: 'flex',
-              flexDirection: 'column',
-              zIndex: 1000,
-              border: '2px solid var(--primary-border)'
-            }}>
-              <div style={{ padding: '15px', borderBottom: '1px solid var(--primary-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--primary-dark)', color: '#fff', borderTopLeftRadius: '14px', borderTopRightRadius: '14px' }}>
-                <h3 style={{ margin: 0 }}>Multiplayer Chat</h3>
-                <button onClick={() => setShowChat(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '20px', cursor: 'pointer' }}>×</button>
-              </div>
-              <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: '#f8fafc' }}>
-                {messages.map((m, idx) => (
-                  <div key={idx} style={{ alignSelf: m.senderId === (user?.id || user?.email) ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
-                    <div style={{ fontSize: '10px', color: '#64748b', marginBottom: '2px', textAlign: m.senderId === (user?.id || user?.email) ? 'right' : 'left' }}>
-                      {m.senderName}
-                    </div>
-                    <div style={{ padding: '8px 12px', borderRadius: '12px', backgroundColor: m.senderId === (user?.id || user?.email) ? '#3b82f6' : '#e2e8f0', color: m.senderId === (user?.id || user?.email) ? '#fff' : '#0f172a' }}>
-                      {m.text}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ padding: '15px', borderTop: '1px solid var(--primary-border)', display: 'flex', gap: '10px' }}>
-                <input 
-                  type="text" 
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && chatInput.trim()) {
-                      sendMessage(chatInput.trim());
-                      setChatInput('');
-                    }
-                  }}
-                  placeholder="Type a message..."
-                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-                />
-                <button 
-                  onClick={() => {
-                    if (chatInput.trim()) {
-                      sendMessage(chatInput.trim());
-                      setChatInput('');
-                    }
-                  }}
-                  style={{ padding: '10px 15px', borderRadius: '8px', backgroundColor: 'var(--accent-teal)', color: '#fff', border: 'none', cursor: 'pointer' }}
-                >
-                  Send
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Floating Chat Toggle Button (bottom-right) – multiplayer only */}
+      {turnData?.isMultiplayer && (
+        <button
+          onClick={() => setShowChat(!showChat)}
+          title="Toggle Chat"
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            width: '54px',
+            height: '54px',
+            borderRadius: '50%',
+            backgroundColor: playerPartyColor,
+            border: `3px solid #ffffff`,
+            color: '#ffffff',
+            fontSize: '22px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 1100,
+            boxShadow: `0 6px 20px rgba(0,0,0,0.35)`,
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            padding: 0,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.12)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(0,0,0,0.45)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.35)'; }}
+        >
+          {showChat ? '✕' : '💬'}
+        </button>
+      )}
+
+      {/* Chat Drawer Panel */}
+      {turnData?.isMultiplayer && (
+        <ChatDrawer
+          isOpen={showChat}
+          onClose={() => setShowChat(false)}
+          messages={messages}
+          sendMessage={sendMessage}
+          chatInput={chatInput}
+          setChatInput={setChatInput}
+          user={user}
+          partyColor={playerPartyColor}
+        />
+      )}
+
 
       {/* Floating Center-Right Navigation Arrow */}
       {activeView === 'INFO' && turnData && (

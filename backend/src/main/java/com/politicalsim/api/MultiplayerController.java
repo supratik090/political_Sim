@@ -4,9 +4,18 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.politicalsim.api.telemetry.ChatTelemetryService;
 
 @Controller
 public class MultiplayerController {
+
+    private final ChatTelemetryService chatTelemetryService;
+
+    @Autowired
+    public MultiplayerController(ChatTelemetryService chatTelemetryService) {
+        this.chatTelemetryService = chatTelemetryService;
+    }
 
     @MessageMapping("/chat/{gameId}")
     @SendTo("/topic/chat/{gameId}")
@@ -14,6 +23,8 @@ public class MultiplayerController {
         if (message.getTimestamp() == null) {
             message.setTimestamp(java.time.Instant.now().toString());
         }
+        // Persist chat for later recovery
+        chatTelemetryService.saveMessage(gameId, message);
         return message;
     }
 

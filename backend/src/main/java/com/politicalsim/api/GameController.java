@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.politicalsim.api.telemetry.LobbyTelemetryService;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,15 +25,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class GameController {
 
     private final GameService gameService;
+    private final LobbyTelemetryService lobbyTelemetryService;
 
-    public GameController(GameService gameService) {
+    @Autowired
+    public GameController(GameService gameService, LobbyTelemetryService lobbyTelemetryService) {
         this.gameService = gameService;
+        this.lobbyTelemetryService = lobbyTelemetryService;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GameSession createGame(@Valid @RequestBody CreateGameRequest request) {
-        return gameService.createGame(request);
+        GameSession session = gameService.createGame(request);
+        // Record lobby creation telemetry
+        lobbyTelemetryService.recordEvent(session.getId(), "LOBBY_CREATED", session.getJoinCode());
+        return session;
     }
 
     @GetMapping("/{gameId}")
@@ -46,7 +54,10 @@ public class GameController {
 
     @PostMapping("/join")
     public GameSession joinGame(@RequestParam String userId, @RequestParam String joinCode, @RequestParam String partyId) {
-        return gameService.joinGame(userId, joinCode, partyId);
+        GameSession session = gameService.joinGame(userId, joinCode, partyId);
+        // Record player join telemetry
+        lobbyTelemetryService.recordEvent(session.getId(), "PLAYER_JOINED", userId);
+        return session;
     }
 
     @PostMapping("/{gameId}/start")

@@ -9,7 +9,7 @@ spring:
 
 server:
   port: ${PORT:7810}
-
+allowed.origins: http://localhost:5173,https://political-sim.onrender.com
 political-sim:
   default-state-name: West Bengal
 

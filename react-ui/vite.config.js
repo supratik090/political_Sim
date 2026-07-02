@@ -10,6 +10,10 @@ export default defineConfig({
         target: 'http://localhost:7810',
         changeOrigin: true,
         secure: false,
+      },
+      '/ws-game': {
+        target: 'http://localhost:7810',
+        ws: true,
       }
     }
   }

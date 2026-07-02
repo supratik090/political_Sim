@@ -8,7 +8,7 @@ export default function Lobby() {
     const [gameData, setGameData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const { isConnected, lobbyUpdateTick } = useMultiplayer(activeGameId, user?.id || user?.email, user?.name);
+    const { isConnected, lobbyUpdateTick, triggerLobbyUpdate } = useMultiplayer(activeGameId, user?.id || user?.email, user?.name);
 
     const loadGame = async () => {
         try {
@@ -30,10 +30,10 @@ export default function Lobby() {
     }, [activeGameId, lobbyUpdateTick]); // Reload when tick changes
 
     const handleStartGame = async () => {
-        setLoading(true);
+    setLoading(true);
         try {
             await startGame(activeGameId, user.id || user.email);
-            // This could trigger a LOBBY update so others start too
+            triggerLobbyUpdate(); // Notify all guests that game has started
         } catch (err) {
             console.error(err);
             setError(err.message || 'Failed to start game');

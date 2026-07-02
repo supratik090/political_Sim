@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { getGameByJoinCode, joinGameLobby } from '../../api/apiClient';
+import { notifyLobbyJoined } from '../../hooks/useMultiplayer';
 
 export default function JoinGame() {
     const { user, setScreen, setActiveGame } = useGameStore();
@@ -39,6 +40,7 @@ export default function JoinGame() {
         setError('');
         try {
             const data = await joinGameLobby(user.id || user.email, joinCode, selectedPartyId);
+            notifyLobbyJoined(data.id); // Notify host's lobby to refresh
             setActiveGame(data.id);
             setScreen('LOBBY');
         } catch (err) {

@@ -2,7 +2,28 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-const WEBSOCKET_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '/ws') || 'http://localhost:8080/ws';
+const WEBSOCKET_URL = import.meta.env.VITE_API_BASE_URL?.replace('/api', '/ws-game') || 'http://localhost:7810/ws-game';
+
+/**
+ * One-shot helper: connects to WS, sends a LOBBY_UPDATED event, then disconnects.
+ * Used by JoinGame so the host's lobby refreshes when Player B joins.
+ */
+export function notifyLobbyJoined(gameId) {
+    const client = new Client({
+        webSocketFactory: () => { const sock = new SockJS(WEBSOCKET_URL); sock.withCredentials = true; return sock; },
+        reconnectDelay: 0,
+    });
+    client.onConnect = () => {
+        client.publish({
+            destination: `/app/lobby/${gameId}/update`,
+            body: 'PLAYER_JOINED',
+        });
+        setTimeout(() => client.deactivate(), 500);
+    };
+    client.activate();
+}
+
+
 
 export const useMultiplayer = (gameId, userId, userName) => {
     const [messages, setMessages] = useState([]);
@@ -15,7 +36,7 @@ export const useMultiplayer = (gameId, userId, userName) => {
         if (!gameId) return;
 
         const client = new Client({
-            webSocketFactory: () => new SockJS(WEBSOCKET_URL),
+            webSocketFactory: () => { const sock = new SockJS(WEBSOCKET_URL); sock.withCredentials = true; return sock; },
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,

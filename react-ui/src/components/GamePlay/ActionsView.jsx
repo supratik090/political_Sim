@@ -67,6 +67,14 @@ export default function ActionsView({
   activeAccordion,
   setActiveAccordion
 }) {
+  // In multiplayer, only let the active human player interact.
+  // activeHumanPartyId changes each round to point to whose turn it is.
+  const myPartyId = turnData?.activeHumanPartyId;
+  const humanPlayerMap = turnData?.humanPlayerMap || {};
+  const isMultiplayer = turnData?.isMultiplayer;
+  // If it's a multiplayer game and MY party is not the active one, I should wait.
+  const isMyTurn = !isMultiplayer || (activeParty?.id === myPartyId);
+
   const isCardCompleted = selectedCard !== null && (!cardRequiresTarget(selectedCard) || targetPartyId !== '');
   
   const newsItems = turnData.currentNews || [];
@@ -123,9 +131,9 @@ export default function ActionsView({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
         <h2 style={{ marginTop: 0, marginBottom: '0' }}>🃏 Card Selection &amp; Campaign Actions</h2>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <button 
+          <button
             onClick={handleSkipTurn}
-            disabled={loading}
+            disabled={loading || !isMyTurn}
             style={{
               background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
               color: '#ffffff',
@@ -134,7 +142,7 @@ export default function ActionsView({
               padding: '6px 14px',
               border: 'none',
               borderRadius: '20px',
-              cursor: 'pointer',
+              cursor: isMyTurn ? 'pointer' : 'not-allowed',
               textTransform: 'uppercase',
               boxShadow: '0 4px 10px rgba(239, 68, 68, 0.2)',
               transition: 'all 0.2s',
@@ -151,10 +159,34 @@ export default function ActionsView({
         </div>
       </div>
 
+      {/* Multiplayer wait banner when it’s not this player’s turn */}
+      {!isMyTurn && (
+        <div style={{
+          background: 'linear-gradient(135deg, var(--primary-dark) 0%, #1a2f3e 100%)',
+          border: '2px solid var(--primary-border)',
+          borderRadius: '14px',
+          padding: '30px',
+          textAlign: 'center',
+          color: '#ffffff',
+          marginBottom: '20px',
+          boxShadow: '0 8px 25px rgba(33,60,81,0.2)'
+        }}>
+          <div style={{ fontSize: '36px', marginBottom: '12px' }}>⏳</div>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 900 }}>Waiting for Opponent</h3>
+          <p style={{ margin: 0, opacity: 0.75, fontSize: '14px' }}>
+            It is <strong>{turnData.activeHumanPartyName || 'the other player'}’s</strong> turn to play.
+            <br />Actions will be available once they submit their decisions.
+          </p>
+        </div>
+      )}
+
+      {/* Show action sections only when it’s this player’s turn */}
+      {isMyTurn && (
+        <>
       {/* 1. Political Card Selection */}
-      <ActionSection 
-        num={1} 
-        title="Political Card Selection" 
+      <ActionSection
+        num={1}
+        title="Political Card Selection"
         isCompleted={isCardCompleted}
         activeAccordion={activeAccordion}
         setActiveAccordion={setActiveAccordion}
@@ -171,9 +203,9 @@ export default function ActionsView({
       </ActionSection>
 
       {/* 2. News Reaction */}
-      <ActionSection 
-        num={2} 
-        title="News Reaction" 
+      <ActionSection
+        num={2}
+        title="News Reaction"
         isCompleted={isNewsCompleted}
         activeAccordion={activeAccordion}
         setActiveAccordion={setActiveAccordion}
@@ -186,9 +218,9 @@ export default function ActionsView({
       </ActionSection>
 
       {/* 3. Party News Reaction */}
-      <ActionSection 
-        num={3} 
-        title="Party News Reaction" 
+      <ActionSection
+        num={3}
+        title="Party News Reaction"
         isCompleted={isIssueCompleted}
         activeAccordion={activeAccordion}
         setActiveAccordion={setActiveAccordion}
@@ -201,9 +233,9 @@ export default function ActionsView({
       </ActionSection>
 
       {/* 4. Bid for Reward */}
-      <ActionSection 
-        num={4} 
-        title="Bid for Reward" 
+      <ActionSection
+        num={4}
+        title="Bid for Reward"
         isCompleted={isBidCompleted}
         activeAccordion={activeAccordion}
         setActiveAccordion={setActiveAccordion}
@@ -219,10 +251,10 @@ export default function ActionsView({
       </ActionSection>
 
       {/* 5. Play Reward */}
-      <ActionSection 
-        num={5} 
-        title="Play Reward" 
-        isCompleted={isRewardCompleted} 
+      <ActionSection
+        num={5}
+        title="Play Reward"
+        isCompleted={isRewardCompleted}
         isOptional={true}
         activeAccordion={activeAccordion}
         setActiveAccordion={setActiveAccordion}
@@ -239,10 +271,10 @@ export default function ActionsView({
       </ActionSection>
 
       {/* 6. Party Building activity */}
-      <ActionSection 
-        num={6} 
-        title="Party Building activity" 
-        isCompleted={isPartyBuildingCompleted} 
+      <ActionSection
+        num={6}
+        title="Party Building activity"
+        isCompleted={isPartyBuildingCompleted}
         isOptional={true}
         activeAccordion={activeAccordion}
         setActiveAccordion={setActiveAccordion}
@@ -266,10 +298,10 @@ export default function ActionsView({
       </ActionSection>
 
       {/* 7. Diplomatic Cooperation */}
-      <ActionSection 
-        num={7} 
-        title="Diplomatic Cooperation" 
-        isCompleted={true} 
+      <ActionSection
+        num={7}
+        title="Diplomatic Cooperation"
+        isCompleted={true}
         isOptional={true}
         activeAccordion={activeAccordion}
         setActiveAccordion={setActiveAccordion}
@@ -294,7 +326,7 @@ export default function ActionsView({
             </span>
           )}
         </div>
-        <button 
+        <button
           onClick={handleAdvanceTurn}
           disabled={!allActionsReady || loading}
           style={{
@@ -312,6 +344,8 @@ export default function ActionsView({
           {loading ? 'Advancing Turn...' : 'End Turn (Submit Decisions) ➔'}
         </button>
       </div>
+      </>
+      )}
     </div>
   );
 }

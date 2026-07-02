@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { listGames, fetchScenarioProgress, createGame, deleteGame } from '../../api/apiClient';
+import { listGames, fetchScenarioProgress, createGame, deleteGame, getGameByJoinCode } from '../../api/apiClient';
 import { getPartyThemeByName } from '../../constants/partyThemes';
 
 export default function DashboardHome() {
@@ -23,6 +23,8 @@ export default function DashboardHome() {
   const [isMultiplayer, setIsMultiplayer] = useState(false);
   const [turnDurationSeconds, setTurnDurationSeconds] = useState(180);
   const [createdMultiplayerGame, setCreatedMultiplayerGame] = useState(null);
+  const [rejoinCode, setRejoinCode] = useState('');
+  const [rejoinError, setRejoinError] = useState('');
 
   useEffect(() => {
     if (currentScreen === 'HOME') {
@@ -344,6 +346,20 @@ export default function DashboardHome() {
 
   const renderLoad = () => {
     const activeGames = games.filter(game => game.status === 'ACTIVE' || game.status === 'LOBBY');
+
+    const handleRejoin = async () => {
+      setRejoinError('');
+      if (rejoinCode.trim().length < 6) { setRejoinError('Enter a valid 6-character code'); return; }
+      try {
+        const data = await getGameByJoinCode(rejoinCode.trim());
+        setActiveGame(data.id);
+        if (data.status === 'LOBBY') setScreen('LOBBY');
+        else setScreen('GAME');
+      } catch (err) {
+        setRejoinError('Game not found. Check the join code.');
+      }
+    };
+
     return (
       <div className="unified-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -356,15 +372,25 @@ export default function DashboardHome() {
           {activeGames.map(game => (
             <div key={game.id} style={{ border: '1px solid var(--primary-border)', padding: '15px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h4 style={{ margin: '0 0 5px 0' }}>{game.scenarioName || game.scenarioKey}</h4>
+                <h4 style={{ margin: '0 0 5px 0' }}>
+                  {game.scenarioName || game.scenarioKey}
+                  {game.isMultiplayer && (
+                    <span style={{
+                      marginLeft: '8px', fontSize: '11px',
+                      background: 'var(--primary-dark)', color: '#fff',
+                      padding: '2px 8px', borderRadius: '999px', fontWeight: 700,
+                      verticalAlign: 'middle'
+                    }}>🌐 Multiplayer</span>
+                  )}
+                </h4>
                 <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Status: {game.status} | Started: {formatDate(game.createdAt)}</span>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => handleLoadGame(game.id, game.status)}>
                   {game.status === 'LOBBY' ? 'Enter Lobby' : 'Load Game'}
                 </button>
-                <button 
-                  onClick={() => handleDeleteGame(game.id)} 
+                <button
+                  onClick={() => handleDeleteGame(game.id)}
                   style={{ backgroundColor: '#D9534F', color: '#ffffff', border: 'none' }}
                 >
                   🗑️ Delete
@@ -372,6 +398,27 @@ export default function DashboardHome() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Rejoin section for Player B */}
+        <div style={{
+          borderTop: '1px solid var(--primary-border)',
+          marginTop: '24px', paddingTop: '20px'
+        }}>
+          <h3 style={{ margin: '0 0 8px 0', color: 'var(--primary-dark)', fontSize: '15px' }}>🔗 Rejoin a Multiplayer Game</h3>
+          <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--text-secondary)' }}>Playing on a different browser? Enter the join code to re-enter.</p>
+          {rejoinError && <p style={{ color: '#D9534F', fontSize: '13px', margin: '0 0 8px 0' }}>{rejoinError}</p>}
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={rejoinCode}
+              onChange={e => setRejoinCode(e.target.value.toUpperCase())}
+              placeholder="e.g. A1B2C3"
+              maxLength={6}
+              style={{ width: '140px', padding: '10px', fontSize: '18px', textAlign: 'center', letterSpacing: '4px', textTransform: 'uppercase' }}
+            />
+            <button onClick={handleRejoin} style={{ padding: '10px 20px' }}>Rejoin Game</button>
+          </div>
         </div>
       </div>
     );
