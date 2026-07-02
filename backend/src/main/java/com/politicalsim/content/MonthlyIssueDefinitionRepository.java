@@ -1,6 +1,8 @@
 package com.politicalsim.content;
 
 import java.util.List;
+
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface MonthlyIssueDefinitionRepository extends MongoRepository<MonthlyIssueDefinition, String> {
@@ -9,5 +11,6 @@ public interface MonthlyIssueDefinitionRepository extends MongoRepository<Monthl
     List<MonthlyIssueDefinition> findByScenarioKeyOrderByCategoryAscTitleAsc(String scenarioKey);
 
     /** Unsorted query — used for per-game random sampling */
+    @Cacheable(value = "monthlyDefinitions", key = "#scenarioKey")
     List<MonthlyIssueDefinition> findByScenarioKey(String scenarioKey);
 }
