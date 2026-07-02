@@ -57,14 +57,14 @@ public class ElectionResolver {
         for (PartyState party : ranking) {
             if (party.getId().equals(winner.getId())) {
                 party.setRole(PartyRole.GOVERNMENT);
-                party.getStats().setCoins(100);
+                party.getStats().setCoins(party.getStats().getCoins()+150);
                 party.getStats().setPartyMorale(engine.clamp(party.getStats().getPartyMorale() + 5));
             } else if (party.getId().equals(runnerUp.getId())) {
                 party.setRole(PartyRole.OPPOSITION);
-                party.getStats().setCoins(75);
+                party.getStats().setCoins( party.getStats().getCoins()+75);
             } else {
                 party.setRole(PartyRole.THIRD_PARTY);
-                party.getStats().setCoins(75);
+                party.getStats().setCoins(party.getStats().getCoins()+75);
             }
         }
 
@@ -86,6 +86,10 @@ public class ElectionResolver {
         session.setLastElectionVoteShares(voteShares);
         
         boolean humanWon = session.getPlayerPartyIds().contains(winner.getId());
+        // A "mandatory" election is one that happens at the natural end-of-term (turn >= 60)
+        // or is triggered by a resource collapse — never by a No-Confidence motion.
+        boolean isMandatoryElection = !isNoConfidenceElection;
+
         if (humanWon) {
             if (isNoConfidenceElection && session.getTurnNumber() < 60) {
                 session.getLastRoundCommentary().add("🎉 Your No-Confidence Motion succeeded! You have won the early election and formed the government. You must now survive the next 60 months in office.");
@@ -95,12 +99,13 @@ public class ElectionResolver {
                 session.getLastRoundCommentary().add("🏆 VICTORY: You have successfully completed the 60-month campaign and won the election! Your party forms a stable government.");
                 session.setLastResults(List.of("Victory: You won the election!"));
             }
-        } else {
+        } else if (isMandatoryElection) {
+            // End-of-term loss = permanent DEFEAT
             session.setStatus(GameStatus.DEFEAT);
             session.getLastRoundCommentary().add("❌ DEFEAT: You did not win the election. " + winner.getName() + " has formed the government.");
             session.setLastResults(List.of("Defeat: You lost the election."));
 
-            // Mark the human player as DEFEATED!
+            // Mark the human player as DEFEATED
             for (PartyState party : session.getParties()) {
                 if (session.getPlayerPartyIds().contains(party.getId())) {
                     party.setRole(com.politicalsim.party.PartyRole.DEFEATED);
@@ -110,6 +115,15 @@ public class ElectionResolver {
                     session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + supportToMove);
                 }
             }
+        } else {
+            // No-Confidence election lost mid-game — game continues, player drops to opposition/third-party
+            // The roles & coins have already been reassigned in the ranking loop above.
+            // We just need to inform the player and keep the game ACTIVE.
+            session.getLastRoundCommentary().add(
+                "📉 No-Confidence Election Lost: " + winner.getName() + " has formed the new government. " +
+                "Your party has been pushed to the opposition. The campaign continues — fight back!");
+            session.setLastResults(List.of("No-Confidence Lost: You are now in opposition. Game continues."));
+            // session.getStatus() remains ACTIVE
         }
     }
 }

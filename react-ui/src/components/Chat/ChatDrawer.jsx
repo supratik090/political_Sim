@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 /**
  * ChatDrawer – premium styled chat panel that matches the game UX.
@@ -26,12 +26,25 @@ const ChatDrawer = ({
   partyColor = '#213C51',
 }) => {
   const scrollRef = useRef(null);
+  const [vibrate, setVibrate] = useState(false);
+  const prevMsgCount = useRef(messages.length);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isOpen]);
+
+  // Vibrate the panel when a new message arrives (even if drawer is closed)
+  useEffect(() => {
+    if (messages.length > prevMsgCount.current) {
+      setVibrate(true);
+      const t = setTimeout(() => setVibrate(false), 620);
+      prevMsgCount.current = messages.length;
+      return () => clearTimeout(t);
+    }
+    prevMsgCount.current = messages.length;
+  }, [messages.length]);
 
   if (!isOpen) return null;
 
@@ -51,6 +64,7 @@ const ChatDrawer = ({
 
   return (
     <div
+      className={vibrate ? 'chat-panel-vibrate' : ''}
       style={{
         position: 'fixed',
         bottom: '90px',           // above the floating chat button
@@ -72,6 +86,19 @@ const ChatDrawer = ({
         @keyframes chatSlideUp {
           from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes chatVibrate {
+          0%   { transform: translateX(0); }
+          15%  { transform: translateX(-6px); }
+          30%  { transform: translateX(6px); }
+          45%  { transform: translateX(-5px); }
+          60%  { transform: translateX(5px); }
+          75%  { transform: translateX(-3px); }
+          90%  { transform: translateX(3px); }
+          100% { transform: translateX(0); }
+        }
+        .chat-panel-vibrate {
+          animation: chatVibrate 0.55s ease;
         }
         .chat-msg-bubble {
           transition: transform 0.15s ease;
@@ -137,7 +164,7 @@ const ChatDrawer = ({
             border: '2px solid rgba(255,255,255,0.5)',
           }} />
           <span style={{ fontWeight: 800, fontSize: '14px', letterSpacing: '0.04em' }}>
-            Multiplayer Chat
+            Chat
           </span>
           <span style={{
             fontSize: '10px', fontWeight: 600,

@@ -410,6 +410,7 @@ public class GameService {
                 session.getLastRoundSecretMetric(),
                 session.isMultiplayer(),
                 session.getJoinCode(),
+                session.getHumanPlayerMap(),
                 session.getTurnStartTime(),
                 session.getTurnDurationSeconds()
         );
@@ -1304,6 +1305,9 @@ public class GameService {
                 .filter(card -> card.getRoleAllowed().contains(party.getRole().name()))
                 .filter(card -> "no_card".equals(card.getCardKey()) || usedCount(session, party, card) < 3)
                 .filter(card -> party.getStats().getCoins() >= card.getCost())
+                // No-Confidence Motion can only be played by OPPOSITION or THIRD_PARTY, never by GOVERNMENT
+                .filter(card -> !(card.getCardKey() != null && card.getCardKey().contains("no_confidence")
+                        && party.getRole() == com.politicalsim.party.PartyRole.GOVERNMENT))
                 .toList()
         );
         

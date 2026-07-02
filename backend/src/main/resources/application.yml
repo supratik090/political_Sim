@@ -9,7 +9,8 @@ spring:
 
 server:
   port: ${PORT:7810}
-allowed.origins: http://localhost:5173,https://political-sim.onrender.com
+allowed:
+  origins: "http://localhost:5173,http://localhost:3000,https://political-sim-mu.vercel.app"
 political-sim:
   default-state-name: West Bengal
 

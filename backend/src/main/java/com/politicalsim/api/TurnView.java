@@ -65,6 +65,7 @@ public record TurnView(
         String lastRoundSecretMetric,
         boolean isMultiplayer,
         String joinCode,
+        Map<String, String> humanPlayerMap,
         LocalDateTime turnStartTime,
         Integer turnDurationSeconds
 ) {

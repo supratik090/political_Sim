@@ -103,6 +103,8 @@ export default function GamePlayBoard() {
   const { isConnected, messages, sendMessage, gameUpdateTick, triggerGameUpdate } = useMultiplayer(activeGameId, user?.id || user?.email, user?.name);
   const [showChat, setShowChat] = useState(false);
   const [chatInput, setChatInput] = useState('');
+  const [unreadCount, setUnreadCount] = useState(0);
+  const prevMsgCountRef = useRef(0);
 
   useEffect(() => {
     fetchBuildingProjects()
@@ -183,6 +185,16 @@ export default function GamePlayBoard() {
       setLoading(false);
     }
   };
+
+  // Track unread chat messages when chat is closed
+  useEffect(() => {
+    if (messages.length > prevMsgCountRef.current) {
+      if (!showChat) {
+        setUnreadCount(prev => prev + (messages.length - prevMsgCountRef.current));
+      }
+      prevMsgCountRef.current = messages.length;
+    }
+  }, [messages.length, showChat]);
 
   useEffect(() => {
     loadTurnData(true);
@@ -455,7 +467,7 @@ useEffect(() => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: 'bold', marginBottom: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: getPartyColor(party), display: 'inline-block', border: '1px solid rgba(0,0,0,0.2)' }} />
-                      <span>{party.name} {party.playerControlled && '(You)'}</span>
+                      <span>{party.name} {party.id === turnData.activeHumanPartyId && '(You)'}</span>
                     </div>
                     <span>{support}%</span>
                   </div>
@@ -685,34 +697,58 @@ useEffect(() => {
 
       {/* Floating Chat Toggle Button (bottom-right) – multiplayer only */}
       {turnData?.isMultiplayer && (
-        <button
-          onClick={() => setShowChat(!showChat)}
-          title="Toggle Chat"
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            right: '24px',
-            width: '54px',
-            height: '54px',
-            borderRadius: '50%',
-            backgroundColor: playerPartyColor,
-            border: `3px solid #ffffff`,
-            color: '#ffffff',
-            fontSize: '22px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            zIndex: 1100,
-            boxShadow: `0 6px 20px rgba(0,0,0,0.35)`,
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-            padding: 0,
-          }}
-          onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.12)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(0,0,0,0.45)'; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.35)'; }}
-        >
-          {showChat ? '✕' : '💬'}
-        </button>
+        <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 1100, display: 'inline-block' }}>
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+          <button
+            onClick={() => { setShowChat(!showChat); if (!showChat) setUnreadCount(0); }}
+            title="Toggle Chat"
+            style={{
+              width: '54px',
+              height: '54px',
+              borderRadius: '50%',
+              backgroundColor: playerPartyColor,
+              border: `3px solid #ffffff`,
+              color: '#ffffff',
+              fontSize: '22px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: `0 6px 20px rgba(0,0,0,0.35)`,
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              padding: 0,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.12)'; e.currentTarget.style.boxShadow = '0 10px 28px rgba(0,0,0,0.45)'; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.35)'; }}
+          >
+            {showChat ? '✕' : '💬'}
+          </button>
+          {/* Unread badge */}
+          {!showChat && unreadCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '-4px',
+              right: '-4px',
+              background: '#ef4444',
+              color: '#fff',
+              fontSize: '11px',
+              fontWeight: 900,
+              borderRadius: '999px',
+              minWidth: '20px',
+              height: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0 4px',
+              border: '2px solid #fff',
+              pointerEvents: 'none',
+              animation: 'chatVibrate 0.5s ease'
+            }}>
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+          </div>
+        </div>
       )}
 
       {/* Chat Drawer Panel */}

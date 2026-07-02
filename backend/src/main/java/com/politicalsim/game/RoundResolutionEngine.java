@@ -577,16 +577,21 @@ public class RoundResolutionEngine {
             if (entry.getValue() instanceof Number) {
                 int val = ((Number) entry.getValue()).intValue();
                 if (isOpponent) {
+                    // Opponent effects: only amplify negative values (damage to opponent)
                     if ("corruptionScore".equals(entry.getKey())) {
                         if (val > 0) val *= 3;
                     } else {
                         if (val < 0) val *= 3;
                     }
                 } else {
+                    // Self effects: only amplify POSITIVE values (benefits to self).
+                    // Negative self-effects (self-damage) are EXCLUDED (set to 0) during Triple Impact.
                     if ("corruptionScore".equals(entry.getKey())) {
-                        if (val < 0) val *= 3;
+                        if (val < 0) val *= 3;       // negative corruption = good for self → triple
+                        else val = 0;                 // positive corruption = bad for self  → exclude
                     } else {
-                        if (val > 0) val *= 3;
+                        if (val > 0) val *= 3;        // positive stat = good for self → triple
+                        else val = 0;                 // negative stat = bad for self   → exclude
                     }
                 }
                 tripled.put(entry.getKey(), val);
@@ -596,6 +601,7 @@ public class RoundResolutionEngine {
         }
         return tripled;
     }
+
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> partyEffect(Map<String, Object> effects, String key) {
