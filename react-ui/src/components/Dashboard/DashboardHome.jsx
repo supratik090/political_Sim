@@ -110,6 +110,12 @@ export default function DashboardHome() {
         const allScenariosData = (cached.progressData?.scenarios || [])
           .map(s => {
             const def = s.scenarioDefinition || {};
+
+            // 1. Safely extract last 4 characters if scenarioKey exists
+                const lastFour = s.scenarioKey ? s.scenarioKey.slice(-4) : '';
+
+           // 2. Validate if they are 4 digits, otherwise default to 2001
+                const extractedYear = /^\d{4}$/.test(lastFour) ? parseInt(lastFour, 10) : 2001;
             return {
               ...def,
               id: def.id || s.scenarioKey,
@@ -118,7 +124,7 @@ export default function DashboardHome() {
               description: s.description || def.description,
               stateName: s.stateName || def.stateName,
               status: s.status,
-              startYear: s.scenarioKey?.endsWith('_2006') ? 2006 : 2001
+              startYear: extractedYear
             };
           });
         setAllScenarios(allScenariosData);
@@ -142,6 +148,13 @@ export default function DashboardHome() {
       const allScenariosData = (progressData?.scenarios || [])
         .map(s => {
           const def = s.scenarioDefinition || {};
+
+
+            // 1. Safely extract last 4 characters if scenarioKey exists
+                const lastFour = s.scenarioKey ? s.scenarioKey.slice(-4) : '';
+
+           // 2. Validate if they are 4 digits, otherwise default to 2001
+                const extractedYear = /^\d{4}$/.test(lastFour) ? parseInt(lastFour, 10) : 2001;
           return {
             ...def,
             id: def.id || s.scenarioKey,
@@ -150,7 +163,7 @@ export default function DashboardHome() {
             description: s.description || def.description,
             stateName: s.stateName || def.stateName,
             status: s.status,
-            startYear: s.scenarioKey?.endsWith('_2006') ? 2006 : 2001
+            startYear: extractedYear
           };
         });
       setAllScenarios(allScenariosData);
