@@ -26,7 +26,4 @@ public class CampaignProgressResponse {
         return scenarios;
     }
 
-    public void setScenarios(List<ScenarioProgressView> scenarios) {
-        this.scenarios = scenarios;
-    }
 }

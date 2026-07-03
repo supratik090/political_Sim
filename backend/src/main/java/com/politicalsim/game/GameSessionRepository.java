@@ -1,7 +1,10 @@
 package com.politicalsim.game;
 
+import com.politicalsim.party.PartyState;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public interface GameSessionRepository extends MongoRepository<GameSession, String> {
@@ -9,9 +12,27 @@ public interface GameSessionRepository extends MongoRepository<GameSession, Stri
     List<GameSession> findAllByOrderByCurrentDateDesc();
     List<GameSession> findByScenarioKeyAndStatus(String scenarioKey, GameStatus status);
     List<GameSession> findByScenarioKeyAndStatusAndUserId(String scenarioKey, GameStatus status, String userId);
-    List<GameSession> findAllByUserIdOrderByCurrentDateDesc(String userId);
+    // The Dynamic Method: pass either GameSession.class or GameSessionDTO.class
+    <T> List<T> findAllByUserIdOrderByCurrentDateDesc(String userId, Class<T> type);
     List<GameSession> findByJoinCodeAndStatus(String joinCode, GameStatus status);
     List<GameSession> findByStatus(GameStatus status);
+
+    public record GameSessionDTO(
+            String id,
+            String scenarioKey,
+            String userId,
+            GameStatus  status,
+            PartyState governmentParty,
+            List<String> playerPartyIds ,
+            java.time.LocalDate currentDate, // or your date type
+            Boolean active
+    ) {
+        public GameSessionDTO {
+            if (active == null) {
+                active = false; // Fallback default if missing in DB
+            }
+        }
+    }
 
     /**
      * Fetch only the lightweight summary fields for a specific user.

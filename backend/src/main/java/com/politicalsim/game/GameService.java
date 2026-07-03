@@ -1,5 +1,6 @@
 package com.politicalsim.game;
 
+import com.politicalsim.ai.*;
 import com.politicalsim.api.CreateGameRequest;
 import com.politicalsim.api.PartyView;
 import com.politicalsim.api.TurnView;
@@ -8,22 +9,7 @@ import com.politicalsim.api.HeldRewardView;
 import com.politicalsim.api.CampaignProgressResponse;
 import com.politicalsim.api.ScenarioProgressView;
 import com.politicalsim.api.GameSessionSummary;
-import com.politicalsim.ai.AiDecision;
-import com.politicalsim.ai.AiDecisionService;
-import com.politicalsim.ai.AiProfile;
-import com.politicalsim.ai.AiStyle;
-import com.politicalsim.ai.AiIntent;
-import com.politicalsim.content.CardDefinition;
-import com.politicalsim.content.CardDefinitionRepository;
-import com.politicalsim.content.IssueOptionDefinition;
-import com.politicalsim.content.MonthlyIssueDefinition;
-import com.politicalsim.content.MonthlyIssueDefinitionRepository;
-import com.politicalsim.content.NewsDefinition;
-import com.politicalsim.content.NewsDefinitionRepository;
-import com.politicalsim.content.NewsReactionDefinition;
-import com.politicalsim.content.DefinitionCache;
-import com.politicalsim.content.ScenarioDefinition;
-import com.politicalsim.content.ScenarioDefinitionRepository;
+import com.politicalsim.content.*;
 import com.politicalsim.party.ControllerType;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
@@ -37,10 +23,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GameService {
+
+    private static final Logger log = LoggerFactory.getLogger(GameService.class);
 
     private static final int CYCLE_LENGTH_MONTHS = 60;
     private static final int NO_CONFIDENCE_SUPPORT_THRESHOLD = 30;
@@ -78,127 +69,85 @@ public class GameService {
     }
 
     public CampaignProgressResponse getCampaignProgress(String userId) {
-        List<ScenarioDefinition> allActive = scenarioRepository.findAll().stream()
-                .filter(ScenarioDefinition::isActive)
+
+        List<ScenarioDefinitionLite> allActive = scenarioRepository.findAllSdLite().stream()
+                .filter(ScenarioDefinitionLite::active)
                 .toList();
-        List<ScenarioDefinition> activeScenarios = new ArrayList<>();
+
+        List<ScenarioDefinitionLite> activeScenarios = new ArrayList<>();
         java.util.Set<String> seenKeys = new java.util.HashSet<>();
-        for (ScenarioDefinition s : allActive) {
-            if (s.getScenarioKey() != null && seenKeys.add(s.getScenarioKey())) {
+        for (ScenarioDefinitionLite s : allActive) {
+            if (s.scenarioKey() != null && seenKeys.add(s.scenarioKey())) {
                 activeScenarios.add(s);
             }
         }
 
-        List<GameSession> userGames = new ArrayList<>();
+        List<GameSessionRepository.GameSessionDTO> userGames = new ArrayList<>();
+        long start = System.currentTimeMillis();
         if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
-            userGames = gameSessionService.listGames(userId.trim().toLowerCase());
+            userGames = gameSessionService.listGamesDto(userId.trim().toLowerCase());
         }
 
+        long endMethod = System.currentTimeMillis();
+        log.info("listGames in ms: {}" ,(endMethod - start));
+
         List<String> wonScenarioKeys = new ArrayList<>();
-        for (GameSession g : userGames) {
-            String skey = g.getScenarioKey();
-            if (g.getStatus() == GameStatus.VICTORY) {
+        for (GameSessionRepository.GameSessionDTO g : userGames) {
+            String skey = g.scenarioKey();
+            if (g.status() == GameStatus.VICTORY) {
                 wonScenarioKeys.add(skey);
-            } else if (g.getStatus() == GameStatus.GAME_OVER) {
-                PartyState gov = g.getGovernmentParty();
-                if (gov != null && g.getPlayerPartyIds() != null && g.getPlayerPartyIds().contains(gov.getId())) {
+            } else if (g.status() == GameStatus.GAME_OVER) {
+                PartyState gov = g.governmentParty();
+                if (gov != null && g.playerPartyIds() != null && g.playerPartyIds().contains(gov.getId())) {
                     wonScenarioKeys.add(skey);
                 }
             }
         }
 
-        boolean wbWon = wonScenarioKeys.contains("west_bengal_2000");
-        boolean mhWon = wonScenarioKeys.contains("maharashtra_2001") || wonScenarioKeys.contains("Mh_2001");
-        boolean upWon = wonScenarioKeys.contains("uttar_pradesh_2001");
-        boolean tnWon = wonScenarioKeys.contains("tamil_nadu_2001");
-        boolean rjWon = wonScenarioKeys.contains("rajasthan_2001");
-        boolean brWon = wonScenarioKeys.contains("bihar_2001");
-        boolean gaWon = wonScenarioKeys.contains("goa_2001");
-        boolean dlWon = wonScenarioKeys.contains("delhi_2001");
-        boolean apWon = wonScenarioKeys.contains("andhra_pradesh_2001");
-        boolean klWon = wonScenarioKeys.contains("kerala_2001");
-
-        // New unlock rule:
-        //   - All 2001-era scenarios are always AVAILABLE from the start.
-        //   - Each 2006 scenario unlocks independently when its paired 2001 scenario is won.
-        //     e.g., winning uttar_pradesh_2001 → unlocks uttar_pradesh_2006 only.
-        //   - currentEra is no longer used to hide all 2001 scenarios after 2006 unlocks.
 
         List<ScenarioProgressView> scenarioProgressList = new ArrayList<>();
-        for (ScenarioDefinition s : activeScenarios) {
-            String key = s.getScenarioKey();
+        for (ScenarioDefinitionLite s : activeScenarios) {
+            String key = s.scenarioKey();
             if (key == null) continue;
 
-            boolean is2006 = key.endsWith("_2006");
+            String stateName= com.politicalsim.util.ScenarioKeyParser.extractStateName(s.scenarioKey());
+            int year= com.politicalsim.util.ScenarioKeyParser.extractYear(s.scenarioKey());
+            int lookoutYear= year<=2001 ? 2001 : year-5;
 
-            // Determine if this 2006 scenario's corresponding 2001 scenario has been won
-            boolean prerequisiteWon = switch (key) {
-                case "west_bengal_2006"    -> wbWon;
-                case "maharashtra_2006"    -> mhWon;
-                case "uttar_pradesh_2006"  -> upWon;
-                case "tamil_nadu_2006"     -> tnWon;
-                case "rajasthan_2006"      -> rjWon;
-                case "bihar_2006"          -> brWon;
-                case "goa_2006"            -> gaWon;
-                case "delhi_2006"          -> dlWon;
-                case "andhra_pradesh_2006" -> apWon;
-                case "kerala_2006"         -> klWon;
-                default -> true; // 2001-era scenarios have no prerequisite
-            };
+            boolean prerequisiteWon = year<=2001 ? true : wonScenarioKeys.contains(stateName+"_"+lookoutYear);
 
-            String status;
 
             // Check for an active (in-progress) game first
             boolean hasActive = false;
-            for (GameSession g : userGames) {
-                if (key.equals(g.getScenarioKey()) && g.getStatus() == GameStatus.ACTIVE) {
+            for (GameSessionRepository.GameSessionDTO g : userGames) {
+                if (key.equals(g.scenarioKey()) && g.status() == GameStatus.ACTIVE) {
                     hasActive = true;
                     break;
                 }
             }
 
+            String status;
             if (hasActive) {
                 status = "IN_PROGRESS";
             } else if (wonScenarioKeys.contains(key)) {
                 status = "WON";
-            } else if (is2006 && !prerequisiteWon) {
-                // 2006 scenario: locked until the matching 2001 scenario is won
+            } else if ( !prerequisiteWon) {
+
                 status = "LOCKED";
             } else {
-                // All 2001-era scenarios and unlocked 2006 scenarios are AVAILABLE
+
                 status = "AVAILABLE";
             }
 
             scenarioProgressList.add(new ScenarioProgressView(
                 key,
-                s.getName(),
-                s.getStateName(),
-                s.getDescription(),
-                status,
-                s
+                s.name(),
+                s.stateName(),
+                s.description(),
+               status
             ));
         }
 
-        List<String> orderKeys = List.of(
-            "west_bengal_2000", "west_bengal_2006",
-            "maharashtra_2001", "Mh_2001", "maharashtra_2006",
-            "uttar_pradesh_2001", "uttar_pradesh_2006",
-            "tamil_nadu_2001", "tamil_nadu_2006",
-            "rajasthan_2001", "rajasthan_2006",
-            "bihar_2001", "bihar_2006",
-            "goa_2001", "goa_2006",
-            "delhi_2001", "delhi_2006",
-            "andhra_pradesh_2001", "andhra_pradesh_2006",
-            "kerala_2001", "kerala_2006"
-        );
-        scenarioProgressList.sort((a, b) -> {
-            int indexA = orderKeys.indexOf(a.getScenarioKey());
-            int indexB = orderKeys.indexOf(b.getScenarioKey());
-            if (indexA == -1 && indexB == -1) return a.getScenarioKey().compareTo(b.getScenarioKey());
-            if (indexA == -1) return 1;
-            if (indexB == -1) return -1;
-            return Integer.compare(indexA, indexB);
-        });
 
         return new CampaignProgressResponse(0, scenarioProgressList);
     }

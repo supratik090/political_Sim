@@ -21,11 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class GameSessionService {
@@ -80,7 +76,7 @@ public class GameSessionService {
 
         GameSession session = new GameSession();
         session.setUserId(userId);
-        String finalKey = blankToDefault(request.getScenarioKey(), "west_bengal_2000");
+        String finalKey = blankToDefault(request.getScenarioKey(), "west_bengal_2001");
         session.setScenarioKey(finalKey);
         session.setScenarioName(scenario != null ? scenario.getName() : finalKey);
         session.setStateName(blankToDefault(request.getStateName(), scenario == null ? defaultStateName : scenario.getStateName()));
@@ -88,7 +84,7 @@ public class GameSessionService {
         session.setMonthInCycle(1);
         session.setTripleImpactTurn(new java.util.Random().nextInt(5) + 1);
         initializeSecretMetricSequence(session);
-        LocalDate scenarioStartDate = scenario == null ? LocalDate.of(2020, 10, 1) : scenario.getStartDate();
+        LocalDate scenarioStartDate = scenario == null ? LocalDate.of(2021, 1, 1) : scenario.getStartDate();
         session.setCurrentDate(request.getStartDate() == null ? scenarioStartDate : request.getStartDate());
         session.setPlayerPartyId(playerPartyIds.get(0));
         session.setPlayerPartyIds(playerPartyIds);
@@ -182,12 +178,19 @@ public class GameSessionService {
         return repository.findAllByOrderByCurrentDateDesc();
     }
 
+    public List<GameSessionRepository.GameSessionDTO> listGamesDto(String userId) {
+        if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
+            return repository.findAllByUserIdOrderByCurrentDateDesc(userId.trim().toLowerCase(), GameSessionRepository.GameSessionDTO.class);
+        }
+        return Collections.emptyList();
+    }
     public List<GameSession> listGames(String userId) {
         if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
-            return repository.findAllByUserIdOrderByCurrentDateDesc(userId.trim().toLowerCase());
+            return repository.findAllByUserIdOrderByCurrentDateDesc(userId.trim().toLowerCase(), GameSession.class);
         }
-        return repository.findAllByOrderByCurrentDateDesc();
+        return Collections.emptyList();
     }
+
 
     public List<GameSessionSummary> listGameSummaries() {
         return repository.findAllSummaries().stream()

@@ -56,6 +56,7 @@ export default function DashboardHome() {
   }, [user, currentScreen]);
 
   useEffect(() => {
+  setMapLoading(true);
     fetch('/india_states.geojson')
       .then(res => {
         if (!res.ok) throw new Error('Failed to load map data');
@@ -63,12 +64,13 @@ export default function DashboardHome() {
       })
       .then(data => {
         setGeoData(data);
-        setMapLoading(false);
       })
       .catch(err => {
         console.error(err);
-        setMapLoading(false);
-      });
+      })
+      .finally(() => {
+            setMapLoading(false);
+          });;
   }, []);
 
   useEffect(() => {
@@ -126,9 +128,18 @@ export default function DashboardHome() {
               status: s.status,
               startYear: extractedYear
             };
-          });
+          })
+          .filter(s => s.startYear !== 2000);
         setAllScenarios(allScenariosData);
         setScenarios(allScenariosData.filter(s => s.status !== 'LOCKED'));
+        if (allScenariosData.length > 0) {
+          const activeScenarios = allScenariosData.filter(s => s.status !== 'LOCKED');
+          if (activeScenarios.length > 0) {
+            // Dynamically match the default era to the first available backend scenario
+            setSelectedYear(activeScenarios[0].startYear);
+            setSelectedStateName(activeScenarios[0].stateName);
+          }
+        }
         return; // instant render from cache
       }
     }
@@ -165,7 +176,8 @@ export default function DashboardHome() {
             status: s.status,
             startYear: extractedYear
           };
-        });
+        })
+        .filter(s => s.startYear !== 2000);
       setAllScenarios(allScenariosData);
       setScenarios(allScenariosData.filter(s => s.status !== 'LOCKED'));
     } catch (err) {
@@ -244,6 +256,12 @@ export default function DashboardHome() {
       setLoading(false);
     }
   };
+
+  // Change 4: Dynamically derive available eras from your actual scenarios data
+  const availableEras = useMemo(() => {
+    const eras = allScenarios.map(s => s.startYear).filter(Boolean);
+    return [...new Set(eras)].sort((a, b) => a - b);
+  }, [allScenarios]);
 
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
@@ -587,7 +605,7 @@ export default function DashboardHome() {
   };
 
   const renderMapCard = () => {
-    if (mapLoading) {
+    if (mapLoading || loading || allScenarios.length === 0) {
       return (
         <div className="unified-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
           <span style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>⌛ Loading India map boundaries...</span>
@@ -619,17 +637,16 @@ export default function DashboardHome() {
               }}
               style={{ width: 'auto', padding: '6px 12px', fontSize: '13px', borderRadius: '6px', fontWeight: 'bold' }}
             >
-              <option value={2001}>2001 Era</option>
-              <option value={2006}>2006 Era</option>
-              <option value={2011}>2011 Era</option>
-              <option value={2016}>2016 Era</option>
+        {availableEras.map(year => (
+            <option key={year} value={year}>{year} Era</option>
+          ))}
             </select>
           </div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', overflow: 'hidden', padding: '10px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid var(--primary-border)' }}>
           <svg 
-            width="100%" 
+            width="100%"
             height={projection?.height || 550} 
             viewBox={`0 0 ${projection?.width || 500} ${projection?.height || 550}`}
             style={{ maxWidth: '500px' }}

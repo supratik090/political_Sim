@@ -8,18 +8,17 @@ public class ScenarioProgressView {
     private String stateName;
     private String description;
     private String status; // "LOCKED", "AVAILABLE", "IN_PROGRESS", "WON"
-    private ScenarioDefinition scenarioDefinition;
+
 
     public ScenarioProgressView() {
     }
 
-    public ScenarioProgressView(String scenarioKey, String name, String stateName, String description, String status, ScenarioDefinition scenarioDefinition) {
+    public ScenarioProgressView(String scenarioKey, String name, String stateName, String description, String status) {
         this.scenarioKey = scenarioKey;
         this.name = name;
         this.stateName = stateName;
         this.description = description;
         this.status = status;
-        this.scenarioDefinition = scenarioDefinition;
     }
 
     public String getScenarioKey() {
@@ -62,11 +61,5 @@ public class ScenarioProgressView {
         this.status = status;
     }
 
-    public ScenarioDefinition getScenarioDefinition() {
-        return scenarioDefinition;
-    }
 
-    public void setScenarioDefinition(ScenarioDefinition scenarioDefinition) {
-        this.scenarioDefinition = scenarioDefinition;
-    }
 }
