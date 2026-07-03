@@ -24,6 +24,7 @@ public interface GameSessionRepository extends MongoRepository<GameSession, Stri
             GameStatus  status,
             PartyState governmentParty,
             List<String> playerPartyIds ,
+            List<PartyState> parties,
             java.time.LocalDate currentDate, // or your date type
             Boolean active
     ) {

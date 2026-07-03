@@ -69,15 +69,13 @@ public class GameService {
     }
 
     public CampaignProgressResponse getCampaignProgress(String userId) {
-
-        List<ScenarioDefinitionLite> allActive = scenarioRepository.findAllSdLite().stream()
-                .filter(ScenarioDefinitionLite::active)
+        List<ScenarioDefinition> allActive = scenarioRepository.findAll().stream()
+                .filter(ScenarioDefinition::isActive)
                 .toList();
-
-        List<ScenarioDefinitionLite> activeScenarios = new ArrayList<>();
+        List<ScenarioDefinition> activeScenarios = new ArrayList<>();
         java.util.Set<String> seenKeys = new java.util.HashSet<>();
-        for (ScenarioDefinitionLite s : allActive) {
-            if (s.scenarioKey() != null && seenKeys.add(s.scenarioKey())) {
+        for (ScenarioDefinition s : allActive) {
+            if (s.getScenarioKey() != null && seenKeys.add(s.getScenarioKey())) {
                 activeScenarios.add(s);
             }
         }
@@ -89,7 +87,7 @@ public class GameService {
         }
 
         long endMethod = System.currentTimeMillis();
-        log.info("listGames in ms: {}" ,(endMethod - start));
+        log.info("listGames loaded in ms: {}" ,(endMethod - start));
 
         List<String> wonScenarioKeys = new ArrayList<>();
         for (GameSessionRepository.GameSessionDTO g : userGames) {
@@ -106,15 +104,13 @@ public class GameService {
 
 
         List<ScenarioProgressView> scenarioProgressList = new ArrayList<>();
-        for (ScenarioDefinitionLite s : activeScenarios) {
-            String key = s.scenarioKey();
+        for (ScenarioDefinition s : activeScenarios) {
+            String key = s.getScenarioKey();
             if (key == null) continue;
 
-            String stateName= com.politicalsim.util.ScenarioKeyParser.extractStateName(s.scenarioKey());
-            int year= com.politicalsim.util.ScenarioKeyParser.extractYear(s.scenarioKey());
-            int lookoutYear= year<=2001 ? 2001 : year-5;
+            int year= com.politicalsim.util.ScenarioKeyParser.extractYear(s.getScenarioKey());
 
-            boolean prerequisiteWon = year<=2001 ? true : wonScenarioKeys.contains(stateName+"_"+lookoutYear);
+            boolean prerequisiteWon = year<=2001 ? true : wonScenarioKeys.contains(getPrecedingScenarioKey(s.getScenarioKey()));
 
 
             // Check for an active (in-progress) game first
@@ -141,10 +137,11 @@ public class GameService {
 
             scenarioProgressList.add(new ScenarioProgressView(
                 key,
-                s.name(),
-                s.stateName(),
-                s.description(),
-               status
+                s.getName(),
+                s.getStateName(),
+                s.getDescription(),
+               status,
+                    s
             ));
         }
 
@@ -164,12 +161,12 @@ public class GameService {
         gameSessionService.save(session);
 
         if (request.isRetainInstitutions()) {
-            GameSession preceding = findPrecedingWonSession(request.getUserId(), request.getScenarioKey());
+            GameSessionRepository.GameSessionDTO preceding = findPrecedingWonSession(request.getUserId(), request.getScenarioKey());
             if (preceding != null) {
                 List<String> completedProjectKeys = new ArrayList<>();
-                if (preceding.getPlayerPartyIds() != null) {
-                    for (String pid : preceding.getPlayerPartyIds()) {
-                        PartyState pState = preceding.getParties().stream()
+                if (preceding.playerPartyIds() != null) {
+                    for (String pid : preceding.playerPartyIds()) {
+                        PartyState pState = preceding.parties().stream()
                                 .filter(p -> p.getId().equals(pid))
                                 .findFirst().orElse(null);
                         if (pState != null && pState.getProjects() != null) {
@@ -210,38 +207,31 @@ public class GameService {
     }
 
     private String getPrecedingScenarioKey(String scenarioKey) {
-        if (scenarioKey == null) return null;
-        if ("west_bengal_2006".equals(scenarioKey)) return "west_bengal_2000";
-        if ("maharashtra_2006".equals(scenarioKey)) return "maharashtra_2001";
-        if ("uttar_pradesh_2006".equals(scenarioKey)) return "uttar_pradesh_2001";
-        if ("tamil_nadu_2006".equals(scenarioKey)) return "tamil_nadu_2001";
-        if ("rajasthan_2006".equals(scenarioKey)) return "rajasthan_2001";
-        if ("bihar_2006".equals(scenarioKey)) return "bihar_2001";
-        if ("goa_2006".equals(scenarioKey)) return "goa_2001";
-        if ("delhi_2006".equals(scenarioKey)) return "delhi_2001";
-        if ("andhra_pradesh_2006".equals(scenarioKey)) return "andhra_pradesh_2001";
-        if ("kerala_2006".equals(scenarioKey)) return "kerala_2001";
-        return null;
+        if (null == scenarioKey ) return null;
+        String stateName= com.politicalsim.util.ScenarioKeyParser.extractStateName(scenarioKey);
+        int year= com.politicalsim.util.ScenarioKeyParser.extractYear(scenarioKey);
+        int lookoutYear= year<=2001 ? 2001 : year-5;
+        return stateName+"_"+lookoutYear;
     }
 
-    private GameSession findPrecedingWonSession(String userId, String scenarioKey) {
+    private GameSessionRepository.GameSessionDTO findPrecedingWonSession(String userId, String scenarioKey) {
         if (userId == null || userId.isBlank() || "null".equalsIgnoreCase(userId) || "undefined".equalsIgnoreCase(userId)) return null;
         String precedingKey = getPrecedingScenarioKey(scenarioKey);
         if (precedingKey == null) return null;
 
-        List<GameSession> userGames = gameSessionService.listGames(userId.trim().toLowerCase());
-        for (GameSession g : userGames) {
-            String skey = g.getScenarioKey();
+        List<GameSessionRepository.GameSessionDTO> userGames = gameSessionService.listGamesDto(userId.trim().toLowerCase());
+        for (GameSessionRepository.GameSessionDTO g : userGames) {
+            String skey = g.scenarioKey();
             if (skey == null) continue;
             boolean isMatch = skey.equals(precedingKey) || 
                               ("maharashtra_2001".equals(precedingKey) && "Mh_2001".equals(skey)) ||
                               ("Mh_2001".equals(precedingKey) && "maharashtra_2001".equals(skey));
             if (isMatch) {
-                if (g.getStatus() == GameStatus.VICTORY) {
+                if (g.status() == GameStatus.VICTORY) {
                     return g;
-                } else if (g.getStatus() == GameStatus.GAME_OVER) {
-                    PartyState gov = g.getGovernmentParty();
-                    if (gov != null && g.getPlayerPartyIds() != null && g.getPlayerPartyIds().contains(gov.getId())) {
+                } else if (g.status() == GameStatus.GAME_OVER) {
+                    PartyState gov = g.governmentParty();
+                    if (gov != null && g.playerPartyIds() != null && g.playerPartyIds().contains(gov.getId())) {
                         return g;
                     }
                 }
@@ -264,9 +254,6 @@ public class GameService {
         return gameSessionService.getGame(gameId);
     }
 
-    public List<GameSession> listGames() {
-        return gameSessionService.listGames();
-    }
 
     public List<GameSession> listGames(String userId) {
         if (userId == null || userId.isBlank() || "null".equalsIgnoreCase(userId) || "undefined".equalsIgnoreCase(userId)) {

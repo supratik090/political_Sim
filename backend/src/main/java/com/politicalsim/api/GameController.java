@@ -4,6 +4,8 @@ import com.politicalsim.game.GameNotFoundException;
 import com.politicalsim.game.GameService;
 import com.politicalsim.game.GameSession;
 import jakarta.validation.Valid;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -38,7 +40,7 @@ public class GameController {
     public GameSession createGame(@Valid @RequestBody CreateGameRequest request) {
         GameSession session = gameService.createGame(request);
         // Record lobby creation telemetry
-        lobbyTelemetryService.recordEvent(session.getId(), "LOBBY_CREATED", session.getJoinCode());
+//        lobbyTelemetryService.recordEvent(session.getId(), "LOBBY_CREATED", session.getJoinCode());
         return session;
     }
 
@@ -56,7 +58,7 @@ public class GameController {
     public GameSession joinGame(@RequestParam String userId, @RequestParam String joinCode, @RequestParam String partyId) {
         GameSession session = gameService.joinGame(userId, joinCode, partyId);
         // Record player join telemetry
-        lobbyTelemetryService.recordEvent(session.getId(), "PLAYER_JOINED", userId);
+//        lobbyTelemetryService.recordEvent(session.getId(), "PLAYER_JOINED", userId);
         return session;
     }
 
@@ -70,7 +72,7 @@ public class GameController {
         if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
             return gameService.listGames(userId.trim().toLowerCase());
         }
-        return gameService.listGames();
+        return Collections.emptyList();
     }
 
     @GetMapping("/summaries")

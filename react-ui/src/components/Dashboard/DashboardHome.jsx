@@ -131,7 +131,8 @@ export default function DashboardHome() {
           })
           .filter(s => s.startYear !== 2000);
         setAllScenarios(allScenariosData);
-        setScenarios(allScenariosData.filter(s => s.status !== 'LOCKED'));
+        setScenarios(allScenariosData.filter(s => s.status !== 'LOCKED'  && s.status !== 'IN_PROGRESS' && s.status !== 'WON' &&  s.status !== 'ACTIVE' && s.status !== 'VICTORY'));
+
         if (allScenariosData.length > 0) {
           const activeScenarios = allScenariosData.filter(s => s.status !== 'LOCKED');
           if (activeScenarios.length > 0) {
@@ -179,7 +180,8 @@ export default function DashboardHome() {
         })
         .filter(s => s.startYear !== 2000);
       setAllScenarios(allScenariosData);
-      setScenarios(allScenariosData.filter(s => s.status !== 'LOCKED'));
+          setScenarios(allScenariosData.filter(s => s.status !== 'LOCKED'  && s.status !== 'IN_PROGRESS' && s.status !== 'WON' &&  s.status !== 'ACTIVE' && s.status !== 'VICTORY'));
+
     } catch (err) {
       console.error(err);
       setError('Failed to fetch dashboard data from server.');
@@ -814,7 +816,7 @@ export default function DashboardHome() {
               })()}
 
               <div style={{ display: 'flex', gap: '10px' }}>
-                {scenario.status !== 'LOCKED' && (
+                {scenario.status !== 'LOCKED' &&  scenario.status !== 'WON'  && !activeGame && scenario.status !== 'VICTORY' &&(
                   <button 
                     onClick={() => {
                       const idx = scenarios.findIndex(s => s.scenarioKey === scenario.scenarioKey);
@@ -825,7 +827,7 @@ export default function DashboardHome() {
                     }}
                     style={{ fontSize: '12px', padding: '8px 15px' }}
                   >
-                    {scenario.status === 'WON' ? '🔄 Replay Campaign' : '🎮 Start Campaign'}
+                    {'🎮 Start Campaign'}
                   </button>
                 )}
 
