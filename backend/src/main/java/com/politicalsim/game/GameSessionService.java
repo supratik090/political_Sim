@@ -2,6 +2,7 @@ package com.politicalsim.game;
 
 import com.politicalsim.api.CreateGameRequest;
 import com.politicalsim.api.CreatePartySetupRequest;
+import com.politicalsim.api.GameSessionSummary;
 import com.politicalsim.content.ScenarioDefinition;
 import com.politicalsim.content.ScenarioDefinitionRepository;
 import com.politicalsim.content.CardDefinition;
@@ -186,6 +187,23 @@ public class GameSessionService {
             return repository.findAllByUserIdOrderByCurrentDateDesc(userId.trim().toLowerCase());
         }
         return repository.findAllByOrderByCurrentDateDesc();
+    }
+
+    public List<GameSessionSummary> listGameSummaries() {
+        return repository.findAllSummaries().stream()
+                .map(GameSessionSummary::from)
+                .toList();
+    }
+
+    public List<GameSessionSummary> listGameSummaries(String userId) {
+        if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
+            return repository.findSummariesByUserId(userId.trim().toLowerCase()).stream()
+                    .map(GameSessionSummary::from)
+                    .toList();
+        }
+        return repository.findAllSummaries().stream()
+                .map(GameSessionSummary::from)
+                .toList();
     }
 
     public GameSession save(GameSession session) {

@@ -7,6 +7,7 @@ import com.politicalsim.api.TurnAdvanceRequest;
 import com.politicalsim.api.HeldRewardView;
 import com.politicalsim.api.CampaignProgressResponse;
 import com.politicalsim.api.ScenarioProgressView;
+import com.politicalsim.api.GameSessionSummary;
 import com.politicalsim.ai.AiDecision;
 import com.politicalsim.ai.AiDecisionService;
 import com.politicalsim.ai.AiProfile;
@@ -323,6 +324,17 @@ public class GameService {
             return new ArrayList<>();
         }
         return gameSessionService.listGames(userId.trim().toLowerCase());
+    }
+
+    public List<GameSessionSummary> listGameSummaries() {
+        return gameSessionService.listGameSummaries();
+    }
+
+    public List<GameSessionSummary> listGameSummaries(String userId) {
+        if (userId == null || userId.isBlank() || "null".equalsIgnoreCase(userId) || "undefined".equalsIgnoreCase(userId)) {
+            return new ArrayList<>();
+        }
+        return gameSessionService.listGameSummaries(userId.trim().toLowerCase());
     }
     
     public GameSession getGameByJoinCode(String joinCode) {

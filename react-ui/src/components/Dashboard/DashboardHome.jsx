@@ -3,6 +3,29 @@ import { useGameStore } from '../../store/gameStore';
 import { listGames, fetchScenarioProgress, createGame, deleteGame, getGameByJoinCode } from '../../api/apiClient';
 import { getPartyThemeByName } from '../../constants/partyThemes';
 
+// Module-level cache: userId → { gamesData, progressData, timestamp }
+// Lives for the lifetime of the browser session. Entries expire after CACHE_TTL_MS.
+const _dashboardCache = new Map();
+const CACHE_TTL_MS = 30_000; // 30 seconds
+
+function getCached(userId) {
+  const entry = _dashboardCache.get(userId);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    _dashboardCache.delete(userId);
+    return null;
+  }
+  return entry;
+}
+
+function setCached(userId, gamesData, progressData) {
+  _dashboardCache.set(userId, { gamesData, progressData, timestamp: Date.now() });
+}
+
+function invalidateCache(userId) {
+  _dashboardCache.delete(userId);
+}
+
 export default function DashboardHome() {
   const { user, setScreen, setActiveGame, currentScreen } = useGameStore();
   const [view, setView] = useState('TABLE'); // TABLE, CREATE, LOAD
@@ -76,13 +99,44 @@ export default function DashboardHome() {
     }
   }, [selectedScenarioIndex, scenarios]);
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = async ({ forceRefresh = false } = {}) => {
+    const cacheKey = user?.id || user?.email;
+
+    // Serve from cache immediately if available and not expired
+    if (!forceRefresh && cacheKey) {
+      const cached = getCached(cacheKey);
+      if (cached) {
+        setGames(cached.gamesData);
+        const allScenariosData = (cached.progressData?.scenarios || [])
+          .map(s => {
+            const def = s.scenarioDefinition || {};
+            return {
+              ...def,
+              id: def.id || s.scenarioKey,
+              scenarioKey: s.scenarioKey,
+              name: s.name || def.name,
+              description: s.description || def.description,
+              stateName: s.stateName || def.stateName,
+              status: s.status,
+              startYear: s.scenarioKey?.endsWith('_2006') ? 2006 : 2001
+            };
+          });
+        setAllScenarios(allScenariosData);
+        setScenarios(allScenariosData.filter(s => s.status !== 'LOCKED'));
+        return; // instant render from cache
+      }
+    }
+
     setLoading(true);
     try {
       const [gamesData, progressData] = await Promise.all([
         listGames(user?.id || user?.email),
         fetchScenarioProgress(user?.id || user?.email)
       ]);
+
+      // Store in cache
+      if (cacheKey) setCached(cacheKey, gamesData, progressData);
+
       setGames(gamesData);
 
       const allScenariosData = (progressData?.scenarios || [])
@@ -135,6 +189,8 @@ export default function DashboardHome() {
       };
       
       const gameData = await createGame(payload);
+      // Invalidate cache so returning to dashboard shows the new game
+      invalidateCache(user?.id || user?.email);
       setActiveGame(gameData.id);
       if (gameData.status === 'LOBBY') {
           setCreatedMultiplayerGame(gameData);
@@ -164,8 +220,10 @@ export default function DashboardHome() {
     setLoading(true);
     try {
       await deleteGame(gameId);
+      // Invalidate cache so next load fetches fresh data
+      invalidateCache(user?.id || user?.email);
       alert('Campaign deleted successfully.');
-      await loadDashboardData();
+      await loadDashboardData({ forceRefresh: true });
     } catch (err) {
       console.error(err);
       alert('Failed to delete campaign: ' + err.message);
@@ -550,6 +608,8 @@ export default function DashboardHome() {
             >
               <option value={2001}>2001 Era</option>
               <option value={2006}>2006 Era</option>
+              <option value={2011}>2011 Era</option>
+              <option value={2016}>2016 Era</option>
             </select>
           </div>
         </div>

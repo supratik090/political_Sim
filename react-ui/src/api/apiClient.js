@@ -77,7 +77,7 @@ export const joinGameLobby = (userId, joinCode, partyId) =>
 export const startGame = (gameId, userId) => 
   apiPost(`/api/games/${gameId}/start?userId=${userId}`);
 export const fetchBuildingProjects = () => apiGet('/api/games/building-projects/definitions');
-export const listGames = (userId) => apiGet('/api/games', userId ? { userId } : {});
+export const listGames = (userId) => apiGet('/api/games/summaries', userId ? { userId } : {});
 export const advanceTurn = (gameId, payload) => apiPost(`/api/games/${gameId}/turn/advance`, payload);
 export const forfeitGame = (gameId) => apiPost(`/api/games/${gameId}/forfeit`);
 export const deleteGame = (gameId) => apiDelete(`/api/games/${gameId}`);

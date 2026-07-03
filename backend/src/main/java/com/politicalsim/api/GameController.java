@@ -73,6 +73,14 @@ public class GameController {
         return gameService.listGames();
     }
 
+    @GetMapping("/summaries")
+    public List<GameSessionSummary> listGameSummaries(@RequestParam(required = false) String userId) {
+        if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
+            return gameService.listGameSummaries(userId.trim().toLowerCase());
+        }
+        return gameService.listGameSummaries();
+    }
+
     @GetMapping("/{gameId}/turn-view")
     public TurnView getTurnView(@PathVariable String gameId) {
         return gameService.getTurnView(gameId);
