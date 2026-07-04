@@ -8,8 +8,8 @@ import React, { useRef, useEffect, useState } from 'react';
  * Props:
  *  - isOpen: boolean
  *  - onClose: () => void
- *  - messages: [{ senderId, senderName, text, timestamp }]
- *  - sendMessage: (text) => void
+ *  - messages: [{ senderId, senderName, text, timestamp, replyToSenderName, replyToText }]
+ *  - sendMessage: (text, replyToSenderName, replyToText) => void
  *  - chatInput: string
  *  - setChatInput: (value) => void
  *  - user: object
@@ -27,10 +27,11 @@ const ChatDrawer = ({
 }) => {
   const scrollRef = useRef(null);
   const [vibrate, setVibrate] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
   const prevMsgCount = useRef(messages.length);
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && isOpen) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isOpen]);
@@ -46,42 +47,26 @@ const ChatDrawer = ({
     prevMsgCount.current = messages.length;
   }, [messages.length]);
 
-  if (!isOpen) return null;
-
   const handleKey = (e) => {
     if (e.key === 'Enter' && chatInput.trim()) {
-      sendMessage(chatInput.trim());
-      setChatInput('');
+      handleSend();
     }
   };
 
   const handleSend = () => {
     if (chatInput.trim()) {
-      sendMessage(chatInput.trim());
+      if (replyTo) {
+        sendMessage(chatInput.trim(), replyTo.senderName, replyTo.text);
+        setReplyTo(null);
+      } else {
+        sendMessage(chatInput.trim());
+      }
       setChatInput('');
     }
   };
 
   return (
-    <div
-      className={vibrate ? 'chat-panel-vibrate' : ''}
-      style={{
-        position: 'fixed',
-        bottom: '90px',           // above the floating chat button
-        right: '24px',
-        width: '340px',
-        height: '480px',
-        borderRadius: '16px',
-        boxShadow: '0 20px 50px rgba(33,60,81,0.35)',
-        display: 'flex',
-        flexDirection: 'column',
-        zIndex: 1090,
-        overflow: 'hidden',
-        border: '2px solid var(--primary-border)',
-        fontFamily: "'Montserrat', sans-serif",
-        animation: 'chatSlideUp 0.22s cubic-bezier(0.4,0,0.2,1)',
-      }}
-    >
+    <>
       <style>{`
         @keyframes chatSlideUp {
           from { opacity: 0; transform: translateY(20px); }
@@ -142,162 +127,292 @@ const ChatDrawer = ({
           box-shadow: none;
           background-color: var(--party-chat-color, #213C51);
         }
+        .chat-reply-quote {
+          background: rgba(0, 0, 0, 0.05);
+          border-left: 3px solid var(--party-chat-color, #213C51);
+          padding: 4px 8px;
+          font-size: 11px;
+          border-radius: 4px;
+          margin-bottom: 6px;
+          color: rgba(0,0,0,0.7);
+          font-style: italic;
+          text-align: left;
+        }
+        .chat-reply-quote-me {
+          background: rgba(255, 255, 255, 0.15);
+          border-left: 3px solid #ffffff;
+          padding: 4px 8px;
+          font-size: 11px;
+          border-radius: 4px;
+          margin-bottom: 6px;
+          color: rgba(255, 255, 255, 0.9);
+          font-style: italic;
+          text-align: left;
+        }
+        .chat-msg-container {
+          position: relative;
+        }
+        .chat-reply-btn {
+          opacity: 0;
+          transition: opacity 0.2s;
+          background: none;
+          border: none;
+          color: var(--text-secondary);
+          font-size: 10px;
+          font-weight: bold;
+          cursor: pointer;
+          padding: 2px 6px;
+          margin-left: 5px;
+          margin-right: 5px;
+          vertical-align: middle;
+        }
+        .chat-msg-container:hover .chat-reply-btn {
+          opacity: 1;
+        }
       `}</style>
 
-      {/* ── Header ── */}
-      <div
-        style={{
-          padding: '12px 16px',
-          background: 'var(--primary-dark)',
-          color: '#fff',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{
-            width: '10px', height: '10px',
-            borderRadius: '50%',
-            backgroundColor: partyColor,
-            display: 'inline-block',
-            border: '2px solid rgba(255,255,255,0.5)',
-          }} />
-          <span style={{ fontWeight: 800, fontSize: '14px', letterSpacing: '0.04em' }}>
-            Chat
-          </span>
-          <span style={{
-            fontSize: '10px', fontWeight: 600,
-            background: 'rgba(255,255,255,0.12)',
-            padding: '2px 7px', borderRadius: '999px',
-            color: 'rgba(255,255,255,0.7)',
-          }}>
-            {messages.length} msg{messages.length !== 1 ? 's' : ''}
-          </span>
-        </div>
-        <button
-          onClick={onClose}
+      {isOpen && (
+        <div
+          className={vibrate ? 'chat-panel-vibrate' : ''}
           style={{
-            background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            color: '#fff',
-            fontSize: '16px',
-            width: '28px',
-            height: '28px',
-            borderRadius: '50%',
-            cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 0,
-            lineHeight: 1,
-            boxShadow: 'none',
+            position: 'fixed',
+            bottom: '90px',           // above the floating chat button
+            right: '24px',
+            width: '340px',
+            height: '480px',
+            borderRadius: '16px',
+            boxShadow: '0 20px 50px rgba(33,60,81,0.35)',
+            display: 'flex',
+            flexDirection: 'column',
+            zIndex: 1090,
+            overflow: 'hidden',
+            border: '2px solid var(--primary-border)',
+            fontFamily: "'Montserrat', sans-serif",
+            animation: 'chatSlideUp 0.22s cubic-bezier(0.4,0,0.2,1)',
           }}
-          title="Close chat"
         >
-          ×
-        </button>
-      </div>
-
-      {/* ── Message List ── */}
-      <div
-        ref={scrollRef}
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '14px 14px 8px',
-          background: 'var(--primary-background)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-        }}
-      >
-        {messages.length === 0 && (
-          <div style={{
-            flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexDirection: 'column', gap: '8px',
-            color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'center',
-            padding: '20px',
-          }}>
-            <span style={{ fontSize: '28px' }}>💬</span>
-            <span>No messages yet.<br />Say hello to start the campaign chat!</span>
-          </div>
-        )}
-        {messages.map((m, idx) => {
-          const isMe = m.senderId === (user?.id || user?.email);
-          return (
-            <div
-              key={idx}
-              style={{
-                alignSelf: isMe ? 'flex-end' : 'flex-start',
-                maxWidth: '82%',
-              }}
-            >
-              <div
-                style={{
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  color: isMe ? partyColor : 'var(--text-secondary)',
-                  marginBottom: '3px',
-                  textAlign: isMe ? 'right' : 'left',
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {isMe ? 'You' : m.senderName}
-              </div>
-              <div
-                className="chat-msg-bubble"
-                style={{
-                  padding: '9px 13px',
-                  borderRadius: isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-                  backgroundColor: isMe ? partyColor : '#ffffff',
-                  color: isMe ? '#fff' : 'var(--primary-dark)',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  boxShadow: isMe
-                    ? `0 3px 10px rgba(0,0,0,0.18)`
-                    : '0 2px 6px rgba(33,60,81,0.1)',
-                  border: isMe ? 'none' : '1px solid var(--primary-border)',
-                  lineHeight: 1.5,
-                  wordBreak: 'break-word',
-                }}
-              >
-                {m.text}
-              </div>
+          {/* ── Header ── */}
+          <div
+            style={{
+              padding: '12px 16px',
+              background: 'var(--primary-dark)',
+              color: '#fff',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{
+                width: '10px', height: '10px',
+                borderRadius: '50%',
+                backgroundColor: partyColor,
+                display: 'inline-block',
+                border: '2px solid rgba(255,255,255,0.5)',
+              }} />
+              <span style={{ fontWeight: 800, fontSize: '14px', letterSpacing: '0.04em' }}>
+                Chat
+              </span>
+              <span style={{
+                fontSize: '10px', fontWeight: 600,
+                background: 'rgba(255,255,255,0.12)',
+                padding: '2px 7px', borderRadius: '999px',
+                color: 'rgba(255,255,255,0.7)',
+              }}>
+                {messages.length} msg{messages.length !== 1 ? 's' : ''}
+              </span>
             </div>
-          );
-        })}
-      </div>
+            <button
+              onClick={onClose}
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff',
+                fontSize: '16px',
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: 0,
+                lineHeight: 1,
+                boxShadow: 'none',
+              }}
+              title="Close chat"
+            >
+              ×
+            </button>
+          </div>
 
-      {/* ── Input Bar ── */}
-      <div
-        style={{
-          padding: '10px 12px',
-          background: 'var(--primary-dark)',
-          borderTop: '1px solid rgba(255,255,255,0.1)',
-          display: 'flex',
-          gap: '8px',
-          alignItems: 'center',
-        }}
-      >
-        <input
-          type="text"
-          value={chatInput}
-          onChange={(e) => setChatInput(e.target.value)}
-          onKeyDown={handleKey}
-          placeholder="Type a message..."
-          className="chat-input-field"
-          style={{ '--party-chat-color': partyColor }}
-        />
-        <button
-          onClick={handleSend}
-          disabled={!chatInput.trim()}
-          className="chat-send-btn"
-          style={{ '--party-chat-color': partyColor }}
-        >
-          Send
-        </button>
-      </div>
-    </div>
+          {/* ── Message List ── */}
+          <div
+            ref={scrollRef}
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '14px 14px 8px',
+              background: 'var(--primary-background)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+            }}
+          >
+            {messages.length === 0 && (
+              <div style={{
+                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexDirection: 'column', gap: '8px',
+                color: 'var(--text-secondary)', fontSize: '13px', textAlign: 'center',
+                padding: '20px',
+              }}>
+                <span style={{ fontSize: '28px' }}>💬</span>
+                <span>No messages yet.<br />Say hello to start the campaign chat!</span>
+              </div>
+            )}
+            {messages.map((m, idx) => {
+              const isMe = m.senderId === (user?.id || user?.email);
+              return (
+                <div
+                  key={idx}
+                  className="chat-msg-container"
+                  style={{
+                    alignSelf: isMe ? 'flex-end' : 'flex-start',
+                    maxWidth: '82%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: isMe ? 'flex-end' : 'flex-start',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      color: isMe ? partyColor : 'var(--text-secondary)',
+                      marginBottom: '3px',
+                      textAlign: isMe ? 'right' : 'left',
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {isMe ? 'You' : m.senderName}
+                    <button
+                      className="chat-reply-btn"
+                      onClick={() => setReplyTo(m)}
+                      title="Reply to message"
+                    >
+                      ↩ Reply
+                    </button>
+                  </div>
+                  <div
+                    className="chat-msg-bubble"
+                    style={{
+                      padding: '9px 13px',
+                      borderRadius: isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
+                      backgroundColor: isMe ? partyColor : '#ffffff',
+                      color: isMe ? '#fff' : 'var(--primary-dark)',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      boxShadow: isMe
+                        ? `0 3px 10px rgba(0,0,0,0.18)`
+                        : '0 2px 6px rgba(33,60,81,0.1)',
+                      border: isMe ? 'none' : '1px solid var(--primary-border)',
+                      lineHeight: 1.5,
+                      wordBreak: 'break-word',
+                    }}
+                  >
+                    {m.replyToSenderName && (
+                      <div className={isMe ? 'chat-reply-quote-me' : 'chat-reply-quote'} style={{ '--party-chat-color': partyColor }}>
+                        <strong>@{m.replyToSenderName}:</strong> {m.replyToText}
+                      </div>
+                    )}
+                    <div>{m.text}</div>
+                    
+                    <div style={{
+                      fontSize: '9px',
+                      textAlign: 'right',
+                      opacity: 0.65,
+                      marginTop: '4px',
+                      lineHeight: 1,
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      gap: '3px'
+                    }}>
+                      <span>
+                        {m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                      </span>
+                      <span style={{ color: isMe ? '#60a5fa' : '#94a3b8', fontWeight: 'bold', fontSize: '10px' }}>✓✓</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── Quoting Reply Banner ── */}
+          {replyTo && (
+            <div style={{
+              padding: '8px 12px',
+              background: 'rgba(33,60,81,0.1)',
+              borderTop: '1px solid var(--primary-border)',
+              borderLeft: `4px solid ${partyColor}`,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontSize: '11px',
+              color: 'var(--primary-dark)',
+            }}>
+              <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '10px' }}>
+                Replying to <strong>@{replyTo.senderName}</strong>: <span style={{ fontStyle: 'italic', opacity: 0.8 }}>{replyTo.text}</span>
+              </div>
+              <button
+                onClick={() => setReplyTo(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  color: '#ef4444',
+                  fontSize: '13px',
+                  padding: 0
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* ── Input Bar ── */}
+          <div
+            style={{
+              padding: '10px 12px',
+              background: 'var(--primary-dark)',
+              borderTop: '1px solid rgba(255,255,255,0.1)',
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'center',
+            }}
+          >
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={handleKey}
+              placeholder="Type a message..."
+              className="chat-input-field"
+              style={{ '--party-chat-color': partyColor }}
+            />
+            <button
+              onClick={handleSend}
+              disabled={!chatInput.trim()}
+              className="chat-send-btn"
+              style={{ '--party-chat-color': partyColor }}
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

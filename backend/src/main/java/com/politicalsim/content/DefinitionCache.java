@@ -12,5 +12,6 @@ public class DefinitionCache {
         cardsCache.clear();
         newsCache.clear();
         issuesCache.clear();
+        com.politicalsim.game.GameSessionService.clearCaches();
     }
 }

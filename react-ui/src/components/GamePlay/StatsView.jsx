@@ -1,4 +1,5 @@
 import React from 'react';
+import { useGameStore } from '../../store/gameStore';
 import { getPartyColor, checkDefeatWarnings, renderStatDelta } from './gameUtils';
 import { getPartyThemeByName } from '../../constants/partyThemes';
 
@@ -28,8 +29,21 @@ export default function StatsView({
   // In multiplayer: the current user's party is identified by activeHumanPartyId.
   // humanPlayerMap: { partyId -> userId } — contains ALL human players.
   // We use activeHumanPartyId to show "You", and show "Player" for other human parties.
-  const myPartyId = turnData.activeHumanPartyId;
+  const { user } = useGameStore();
   const humanPlayerMap = turnData.humanPlayerMap || {};
+
+  const getMyPartyId = () => {
+    if (turnData?.isMultiplayer && humanPlayerMap) {
+      const loggedInUserId = (user?.id || user?.email)?.toLowerCase();
+      const foundEntry = Object.entries(humanPlayerMap).find(
+        ([partyId, userId]) => userId?.toLowerCase() === loggedInUserId
+      );
+      if (foundEntry) return foundEntry[0];
+    }
+    return turnData.activeHumanPartyId || turnData.parties?.find(p => p.playerControlled)?.id;
+  };
+
+  const myPartyId = getMyPartyId();
 
   const getPartyLabel = (party) => {
     if (party.id === myPartyId) return '(You)';

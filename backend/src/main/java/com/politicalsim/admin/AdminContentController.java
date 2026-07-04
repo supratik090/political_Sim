@@ -222,4 +222,10 @@ public class AdminContentController {
     private ResponseStatusException notFound(String message) {
         return new ResponseStatusException(HttpStatus.NOT_FOUND, message);
     }
+
+    @PostMapping("/cache/reload")
+    public Map<String, String> reloadCaches() {
+        DefinitionCache.clearAll();
+        return Map.of("status", "success", "message", "All static caches reloaded and cleared.");
+    }
 }

@@ -80,23 +80,23 @@ public class GameService {
             }
         }
 
-        List<GameSessionRepository.GameSessionDTO> userGames = new ArrayList<>();
+        List<GameSessionRepository.ProgressGameDTO> userGames = new ArrayList<>();
         long start = System.currentTimeMillis();
         if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
-            userGames = gameSessionService.listGamesDto(userId.trim().toLowerCase());
+            userGames = gameSessionService.listProgressGames(userId.trim().toLowerCase());
         }
 
         long endMethod = System.currentTimeMillis();
         log.info("listGames loaded in ms: {}" ,(endMethod - start));
 
         List<String> wonScenarioKeys = new ArrayList<>();
-        for (GameSessionRepository.GameSessionDTO g : userGames) {
+        for (GameSessionRepository.ProgressGameDTO g : userGames) {
             String skey = g.scenarioKey();
             if (g.status() == GameStatus.VICTORY) {
                 wonScenarioKeys.add(skey);
             } else if (g.status() == GameStatus.GAME_OVER) {
-                PartyState gov = g.governmentParty();
-                if (gov != null && g.playerPartyIds() != null && g.playerPartyIds().contains(gov.getId())) {
+                GameSessionRepository.ProgressPartyDTO gov = g.governmentParty();
+                if (gov != null && g.playerPartyIds() != null && g.playerPartyIds().contains(gov.id())) {
                     wonScenarioKeys.add(skey);
                 }
             }
@@ -115,7 +115,7 @@ public class GameService {
 
             // Check for an active (in-progress) game first
             boolean hasActive = false;
-            for (GameSessionRepository.GameSessionDTO g : userGames) {
+            for (GameSessionRepository.ProgressGameDTO g : userGames) {
                 if (key.equals(g.scenarioKey()) && g.status() == GameStatus.ACTIVE) {
                     hasActive = true;
                     break;
@@ -150,16 +150,18 @@ public class GameService {
     }
 
     public GameSession createGame(CreateGameRequest request) {
+        long start = System.currentTimeMillis();
         GameSession temp = new GameSession();
         temp.setTurnNumber(1);
         temp.setUsedRewardKeys(new ArrayList<>());
         RewardDefinition firstReward = roundResolutionEngine.selectRandomReward(temp);
+        
+        long step1 = System.currentTimeMillis();
         GameSession session = gameSessionService.createGame(request, firstReward);
+        log.info("[METRIC] gameSessionService.createGame took {} ms", (System.currentTimeMillis() - step1));
 
-        // Assign a unique, randomised set of up to 60 monthly issues for this game
-        session.setGameIssues(buildGameIssues(request.getScenarioKey()));
-        gameSessionService.save(session);
 
+        long step3 = System.currentTimeMillis();
         if (request.isRetainInstitutions()) {
             GameSessionRepository.GameSessionDTO preceding = findPrecedingWonSession(request.getUserId(), request.getScenarioKey());
             if (preceding != null) {
@@ -203,6 +205,8 @@ public class GameService {
                 }
             }
         }
+        log.info("[METRIC] Retain institutions took {} ms", (System.currentTimeMillis() - step3));
+        log.info("[METRIC] Total createGame took {} ms", (System.currentTimeMillis() - start));
         return session;
     }
 

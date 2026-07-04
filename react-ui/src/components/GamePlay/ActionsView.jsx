@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useGameStore } from '../../store/gameStore';
 import ActionSection from './ActionSection';
 import Action1CardSelection from './Action1CardSelection';
 import Action2NewsReaction from './Action2NewsReaction';
@@ -67,13 +68,16 @@ export default function ActionsView({
   activeAccordion,
   setActiveAccordion
 }) {
-  // In multiplayer, only let the active human player interact.
-  // activeHumanPartyId changes each round to point to whose turn it is.
-  const myPartyId = turnData?.activeHumanPartyId;
+  const { user } = useGameStore();
   const humanPlayerMap = turnData?.humanPlayerMap || {};
   const isMultiplayer = turnData?.isMultiplayer;
-  // If it's a multiplayer game and MY party is not the active one, I should wait.
-  const isMyTurn = !isMultiplayer || (activeParty?.id === myPartyId);
+  // Find which party belongs to the logged-in user in multiplayer
+  const loggedInUserId = (user?.id || user?.email)?.toLowerCase();
+  const myParty = isMultiplayer
+    ? turnData?.parties?.find(p => humanPlayerMap[p.id]?.toLowerCase() === loggedInUserId)
+    : activeParty;
+  
+  const isMyTurn = !isMultiplayer || (myParty?.id === turnData?.activeHumanPartyId);
 
   const isCardCompleted = selectedCard !== null && (!cardRequiresTarget(selectedCard) || targetPartyId !== '');
   

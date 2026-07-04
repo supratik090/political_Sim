@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -65,7 +66,9 @@ public class GameSession {
     private Map<String, Map<String, Integer>> projectContributionsThisTurn = new LinkedHashMap<>();
     private String lastRoundBiddingMetric;
     private String lastRoundWinnerPartyId;
+    @Transient
     private List<CardDefinition> gameCards = new ArrayList<>();
+    @Transient
     private List<MonthlyIssueDefinition> gameIssues = new ArrayList<>();
     private boolean lastElectionHeld;
     private String lastElectionWinner;

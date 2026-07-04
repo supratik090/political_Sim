@@ -78,14 +78,16 @@ export const useMultiplayer = (gameId, userId, userName) => {
         };
     }, [gameId]);
 
-    const sendMessage = useCallback((text) => {
+    const sendMessage = useCallback((text, replyToSenderName = null, replyToText = null) => {
         if (clientRef.current && clientRef.current.connected) {
             clientRef.current.publish({
                 destination: `/app/chat/${gameId}`,
                 body: JSON.stringify({
                     senderId: userId,
                     senderName: userName || userId,
-                    text: text
+                    text: text,
+                    replyToSenderName,
+                    replyToText
                 }),
             });
         }

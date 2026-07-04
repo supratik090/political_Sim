@@ -26,7 +26,8 @@ export default function RoundResolutionModal({
   ];
 
   // Calculate completed projects & yields
-  const completedProjects = (activeParty.projects || []).filter(p => p.progressPercent === 100 && p.completionTurn === lastTurnNum);
+  const completedProjectsLastTurn = (activeParty.projects || []).filter(p => p.progressPercent === 100 && p.completionTurn === lastTurnNum);
+  const allCompletedProjects = (activeParty.projects || []).filter(p => p.progressPercent === 100);
   
   let netCoins = 0;
   let netMorale = 0;
@@ -34,7 +35,7 @@ export default function RoundResolutionModal({
   let netMedia = 0;
   let netSupport = 0;
 
-  completedProjects.forEach(proj => {
+  allCompletedProjects.forEach(proj => {
     const def = projectDefs[proj.projectKey];
     if (def) {
       netCoins += def.benefitCoins || 0;
@@ -181,16 +182,16 @@ export default function RoundResolutionModal({
             padding: '15px'
           }}>
             <h4 style={{ margin: '0 0 10px 0', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: 'bold' }}>
-              🏗️ Completed Infrastructure Yield
+              🏗️ Projects Completed Last Turn
             </h4>
-            {completedProjects.length === 0 ? (
+            {completedProjectsLastTurn.length === 0 ? (
               <div style={{ fontSize: '12px', color: '#64748b', fontStyle: 'italic' }}>
-                No completed projects built yet.
+                No projects completed last turn.
               </div>
             ) : (
               <div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
-                  {completedProjects.map(proj => {
+                  {completedProjectsLastTurn.map(proj => {
                     const def = projectDefs[proj.projectKey];
                     const name = def ? def.name : proj.projectKey;
                     return (
@@ -219,7 +220,7 @@ export default function RoundResolutionModal({
                   padding: '8px 10px',
                   borderRadius: '6px'
                 }}>
-                  <span style={{ color: '#15803d' }}>Net Yield:</span>
+                  <span style={{ color: '#15803d' }}>Total Yield:</span>
                   {netCoins !== 0 && <span>💰 {netCoins > 0 ? '+' : ''}{netCoins}</span>}
                   {netMorale !== 0 && <span>✊ {netMorale > 0 ? '+' : ''}{netMorale}</span>}
                   {netSupport !== 0 && <span>📈 {netSupport > 0 ? '+' : ''}{netSupport}%</span>}

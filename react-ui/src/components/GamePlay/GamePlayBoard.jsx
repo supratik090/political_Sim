@@ -104,6 +104,7 @@ export default function GamePlayBoard() {
   const [showChat, setShowChat] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);
+  const [newMsgPulse, setNewMsgPulse] = useState(false);
   const prevMsgCountRef = useRef(0);
 
   useEffect(() => {
@@ -139,8 +140,13 @@ export default function GamePlayBoard() {
   const [fundingContributions, setFundingContributions] = useState({});
   const [fundedThisTurn, setFundedThisTurn] = useState([]);
 
-  const activeParty = turnData?.parties?.find(p => p.id === turnData.activeHumanPartyId) || turnData?.parties?.find(p => p.playerControlled);
-  const playerPartyName = turnData?.activeHumanPartyName || activeParty?.name;
+  const myPartyId = turnData?.isMultiplayer && turnData?.humanPlayerMap && user
+    ? Object.keys(turnData.humanPlayerMap).find(k => turnData.humanPlayerMap[k]?.toLowerCase() === (user.id || user.email)?.toLowerCase())
+    : (turnData?.activeHumanPartyId || turnData?.parties?.find(p => p.playerControlled)?.id);
+  
+  const myParty = turnData?.parties?.find(p => p.id === myPartyId);
+  const activeParty = myParty || turnData?.parties?.find(p => p.playerControlled);
+  const playerPartyName = myParty?.name || turnData?.activeHumanPartyName || activeParty?.name;
   
   const partyTheme = getPartyThemeByName(playerPartyName || '');
   const isDefaultFallback = partyTheme.symbolName === 'Flag';
@@ -191,6 +197,8 @@ export default function GamePlayBoard() {
     if (messages.length > prevMsgCountRef.current) {
       if (!showChat) {
         setUnreadCount(prev => prev + (messages.length - prevMsgCountRef.current));
+        setNewMsgPulse(true);
+        setTimeout(() => setNewMsgPulse(false), 1200);
       }
       prevMsgCountRef.current = messages.length;
     }
@@ -315,7 +323,6 @@ useEffect(() => {
   };
 
   const handleFundProject = async (projectKey, progress) => {
-    setLoading(true);
     setError('');
     try {
       const data = await fundProject(activeGameId, activeParty.id, projectKey, progress);
@@ -330,13 +337,10 @@ useEffect(() => {
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to fund project.');
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDestroyProject = async (projectKey) => {
-    setLoading(true);
     setError('');
     try {
       const data = await destroyProject(activeGameId, activeParty.id, projectKey);
@@ -350,13 +354,10 @@ useEffect(() => {
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to destroy project.');
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleSetProjectTarget = async (projectKey, targetId) => {
-    setLoading(true);
     setError('');
     try {
       const data = await setProjectTarget(activeGameId, activeParty.id, projectKey, targetId);
@@ -364,8 +365,6 @@ useEffect(() => {
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to set project target.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -532,6 +531,25 @@ useEffect(() => {
       '--party-primary-color': playerPartyColor,
       '--party-primary-color-rgb': playerPartyColorRgb
     }}>
+      <style>{`
+        @keyframes chatVibrate {
+          0%   { transform: translateX(0); }
+          15%  { transform: translateX(-6px); }
+          30%  { transform: translateX(6px); }
+          45%  { transform: translateX(-5px); }
+          60%  { transform: translateX(5px); }
+          75%  { transform: translateX(-3px); }
+          90%  { transform: translateX(3px); }
+          100% { transform: translateX(0); }
+        }
+        @keyframes chatBounce {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-10px) scale(1.1); }
+        }
+        .chat-btn-new-msg {
+          animation: chatBounce 0.5s ease 2;
+        }
+      `}</style>
       <GameTutorial />
       {/* Title Banner */}
       <div className="game-title-banner" style={{ padding: '24px 20px', background: 'var(--party-primary-color)' }}>
@@ -608,7 +626,7 @@ useEffect(() => {
 
         {/* Right Content */}
         <div className="themed-right-content">
-          {loading && <div style={{ textAlign: 'center', padding: '50px 0' }}>⌛ Loading Campaign State...</div>}
+          {loading && !turnData && <div style={{ textAlign: 'center', padding: '50px 0' }}>⌛ Loading Campaign State...</div>}
           {error && <div style={{ color: '#d23f31', textAlign: 'center', padding: '50px 0' }}>⚠️ {error}</div>}
           
           {!turnData && !loading && !error && (
@@ -702,6 +720,7 @@ useEffect(() => {
           <button
             onClick={() => { setShowChat(!showChat); if (!showChat) setUnreadCount(0); }}
             title="Toggle Chat"
+            className={newMsgPulse ? 'chat-btn-new-msg' : ''}
             style={{
               width: '54px',
               height: '54px',

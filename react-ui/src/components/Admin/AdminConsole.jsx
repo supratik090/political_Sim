@@ -64,18 +64,40 @@ export default function AdminConsole() {
     }
   };
 
+  const handleReloadCache = async () => {
+    setLoading(true);
+    try {
+      await apiPost('/api/admin/cache/reload', {});
+      alert('Backend static caches reloaded successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to reload cache: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderTabs = () => (
-    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-      {['SCENARIOS', 'CARDS', 'NEWS', 'ISSUES'].map(tab => (
-        <button
-          key={tab}
-          className={activeTab === tab ? 'selected' : ''}
-          onClick={() => setActiveTab(tab)}
-          style={{ flex: 1, padding: '10px' }}
-        >
-          {tab}
-        </button>
-      ))}
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '10px', flex: '1 1 auto' }}>
+        {['SCENARIOS', 'CARDS', 'NEWS', 'ISSUES'].map(tab => (
+          <button
+            key={tab}
+            className={activeTab === tab ? 'selected' : ''}
+            onClick={() => setActiveTab(tab)}
+            style={{ padding: '10px 20px', fontWeight: 'bold' }}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+      <button 
+        onClick={handleReloadCache} 
+        disabled={loading}
+        style={{ backgroundColor: '#10b981', borderColor: '#10b981', color: '#fff', fontWeight: 'bold', padding: '10px 20px' }}
+      >
+        {loading ? 'Reloading...' : '🔄 Reload Static Caches'}
+      </button>
     </div>
   );
 

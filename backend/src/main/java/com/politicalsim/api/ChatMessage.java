@@ -15,6 +15,8 @@ public class ChatMessage {
     @Indexed(expireAfterSeconds = 259200) // 3 days
     private String timestamp;
     private String gameId;
+    private String replyToSenderName;
+    private String replyToText;
 
     public ChatMessage() {}
 
@@ -38,4 +40,8 @@ public class ChatMessage {
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
     public String getGameId() { return gameId; }
     public void setGameId(String gameId) { this.gameId = gameId; }
+    public String getReplyToSenderName() { return replyToSenderName; }
+    public void setReplyToSenderName(String replyToSenderName) { this.replyToSenderName = replyToSenderName; }
+    public String getReplyToText() { return replyToText; }
+    public void setReplyToText(String replyToText) { this.replyToText = replyToText; }
 }

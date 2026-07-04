@@ -13,9 +13,24 @@ public interface GameSessionRepository extends MongoRepository<GameSession, Stri
     List<GameSession> findByScenarioKeyAndStatus(String scenarioKey, GameStatus status);
     List<GameSession> findByScenarioKeyAndStatusAndUserId(String scenarioKey, GameStatus status, String userId);
     // The Dynamic Method: pass either GameSession.class or GameSessionDTO.class
+    @Query(value = "{ $or: [ { 'userId': ?0 }, { $expr: { $in: [ ?0, { $map: { input: { $objectToArray: { $ifNull: [ '$humanPlayerMap', {} ] } }, in: '$$this.v' } } ] } } ] }", sort = "{ 'currentDate': -1 }")
     <T> List<T> findAllByUserIdOrderByCurrentDateDesc(String userId, Class<T> type);
+    List<GameSession> findByJoinCode(String joinCode);
     List<GameSession> findByJoinCodeAndStatus(String joinCode, GameStatus status);
     List<GameSession> findByStatus(GameStatus status);
+
+    public record ProgressPartyDTO(String id) {}
+
+    public record ProgressGameDTO(
+            String scenarioKey,
+            GameStatus status,
+            List<String> playerPartyIds,
+            ProgressPartyDTO governmentParty
+    ) {}
+
+    @Query(value = "{ $or: [ { 'userId': ?0 }, { $expr: { $in: [ ?0, { $map: { input: { $objectToArray: { $ifNull: [ '$humanPlayerMap', {} ] } }, in: '$$this.v' } } ] } } ] }",
+           fields = "{ 'scenarioKey': 1, 'status': 1, 'playerPartyIds': 1, 'governmentParty.id': 1 }")
+    List<ProgressGameDTO> findProgressGamesByUserId(String userId);
 
     public record GameSessionDTO(
             String id,
@@ -40,7 +55,7 @@ public interface GameSessionRepository extends MongoRepository<GameSession, Stri
      * Excludes heavy embedded arrays (gameCards, gameIssues, round submissions, etc.)
      * that cause full documents to be ~500KB each.
      */
-    @Query(value = "{ 'userId': ?0 }",
+    @Query(value = "{ $or: [ { 'userId': ?0 }, { $expr: { $in: [ ?0, { $map: { input: { $objectToArray: { $ifNull: [ '$humanPlayerMap', {} ] } }, in: '$$this.v' } } ] } } ] }",
            fields = "{ 'scenarioKey': 1, 'scenarioName': 1, 'currentDate': 1, 'turnNumber': 1," +
                     " 'status': 1, 'createdAt': 1, 'playerPartyId': 1, 'isMultiplayer': 1," +
                     " 'joinCode': 1, 'lastElectionWinner': 1, 'playerPartyIds': 1," +

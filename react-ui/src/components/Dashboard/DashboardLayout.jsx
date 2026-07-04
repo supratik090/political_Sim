@@ -53,7 +53,7 @@ export default function DashboardLayout({ children }) {
             </button>
           )}
           {currentScreen !== 'HOW_TO_PLAY' && (
-            <button onClick={() => setScreen('HOW_TO_PLAY')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)', order: 1 }}>
+            <button onClick={() => setScreen('HOW_TO_PLAY')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>
               📖 How to Play
             </button>
           )}

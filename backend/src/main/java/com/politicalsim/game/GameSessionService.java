@@ -25,11 +25,81 @@ import java.util.*;
 
 @Service
 public class GameSessionService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GameSessionService.class);
+
+    private static List<CardDefinition> cachedCards = null;
+    private static final Map<String, List<MonthlyIssueDefinition>> cachedIssuesByScenario = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private List<CardDefinition> getCachedCards() {
+        if (cachedCards == null) {
+            cachedCards = cardRepository.findAll().stream()
+                    .filter(CardDefinition::isActive)
+                    .toList();
+        }
+        return cachedCards;
+    }
+
+    private List<MonthlyIssueDefinition> getCachedIssuesForScenario(String scenarioKey) {
+        String queryKey = scenarioKey == null ? "default" : scenarioKey;
+        return cachedIssuesByScenario.computeIfAbsent(queryKey, key -> {
+            List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKey(key);
+            if (issues.isEmpty()) {
+                String altKey = key.endsWith("_2006") ? key.replace("_2006", "_2001") : null;
+                if (altKey != null) {
+                    issues = issueRepository.findByScenarioKey(altKey);
+                }
+            }
+            if (issues.isEmpty()) {
+                issues = issueRepository.findByScenarioKey("default");
+            }
+            return issues.stream().filter(MonthlyIssueDefinition::isActive).toList();
+        });
+    }
+
+    public static void clearCaches() {
+        cachedCards = null;
+        cachedIssuesByScenario.clear();
+        log.info("[METRIC] Static definition caches cleared.");
+    }
+
+    @org.springframework.context.event.EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
+    public void preloadCaches() {
+        log.info("[CACHE] Preloading static caches on startup...");
+        long start = System.currentTimeMillis();
+        
+        // 1. Preload cards
+        try {
+            getCachedCards();
+            log.info("[CACHE] Cards preloaded successfully. Count: {}", cachedCards != null ? cachedCards.size() : 0);
+        } catch (Exception e) {
+            log.error("[CACHE] Failed to preload cards", e);
+        }
+        
+        // 2. Preload scenario issues
+        try {
+            List<String> scenarioKeys = scenarioRepository.findAll().stream()
+                    .map(ScenarioDefinition::getScenarioKey)
+                    .filter(java.util.Objects::nonNull)
+                    .toList();
+            
+            for (String key : scenarioKeys) {
+                long t = System.currentTimeMillis();
+                getCachedIssuesForScenario(key);
+                log.info("[CACHE] Scenario issues for '{}' preloaded in {} ms", key, (System.currentTimeMillis() - t));
+            }
+            getCachedIssuesForScenario("default");
+        } catch (Exception e) {
+            log.error("[CACHE] Failed to preload scenario issues", e);
+        }
+        
+        log.info("[CACHE] Total preloading finished in {} ms", (System.currentTimeMillis() - start));
+    }
 
     private final GameSessionRepository repository;
     private final ScenarioDefinitionRepository scenarioRepository;
     private final CardDefinitionRepository cardRepository;
     private final MonthlyIssueDefinitionRepository issueRepository;
+    private final GameSessionContentRepository contentRepository;
     private final String defaultStateName;
 
     public GameSessionService(
@@ -37,13 +107,24 @@ public class GameSessionService {
             ScenarioDefinitionRepository scenarioRepository,
             CardDefinitionRepository cardRepository,
             MonthlyIssueDefinitionRepository issueRepository,
+            GameSessionContentRepository contentRepository,
             @Value("${political-sim.default-state-name}") String defaultStateName
     ) {
         this.repository = repository;
         this.scenarioRepository = scenarioRepository;
         this.cardRepository = cardRepository;
         this.issueRepository = issueRepository;
+        this.contentRepository = contentRepository;
         this.defaultStateName = defaultStateName;
+    }
+
+    private void populateSessionContent(GameSession session) {
+        if (session != null) {
+            contentRepository.findById(session.getId()).ifPresent(content -> {
+                session.setGameCards(content.getGameCards());
+                session.setGameIssues(content.getGameIssues());
+            });
+        }
     }
 
     public GameSession createGame(CreateGameRequest request, RewardDefinition firstReward) {
@@ -143,9 +224,10 @@ public class GameSessionService {
         session.setPartyHeldRewards(held);
 
         // Initialize Game Cards and Issues (up to 60 chosen randomly across all scenarios)
-        List<CardDefinition> allCards = cardRepository.findAll().stream()
-                .filter(CardDefinition::isActive)
-                .toList();
+        long t1 = System.currentTimeMillis();
+        List<CardDefinition> allCards = getCachedCards();
+        log.info("[METRIC] getCachedCards() took {} ms (count={})", (System.currentTimeMillis() - t1), allCards.size());
+        
         List<CardDefinition> selectedCards = new ArrayList<>(allCards);
         if (selectedCards.size() > 60) {
             java.util.Collections.shuffle(selectedCards);
@@ -153,10 +235,11 @@ public class GameSessionService {
         }
         session.setGameCards(selectedCards);
 
-        List<MonthlyIssueDefinition> allIssues = issueRepository.findAll().stream()
-                .filter(MonthlyIssueDefinition::isActive)
-                .toList();
-        List<MonthlyIssueDefinition> selectedIssues = new ArrayList<>(allIssues);
+        long t2 = System.currentTimeMillis();
+        List<MonthlyIssueDefinition> pool = new ArrayList<>(getCachedIssuesForScenario(request.getScenarioKey()));
+        log.info("[METRIC] getCachedIssuesForScenario took {} ms (count={})", (System.currentTimeMillis() - t2), pool.size());
+        
+        List<MonthlyIssueDefinition> selectedIssues = new ArrayList<>(pool);
         if (selectedIssues.size() > 60) {
             java.util.Collections.shuffle(selectedIssues);
             selectedIssues = selectedIssues.subList(0, 60);
@@ -165,11 +248,18 @@ public class GameSessionService {
 
         normalizePublicSupport(session);
 
-        return repository.save(session);
+        GameSession saved = repository.save(session);
+        GameSessionContent content = new GameSessionContent(saved.getId(), selectedCards, selectedIssues);
+        contentRepository.save(content);
+
+        saved.setGameCards(selectedCards);
+        saved.setGameIssues(selectedIssues);
+        return saved;
     }
 
     public GameSession getGame(String gameId) {
         GameSession session = repository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+        populateSessionContent(session);
         syncRoleReferences(session);
         return session;
     }
@@ -181,6 +271,13 @@ public class GameSessionService {
     public List<GameSessionRepository.GameSessionDTO> listGamesDto(String userId) {
         if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
             return repository.findAllByUserIdOrderByCurrentDateDesc(userId.trim().toLowerCase(), GameSessionRepository.GameSessionDTO.class);
+        }
+        return Collections.emptyList();
+    }
+
+    public List<GameSessionRepository.ProgressGameDTO> listProgressGames(String userId) {
+        if (userId != null && !userId.isBlank() && !"null".equalsIgnoreCase(userId) && !"undefined".equalsIgnoreCase(userId)) {
+            return repository.findProgressGamesByUserId(userId.trim().toLowerCase());
         }
         return Collections.emptyList();
     }
@@ -253,22 +350,28 @@ public class GameSessionService {
     }
 
     public GameSession getGameByJoinCode(String joinCode) {
-        return repository.findByJoinCodeAndStatus(joinCode.toUpperCase(), GameStatus.LOBBY).stream()
+        GameSession session = repository.findByJoinCode(joinCode.toUpperCase()).stream()
+                .filter(s -> s.getStatus() == GameStatus.LOBBY || s.getStatus() == GameStatus.ACTIVE)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid join code or game not in lobby"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid join code or game is not active/lobby"));
+        populateSessionContent(session);
+        return session;
     }
 
     public GameSession joinGame(String userId, String joinCode, String partyId) {
         if (userId == null || userId.isBlank()) {
             throw new IllegalArgumentException("User ID is required to join a game");
         }
+        String cleanUserId = userId.trim().toLowerCase();
         
-        GameSession session = repository.findByJoinCodeAndStatus(joinCode.toUpperCase(), GameStatus.LOBBY).stream()
+        GameSession session = repository.findByJoinCode(joinCode.toUpperCase()).stream()
+                .filter(s -> s.getStatus() == GameStatus.LOBBY || s.getStatus() == GameStatus.ACTIVE)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid join code or game not in lobby"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid join code or game is not active/lobby"));
+        populateSessionContent(session);
         
-        if (session.getHumanPlayerMap().containsValue(userId)) {
-            throw new IllegalArgumentException("User already in lobby");
+        if (session.getHumanPlayerMap().containsValue(cleanUserId)) {
+            return session;
         }
         
         PartyState party = session.getParties().stream()
@@ -280,7 +383,7 @@ public class GameSessionService {
             throw new IllegalArgumentException("Party already claimed by another player");
         }
         
-        session.getHumanPlayerMap().put(partyId, userId);
+        session.getHumanPlayerMap().put(partyId, cleanUserId);
         party.setControllerType(ControllerType.HUMAN);
         
         if (!session.getPlayerPartyIds().contains(partyId)) {

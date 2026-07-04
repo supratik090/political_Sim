@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { getProgressCost, canAffordCost, getPartyColor } from './gameUtils';
 import { getSymbolIconComponent } from '../../constants/partyThemes';
 
@@ -17,6 +17,8 @@ export default function Action6PartyBuilding({
   handleSetProjectTarget,
   fundedThisTurn = []
 }) {
+  const [destroyingProject, setDestroyingProject] = useState(null); // { projectKey, refundCoins, name, isInProgress }
+
   if (!activeParty) return null;
 
   const activeProjects = activeParty.projects || [];
@@ -125,9 +127,12 @@ export default function Action6PartyBuilding({
                         disabled={partyBuildingConfirmed}
                         onClick={() => {
                           const refundCoins = pDef.costCoins || 0;
-                          if (window.confirm(`Are you sure you want to destroy completed project '${pDef.name || proj.projectKey}'? You will receive a refund of ${refundCoins} Coins.`)) {
-                            handleDestroyProject(projId);
-                          }
+                          setDestroyingProject({
+                            projectKey: projId,
+                            refundCoins,
+                            name: pDef.name || proj.projectKey,
+                            isInProgress: false
+                          });
                         }}
                         style={{
                           padding: '4px 8px',
@@ -269,9 +274,12 @@ export default function Action6PartyBuilding({
                           disabled={partyBuildingConfirmed}
                           onClick={() => {
                             const refundCoins = Math.ceil((pDef.costCoins || 0) * progress / 100.0);
-                            if (window.confirm(`Are you sure you want to scrap in-progress project '${pDef.name || proj.projectKey}'? You will receive a refund of ${refundCoins} Coins.`)) {
-                              handleDestroyProject(projId);
-                            }
+                            setDestroyingProject({
+                              projectKey: projId,
+                              refundCoins,
+                              name: pDef.name || proj.projectKey,
+                              isInProgress: true
+                            });
                           }}
                           style={{
                             padding: '6px 15px',
@@ -426,6 +434,42 @@ export default function Action6PartyBuilding({
           {partyBuildingConfirmed ? '✅ Projects Choice Locked' : '🔒 Confirm Projects Choice'}
         </button>
       </div>
+
+      {/* Custom Confirmation Modal for Destroying/Scrapping Project */}
+      {destroyingProject && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 2000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div className="unified-card" style={{ width: '400px', padding: '30px', textAlign: 'center', color: '#fff', background: 'var(--primary-dark)', borderRadius: '12px', border: '2px solid var(--primary-border)' }}>
+            <h2 style={{ margin: '0 0 15px 0', color: 'var(--party-primary-color, #ef4444)', fontSize: '20px', fontWeight: 800 }}>
+              {destroyingProject.isInProgress ? '🗑️ Scrap Project?' : '🗑️ Destroy Project?'}
+            </h2>
+            <p style={{ fontSize: '14px', color: 'var(--card-text, #ffffff)', marginBottom: '25px', lineHeight: 1.5, opacity: 0.95 }}>
+              Are you sure you want to {destroyingProject.isInProgress ? 'scrap' : 'destroy'} project <b>{destroyingProject.name}</b>? 
+              You will receive a refund of <b>{destroyingProject.refundCoins} Coins</b>.
+            </p>
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+              <button 
+                onClick={() => {
+                  handleDestroyProject(destroyingProject.projectKey);
+                  setDestroyingProject(null);
+                }}
+                style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 'bold', backgroundColor: '#D9534F', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                Yes, Confirm
+              </button>
+              <button 
+                onClick={() => setDestroyingProject(null)}
+                style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 'bold', backgroundColor: 'transparent', color: 'var(--card-text, #fff)', border: '1px solid var(--primary-border)', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

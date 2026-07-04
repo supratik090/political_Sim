@@ -48,6 +48,7 @@ export default function DashboardHome() {
   const [createdMultiplayerGame, setCreatedMultiplayerGame] = useState(null);
   const [rejoinCode, setRejoinCode] = useState('');
   const [rejoinError, setRejoinError] = useState('');
+  const [deletingGameId, setDeletingGameId] = useState(null);
 
   useEffect(() => {
     if (currentScreen === 'HOME') {
@@ -241,15 +242,12 @@ export default function DashboardHome() {
     }
   };
 
-  const handleDeleteGame = async (gameId) => {
-    const confirmed = window.confirm("Are you sure you want to delete this campaign? This action cannot be undone.");
-    if (!confirmed) return;
+  const executeDeleteGame = async (gameId) => {
     setLoading(true);
     try {
       await deleteGame(gameId);
       // Invalidate cache so next load fetches fresh data
       invalidateCache(user?.id || user?.email);
-      alert('Campaign deleted successfully.');
       await loadDashboardData({ forceRefresh: true });
     } catch (err) {
       console.error(err);
@@ -481,7 +479,7 @@ export default function DashboardHome() {
                   {game.status === 'LOBBY' ? 'Enter Lobby' : 'Load Game'}
                 </button>
                 <button
-                  onClick={() => handleDeleteGame(game.id)}
+                  onClick={() => setDeletingGameId(game.id)}
                   style={{ backgroundColor: '#D9534F', color: '#ffffff', border: 'none' }}
                 >
                   🗑️ Delete
@@ -489,27 +487,6 @@ export default function DashboardHome() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Rejoin section for Player B */}
-        <div style={{
-          borderTop: '1px solid var(--primary-border)',
-          marginTop: '24px', paddingTop: '20px'
-        }}>
-          <h3 style={{ margin: '0 0 8px 0', color: 'var(--primary-dark)', fontSize: '15px' }}>🔗 Rejoin a Multiplayer Game</h3>
-          <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--text-secondary)' }}>Playing on a different browser? Enter the join code to re-enter.</p>
-          {rejoinError && <p style={{ color: '#D9534F', fontSize: '13px', margin: '0 0 8px 0' }}>{rejoinError}</p>}
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <input
-              type="text"
-              value={rejoinCode}
-              onChange={e => setRejoinCode(e.target.value.toUpperCase())}
-              placeholder="e.g. A1B2C3"
-              maxLength={6}
-              style={{ width: '140px', padding: '10px', fontSize: '18px', textAlign: 'center', letterSpacing: '4px', textTransform: 'uppercase' }}
-            />
-            <button onClick={handleRejoin} style={{ padding: '10px 20px' }}>Rejoin Game</button>
-          </div>
         </div>
       </div>
     );
@@ -607,7 +584,7 @@ export default function DashboardHome() {
   };
 
   const renderMapCard = () => {
-    if (mapLoading || loading || allScenarios.length === 0) {
+    if (mapLoading || allScenarios.length === 0) {
       return (
         <div className="unified-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
           <span style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>⌛ Loading India map boundaries...</span>
@@ -930,6 +907,61 @@ export default function DashboardHome() {
         </div>
       ) : (
         renderDashboardGrid()
+      )}
+
+      {/* Loading Overlay Spinner */}
+      {loading && scenarios.length > 0 && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(255,255,255,0.7)', zIndex: 2000,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '15px'
+        }}>
+          <div className="loading-spinner" style={{
+            width: '50px',
+            height: '50px',
+            border: '5px solid rgba(101, 148, 177, 0.2)',
+            borderTop: '5px solid var(--selected-highlight, #3b82f6)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <span style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>
+            Processing request, please wait...
+          </span>
+        </div>
+      )}
+
+      {/* Deleting Campaign Confirmation Modal */}
+      {deletingGameId && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div className="unified-card" style={{ width: '400px', padding: '30px', textAlign: 'center' }}>
+            <h2 style={{ margin: '0 0 15px 0', color: 'var(--primary-dark)', fontSize: '20px', fontWeight: 800 }}>🗑️ Delete Campaign?</h2>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '25px', lineHeight: 1.5 }}>
+              Are you sure you want to delete this campaign? This action cannot be undone and all progression will be lost.
+            </p>
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+              <button 
+                onClick={async () => {
+                  const gId = deletingGameId;
+                  setDeletingGameId(null);
+                  await executeDeleteGame(gId);
+                }}
+                style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 'bold', backgroundColor: '#D9534F', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                Yes, Delete
+              </button>
+              <button 
+                onClick={() => setDeletingGameId(null)}
+                style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 'bold', backgroundColor: 'transparent', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
