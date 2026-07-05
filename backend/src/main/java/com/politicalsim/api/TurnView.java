@@ -67,6 +67,16 @@ public record TurnView(
         String joinCode,
         Map<String, String> humanPlayerMap,
         LocalDateTime turnStartTime,
-        Integer turnDurationSeconds
+        Integer turnDurationSeconds,
+        List<com.politicalsim.game.LegislativeBillState> bills,
+        Map<String, String> billVotes,
+        String proposedBillKeyThisTurn,
+        String activeEventKey,
+        List<com.politicalsim.game.LobbyPledge> lobbyPledges,
+        String lastResolvedBillKey,
+        double lastBillYesVotes,
+        double lastBillNoVotes,
+        double lastBillAbstainVotes,
+        Map<String, String> lastBillPartyVotes
 ) {
 }

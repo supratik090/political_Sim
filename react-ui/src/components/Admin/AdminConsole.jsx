@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchScenarios, fetchCards, fetchNews, fetchIssues, apiPost, apiPut, apiDelete } from '../../api/apiClient';
+import { fetchScenarios, fetchCards, fetchNews, fetchIssues, fetchBills, fetchEvents, apiPost, apiPut, apiDelete } from '../../api/apiClient';
 
 export default function AdminConsole() {
   const [activeTab, setActiveTab] = useState('SCENARIOS');
@@ -25,6 +25,8 @@ export default function AdminConsole() {
       if (activeTab === 'CARDS') resData = await fetchCards(filterKey);
       if (activeTab === 'NEWS') resData = await fetchNews(filterKey);
       if (activeTab === 'ISSUES') resData = await fetchIssues(filterKey);
+      if (activeTab === 'BILLS') resData = await fetchBills(filterKey);
+      if (activeTab === 'EVENTS') resData = await fetchEvents(filterKey);
       setData(resData);
     } catch (err) {
       console.error(err);
@@ -39,6 +41,8 @@ export default function AdminConsole() {
     if (activeTab === 'CARDS') return '/api/admin/cards';
     if (activeTab === 'NEWS') return '/api/admin/news';
     if (activeTab === 'ISSUES') return '/api/admin/issues';
+    if (activeTab === 'BILLS') return '/api/admin/bills';
+    if (activeTab === 'EVENTS') return '/api/admin/events';
     return '';
   };
 
@@ -80,7 +84,7 @@ export default function AdminConsole() {
   const renderTabs = () => (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
       <div style={{ display: 'flex', gap: '10px', flex: '1 1 auto' }}>
-        {['SCENARIOS', 'CARDS', 'NEWS', 'ISSUES'].map(tab => (
+        {['SCENARIOS', 'CARDS', 'NEWS', 'ISSUES', 'BILLS', 'EVENTS'].map(tab => (
           <button
             key={tab}
             className={activeTab === tab ? 'selected' : ''}
@@ -212,6 +216,8 @@ export default function AdminConsole() {
       {activeTab === 'CARDS' && <CreateTemplate defaultJson={{ scenarioKey: filterKey, cardKey: 'new_card', cost: 1, active: true }} />}
       {activeTab === 'NEWS' && <CreateTemplate defaultJson={{ scenarioKey: filterKey, newsKey: 'new_news', active: true }} />}
       {activeTab === 'ISSUES' && <CreateTemplate defaultJson={{ scenarioKey: filterKey, issues: [] }} />}
+      {activeTab === 'BILLS' && <CreateTemplate defaultJson={{ scenarioKey: filterKey, billKey: 'new_bill', proposingRole: 'GOVERNMENT', pointsPassed: 10, pointsFailed: -5, effectsPassed: {}, effectsFailed: {}, active: true }} />}
+      {activeTab === 'EVENTS' && <CreateTemplate defaultJson={{ scenarioKey: filterKey, eventKey: 'new_event', options: [], active: true }} />}
 
       <hr style={{ margin: '30px 0', borderColor: 'var(--primary-border)', opacity: 0.3 }} />
       

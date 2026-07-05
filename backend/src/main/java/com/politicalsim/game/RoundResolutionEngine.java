@@ -9,6 +9,10 @@ import com.politicalsim.content.NewsDefinition;
 import com.politicalsim.content.NewsDefinitionRepository;
 import com.politicalsim.content.NewsReactionDefinition;
 import com.politicalsim.content.DefinitionCache;
+import com.politicalsim.content.LegislativeBillDefinition;
+import com.politicalsim.content.LegislativeBillDefinitionRepository;
+import com.politicalsim.content.EventCardDefinition;
+import com.politicalsim.content.EventCardDefinitionRepository;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
 import com.politicalsim.party.PartyStats;
@@ -55,24 +59,34 @@ public class RoundResolutionEngine {
     private final CardDefinitionRepository cardRepository;
     private final NewsDefinitionRepository newsRepository;
     private final MonthlyIssueDefinitionRepository issueRepository;
-
+    private final LegislativeBillDefinitionRepository billRepository;
+    private final EventCardDefinitionRepository eventRepository;
+ 
     private final CardPlayResolver cardPlayResolver;
     private final BiddingResolver biddingResolver;
     private final ProjectResolver projectResolver;
     private final ElectionResolver electionResolver;
-
+ 
     public RoundResolutionEngine(
             CardDefinitionRepository cardRepository,
             NewsDefinitionRepository newsRepository,
-            MonthlyIssueDefinitionRepository issueRepository
+            MonthlyIssueDefinitionRepository issueRepository,
+            LegislativeBillDefinitionRepository billRepository,
+            EventCardDefinitionRepository eventRepository
     ) {
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
         this.issueRepository = issueRepository;
+        this.billRepository = billRepository;
+        this.eventRepository = eventRepository;
         this.cardPlayResolver = new CardPlayResolver(this);
         this.biddingResolver = new BiddingResolver(this);
         this.projectResolver = new ProjectResolver(this);
         this.electionResolver = new ElectionResolver(this);
+    }
+
+    public LegislativeBillDefinitionRepository getBillRepository() {
+        return billRepository;
     }
 
     public boolean resolveRound(GameSession session) {
@@ -167,6 +181,12 @@ public class RoundResolutionEngine {
 
         boolean noConfidencePlayed = cardPlayResolver.resolveCardPlays(session, supportPressure, commentary, resultLines);
         biddingResolver.resolveBidding(session, biddingMetric, commentary);
+
+        // Resolve active legislative bill if tabled
+        resolveLegislativeBills(session, commentary, resultLines);
+
+        // Resolve active random event card if triggered
+        resolveEventChoices(session, supportPressure, commentary);
 
 
 
@@ -336,6 +356,467 @@ public class RoundResolutionEngine {
         session.setLastRoundCommentary(commentary);
         session.setLastResults(resultLines);
         return noConfidencePlayed;
+    }
+
+    public void resolveLegislativeBills(GameSession session, List<String> commentary, List<String> resultLines) {
+        if (billRepository == null) {
+            return;
+        }
+        String activeBillKey = session.getProposedBillKeyThisTurn();
+        if (activeBillKey == null || activeBillKey.isBlank()) {
+            selectNextProposedBill(session, commentary, resultLines);
+            return;
+        }
+
+        LegislativeBillDefinition billDef = allScenarioBills(session).stream()
+                .filter(b -> b.getBillKey().equals(activeBillKey))
+                .findFirst().orElse(null);
+
+        if (billDef == null) {
+            session.setProposedBillKeyThisTurn(null);
+            selectNextProposedBill(session, commentary, resultLines);
+            return;
+        }
+
+        double yesWeight = 0;
+        double noWeight = 0;
+        double abstainWeight = 0;
+        List<String> splitCommentaries = new ArrayList<>();
+        List<String> yesParties = new ArrayList<>();
+        List<String> noParties = new ArrayList<>();
+        List<String> abstainParties = new ArrayList<>();
+        Map<String, String> lastBillPartyVotes = new java.util.LinkedHashMap<>();
+
+        for (PartyState party : session.getParties()) {
+            if (!party.isActive() || party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                continue;
+            }
+            RoundSubmission sub = session.getCurrentRoundSubmissions().stream()
+                    .filter(s -> s.getPartyId().equals(party.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            boolean hasPledge = session.getLobbyPledges().stream()
+                    .anyMatch(p -> p.getBillKey().equals(activeBillKey) && p.getPartyId().equals(party.getId()));
+
+            String vote = sub != null ? sub.getBillVote() : "ABSTAIN";
+            boolean whip = sub != null && sub.isWhipIssued() && ("YES".equalsIgnoreCase(vote) || "NO".equalsIgnoreCase(vote));
+            double weight = party.getAssemblySeatShare();
+            if (weight <= 0) {
+                weight = party.getStats().getPublicSupport();
+            }
+
+            if (hasPledge) {
+                vote = "YES";
+                if (party.getStats().getCoins() < 25) {
+                    whip = false;
+                }
+            }
+
+            if (hasPledge && !whip) {
+                party.getStats().setPartyMorale(Math.max(0, party.getStats().getPartyMorale() - 20));
+                party.getStats().setCorruptionScore(Math.min(100, party.getStats().getCorruptionScore() + 20));
+                splitCommentaries.add("⚠️ Pledge Broken: " + party.getName() + " failed to issue a whip to enforce their pledge to vote YES on '" + billDef.getName() + "', suffering -20 Morale and +20 Corruption!");
+            }
+
+            if (whip) {
+                party.getStats().setCoins(Math.max(0, party.getStats().getCoins() - 25));
+                splitCommentaries.add("📢 Whip Enforced: " + party.getName() + " issued a legislative whip (Cost: 25 Coins) to secure 100% of their " + String.format("%.1f", weight) + "% voter share for " + vote.toUpperCase() + ".");
+                if ("YES".equalsIgnoreCase(vote)) {
+                    yesWeight += weight;
+                    yesParties.add(party.getName() + " (Whip)");
+                } else {
+                    noWeight += weight;
+                    noParties.add(party.getName() + " (Whip)");
+                }
+                lastBillPartyVotes.put(party.getName(), vote.toUpperCase() + " (Whip)");
+            } else {
+                if ("YES".equalsIgnoreCase(vote)) {
+                    double rebellionRate = (party.getStats().getCorruptionScore() * 0.7 + (100 - party.getStats().getMediaImage()) * 0.3) / 100.0;
+                    rebellionRate = Math.max(0.0, Math.min(1.0, rebellionRate));
+                    double partyVoteWeight = weight * (1.0 - rebellionRate);
+                    double rebelVoteWeight = weight * rebellionRate;
+
+                    yesWeight += partyVoteWeight;
+                    noWeight += rebelVoteWeight;
+
+                    yesParties.add(party.getName() + " (" + String.format("%.1f", partyVoteWeight) + "%)");
+                    if (rebelVoteWeight > 0) {
+                        noParties.add(party.getName() + " (Rebel: " + String.format("%.1f", rebelVoteWeight) + "%)");
+                        lastBillPartyVotes.put(party.getName(), String.format("YES (%.1f%%), NO (%.1f%% Rebel)", partyVoteWeight, rebelVoteWeight));
+                    } else {
+                        lastBillPartyVotes.put(party.getName(), "YES");
+                    }
+                    splitCommentaries.add("  - " + party.getName() + " voters split: " + String.format("%.1f", partyVoteWeight) + "% YES (party line), " + String.format("%.1f", rebelVoteWeight) + "% NO (rebelled due to " + party.getStats().getCorruptionScore() + "% corruption).");
+                } else if ("NO".equalsIgnoreCase(vote)) {
+                    double rebellionRate = (party.getStats().getCorruptionScore() * 0.7 + (100 - party.getStats().getMediaImage()) * 0.3) / 100.0;
+                    rebellionRate = Math.max(0.0, Math.min(1.0, rebellionRate));
+                    double partyVoteWeight = weight * (1.0 - rebellionRate);
+                    double rebelVoteWeight = weight * rebellionRate;
+
+                    noWeight += partyVoteWeight;
+                    yesWeight += rebelVoteWeight;
+
+                    noParties.add(party.getName() + " (" + String.format("%.1f", partyVoteWeight) + "%)");
+                    if (rebelVoteWeight > 0) {
+                        yesParties.add(party.getName() + " (Rebel: " + String.format("%.1f", rebelVoteWeight) + "%)");
+                        lastBillPartyVotes.put(party.getName(), String.format("NO (%.1f%%), YES (%.1f%% Rebel)", partyVoteWeight, rebelVoteWeight));
+                    } else {
+                        lastBillPartyVotes.put(party.getName(), "NO");
+                    }
+                    splitCommentaries.add("  - " + party.getName() + " voters split: " + String.format("%.1f", partyVoteWeight) + "% NO (party line), " + String.format("%.1f", rebelVoteWeight) + "% YES (rebelled due to " + party.getStats().getCorruptionScore() + "% corruption).");
+                } else {
+                    abstainWeight += weight;
+                    abstainParties.add(party.getName() + " (" + String.format("%.1f", weight) + "%)");
+                    lastBillPartyVotes.put(party.getName(), "ABSTAIN");
+                }
+            }
+        }
+
+        commentary.addAll(splitCommentaries);
+        commentary.add("🗳️ Legislative Vote Tally on '" + billDef.getName() + "':");
+        commentary.add("  - YES (" + String.format("%.1f", yesWeight) + "% total share): " + (yesParties.isEmpty() ? "None" : String.join(", ", yesParties)));
+        commentary.add("  - NO (" + String.format("%.1f", noWeight) + "% total share): " + (noParties.isEmpty() ? "None" : String.join(", ", noParties)));
+        if (!abstainParties.isEmpty()) {
+            commentary.add("  - ABSTAIN (" + String.format("%.1f", abstainWeight) + "% total share): " + String.join(", ", abstainParties));
+        }
+
+        // Calculate remaining / undecided vote share (undecided = 100% - sum of all active parties' vote weight)
+        double activeTotal = yesWeight + noWeight + abstainWeight;
+        double undecidedWeight = Math.max(0.0, 100.0 - activeTotal);
+
+        double undecidedYes = 0;
+        double undecidedNo = 0;
+        if (undecidedWeight > 0.0) {
+            PartyState government = session.getParties().stream()
+                    .filter(p -> p.getRole() == com.politicalsim.party.PartyRole.GOVERNMENT)
+                    .findFirst()
+                    .orElse(null);
+
+            double govApproval = 0.5; // default 50/50 split
+            if (government != null) {
+                govApproval = (government.getStats().getMediaImage() * 0.6 + (100.0 - government.getStats().getCorruptionScore()) * 0.4) / 100.0;
+                govApproval = Math.max(0.1, Math.min(0.9, govApproval));
+            }
+
+            // Check if proposed by Government or Opposition/others
+            LegislativeBillState billStateTemp = session.getBills().stream()
+                    .filter(b -> b.getBillKey().equals(activeBillKey))
+                    .findFirst()
+                    .orElse(null);
+
+            boolean isGovBill = true;
+            if (billStateTemp != null && billStateTemp.getProposedByPartyId() != null) {
+                PartyState proposer = session.getParties().stream()
+                        .filter(p -> p.getId().equals(billStateTemp.getProposedByPartyId()))
+                        .findFirst()
+                        .orElse(null);
+                if (proposer != null) {
+                    isGovBill = proposer.getRole() == com.politicalsim.party.PartyRole.GOVERNMENT;
+                }
+            }
+
+            if (isGovBill) {
+                // If government bill: approve -> YES, disapprove -> NO
+                undecidedYes = undecidedWeight * govApproval;
+                undecidedNo = undecidedWeight * (1.0 - govApproval);
+            } else {
+                // If opposition bill: approve government -> NO (against opposition), disapprove -> YES
+                undecidedNo = undecidedWeight * govApproval;
+                undecidedYes = undecidedWeight * (1.0 - govApproval);
+            }
+
+            yesWeight += undecidedYes;
+            noWeight += undecidedNo;
+
+            commentary.add(String.format("🗳️ Undecided Voters: Split %.1f%% vote share: %.1f%% YES, %.1f%% NO (based on government approval of %.1f%%).",
+                    undecidedWeight, undecidedYes, undecidedNo, govApproval * 100.0));
+            lastBillPartyVotes.put("Undecided Voters", String.format("YES (%.1f%%), NO (%.1f%%)", undecidedYes, undecidedNo));
+        }
+
+        // Normalize final yes, no, and abstain votes to sum to exactly 100.0
+        double grandTotal = yesWeight + noWeight + abstainWeight;
+        if (grandTotal > 0.0) {
+            yesWeight = (yesWeight / grandTotal) * 100.0;
+            noWeight = (noWeight / grandTotal) * 100.0;
+            abstainWeight = (abstainWeight / grandTotal) * 100.0;
+        }
+
+        // Save last resolved bill statistics for visual dashboard display
+        session.setLastResolvedBillKey(activeBillKey);
+        session.setLastBillYesVotes(yesWeight);
+        session.setLastBillNoVotes(noWeight);
+        session.setLastBillAbstainVotes(abstainWeight);
+        session.setLastBillPartyVotes(lastBillPartyVotes);
+
+        boolean passed = yesWeight > noWeight && yesWeight >= 30.0;
+        LegislativeBillState billState = session.getBills().stream()
+                .filter(b -> b.getBillKey().equals(activeBillKey))
+                .findFirst()
+                .orElse(null);
+
+        if (billState == null) {
+            billState = new LegislativeBillState(activeBillKey);
+            session.getBills().add(billState);
+        }
+
+        billState.setTurnResolved(session.getTurnNumber());
+        final LegislativeBillState finalBillState = billState;
+
+        if (passed) {
+            finalBillState.setStatus("PASSED");
+            commentary.add("✅ Bill PASSED: '" + billDef.getName() + "' passed the assembly (" + String.format("%.1f", yesWeight) + "% vs " + String.format("%.1f", noWeight) + "%).");
+            resultLines.add("Bill Passed: " + billDef.getName());
+
+            PartyState proposer = session.getParties().stream()
+                    .filter(p -> p.getId().equals(finalBillState.getProposedByPartyId()))
+                    .findFirst()
+                    .orElseGet(() -> session.getGovernmentParty());
+
+            if (proposer != null) {
+                applyEffectsMap(session, proposer, billDef.getEffectsPassed());
+                proposer.getStats().setPartyMorale(Math.min(100, proposer.getStats().getPartyMorale() + billDef.getPointsPassed()));
+                commentary.add("  - Proposer " + proposer.getName() + " received effects: " + formatEffectsMap(billDef.getEffectsPassed()) + " and +" + billDef.getPointsPassed() + " Morale.");
+            }
+        } else {
+            finalBillState.setStatus("FAILED");
+            if (yesWeight > noWeight && yesWeight < 30.0) {
+                commentary.add("❌ Bill FAILED: '" + billDef.getName() + "' received majority support (" + String.format("%.1f", yesWeight) + "% vs " + String.format("%.1f", noWeight) + "%), but failed to pass because it did not reach the required 30% YES vote quorum.");
+            } else {
+                commentary.add("❌ Bill FAILED: '" + billDef.getName() + "' was defeated (" + String.format("%.1f", yesWeight) + "% vs " + String.format("%.1f", noWeight) + "%).");
+            }
+            resultLines.add("Bill Defeated: " + billDef.getName());
+
+            PartyState proposer = session.getParties().stream()
+                    .filter(p -> p.getId().equals(finalBillState.getProposedByPartyId()))
+                    .findFirst()
+                    .orElseGet(() -> session.getGovernmentParty());
+
+            if (proposer != null) {
+                applyEffectsMap(session, proposer, billDef.getEffectsFailed());
+                proposer.getStats().setPartyMorale(Math.max(0, proposer.getStats().getPartyMorale() + billDef.getPointsFailed()));
+                commentary.add("  - Proposer " + proposer.getName() + " received penalty: " + formatEffectsMap(billDef.getEffectsFailed()) + " and " + billDef.getPointsFailed() + " Morale.");
+            }
+        }
+        session.getLobbyPledges().removeIf(p -> p.getBillKey().equals(activeBillKey));
+        session.setProposedBillKeyThisTurn(null);
+        selectNextProposedBill(session, commentary, resultLines);
+    }
+
+    private void selectNextProposedBill(GameSession session, List<String> commentary, List<String> resultLines) {
+        String nextBillKey = null;
+        String proposerId = null;
+
+        List<PartyState> governmentParties = session.getParties().stream()
+                .filter(p -> p.getRole() == com.politicalsim.party.PartyRole.GOVERNMENT)
+                .toList();
+        List<PartyState> oppositionParties = session.getParties().stream()
+                .filter(p -> p.getRole() == com.politicalsim.party.PartyRole.OPPOSITION)
+                .toList();
+
+        // 1. Check Government submissions
+        for (PartyState gov : governmentParties) {
+            String proposedKey = findProposedBillInSubmissions(session, gov.getId());
+            if (proposedKey != null) {
+                nextBillKey = proposedKey;
+                proposerId = gov.getId();
+                break;
+            }
+        }
+
+        // 2. Check Opposition submissions
+        if (nextBillKey == null) {
+            for (PartyState opp : oppositionParties) {
+                String proposedKey = findProposedBillInSubmissions(session, opp.getId());
+                if (proposedKey != null) {
+                    nextBillKey = proposedKey;
+                    proposerId = opp.getId();
+                    break;
+                }
+            }
+        }
+
+        // 3. Check other parties
+        if (nextBillKey == null) {
+            for (PartyState party : session.getParties()) {
+                if (!party.isActive() || party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                    continue;
+                }
+                String proposedKey = findProposedBillInSubmissions(session, party.getId());
+                if (proposedKey != null) {
+                    nextBillKey = proposedKey;
+                    proposerId = party.getId();
+                    break;
+                }
+            }
+        }
+
+        // 4. Forced Government proposal rule
+        boolean isForced = (session.getTurnNumber() - session.getLastBillProposedTurn()) >= 5;
+        if (nextBillKey == null && isForced) {
+            List<LegislativeBillDefinition> allBills = allScenarioBills(session);
+            List<String> govtBillKeys = allBills.stream()
+                    .filter(b -> "GOVERNMENT".equalsIgnoreCase(b.getProposingRole()) && b.isActive())
+                    .map(LegislativeBillDefinition::getBillKey)
+                    .toList();
+
+            List<String> unproposedGovtKeys = session.getBills().stream()
+                    .filter(b -> govtBillKeys.contains(b.getBillKey()) && "NOT_PROPOSED".equals(b.getStatus()))
+                    .map(LegislativeBillState::getBillKey)
+                    .toList();
+
+            if (!unproposedGovtKeys.isEmpty()) {
+                nextBillKey = unproposedGovtKeys.get(new Random().nextInt(unproposedGovtKeys.size()));
+                PartyState govtParty = session.getGovernmentParty();
+                proposerId = govtParty != null ? govtParty.getId() : (governmentParties.isEmpty() ? null : governmentParties.get(0).getId());
+                commentary.add("🏛️ Automatic Tabling: Government did not table a bill for 5 turns. The assembly has automatically selected one from the cabinet agenda.");
+            }
+        }
+
+        if (nextBillKey != null) {
+            session.setProposedBillKeyThisTurn(nextBillKey);
+            final String fProposerId = proposerId;
+            final String fBillKey = nextBillKey;
+
+            LegislativeBillState billState = session.getBills().stream()
+                    .filter(b -> b.getBillKey().equals(fBillKey))
+                    .findFirst()
+                    .orElse(null);
+
+            if (billState == null) {
+                billState = new LegislativeBillState(fBillKey);
+                session.getBills().add(billState);
+            }
+
+            billState.setStatus("PENDING_VOTE");
+            billState.setProposedByPartyId(fProposerId);
+            billState.setTurnProposed(session.getTurnNumber());
+
+            PartyState proposer = session.getParties().stream()
+                    .filter(p -> p.getId().equals(fProposerId))
+                    .findFirst().orElse(null);
+
+            LegislativeBillDefinition billDef = allScenarioBills(session).stream()
+                    .filter(b -> b.getBillKey().equals(fBillKey))
+                    .findFirst().orElse(null);
+
+            String billName = billDef != null ? billDef.getName() : fBillKey;
+            String proposerName = proposer != null ? proposer.getName() : "Government";
+
+            commentary.add("🔊 BILL TABLED: " + proposerName + " proposed '" + billName + "' for assembly vote next round.");
+            resultLines.add("Bill Tabled: " + billName + " by " + proposerName);
+
+            boolean proposedByGov = governmentParties.stream().anyMatch(g -> g.getId().equals(fProposerId));
+            if (proposedByGov) {
+                session.setLastBillProposedTurn(session.getTurnNumber());
+            }
+            session.setActiveEventKey(null);
+        } else {
+            // No bill proposed, select event card
+            selectNextEventCard(session, commentary, resultLines);
+        }
+    }
+
+    private String findProposedBillInSubmissions(GameSession session, String partyId) {
+        return session.getCurrentRoundSubmissions().stream()
+                .filter(s -> s.getPartyId().equals(partyId))
+                .findFirst()
+                .map(RoundSubmission::getProposedBillKey)
+                .filter(key -> key != null && !key.isBlank())
+                .orElse(null);
+    }
+
+    private List<LegislativeBillDefinition> allScenarioBills(GameSession session) {
+        if (billRepository == null) {
+            return new ArrayList<>();
+        }
+        return com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, session.getScenarioKey());
+    }
+
+    private void applyEffectsMap(GameSession session, PartyState target, Map<String, Object> effects) {
+        if (effects == null || effects.isEmpty()) return;
+        Map<String, Integer> pressure = new LinkedHashMap<>();
+        applyEffects(session, target, effects, pressure);
+        resolvePublicSupport(session, pressure, new ArrayList<>());
+    }
+
+    private void selectNextEventCard(GameSession session, List<String> commentary, List<String> resultLines) {
+        if (eventRepository == null) {
+            return;
+        }
+        List<EventCardDefinition> allEvents = com.politicalsim.content.DefinitionCache.getEventsForScenario(eventRepository, session.getScenarioKey());
+        allEvents = allEvents.stream().filter(EventCardDefinition::isActive).toList();
+        if (!allEvents.isEmpty()) {
+            EventCardDefinition chosen = allEvents.get(new Random().nextInt(allEvents.size()));
+            session.setActiveEventKey(chosen.getEventKey());
+            commentary.add("📢 RANDOM EVENT DETECTED: '" + chosen.getName() + "' is active this turn. Review choices under the Affairs tab!");
+        }
+    }
+
+    public void resolveEventChoices(GameSession session, Map<String, Integer> supportPressure, List<String> commentary) {
+        if (eventRepository == null) {
+            return;
+        }
+        String activeEvent = session.getActiveEventKey();
+        if (activeEvent == null || activeEvent.isBlank()) {
+            return;
+        }
+
+        EventCardDefinition eventDef = DefinitionCache.getEventsForScenario(eventRepository, session.getScenarioKey()).stream()
+                .filter(e -> e.getEventKey().equals(activeEvent))
+                .findFirst()
+                .orElseGet(() -> DefinitionCache.getEventsForScenario(eventRepository, "default").stream()
+                        .filter(e -> e.getEventKey().equals(activeEvent))
+                        .findFirst()
+                        .orElse(null));
+
+        if (eventDef == null) {
+            return;
+        }
+
+        for (PartyState party : session.getParties()) {
+            if (!party.isActive() || party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                continue;
+            }
+            String chosenOptionKey = session.getCurrentRoundSubmissions().stream()
+                    .filter(s -> s.getPartyId().equals(party.getId()))
+                    .findFirst()
+                    .map(RoundSubmission::getSelectedEventOptionKey)
+                    .orElse(null);
+
+            if (chosenOptionKey == null) {
+                if (!eventDef.getOptions().isEmpty()) {
+                    chosenOptionKey = eventDef.getOptions().get(eventDef.getOptions().size() - 1).getOptionKey();
+                }
+            }
+
+            if (chosenOptionKey != null) {
+                final String fOptionKey = chosenOptionKey;
+                EventCardDefinition.EventOption option = eventDef.getOptions().stream()
+                        .filter(o -> o.getOptionKey().equals(fOptionKey))
+                        .findFirst().orElse(null);
+
+                if (option != null) {
+                    applyEventCost(party, option.getCost());
+                    applyEffectsMap(session, party, option.getEffects());
+                    commentary.add("📢 Event Resolved: " + party.getName() + " resolved event '" + eventDef.getName() + "' by choosing: '" + option.getText() + "'.");
+                }
+            }
+        }
+        // Event resolved, clear it
+        session.setActiveEventKey(null);
+    }
+
+    private void applyEventCost(PartyState party, Map<String, Object> cost) {
+        if (cost == null) return;
+        if (cost.containsKey("coins")) {
+            int coins = intValue(cost.get("coins"));
+            party.getStats().setCoins(Math.max(0, party.getStats().getCoins() - coins));
+        }
+        if (cost.containsKey("partyMorale")) {
+            int morale = intValue(cost.get("partyMorale"));
+            party.getStats().setPartyMorale(Math.max(0, party.getStats().getPartyMorale() - morale));
+        }
     }
 
     public String getBiddingMetricForTurn(int turnNumber) {

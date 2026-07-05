@@ -147,7 +147,9 @@ export default function Action4Bid({
               padding: '10px 15px',
               background: bidAmount === 0 ? 'var(--party-primary-color, var(--primary-dark))' : '#ffffff',
               color: bidAmount === 0 ? '#ffffff' : 'var(--party-primary-color, var(--primary-dark))',
-              border: '1.5px solid var(--party-primary-color, var(--party-primary-color))',
+              borderWidth: '1.5px',
+              borderStyle: 'solid',
+              borderColor: 'var(--party-primary-color, var(--party-primary-color))',
               fontWeight: 'bold',
               borderRadius: '6px',
               cursor: 'pointer',
@@ -165,13 +167,14 @@ export default function Action4Bid({
               minWidth: '150px',
               padding: '10px 15px',
               background: bidConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--primary-dark))',
+              borderWidth: '1.5px',
+              borderStyle: 'solid',
               borderColor: bidConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--party-primary-color))',
               color: bidConfirmed ? 'var(--primary-dark)' : '#ffffff',
               fontWeight: 'bold',
               borderRadius: '6px',
               cursor: 'pointer',
-              fontSize: '13px',
-              border: '1.5px solid transparent'
+              fontSize: '13px'
             }}
           >
             {bidConfirmed ? '✅ Bid Locked' : '🔒 Confirm Bid'}

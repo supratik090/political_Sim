@@ -1161,6 +1161,25 @@ public class AiDecisionService {
             }
 
             return receivedUtility >= 1.05 * givenUtility;
+        } else if (offer.getType() == CooperationOffer.OfferType.LOBBYING) {
+            double receivedUtility = calculateExchangeUtility(recipient, offer.getOfferedCoins(), offer.getOfferedMorale(), 0, offer.getOfferedBuildingKeys(), session, true);
+            receivedUtility += offer.getOfferedMedia() * 20.0;
+            receivedUtility += offer.getDurationTurns() * 5.0;
+
+            double givenUtility = calculateExchangeUtility(recipient, 25, 0, 0, null, session, false);
+
+            Map<String, Map<String, Integer>> grudges = session.getGrudges();
+            int grudgeVal = 0;
+            if (grudges != null && grudges.containsKey(recipient.getId())) {
+                grudgeVal = grudges.get(recipient.getId()).getOrDefault(offer.getSenderPartyId(), 0);
+            }
+            double hateFactor = 1.0 + (grudgeVal / 50.0);
+
+            if (recipient.getStats().getCoins() < 25) {
+                return false;
+            }
+
+            return receivedUtility >= givenUtility * hateFactor * 1.1;
         }
         return false;
     }

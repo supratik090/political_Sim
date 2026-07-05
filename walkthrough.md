@@ -317,3 +317,23 @@ The integration is covered by automated unit tests in [GameServiceCooperationTes
 *   `testInsufficientAssetsThrowsException`: Tests client-side request validation errors.
 *   `testPactBetrayalDeductsMoraleAndClearsPact`: Verifies reflection-based checks, pact cancellation, and the -15 Morale penalty.
 
+
+## 🏛️ Part 5: Legislative Bills & Event Cards (Phases 1-5 Complete)
+
+We have fully implemented the end-to-end Legislative Bills and Event Cards gameplay engines, database seeders, admin panels, and gameplay UI.
+
+### 1. Game State and Rules Configuration
+- **Active Bills state tracking**: Tracks all proposed, passed, failed, or pending bills in `GameSession.java`. Tabled bills are voted on by parties based on their current support share.
+- **Whip Enforcements**: Parties can issue a legislative whip costing 25 coins, forcing 100% of their support share to vote as decided. Otherwise, rebellion/split voting is triggered based on party corruption and media image.
+- **Undecided Voter Splits**: Any undecided voter share is dynamically cast for YES or NO based on the government's approval rating.
+- **Random Events**: Triggers scenario-specific random events on turns where no legislative bill is active, processing player choices, costs, and stat modifiers.
+
+### 2. Gameplay User Interface Integrations
+- **Action8Assembly Accordion Section (`Action8Assembly.jsx`)**:
+  - Renders the active legislative assembly bill voting choices, whip controls, and active event card prompts.
+  - **Agenda Proposal Grid**: Lists unproposed bills in the form of interactive selection cards, modeled after the political card selection UI.
+  - **Pass Cost & Benefit Display**: Analyzes and separates `effectsPassed` to clearly show the pass cost (e.g. Coins spent) and benefits (e.g. Morale/Support/Media improvements).
+  - **Role Filtering**: Applies strict filtering on the available bills so that the Government player only has access to table Government bills, and the Opposition player only has access to Opposition bills.
+- **Actions & Turn Submission (`ActionsView.jsx` & `GamePlayBoard.jsx`)**: Packages assembly selections, event choices, and proposed bill keys into the REST API payload on turn advancement.
+- **Dashboard Assembly Agenda Tracker (`StatsView.jsx`)**: Renders a dedicated legislative agenda summary card displaying the active bill vote, history of resolved bills, and total passed/failed counts.
+

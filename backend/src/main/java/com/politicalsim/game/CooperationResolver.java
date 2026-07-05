@@ -32,6 +32,25 @@ public class CooperationResolver {
                     }
                 }
             }
+        } else if (offer.getType() == CooperationOffer.OfferType.LOBBYING) {
+            if (sender.getStats().getCoins() < offer.getOfferedCoins()) {
+                throw new IllegalArgumentException(sender.getName() + " does not have enough Coins to offer (" + offer.getOfferedCoins() + ").");
+            }
+            if (sender.getStats().getPartyMorale() < offer.getOfferedMorale()) {
+                throw new IllegalArgumentException(sender.getName() + " does not have enough Morale to offer (" + offer.getOfferedMorale() + ").");
+            }
+            if (sender.getStats().getMediaImage() < offer.getOfferedMedia()) {
+                throw new IllegalArgumentException(sender.getName() + " does not have enough Media Image to offer (" + offer.getOfferedMedia() + ").");
+            }
+            if (offer.getOfferedBuildingKeys() != null) {
+                for (String key : offer.getOfferedBuildingKeys()) {
+                    boolean hasCompleted = sender.getProjects().stream()
+                        .anyMatch(p -> p.getProjectKey().equals(key) && p.getProgressPercent() >= 100);
+                    if (!hasCompleted) {
+                        throw new IllegalArgumentException(sender.getName() + " does not own a completed building: " + key);
+                    }
+                }
+            }
         } else if (offer.getType() == CooperationOffer.OfferType.NON_AGGRESSION && offer.isSenderPaysPact()) {
             validatePactPayment(sender, offer);
         }
@@ -77,6 +96,22 @@ public class CooperationResolver {
     }
 
     public String getOfferDescription(CooperationOffer offer) {
+        if (offer.getType() == CooperationOffer.OfferType.LOBBYING) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Lobbying support for bill '").append(offer.getLobbyBillKey()).append("' (Offers: ");
+            List<String> itemsOffered = new ArrayList<>();
+            if (offer.getOfferedCoins() > 0) itemsOffered.add(offer.getOfferedCoins() + " Coins");
+            if (offer.getOfferedMorale() > 0) itemsOffered.add(offer.getOfferedMorale() + " Morale");
+            if (offer.getOfferedMedia() > 0) itemsOffered.add(offer.getOfferedMedia() + " Media Image");
+            if (offer.getOfferedBuildingKeys() != null && !offer.getOfferedBuildingKeys().isEmpty()) {
+                itemsOffered.add("Buildings: " + offer.getOfferedBuildingKeys());
+            }
+            if (offer.getDurationTurns() > 0) {
+                itemsOffered.add(offer.getDurationTurns() + "-turn Non-Aggression Pact");
+            }
+            sb.append(String.join(", ", itemsOffered)).append(")");
+            return sb.toString();
+        }
         if (offer.getType() == CooperationOffer.OfferType.NON_AGGRESSION) {
             StringBuilder sb = new StringBuilder();
             sb.append(offer.getDurationTurns()).append("-turn Non-Aggression Pact");
@@ -194,6 +229,47 @@ public class CooperationResolver {
                 offer.getDurationTurns()
             );
             session.getActivePacts().add(pact);
+        } else if (offer.getType() == CooperationOffer.OfferType.LOBBYING) {
+            // Transfer Offered Resources (Sender -> Recipient)
+            if (offer.getOfferedCoins() > 0) {
+                sender.getStats().setCoins(sender.getStats().getCoins() - offer.getOfferedCoins());
+                recipient.getStats().setCoins(recipient.getStats().getCoins() + offer.getOfferedCoins());
+            }
+            if (offer.getOfferedMorale() > 0) {
+                sender.getStats().setPartyMorale(sender.getStats().getPartyMorale() - offer.getOfferedMorale());
+                recipient.getStats().setPartyMorale(recipient.getStats().getPartyMorale() + offer.getOfferedMorale());
+            }
+            if (offer.getOfferedMedia() > 0) {
+                sender.getStats().setMediaImage(Math.max(0, sender.getStats().getMediaImage() - offer.getOfferedMedia()));
+                recipient.getStats().setMediaImage(Math.min(100, recipient.getStats().getMediaImage() + offer.getOfferedMedia()));
+            }
+            if (offer.getOfferedBuildingKeys() != null && !offer.getOfferedBuildingKeys().isEmpty()) {
+                for (String bkey : offer.getOfferedBuildingKeys()) {
+                    ProjectState pState = sender.getProjects().stream()
+                        .filter(p -> p.getProjectKey().equals(bkey) && p.getProgressPercent() >= 100)
+                        .findFirst().orElse(null);
+                    if (pState != null) {
+                        sender.getProjects().remove(pState);
+                        recipient.getProjects().add(pState);
+                    }
+                }
+            }
+
+            // If non-aggression pact offered along with lobbying
+            if (offer.getDurationTurns() > 0) {
+                NonAggressionPact pact = new NonAggressionPact(
+                    java.util.UUID.randomUUID().toString(),
+                    sender.getId(),
+                    sender.getName(),
+                    recipient.getId(),
+                    recipient.getName(),
+                    offer.getDurationTurns()
+                );
+                session.getActivePacts().add(pact);
+            }
+
+            // Create binding vote pledge
+            session.getLobbyPledges().add(new LobbyPledge(recipient.getId(), offer.getLobbyBillKey()));
         }
     }
 }

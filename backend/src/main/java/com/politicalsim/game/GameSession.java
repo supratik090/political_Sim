@@ -76,6 +76,18 @@ public class GameSession {
     private Map<String, PartyStats> turnStartStats = new LinkedHashMap<>();
     private List<CooperationOffer> cooperationOffers = new ArrayList<>();
     private List<NonAggressionPact> activePacts = new ArrayList<>();
+    private List<LobbyPledge> lobbyPledges = new ArrayList<>();
+    private List<LegislativeBillState> bills = new ArrayList<>();
+    private Map<String, String> billVotes = new LinkedHashMap<>();
+    private int lastBillProposedTurn = 0;
+    private String proposedBillKeyThisTurn;
+    private String activeEventKey;
+
+    private String lastResolvedBillKey;
+    private double lastBillYesVotes;
+    private double lastBillNoVotes;
+    private double lastBillAbstainVotes;
+    private Map<String, String> lastBillPartyVotes = new LinkedHashMap<>();
 
 
 
@@ -546,6 +558,17 @@ public class GameSession {
         this.activePacts = activePacts;
     }
 
+    public List<LobbyPledge> getLobbyPledges() {
+        if (lobbyPledges == null) {
+            lobbyPledges = new ArrayList<>();
+        }
+        return lobbyPledges;
+    }
+
+    public void setLobbyPledges(List<LobbyPledge> lobbyPledges) {
+        this.lobbyPledges = lobbyPledges;
+    }
+
     private int tripleImpactTurn;
 
     public int getTripleImpactTurn() {
@@ -585,5 +608,91 @@ public class GameSession {
 
     public void setSecretMetricSequence(java.util.List<String> secretMetricSequence) {
         this.secretMetricSequence = secretMetricSequence;
+    }
+
+    public List<LegislativeBillState> getBills() {
+        if (bills == null) {
+            bills = new ArrayList<>();
+        }
+        return bills;
+    }
+
+    public void setBills(List<LegislativeBillState> bills) {
+        this.bills = bills;
+    }
+
+    public Map<String, String> getBillVotes() {
+        if (billVotes == null) {
+            billVotes = new LinkedHashMap<>();
+        }
+        return billVotes;
+    }
+
+    public void setBillVotes(Map<String, String> billVotes) {
+        this.billVotes = billVotes;
+    }
+
+    public int getLastBillProposedTurn() {
+        return lastBillProposedTurn;
+    }
+
+    public void setLastBillProposedTurn(int lastBillProposedTurn) {
+        this.lastBillProposedTurn = lastBillProposedTurn;
+    }
+
+    public String getProposedBillKeyThisTurn() {
+        return proposedBillKeyThisTurn;
+    }
+
+    public void setProposedBillKeyThisTurn(String proposedBillKeyThisTurn) {
+        this.proposedBillKeyThisTurn = proposedBillKeyThisTurn;
+    }
+
+    public String getActiveEventKey() {
+        return activeEventKey;
+    }
+
+    public void setActiveEventKey(String activeEventKey) {
+        this.activeEventKey = activeEventKey;
+    }
+
+    public String getLastResolvedBillKey() {
+        return lastResolvedBillKey;
+    }
+
+    public void setLastResolvedBillKey(String lastResolvedBillKey) {
+        this.lastResolvedBillKey = lastResolvedBillKey;
+    }
+
+    public double getLastBillYesVotes() {
+        return lastBillYesVotes;
+    }
+
+    public void setLastBillYesVotes(double lastBillYesVotes) {
+        this.lastBillYesVotes = lastBillYesVotes;
+    }
+
+    public double getLastBillNoVotes() {
+        return lastBillNoVotes;
+    }
+
+    public void setLastBillNoVotes(double lastBillNoVotes) {
+        this.lastBillNoVotes = lastBillNoVotes;
+    }
+
+    public double getLastBillAbstainVotes() {
+        return lastBillAbstainVotes;
+    }
+
+    public void setLastBillAbstainVotes(double lastBillAbstainVotes) {
+        this.lastBillAbstainVotes = lastBillAbstainVotes;
+    }
+
+    public Map<String, String> getLastBillPartyVotes() {
+        return lastBillPartyVotes;
+    }
+
+    public void setLastBillPartyVotes(Map<String, String> lastBillPartyVotes) {
+        this.lastBillPartyVotes = lastBillPartyVotes;
     }
 }

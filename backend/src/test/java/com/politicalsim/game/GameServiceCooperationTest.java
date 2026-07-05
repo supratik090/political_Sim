@@ -37,7 +37,7 @@ class GameServiceCooperationTest {
         private List<GameSession> sessionList = new ArrayList<>();
 
         public MockGameSessionService(GameSession session) {
-            super(null, null, null, null, null);
+            super(null, null, null, null, null, null, null, null);
             this.currentSession = session;
         }
 
@@ -80,6 +80,41 @@ class GameServiceCooperationTest {
             this.currentSession = s;
             return s;
         }
+
+        @Override
+        public List<com.politicalsim.game.GameSessionRepository.GameSessionDTO> listGamesDto(String userId) {
+            List<com.politicalsim.game.GameSessionRepository.GameSessionDTO> dtos = new ArrayList<>();
+            for (GameSession g : sessionList) {
+                dtos.add(new com.politicalsim.game.GameSessionRepository.GameSessionDTO(
+                    g.getId(),
+                    g.getScenarioKey(),
+                    g.getUserId(),
+                    g.getStatus(),
+                    g.getGovernmentParty(),
+                    g.getPlayerPartyIds(),
+                    g.getParties(),
+                    g.getCurrentDate(),
+                    true
+                ));
+            }
+            return dtos;
+        }
+
+        @Override
+        public List<com.politicalsim.game.GameSessionRepository.ProgressGameDTO> listProgressGames(String userId) {
+            List<com.politicalsim.game.GameSessionRepository.ProgressGameDTO> dtos = new ArrayList<>();
+            for (GameSession g : sessionList) {
+                PartyState gov = g.getGovernmentParty();
+                com.politicalsim.game.GameSessionRepository.ProgressPartyDTO govDto = gov != null ? new com.politicalsim.game.GameSessionRepository.ProgressPartyDTO(gov.getId()) : null;
+                dtos.add(new com.politicalsim.game.GameSessionRepository.ProgressGameDTO(
+                    g.getScenarioKey(),
+                    g.getStatus(),
+                    g.getPlayerPartyIds(),
+                    govDto
+                ));
+            }
+            return dtos;
+        }
     }
 
     @BeforeEach
@@ -117,7 +152,7 @@ class GameServiceCooperationTest {
         com.politicalsim.content.DefinitionCache.cardsCache.put("test_scenario", new ArrayList<>());
         com.politicalsim.content.DefinitionCache.issuesCache.put("test_scenario", new ArrayList<>());
 
-        roundEngine = new RoundResolutionEngine(null, null, null);
+        roundEngine = new RoundResolutionEngine(null, null, null, null, null);
         sessionService = new MockGameSessionService(session);
         aiDecisionService = new AiDecisionService();
         scenarioRepository = Mockito.mock(ScenarioDefinitionRepository.class);
@@ -397,8 +432,8 @@ class GameServiceCooperationTest {
     @Test
     void testWestBengal2006UnlockedWhen2000Won() {
         ScenarioDefinition sd1 = new ScenarioDefinition();
-        sd1.setScenarioKey("west_bengal_2000");
-        sd1.setName("West Bengal 2000");
+        sd1.setScenarioKey("west_bengal_2001");
+        sd1.setName("West Bengal 2001");
         sd1.setActive(true);
 
         ScenarioDefinition sd2 = new ScenarioDefinition();
@@ -417,9 +452,9 @@ class GameServiceCooperationTest {
         assertNotNull(view2006Before);
         assertEquals("LOCKED", view2006Before.getStatus());
 
-        // 2. Once west_bengal_2000 is won, west_bengal_2006 should be AVAILABLE
+        // 2. Once west_bengal_2001 is won, west_bengal_2006 should be AVAILABLE
         GameSession wonGame = new GameSession();
-        wonGame.setScenarioKey("west_bengal_2000");
+        wonGame.setScenarioKey("west_bengal_2001");
         wonGame.setStatus(GameStatus.VICTORY);
         sessionService.setSessionList(List.of(wonGame));
 
@@ -434,7 +469,7 @@ class GameServiceCooperationTest {
     @Test
     void testRetainInstitutionsFeature() {
         GameSession preceding = new GameSession();
-        preceding.setScenarioKey("west_bengal_2000");
+        preceding.setScenarioKey("west_bengal_2001");
         preceding.setStatus(GameStatus.VICTORY);
         preceding.setPlayerPartyId("party_player");
         preceding.setPlayerPartyIds(List.of("party_player"));

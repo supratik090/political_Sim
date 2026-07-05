@@ -26,7 +26,7 @@ class GameServiceProjectTest {
         private GameSession currentSession;
 
         public MockGameSessionService(GameSession session) {
-            super(null, null, null, null, null);
+            super(null, null, null, null, null, null, null, null);
             this.currentSession = session;
         }
 
@@ -39,6 +39,41 @@ class GameServiceProjectTest {
         public GameSession save(GameSession session) {
             this.currentSession = session;
             return session;
+        }
+
+        @Override
+        public List<com.politicalsim.game.GameSessionRepository.GameSessionDTO> listGamesDto(String userId) {
+            List<com.politicalsim.game.GameSessionRepository.GameSessionDTO> dtos = new ArrayList<>();
+            if (currentSession != null) {
+                dtos.add(new com.politicalsim.game.GameSessionRepository.GameSessionDTO(
+                    currentSession.getId(),
+                    currentSession.getScenarioKey(),
+                    currentSession.getUserId(),
+                    currentSession.getStatus(),
+                    currentSession.getGovernmentParty(),
+                    currentSession.getPlayerPartyIds(),
+                    currentSession.getParties(),
+                    currentSession.getCurrentDate(),
+                    true
+                ));
+            }
+            return dtos;
+        }
+
+        @Override
+        public List<com.politicalsim.game.GameSessionRepository.ProgressGameDTO> listProgressGames(String userId) {
+            List<com.politicalsim.game.GameSessionRepository.ProgressGameDTO> dtos = new ArrayList<>();
+            if (currentSession != null) {
+                PartyState gov = currentSession.getGovernmentParty();
+                com.politicalsim.game.GameSessionRepository.ProgressPartyDTO govDto = gov != null ? new com.politicalsim.game.GameSessionRepository.ProgressPartyDTO(gov.getId()) : null;
+                dtos.add(new com.politicalsim.game.GameSessionRepository.ProgressGameDTO(
+                    currentSession.getScenarioKey(),
+                    currentSession.getStatus(),
+                    currentSession.getPlayerPartyIds(),
+                    govDto
+                ));
+            }
+            return dtos;
         }
     }
 
@@ -75,7 +110,7 @@ class GameServiceProjectTest {
         com.politicalsim.content.DefinitionCache.cardsCache.put("test_scenario", new ArrayList<>());
         com.politicalsim.content.DefinitionCache.issuesCache.put("test_scenario", new ArrayList<>());
 
-        RoundResolutionEngine roundEngine = new RoundResolutionEngine(null, null, null);
+        RoundResolutionEngine roundEngine = new RoundResolutionEngine(null, null, null, null, null);
         sessionService = new MockGameSessionService(session);
         gameService = new GameService(sessionService, roundEngine, null, null, null, null, null, null);
     }

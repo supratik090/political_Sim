@@ -55,6 +55,7 @@ public class ElectionResolver {
         PartyState winner = ranking.get(0);
         PartyState runnerUp = ranking.size() > 1 ? ranking.get(1) : winner;
         for (PartyState party : ranking) {
+            party.setAssemblySeatShare(party.getStats().getPublicSupport());
             if (party.getId().equals(winner.getId())) {
                 party.setRole(PartyRole.GOVERNMENT);
                 party.getStats().setCoins(party.getStats().getCoins()+150);

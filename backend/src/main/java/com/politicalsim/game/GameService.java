@@ -26,6 +26,7 @@ import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,6 +47,7 @@ public class GameService {
     private final AiDecisionService aiDecisionService;
     private final CooperationResolver cooperationResolver;
     private final com.politicalsim.ai.BrokeFightBackService brokeFightBackService;
+    private final LegislativeAiService legislativeAiService;
 
     public GameService(
             GameSessionService gameSessionService,
@@ -57,6 +59,21 @@ public class GameService {
             AiDecisionService aiDecisionService,
             com.politicalsim.ai.BrokeFightBackService brokeFightBackService
     ) {
+        this(gameSessionService, roundResolutionEngine, cardRepository, newsRepository, issueRepository, scenarioRepository, aiDecisionService, brokeFightBackService, new LegislativeAiService(null));
+    }
+
+    @Autowired
+    public GameService(
+            GameSessionService gameSessionService,
+            RoundResolutionEngine roundResolutionEngine,
+            CardDefinitionRepository cardRepository,
+            NewsDefinitionRepository newsRepository,
+            MonthlyIssueDefinitionRepository issueRepository,
+            ScenarioDefinitionRepository scenarioRepository,
+            AiDecisionService aiDecisionService,
+            com.politicalsim.ai.BrokeFightBackService brokeFightBackService,
+            LegislativeAiService legislativeAiService
+    ) {
         this.gameSessionService = gameSessionService;
         this.roundResolutionEngine = roundResolutionEngine;
         this.cardRepository = cardRepository;
@@ -65,6 +82,7 @@ public class GameService {
         this.scenarioRepository = scenarioRepository;
         this.aiDecisionService = aiDecisionService;
         this.brokeFightBackService = brokeFightBackService;
+        this.legislativeAiService = legislativeAiService;
         this.cooperationResolver = new CooperationResolver(this);
     }
 
@@ -364,7 +382,17 @@ public class GameService {
                 session.getJoinCode(),
                 session.getHumanPlayerMap(),
                 session.getTurnStartTime(),
-                session.getTurnDurationSeconds()
+                session.getTurnDurationSeconds(),
+                session.getBills(),
+                session.getBillVotes(),
+                session.getProposedBillKeyThisTurn(),
+                session.getActiveEventKey(),
+                session.getLobbyPledges(),
+                session.getLastResolvedBillKey(),
+                session.getLastBillYesVotes(),
+                session.getLastBillNoVotes(),
+                session.getLastBillAbstainVotes(),
+                session.getLastBillPartyVotes()
         );
     }
 
@@ -451,6 +479,10 @@ public class GameService {
                 selectedIssueOption
         );
         sub.setBid(request.getBid());
+        sub.setProposedBillKey(request.getProposedBillKey());
+        sub.setBillVote(request.getBillVote());
+        sub.setSelectedEventOptionKey(request.getSelectedEventOptionKey());
+        sub.setWhipIssued(request.isWhipIssued());
         sub.setSelectedRewardKey(request.getSelectedRewardKey());
         if (request.getSelectedRewardKey() != null && !request.getSelectedRewardKey().isBlank()) {
             sub.setRewardTargetPartyId(request.getRewardTargetPartyId());
@@ -690,6 +722,22 @@ public class GameService {
             PartyState targetParty = chooseAiTarget(session, party, decision.card());
             RoundSubmission submission = toSubmission(party, targetParty, decision.card(), reactions, issue, issueOption);
             submission.setAiIntent(decision.intent().name());
+
+            // AI Legislative Vote Selection
+            String activeBillKey = session.getProposedBillKeyThisTurn();
+            if (activeBillKey != null && !activeBillKey.isEmpty()) {
+                String aiVote = legislativeAiService.evaluateAiBillVote(session, party, activeBillKey);
+                submission.setBillVote(aiVote);
+                
+                // AI Whip Selection: if vote is YES/NO and they can afford it, and has corruption or support risk, issue whip
+                boolean canAffordWhip = party.getStats().getCoins() >= 25;
+                boolean isYesOrNo = "YES".equalsIgnoreCase(aiVote) || "NO".equalsIgnoreCase(aiVote);
+                boolean shouldWhip = isYesOrNo && canAffordWhip && (party.getStats().getCorruptionScore() > 30 || party.getStats().getPublicSupport() >= 20);
+                submission.setWhipIssued(shouldWhip);
+            } else {
+                submission.setBillVote("ABSTAIN");
+                submission.setWhipIssued(false);
+            }
 
             // AI Bid Selection
             String metric = roundResolutionEngine.getBiddingMetricForTurn(session.getTurnNumber());

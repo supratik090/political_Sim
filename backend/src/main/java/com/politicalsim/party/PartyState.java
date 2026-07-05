@@ -16,6 +16,7 @@ public class PartyState {
     private PartyStats stats;
     private boolean active = true;
     private boolean brokeStateActive = false;
+    private int assemblySeatShare = 0;
     private java.util.List<ProjectState> projects = defaultProjectsList();
 
     private static java.util.List<ProjectState> defaultProjectsList() {
@@ -167,5 +168,13 @@ public class PartyState {
 
     public void setProjects(java.util.List<ProjectState> projects) {
         this.projects = projects;
+    }
+
+    public int getAssemblySeatShare() {
+        return assemblySeatShare;
+    }
+
+    public void setAssemblySeatShare(int assemblySeatShare) {
+        this.assemblySeatShare = assemblySeatShare;
     }
 }

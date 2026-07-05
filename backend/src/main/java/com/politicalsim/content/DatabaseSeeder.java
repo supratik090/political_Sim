@@ -22,15 +22,21 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final NewsDefinitionRepository newsRepository;
     private final MonthlyIssueDefinitionRepository issueRepository;
     private final ScenarioDefinitionRepository scenarioRepository;
+    private final LegislativeBillDefinitionRepository billRepository;
+    private final EventCardDefinitionRepository eventRepository;
 
     public DatabaseSeeder(CardDefinitionRepository cardRepository,
                           NewsDefinitionRepository newsRepository,
                           MonthlyIssueDefinitionRepository issueRepository,
-                          ScenarioDefinitionRepository scenarioRepository) {
+                          ScenarioDefinitionRepository scenarioRepository,
+                          LegislativeBillDefinitionRepository billRepository,
+                          EventCardDefinitionRepository eventRepository) {
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
         this.issueRepository = issueRepository;
         this.scenarioRepository = scenarioRepository;
+        this.billRepository = billRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Override
@@ -104,6 +110,36 @@ public class DatabaseSeeder implements CommandLineRunner {
             }
         } else {
             log.info("Monthly Issues already seeded (count: {}). Skipping.", issueRepository.count());
+        }
+
+        // 5. Seed Legislative Bills
+        if (billRepository.count() == 0) {
+            File billsFile = new File(seedDir, "bills.json");
+            if (billsFile.exists()) {
+                log.info("Seeding Legislative Bills from bills.json...");
+                List<LegislativeBillDefinition> bills = mapper.readValue(billsFile, new TypeReference<List<LegislativeBillDefinition>>() {});
+                billRepository.saveAll(bills);
+                log.info("Successfully seeded {} legislative bills.", bills.size());
+            } else {
+                log.warn("bills.json not found in seed directory.");
+            }
+        } else {
+            log.info("Legislative Bills already seeded (count: {}). Skipping.", billRepository.count());
+        }
+
+        // 6. Seed Event Cards
+        if (eventRepository.count() == 0) {
+            File eventsFile = new File(seedDir, "events.json");
+            if (eventsFile.exists()) {
+                log.info("Seeding Event Cards from events.json...");
+                List<EventCardDefinition> events = mapper.readValue(eventsFile, new TypeReference<List<EventCardDefinition>>() {});
+                eventRepository.saveAll(events);
+                log.info("Successfully seeded {} event cards.", events.size());
+            } else {
+                log.warn("events.json not found in seed directory.");
+            }
+        } else {
+            log.info("Event Cards already seeded (count: {}). Skipping.", eventRepository.count());
         }
 
         log.info("Database seeding check complete.");

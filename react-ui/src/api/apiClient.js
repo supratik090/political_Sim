@@ -91,12 +91,18 @@ export const createCooperationOffer = (gameId, payload) => apiPost(`/api/games/$
 export const respondToCooperationOffer = (gameId, offerId, accept) => 
   apiPost(`/api/games/${gameId}/cooperation/respond?offerId=${offerId}&accept=${accept}`);
 
+export const fetchBillsForGameplay = (scenarioKey) => apiGet(`/api/games/bills/scenario/${scenarioKey}`);
+export const fetchEventsForGameplay = (scenarioKey) => apiGet(`/api/games/events/scenario/${scenarioKey}`);
+
+
 
 // Admin API bindings
 export const fetchScenarios = () => apiGet('/api/admin/scenarios');
 export const fetchCards = (scenarioKey) => apiGet('/api/admin/cards', scenarioKey ? { scenarioKey } : {});
 export const fetchNews = (scenarioKey) => apiGet('/api/admin/news', scenarioKey ? { scenarioKey } : {});
 export const fetchIssues = (scenarioKey) => apiGet('/api/admin/issues', scenarioKey ? { scenarioKey } : {});
+export const fetchBills = (scenarioKey) => apiGet('/api/admin/bills', scenarioKey ? { scenarioKey } : {});
+export const fetchEvents = (scenarioKey) => apiGet('/api/admin/events', scenarioKey ? { scenarioKey } : {});
 export const fetchScenarioProgress = (userId) => apiGet('/api/scenarios/progress', userId ? { userId } : {});
 
 // Auth API bindings

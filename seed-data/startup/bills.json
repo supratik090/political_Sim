@@ -1,0 +1,362 @@
+[
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_infrastructure_development",
+    "name": "Infrastructure Development Act",
+    "description": "Construct high-speed state highways and rural bypass roads to boost trade.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 10,
+    "pointsFailed": -5,
+    "effectsPassed": {
+      "coins": -10,
+      "publicSupport": 3,
+      "mediaImage": 2
+    },
+    "effectsFailed": {
+      "partyMorale": -8
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_agricultural_subsidy",
+    "name": "Farmers Income Subsidy Bill",
+    "description": "Provide direct monetary support to farming households to offset high fuel costs.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 12,
+    "pointsFailed": -6,
+    "effectsPassed": {
+      "coins": -15,
+      "publicSupport": 4,
+      "partyMorale": 5
+    },
+    "effectsFailed": {
+      "partyMorale": -10,
+      "publicSupport": -2
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_tax_simplification",
+    "name": "State Goods & Services Simplification",
+    "description": "Simplify municipal licensing fees and trade taxation for small businesses.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 8,
+    "pointsFailed": -4,
+    "effectsPassed": {
+      "coins": 10,
+      "publicSupport": 2,
+      "corruptionScore": -2
+    },
+    "effectsFailed": {
+      "partyMorale": -5
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_healthcare_access",
+    "name": "Public Clinic Expansion Act",
+    "description": "Fund 500 new primary health centers in under-served rural divisions.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 10,
+    "pointsFailed": -5,
+    "effectsPassed": {
+      "coins": -12,
+      "publicSupport": 3,
+      "mediaImage": 3
+    },
+    "effectsFailed": {
+      "partyMorale": -7
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_education_reform",
+    "name": "Primary School Standards Act",
+    "description": "Establish basic curriculum and infrastructure standards for all state-run schools.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 9,
+    "pointsFailed": -4,
+    "effectsPassed": {
+      "coins": -8,
+      "publicSupport": 2,
+      "partyMorale": 3
+    },
+    "effectsFailed": {
+      "partyMorale": -6
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_industrial_corridor",
+    "name": "Special Economic Zone Bill",
+    "description": "Deregulate industrial zones to attract foreign manufacturing investment.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 11,
+    "pointsFailed": -6,
+    "effectsPassed": {
+      "coins": 20,
+      "publicSupport": 1,
+      "mediaImage": 4,
+      "corruptionScore": 3
+    },
+    "effectsFailed": {
+      "partyMorale": -9
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_rural_electrification",
+    "name": "Green Village Power Grid Act",
+    "description": "Install off-grid solar microgrids in remote regions lacking energy access.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 10,
+    "pointsFailed": -5,
+    "effectsPassed": {
+      "coins": -10,
+      "publicSupport": 3,
+      "mediaImage": 2
+    },
+    "effectsFailed": {
+      "partyMorale": -6
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_digital_connectivity",
+    "name": "State High Speed Fiber Project",
+    "description": "Lay underground optic fiber cables to connect government institutions.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 8,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "coins": -8,
+      "publicSupport": 2,
+      "mediaImage": 2
+    },
+    "effectsFailed": {
+      "partyMorale": -4
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_youth_employment_scheme",
+    "name": "Youth Unemployment Stipend Act",
+    "description": "Provide a temporary monthly allowance to unemployed graduates undergoing training.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 12,
+    "pointsFailed": -6,
+    "effectsPassed": {
+      "coins": -14,
+      "publicSupport": 4,
+      "partyMorale": 4
+    },
+    "effectsFailed": {
+      "partyMorale": -8,
+      "publicSupport": -2
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_police_modernization",
+    "name": "Law Enforcement Upgrade Bill",
+    "description": "Acquire vehicles, forensic gear, and communication kits for police forces.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 9,
+    "pointsFailed": -4,
+    "effectsPassed": {
+      "coins": -9,
+      "publicSupport": 2,
+      "partyMorale": 3
+    },
+    "effectsFailed": {
+      "partyMorale": -5
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_corruption_inquiry",
+    "name": "Independent Anti-Corruption Commission",
+    "description": "Establish a judicial ombudsman with powers to search and prosecute corrupt leaders.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 15,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "corruptionScore": -8,
+      "publicSupport": 4,
+      "partyMorale": 6
+    },
+    "effectsFailed": {
+      "partyMorale": -4
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_transparency_in_tenders",
+    "name": "Open Government Procurement Act",
+    "description": "Mandate live online bidding for all public contracts over 10 lakh coins.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 10,
+    "pointsFailed": -2,
+    "effectsPassed": {
+      "corruptionScore": -5,
+      "publicSupport": 2,
+      "mediaImage": 2
+    },
+    "effectsFailed": {
+      "partyMorale": -3
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_peoples_ombudsman",
+    "name": "Lokayukta Authority Bill",
+    "description": "Empower citizen groups to register corruption charges against ministers directly.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 12,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "corruptionScore": -6,
+      "publicSupport": 3,
+      "partyMorale": 4
+    },
+    "effectsFailed": {
+      "partyMorale": -4
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_minority_protection",
+    "name": "Welfare of Marginalized Communities Act",
+    "description": "Secure financial aid and educational reservations for minorities.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 11,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "publicSupport": 3,
+      "mediaImage": 3,
+      "partyMorale": 3
+    },
+    "effectsFailed": {
+      "partyMorale": -3
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_environmental_protection",
+    "name": "Clean Air and Water Standards",
+    "description": "Enforce strict fines on industrial units dumping chemicals into rivers.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 9,
+    "pointsFailed": -2,
+    "effectsPassed": {
+      "publicSupport": 2,
+      "mediaImage": 3,
+      "corruptionScore": -2
+    },
+    "effectsFailed": {
+      "partyMorale": -2
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_unemployment_benefit",
+    "name": "Opposition Youth Pension Proposal",
+    "description": "Demand a permanent security pension for the educated unemployed.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 13,
+    "pointsFailed": -4,
+    "effectsPassed": {
+      "publicSupport": 4,
+      "partyMorale": 5
+    },
+    "effectsFailed": {
+      "partyMorale": -4
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_price_control",
+    "name": "Essential Commodities Price Cap Act",
+    "description": "Force government regulation on retail prices of rice, oil, and medicine.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 10,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "publicSupport": 3,
+      "partyMorale": 3
+    },
+    "effectsFailed": {
+      "partyMorale": -3
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_decentralization_of_funds",
+    "name": "Panchayat Direct Funding Bill",
+    "description": "Bypass state ministries to distribute development funds directly to local councils.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 12,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "publicSupport": 3,
+      "corruptionScore": -3,
+      "partyMorale": 4
+    },
+    "effectsFailed": {
+      "partyMorale": -4
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_heritage_preservation",
+    "name": "Local Language and Heritage Act",
+    "description": "Mandate native language usage in official state documents and administration.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 8,
+    "pointsFailed": -2,
+    "effectsPassed": {
+      "publicSupport": 2,
+      "mediaImage": 2
+    },
+    "effectsFailed": {
+      "partyMorale": -2
+    },
+    "active": true
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_right_to_protest",
+    "name": "Protection of Assembly Act",
+    "description": "Prevent police from arresting peaceful demonstrators without a magistrate warrant.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 11,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "publicSupport": 3,
+      "partyMorale": 4,
+      "mediaImage": 3
+    },
+    "effectsFailed": {
+      "partyMorale": -3
+    },
+    "active": true
+  }
+]

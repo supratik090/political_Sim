@@ -162,6 +162,9 @@ public class RoundSubmission {
     }
 
     private String aiDecisionBasis;
+    private String proposedBillKey;
+    private String billVote;
+    private String selectedEventOptionKey;
 
     public String getAiDecisionBasis() {
         return aiDecisionBasis;
@@ -169,5 +172,39 @@ public class RoundSubmission {
 
     public void setAiDecisionBasis(String aiDecisionBasis) {
         this.aiDecisionBasis = aiDecisionBasis;
+    }
+
+    public String getProposedBillKey() {
+        return proposedBillKey;
+    }
+
+    public void setProposedBillKey(String proposedBillKey) {
+        this.proposedBillKey = proposedBillKey;
+    }
+
+    public String getBillVote() {
+        return billVote;
+    }
+
+    public void setBillVote(String billVote) {
+        this.billVote = billVote;
+    }
+
+    public String getSelectedEventOptionKey() {
+        return selectedEventOptionKey;
+    }
+
+    public void setSelectedEventOptionKey(String selectedEventOptionKey) {
+        this.selectedEventOptionKey = selectedEventOptionKey;
+    }
+
+    private boolean whipIssued;
+
+    public boolean isWhipIssued() {
+        return whipIssued;
+    }
+
+    public void setWhipIssued(boolean whipIssued) {
+        this.whipIssued = whipIssued;
     }
 }

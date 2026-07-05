@@ -8,6 +8,7 @@ import Action4Bid from './Action4Bid';
 import Action5PlayReward from './Action5PlayReward';
 import Action6PartyBuilding from './Action6PartyBuilding';
 import Action7Cooperation from './Action7Cooperation';
+import Action8Assembly from './Action8Assembly';
 import { cardRequiresTarget } from './gameUtils';
 
 export default function ActionsView({
@@ -64,6 +65,18 @@ export default function ActionsView({
   // Action 7 props
   handleCooperationUpdate,
 
+  // Action 8 / Assembly props
+  billVote,
+  setBillVote,
+  whipIssued,
+  setWhipIssued,
+  proposedBillKey,
+  setProposedBillKey,
+  selectedEventOptionKey,
+  setSelectedEventOptionKey,
+  scenarioBills,
+  scenarioEvents,
+
   // Accordion props
   activeAccordion,
   setActiveAccordion
@@ -84,7 +97,9 @@ export default function ActionsView({
   const newsItems = turnData.currentNews || [];
   const isNewsCompleted = newsItems.length === 0 || newsItems.every(news => selectedNewsReactions[news.newsKey || news.issueKey] !== undefined);
   
-  const isIssueCompleted = !turnData.currentIssue || selectedIssueOptionKey !== '';
+  const isSection3Completed = turnData.activeEventKey
+    ? (selectedEventOptionKey !== '' && selectedEventOptionKey !== null && selectedEventOptionKey !== undefined)
+    : (!turnData.currentIssue || selectedIssueOptionKey !== '');
   const isBidCompleted = bidConfirmed;
 
   const hasRewards = turnData.activePlayerHeldRewards && turnData.activePlayerHeldRewards.length > 0;
@@ -95,8 +110,9 @@ export default function ActionsView({
 
   const hasPartyBuildingDrafts = Object.values(fundingContributions).some(v => v > 0);
   const isPartyBuildingCompleted = !hasPartyBuildingDrafts || partyBuildingConfirmed;
+  const isLegislativeCompleted = !turnData.proposedBillKeyThisTurn || (billVote !== '' && billVote !== null && billVote !== undefined);
   
-  const allActionsReady = isCardCompleted && isNewsCompleted && isIssueCompleted && isBidCompleted && isRewardCompleted && isPartyBuildingCompleted;
+  const allActionsReady = isCardCompleted && isNewsCompleted && isSection3Completed && isBidCompleted && isRewardCompleted && isPartyBuildingCompleted && isLegislativeCompleted;
 
   const prevCardCompleted = useRef(isCardCompleted);
   useEffect(() => {
@@ -114,21 +130,22 @@ export default function ActionsView({
     prevNewsCompleted.current = isNewsCompleted;
   }, [isNewsCompleted, activeAccordion, setActiveAccordion]);
 
-  const prevIssueCompleted = useRef(isIssueCompleted);
+  const prevSection3Completed = useRef(isSection3Completed);
   useEffect(() => {
-    if (!prevIssueCompleted.current && isIssueCompleted && activeAccordion === 3) {
+    if (!prevSection3Completed.current && isSection3Completed && activeAccordion === 3) {
       setActiveAccordion(4);
     }
-    prevIssueCompleted.current = isIssueCompleted;
-  }, [isIssueCompleted, activeAccordion, setActiveAccordion]);
+    prevSection3Completed.current = isSection3Completed;
+  }, [isSection3Completed, activeAccordion, setActiveAccordion]);
 
-  const prevBidCompleted = useRef(isBidCompleted);
+  const isSection4Completed = isBidCompleted && isRewardCompleted;
+  const prevSection4Completed = useRef(isSection4Completed);
   useEffect(() => {
-    if (!prevBidCompleted.current && isBidCompleted && activeAccordion === 4) {
+    if (!prevSection4Completed.current && isSection4Completed && activeAccordion === 4) {
       setActiveAccordion(5);
     }
-    prevBidCompleted.current = isBidCompleted;
-  }, [isBidCompleted, activeAccordion, setActiveAccordion]);
+    prevSection4Completed.current = isSection4Completed;
+  }, [isSection4Completed, activeAccordion, setActiveAccordion]);
 
   return (
     <div>
@@ -221,11 +238,11 @@ export default function ActionsView({
         />
       </ActionSection>
 
-      {/* 3. Party News Reaction */}
+      {/* 3. Event */}
       <ActionSection
         num={3}
-        title="Party News Reaction"
-        isCompleted={isIssueCompleted}
+        title="Event"
+        isCompleted={isSection3Completed}
         activeAccordion={activeAccordion}
         setActiveAccordion={setActiveAccordion}
       >
@@ -233,14 +250,18 @@ export default function ActionsView({
           turnData={turnData}
           selectedIssueOptionKey={selectedIssueOptionKey}
           setSelectedIssueOptionKey={setSelectedIssueOptionKey}
+          activeParty={activeParty}
+          selectedEventOptionKey={selectedEventOptionKey}
+          setSelectedEventOptionKey={setSelectedEventOptionKey}
+          scenarioEvents={scenarioEvents}
         />
       </ActionSection>
 
-      {/* 4. Bid for Reward */}
+      {/* 4. Bid & Play Rewards */}
       <ActionSection
         num={4}
-        title="Bid for Reward"
-        isCompleted={isBidCompleted}
+        title="Bid & Play Rewards"
+        isCompleted={isSection4Completed}
         activeAccordion={activeAccordion}
         setActiveAccordion={setActiveAccordion}
       >
@@ -252,31 +273,23 @@ export default function ActionsView({
           bidConfirmed={bidConfirmed}
           setBidConfirmed={setBidConfirmed}
         />
+
+        <div style={{ marginTop: '20px', borderTop: '1px dashed var(--primary-border)', paddingTop: '20px' }}>
+          <Action5PlayReward
+            turnData={turnData}
+            selectedRewardKey={selectedRewardKey}
+            setSelectedRewardKey={setSelectedRewardKey}
+            rewardTargetPartyId={rewardTargetPartyId}
+            setRewardTargetPartyId={setRewardTargetPartyId}
+            rewardConfirmed={rewardConfirmed}
+            setRewardConfirmed={setRewardConfirmed}
+          />
+        </div>
       </ActionSection>
 
-      {/* 5. Play Reward */}
+      {/* 5. Party Building activity */}
       <ActionSection
         num={5}
-        title="Play Reward"
-        isCompleted={isRewardCompleted}
-        isOptional={true}
-        activeAccordion={activeAccordion}
-        setActiveAccordion={setActiveAccordion}
-      >
-        <Action5PlayReward
-          turnData={turnData}
-          selectedRewardKey={selectedRewardKey}
-          setSelectedRewardKey={setSelectedRewardKey}
-          rewardTargetPartyId={rewardTargetPartyId}
-          setRewardTargetPartyId={setRewardTargetPartyId}
-          rewardConfirmed={rewardConfirmed}
-          setRewardConfirmed={setRewardConfirmed}
-        />
-      </ActionSection>
-
-      {/* 6. Party Building activity */}
-      <ActionSection
-        num={6}
         title="Party Building activity"
         isCompleted={isPartyBuildingCompleted}
         isOptional={true}
@@ -301,9 +314,9 @@ export default function ActionsView({
         />
       </ActionSection>
 
-      {/* 7. Diplomatic Cooperation */}
+      {/* 6. Diplomatic Cooperation */}
       <ActionSection
-        num={7}
+        num={6}
         title="Diplomatic Cooperation"
         isCompleted={true}
         isOptional={true}
@@ -317,12 +330,34 @@ export default function ActionsView({
         />
       </ActionSection>
 
+      {/* 7. Legislative Assembly & State Affairs */}
+      <ActionSection
+        num={7}
+        title={turnData.proposedBillKeyThisTurn ? "🗳️ Legislative Assembly Vote" : "🏛️ Legislative Agenda"}
+        isCompleted={isLegislativeCompleted}
+        isOptional={!turnData.proposedBillKeyThisTurn}
+        activeAccordion={activeAccordion}
+        setActiveAccordion={setActiveAccordion}
+      >
+        <Action8Assembly
+          turnData={turnData}
+          activeParty={activeParty}
+          billVote={billVote}
+          setBillVote={setBillVote}
+          whipIssued={whipIssued}
+          setWhipIssued={setWhipIssued}
+          proposedBillKey={proposedBillKey}
+          setProposedBillKey={setProposedBillKey}
+          scenarioBills={scenarioBills}
+        />
+      </ActionSection>
+
       {/* Submit Section */}
       <div style={{ marginTop: '30px', borderTop: '2px solid var(--primary-border)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
         <div>
           {!allActionsReady ? (
             <span style={{ color: '#d23f31', fontWeight: 'bold', fontSize: '13px' }}>
-              ⏳ Please complete all required actions (Political Card, News Reaction, Party Decision, Bid).
+              ⏳ Please complete all required actions (Political Card, News Reaction, Event Decision, Bid).
             </span>
           ) : (
             <span style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '13px' }}>

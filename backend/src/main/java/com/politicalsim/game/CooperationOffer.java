@@ -6,7 +6,8 @@ import java.util.List;
 public class CooperationOffer {
     public enum OfferType {
         EXCHANGE,
-        NON_AGGRESSION
+        NON_AGGRESSION,
+        LOBBYING
     }
 
     public enum OfferStatus {
@@ -39,6 +40,10 @@ public class CooperationOffer {
     private String pactPaymentResource; // COINS, MORALE, SUPPORT, COMPLETED_BUILDING
     private int pactPaymentValue;
     private List<String> pactPaymentBuildingKeys = new ArrayList<>();
+    
+    // Lobbying details
+    private String lobbyBillKey;
+    private int offeredMedia;
     
     private OfferStatus status;
     private int turnCreated;
@@ -207,5 +212,21 @@ public class CooperationOffer {
 
     public void setTurnCreated(int turnCreated) {
         this.turnCreated = turnCreated;
+    }
+
+    public String getLobbyBillKey() {
+        return lobbyBillKey;
+    }
+
+    public void setLobbyBillKey(String lobbyBillKey) {
+        this.lobbyBillKey = lobbyBillKey;
+    }
+
+    public int getOfferedMedia() {
+        return offeredMedia;
+    }
+
+    public void setOfferedMedia(int offeredMedia) {
+        this.offeredMedia = offeredMedia;
     }
 }

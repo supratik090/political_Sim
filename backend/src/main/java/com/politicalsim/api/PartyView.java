@@ -20,7 +20,8 @@ public record PartyView(
         AiProfile aiProfile,
         PartyStats stats,
         boolean playerControlled,
-        List<com.politicalsim.party.ProjectState> projects
+        List<com.politicalsim.party.ProjectState> projects,
+        int assemblySeatShare
 ) {
     public static PartyView from(PartyState party, String playerPartyId) {
         return from(party, List.of(playerPartyId));
@@ -39,7 +40,8 @@ public record PartyView(
                 party.getAiProfile(),
                 party.getStats(),
                 playerPartyIds.contains(party.getId()),
-                party.getProjects()
+                party.getProjects(),
+                party.getAssemblySeatShare()
         );
     }
 }

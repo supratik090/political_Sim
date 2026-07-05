@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 class RoundResolutionEngineTest {
 
-    private final RoundResolutionEngine engine = new RoundResolutionEngine(null, null, null);
+    private final RoundResolutionEngine engine = new RoundResolutionEngine(null, null, null, null, null);
 
     @Test
     void applyRewardEffectDistributesPositiveSupportProportionally() {

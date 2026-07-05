@@ -174,6 +174,87 @@ export default function RoundResolutionModal({
             </div>
           </div>
 
+          {/* Last Turn Legislative Bill Vote Results */}
+          {(() => {
+            const lastResolvedBillKey = turnData.lastResolvedBillKey;
+            const lastResolvedBill = turnData.bills?.find(b => b.billKey === lastResolvedBillKey);
+            const voteHappenedLastRound = lastResolvedBill && lastResolvedBill.turnResolved === lastTurnNum;
+            if (!voteHappenedLastRound) return null;
+
+            const yes = turnData.lastBillYesVotes || 0;
+            const no = turnData.lastBillNoVotes || 0;
+            const abstain = turnData.lastBillAbstainVotes || 0;
+            const passed = yes > no && yes >= 30.0;
+            
+            let defeatReason = '';
+            if (!passed) {
+              if (yes > no && yes < 30.0) {
+                defeatReason = 'Quorum not present (minimum 30% YES votes required).';
+              } else {
+                defeatReason = 'NO votes were greater than or equal to YES votes.';
+              }
+            }
+
+            const total = yes + no + abstain;
+            const yesPercent = total > 0 ? (yes / total) * 100 : 0;
+            const noPercent = total > 0 ? (no / total) * 100 : 0;
+            const abstainPercent = total > 0 ? (abstain / total) * 100 : 0;
+
+            return (
+              <div style={{
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                padding: '15px'
+              }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  🗳️ Legislative Vote: {lastResolvedBillKey}
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{
+                    background: passed ? 'rgba(34, 197, 94, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+                    border: `1px solid ${passed ? '#22c55e' : '#ef4444'}`,
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    color: passed ? '#15803d' : '#b91c1c'
+                  }}>
+                    {passed ? '✅ PASSED' : '❌ DEFEATED'}
+                    {!passed && (
+                      <div style={{ fontSize: '11px', color: '#7f1d1d', fontWeight: 500, marginTop: '2px' }}>
+                        Reason: {defeatReason}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Chart Bar */}
+                  <div style={{ display: 'flex', height: '18px', borderRadius: '4px', overflow: 'hidden', background: '#f3f4f6', marginBottom: '4px', border: '1px solid #e5e7eb' }}>
+                    {yes > 0 && (
+                      <div style={{ width: `${yes}%`, background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '9px', fontWeight: 'bold' }}>
+                        YES {yes.toFixed(1)}%
+                      </div>
+                    )}
+                    {no > 0 && (
+                      <div style={{ width: `${no}%`, background: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '9px', fontWeight: 'bold' }}>
+                        NO {no.toFixed(1)}%
+                      </div>
+                    )}
+                    {abstain > 0 && (
+                      <div style={{ width: `${abstain}%`, background: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '9px', fontWeight: 'bold' }}>
+                        ABS {abstain.toFixed(1)}%
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ fontSize: '11px', color: '#475569' }}>
+                    <strong>Breakdown:</strong> {Object.entries(turnData.lastBillPartyVotes || {}).map(([partyName, voteText]) => `${partyName}: ${voteText}`).join(', ')}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Project Yields at Bottom */}
           <div style={{
             background: 'rgba(101, 148, 177, 0.05)',

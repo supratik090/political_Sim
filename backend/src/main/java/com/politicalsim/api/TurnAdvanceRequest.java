@@ -54,6 +54,10 @@ public class TurnAdvanceRequest {
 
     private String selectedRewardKey;
     private String rewardTargetPartyId;
+    private String proposedBillKey;
+    private String billVote; // "YES", "NO", "ABSTAIN"
+    private String selectedEventOptionKey;
+    private boolean whipIssued;
 
     public String getSelectedRewardKey() {
         return selectedRewardKey;
@@ -69,5 +73,37 @@ public class TurnAdvanceRequest {
 
     public void setRewardTargetPartyId(String rewardTargetPartyId) {
         this.rewardTargetPartyId = rewardTargetPartyId;
+    }
+
+    public String getProposedBillKey() {
+        return proposedBillKey;
+    }
+
+    public void setProposedBillKey(String proposedBillKey) {
+        this.proposedBillKey = proposedBillKey;
+    }
+
+    public String getBillVote() {
+        return billVote;
+    }
+
+    public void setBillVote(String billVote) {
+        this.billVote = billVote;
+    }
+
+    public String getSelectedEventOptionKey() {
+        return selectedEventOptionKey;
+    }
+
+    public void setSelectedEventOptionKey(String selectedEventOptionKey) {
+        this.selectedEventOptionKey = selectedEventOptionKey;
+    }
+
+    public boolean isWhipIssued() {
+        return whipIssued;
+    }
+
+    public void setWhipIssued(boolean whipIssued) {
+        this.whipIssued = whipIssued;
     }
 }

@@ -1,0 +1,1562 @@
+{
+  "reviewStatus": "draft",
+  "scenarioKey": "west_bengal_2021",
+  "period": {
+    "startMonth": "2021-01",
+    "endMonth": "2021-12",
+    "months": 12
+  },
+  "sourceNotes": "Government: All India Trinamool Congress (AITC/TMC) under Mamata Banerjee throughout 2021, re-elected for a third term in the April-May Assembly election (213/292 seats) though Banerjee herself lost Nandigram to Suvendu Adhikari and had to win the Bhabanipur bypoll in September-October to retain the Chief Ministership. Opposition: Bharatiya Janata Party (BJP), which rose from 3 to 77 seats and became the principal opposition for the first time, with Suvendu Adhikari as Leader of Opposition from May 2021; before the election BJP was the insurgent challenger backed by the Centre (PM Modi, Amit Shah, Governor Jagdeep Dhankhar). Third force: the Sanyukta Morcha (Left Front-Congress-Indian Secular Front alliance), which contested as the traditional non-BJP, non-TMC opposition but was wiped out to zero seats in the election and faded through the rest of the year; treated as THIRD_PARTY throughout.",
+  "defaults": {
+    "weights": {
+      "baseSelectionWeight": 1.0,
+      "reactionProfile": "default"
+    }
+  },
+  "newsItems": [
+    {
+      "newsKey": "wb2021_2021_01_parakram_diwas_snub",
+      "month": "2021-01",
+      "title": "Mamata Refuses to Speak at Modi's Parakram Diwas Event After 'Jai Shri Ram' Chants (2021-01)",
+      "description": "PM Modi visits Kolkata to mark Netaji Subhas Chandra Bose's 125th birth anniversary as the newly declared 'Parakram Diwas', but Mamata Banerjee abandons her speech at Victoria Memorial after BJP-aligned attendees greet her with 'Jai Shri Ram' chants. The episode, months before polling, becomes an early flashpoint in the BJP-TMC battle over who owns Bengali identity and Netaji's legacy.",
+      "issueTags": ["identity", "politics"],
+      "weights": {
+        "baseSelectionWeight": 1.2,
+        "reactionProfile": "identity_politics"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_01_parakram_diwas_snub__gov_action_parakram_diwas",
+          "text": "Mamata's government declares 23 January 'Deshprem Divas' in Bengal and stages a rival state padayatra retracing Netaji's Elgin Road route.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 3,
+              "corruptionScore": 0,
+              "mediaImage": 2,
+              "publicSupport": 3
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": 2
+            }
+          },
+          "risk": {
+            "chance": 14,
+            "badOutcome": "Rival-holiday optics get mocked as parochial one-upmanship by national broadcasters outside Bengal.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -2,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.2
+        },
+        {
+          "reactionKey": "wb2021_2021_01_parakram_diwas_snub__opp_demands_parakram_diwas",
+          "text": "BJP's state unit accuses Mamata of insulting a national event and demands she apologise for 'politicising' Netaji's memory.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 4,
+              "corruptionScore": 0,
+              "mediaImage": 3,
+              "publicSupport": 3
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": 2
+            }
+          },
+          "risk": {
+            "chance": 16,
+            "badOutcome": "Netaji's grandnephew publicly rebukes the outrage as manufactured, undercutting the attack.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -2
+              }
+            }
+          },
+          "weight": 1.25
+        },
+        {
+          "reactionKey": "wb2021_2021_01_parakram_diwas_snub__joint_forum_parakram_diwas",
+          "text": "A cross-party legislators' committee is floated to jointly plan Netaji's 125th-anniversary year events, keeping slogans out of official functions.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": -1,
+              "mediaImage": 2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 10,
+            "badOutcome": "Hardliners on both sides boycott the joint committee within a week.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.1
+        },
+        {
+          "reactionKey": "wb2021_2021_01_parakram_diwas_snub__no_comment",
+          "text": "Party spokespersons decline to comment on the dais incident, calling it a matter of protocol for the Centre and state to sort out privately.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -3,
+              "corruptionScore": 1,
+              "mediaImage": -3,
+              "publicSupport": -2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": 1
+            }
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-01"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_02_cbi_notice_rujira",
+      "month": "2021-02",
+      "title": "CBI Summons Abhishek Banerjee's Wife in Coal Smuggling Probe Weeks Before Polls (2021-02)",
+      "description": "The CBI serves notices to Rujira Naroola, wife of TMC MP and party general secretary Abhishek Banerjee, and her sister, over alleged links to kingpin Anup Majhi's multi-crore illegal coal mining racket. The timing, weeks before the Assembly election is announced, turns the case into the BJP's central corruption plank against the TMC's second family.",
+      "issueTags": ["corruption", "politics"],
+      "weights": {
+        "baseSelectionWeight": 1.25,
+        "reactionProfile": "corruption"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_02_cbi_notice_rujira__gov_action_cbi_notice",
+          "text": "The state government publicly backs the family, with TMC ministers accompanying Rujira Naroola to the CBI office and framing the probe as central overreach.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": 1,
+              "mediaImage": -1,
+              "publicSupport": 1
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "corruptionMemory": 2
+            }
+          },
+          "risk": {
+            "chance": 18,
+            "badOutcome": "Visuals of ministers shielding the CM's nephew's family feed the BJP's 'nephew-ocracy' narrative for weeks.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 1,
+                "mediaImage": -3,
+                "publicSupport": -2
+              }
+            }
+          },
+          "weight": 1.15
+        },
+        {
+          "reactionKey": "wb2021_2021_02_cbi_notice_rujira__opp_demands_cbi_notice",
+          "text": "Suvendu Adhikari holds a rally waving purported bank documents, demanding Abhishek Banerjee himself be summoned and questioned under oath.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 4,
+              "corruptionScore": 0,
+              "mediaImage": 3,
+              "publicSupport": 3
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "corruptionMemory": 2
+            }
+          },
+          "risk": {
+            "chance": 17,
+            "badOutcome": "The documents cannot be independently verified, letting TMC dismiss the whole rally as a doctored stunt.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -2,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.25
+        },
+        {
+          "reactionKey": "wb2021_2021_02_cbi_notice_rujira__joint_forum_cbi_notice",
+          "text": "Sanyukta Morcha leaders call for a time-bound, court-monitored probe into all coal and cattle smuggling networks rather than a politically selective one.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": -1,
+              "mediaImage": 2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "corruptionMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 10,
+            "badOutcome": "Both TMC and BJP ignore the call, painting it as an attempt by a fading Left-Congress bloc to stay relevant.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.05
+        },
+        {
+          "reactionKey": "wb2021_2021_02_cbi_notice_rujira__no_comment",
+          "text": "TMC's central leadership declines to answer questions on the family's finances, referring reporters to a one-line statement calling it 'sub judice'.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -3,
+              "corruptionScore": 1,
+              "mediaImage": -3,
+              "publicSupport": -2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "corruptionMemory": 2
+            }
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-02"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_03_phase1_polling_evm_row",
+      "month": "2021-03",
+      "title": "Phase 1 Polling Opens Amid EVM Malfunction Claims and Purba Medinipur Firing (2021-03)",
+      "description": "Bengal's eight-phase Assembly election begins on 27 March across 30 seats in Bankura, Purulia, Jhargram and the Medinipurs; TMC alleges EVMs are displaying BJP's lotus symbol at some booths while a firing-and-bombing incident near Nandigram injures two security personnel. The high-turnout, high-tension opener sets the tone for a bitterly fought campaign.",
+      "issueTags": ["politics", "protest"],
+      "weights": {
+        "baseSelectionWeight": 1.2,
+        "reactionProfile": "election_conduct"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_03_phase1_polling_evm_row__gov_action_phase1",
+          "text": "The state government orders police reinforcement at flagged booths and asks the Chief Electoral Officer to publicly clarify the EVM complaints by evening.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": 0,
+              "mediaImage": 2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 13,
+            "badOutcome": "Reinforcements arrive too late for two contested booths, and re-polling demands escalate overnight.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -2
+              }
+            }
+          },
+          "weight": 1.15
+        },
+        {
+          "reactionKey": "wb2021_2021_03_phase1_polling_evm_row__opp_demands_phase1",
+          "text": "TMC's ten-MP delegation marches to the State Election Commission office demanding an explanation for the EVM glitches and central forces' conduct.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 3,
+              "corruptionScore": 0,
+              "mediaImage": 2,
+              "publicSupport": 3
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 15,
+            "badOutcome": "The Commission finds no evidence of tampering, letting rivals brand the delegation as sore-loser theatrics before results even exist.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -2,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.2
+        },
+        {
+          "reactionKey": "wb2021_2021_03_phase1_polling_evm_row__joint_forum_phase1",
+          "text": "All contesting fronts jointly petition the Election Commission for booth-level webcast footage to be shared with agents from every party.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": -1,
+              "mediaImage": 2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 8,
+            "badOutcome": "The Commission grants only partial footage access, reviving mutual suspicion by nightfall.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.05
+        },
+        {
+          "reactionKey": "wb2021_2021_03_phase1_polling_evm_row__no_comment",
+          "text": "Local candidates avoid commenting on the firing incident, leaving district officials to field all press questions alone.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -3,
+              "corruptionScore": 1,
+              "mediaImage": -3,
+              "publicSupport": -2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": 1
+            }
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-03"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_04_sitalkuchi_firing",
+      "month": "2021-04",
+      "title": "CISF Firing Kills Four Voters at Sitalkuchi Booth During Phase 4 Polling (2021-04)",
+      "description": "During phase 4 voting on 10 April, CISF personnel guarding booth 126 in Sitalkuchi, Cooch Behar, open fire on a crowd, killing four people; the CISF says its Quick Reaction Team was attacked by a mob trying to snatch rifles, a version villagers dispute. The deaths become the most explosive flashpoint of the campaign, with both national and state leaders trading blame within hours.",
+      "issueTags": ["security_crisis", "politics"],
+      "weights": {
+        "baseSelectionWeight": 1.3,
+        "reactionProfile": "security_crisis"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_04_sitalkuchi_firing__gov_action_sitalkuchi",
+          "text": "Mamata Banerjee's government forms a state SIT and CID team to independently probe the firing and preserve the victims' bodies for post-mortem review.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 4,
+              "corruptionScore": 0,
+              "mediaImage": 3,
+              "publicSupport": 5
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": 3
+            }
+          },
+          "risk": {
+            "chance": 20,
+            "badOutcome": "A leaked audio clip suggests the CM's office wanted bodies paraded for effect, drawing accusations of exploiting the dead for votes.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -3,
+                "corruptionScore": 1,
+                "mediaImage": -4,
+                "publicSupport": -3
+              }
+            }
+          },
+          "weight": 1.25
+        },
+        {
+          "reactionKey": "wb2021_2021_04_sitalkuchi_firing__opp_demands_sitalkuchi",
+          "text": "BJP's state leadership backs the CISF's self-defence account and warns of 'many more Sitalkuchis' if crowds keep gheraoing central forces at polling booths.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 3,
+              "corruptionScore": 0,
+              "mediaImage": -2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": 3
+            }
+          },
+          "risk": {
+            "chance": 22,
+            "badOutcome": "The 'many more Sitalkuchis' remark draws national condemnation and is replayed for weeks as evidence of communal incitement.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -4,
+                "corruptionScore": 0,
+                "mediaImage": -5,
+                "publicSupport": -3
+              }
+            }
+          },
+          "weight": 1.3
+        },
+        {
+          "reactionKey": "wb2021_2021_04_sitalkuchi_firing__joint_forum_sitalkuchi",
+          "text": "Sanyukta Morcha leaders visit victims' families with representatives from all fronts and jointly demand a judicially monitored, non-partisan inquiry.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 3,
+              "corruptionScore": -1,
+              "mediaImage": 3,
+              "publicSupport": 3
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": -2
+            }
+          },
+          "risk": {
+            "chance": 12,
+            "badOutcome": "Both major fronts quietly withdraw from the joint delegation within days, leaving it toothless.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.1
+        },
+        {
+          "reactionKey": "wb2021_2021_04_sitalkuchi_firing__no_comment",
+          "text": "Local candidates from the affected constituency avoid the scene entirely, letting central and state officials trade statements without them.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -4,
+              "corruptionScore": 1,
+              "mediaImage": -4,
+              "publicSupport": -4
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": 3
+            }
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-04"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_05_tmc_landslide_mamata_sworn_in",
+      "month": "2021-05",
+      "title": "TMC Wins Historic Third Term as Mamata Loses Nandigram to Suvendu Adhikari (2021-05)",
+      "description": "Counting on 2 May gives TMC a landslide 213 of 292 seats against BJP's 77, wiping out the Left-Congress alliance entirely, but Mamata Banerjee herself narrowly loses Nandigram to former protege Suvendu Adhikari by under 2,000 votes. She is sworn in for a third term on 5 May regardless, while Adhikari is unanimously chosen as Leader of Opposition, setting up a defining rivalry for the new Assembly.",
+      "issueTags": ["politics"],
+      "weights": {
+        "baseSelectionWeight": 1.3,
+        "reactionProfile": "politics"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_05_tmc_landslide_mamata_sworn_in__gov_action_landslide",
+          "text": "Mamata is sworn in at Raj Bhavan within three days of results and immediately announces she will contest a bypoll within six months to retain her seat.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 6,
+              "corruptionScore": 0,
+              "mediaImage": 4,
+              "publicSupport": 5
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -2
+            }
+          },
+          "risk": {
+            "chance": 16,
+            "badOutcome": "The Nandigram result is challenged in Calcutta High Court, keeping the CM's legitimacy in the headlines for months.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -2,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.3
+        },
+        {
+          "reactionKey": "wb2021_2021_05_tmc_landslide_mamata_sworn_in__opp_demands_landslide",
+          "text": "Suvendu Adhikari, newly named Leader of Opposition, declares the Nandigram win a personal mandate and vows an aggressive floor strategy against the government.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 5,
+              "corruptionScore": 0,
+              "mediaImage": 4,
+              "publicSupport": 3
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": 2
+            }
+          },
+          "risk": {
+            "chance": 15,
+            "badOutcome": "The party's national leadership is criticised for overpromising a Bengal win it emphatically did not deliver, denting Adhikari's standing internally.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -2
+              }
+            }
+          },
+          "weight": 1.2
+        },
+        {
+          "reactionKey": "wb2021_2021_05_tmc_landslide_mamata_sworn_in__joint_forum_landslide",
+          "text": "Outgoing Sanyukta Morcha leaders congratulate the winner and the Leader of Opposition alike, calling for a functioning, less personalised Assembly.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": -1,
+              "mediaImage": 2,
+              "publicSupport": 1
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 10,
+            "badOutcome": "With zero seats, the gesture is dismissed by both winners as irrelevant noise from a wiped-out bloc.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -2
+              }
+            }
+          },
+          "weight": 1.0
+        },
+        {
+          "reactionKey": "wb2021_2021_05_tmc_landslide_mamata_sworn_in__no_comment",
+          "text": "Sanyukta Morcha's state committee issues no formal statement on the result, letting individual candidates speak for themselves.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -4,
+              "corruptionScore": 1,
+              "mediaImage": -3,
+              "publicSupport": -3
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": 1
+            }
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-05"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_06_mukul_roy_rejoins_tmc",
+      "month": "2021-06",
+      "title": "Mukul Roy Quits BJP, Returns to TMC Fold Barely a Month After Winning on Its Ticket (2021-06)",
+      "description": "Mukul Roy, who won the Krishnanagar Uttar seat on a BJP ticket, rejoins the Trinamool Congress on 11 June alongside his son in Mamata Banerjee's presence, without resigning his Assembly seat. The high-profile defection back to TMC, one of several since the results, embarrasses the BJP and revives questions about the legality of MLAs switching parties without giving up their seats.",
+      "issueTags": ["politics", "governance"],
+      "weights": {
+        "baseSelectionWeight": 1.15,
+        "reactionProfile": "politics"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_06_mukul_roy_rejoins_tmc__gov_action_mukul_roy",
+          "text": "TMC formally welcomes Roy back and later has the Speaker appoint him chairman of the Assembly's Public Accounts Committee.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 3,
+              "corruptionScore": 1,
+              "mediaImage": 1,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "corruptionMemory": 1
+            }
+          },
+          "risk": {
+            "chance": 15,
+            "badOutcome": "The PAC appointment is challenged in Calcutta High Court as a breach of anti-defection norms, dragging the party into a fresh legal tangle.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -2,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.15
+        },
+        {
+          "reactionKey": "wb2021_2021_06_mukul_roy_rejoins_tmc__opp_demands_mukul_roy",
+          "text": "Suvendu Adhikari petitions the Speaker to disqualify Roy under the anti-defection law for switching parties without resigning his seat.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 3,
+              "corruptionScore": 0,
+              "mediaImage": 3,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "corruptionMemory": 1
+            }
+          },
+          "risk": {
+            "chance": 18,
+            "badOutcome": "The TMC-aligned Speaker sits on the petition for months, letting BJP's outrage fizzle without a ruling.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -2
+              }
+            }
+          },
+          "weight": 1.2
+        },
+        {
+          "reactionKey": "wb2021_2021_06_mukul_roy_rejoins_tmc__joint_forum_mukul_roy",
+          "text": "Sanyukta Morcha MLAs propose an all-party resolution urging strict, time-bound enforcement of anti-defection rules regardless of which party benefits.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": -1,
+              "mediaImage": 2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "corruptionMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 9,
+            "badOutcome": "With no seats of its own, the Morcha's resolution is never even tabled for debate.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.05
+        },
+        {
+          "reactionKey": "wb2021_2021_06_mukul_roy_rejoins_tmc__no_comment",
+          "text": "Roy's old BJP colleagues decline to discuss the defection publicly, leaving the state unit's official response vague and delayed.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -3,
+              "corruptionScore": 1,
+              "mediaImage": -3,
+              "publicSupport": -2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "corruptionMemory": 1
+            }
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-06"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_07_mamata_delhi_opposition_unity",
+      "month": "2021-07",
+      "title": "Fresh Off Her Bengal Win, Mamata Courts Sonia and Rahul Gandhi in Delhi (2021-07)",
+      "description": "Mamata Banerjee travels to Delhi on 27 July, meeting Sonia Gandhi and Rahul Gandhi separately amid the Pegasus snooping row, and holds talks with senior Congress leaders on a prospective anti-BJP front ahead of 2024. She stops short of declaring prime ministerial ambitions, but the visit positions her as a national opposition figure for the first time since her landslide win.",
+      "issueTags": ["politics"],
+      "weights": {
+        "baseSelectionWeight": 1.15,
+        "reactionProfile": "politics_national"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_07_mamata_delhi_opposition_unity__gov_action_delhi_visit",
+          "text": "Mamata's office releases a detailed readout of her meetings, framing her as the convenor pulling together a state-by-state opposition coalition.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 4,
+              "corruptionScore": 0,
+              "mediaImage": 3,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 13,
+            "badOutcome": "Congress insiders leak that Sonia Gandhi is cool to ceding the opposition's leading role to a regional rival, denting the coalition narrative.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -2,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.2
+        },
+        {
+          "reactionKey": "wb2021_2021_07_mamata_delhi_opposition_unity__opp_demands_delhi_visit",
+          "text": "BJP dismisses the Delhi visit as a self-serving national ambition tour and asks why she is not instead answering questions on post-poll violence back home.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 3,
+              "corruptionScore": 0,
+              "mediaImage": 2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": 1
+            }
+          },
+          "risk": {
+            "chance": 14,
+            "badOutcome": "The attack is seen as sour grapes after Bengal's result, blunting its impact with the wider national press.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.15
+        },
+        {
+          "reactionKey": "wb2021_2021_07_mamata_delhi_opposition_unity__joint_forum_delhi_visit",
+          "text": "Regional leaders across several states issue a joint statement welcoming any genuine opposition unity effort, without endorsing a single face for it.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": -1,
+              "mediaImage": 2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 9,
+            "badOutcome": "The vague, no-one-in-charge statement is read as evidence the opposition still cannot agree on a leader.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.05
+        },
+        {
+          "reactionKey": "wb2021_2021_07_mamata_delhi_opposition_unity__no_comment",
+          "text": "State TMC leaders avoid elaborating on the Delhi meetings, referring all questions to the central leadership in Kolkata.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -3,
+              "corruptionScore": 1,
+              "mediaImage": -2,
+              "publicSupport": -2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {}
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-07"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_08_hc_orders_cbi_probe_postpoll_violence",
+      "month": "2021-08",
+      "title": "Calcutta High Court Orders CBI Probe Into Post-Poll Murders and Rapes (2021-08)",
+      "description": "A five-judge Calcutta High Court bench, acting on an NHRC report describing 'retributive violence by supporters of the ruling party', orders a court-monitored CBI investigation into all post-poll murder and rape cases and forms a state SIT for other offences on 19 August. The ruling is a major legal setback for the Banerjee government and keeps the post-poll violence controversy alive months after the election.",
+      "issueTags": ["security_crisis", "governance"],
+      "weights": {
+        "baseSelectionWeight": 1.25,
+        "reactionProfile": "security_crisis"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_08_hc_orders_cbi_probe_postpoll_violence__gov_action_hc_cbi_order",
+          "text": "The state government says it will cooperate fully with the court-monitored probe while separately compensating verified victims through its own relief scheme.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": 1,
+              "mediaImage": 2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": -2
+            }
+          },
+          "risk": {
+            "chance": 20,
+            "badOutcome": "CBI later says the state police is slow-walking record transfers, reviving accusations of obstruction.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -3,
+                "corruptionScore": 1,
+                "mediaImage": -3,
+                "publicSupport": -2
+              }
+            }
+          },
+          "weight": 1.2
+        },
+        {
+          "reactionKey": "wb2021_2021_08_hc_orders_cbi_probe_postpoll_violence__opp_demands_hc_cbi_order",
+          "text": "BJP leaders call the ruling vindication for victims' families and demand the state immediately hand over all case records without further delay.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 4,
+              "corruptionScore": 0,
+              "mediaImage": 3,
+              "publicSupport": 3
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": 2
+            }
+          },
+          "risk": {
+            "chance": 17,
+            "badOutcome": "Critics note BJP's own record on similar violence elsewhere, muddying the party's claim to the moral high ground.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -2,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.25
+        },
+        {
+          "reactionKey": "wb2021_2021_08_hc_orders_cbi_probe_postpoll_violence__joint_forum_hc_cbi_order",
+          "text": "Civil society groups and Sanyukta Morcha representatives jointly petition for a victim-rehabilitation fund independent of which party the victim supported.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": -1,
+              "mediaImage": 3,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": -3
+            }
+          },
+          "risk": {
+            "chance": 11,
+            "badOutcome": "Funding for the proposed rehabilitation fund stalls amid disputes over which department should administer it.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.1
+        },
+        {
+          "reactionKey": "wb2021_2021_08_hc_orders_cbi_probe_postpoll_violence__no_comment",
+          "text": "The chief secretary's office declines to comment on the court order beyond acknowledging it has been received, avoiding any substantive response.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -4,
+              "corruptionScore": 1,
+              "mediaImage": -4,
+              "publicSupport": -3
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": 2
+            }
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-08"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_09_bhabanipur_nomination",
+      "month": "2021-09",
+      "title": "Mamata Files Nomination From Bhabanipur to Save Her Chief Ministership (2021-09)",
+      "description": "Mamata Banerjee files nomination papers for the Bhabanipur bypoll on 10 September, needing a win within six months of her Nandigram defeat to remain Chief Minister under the Constitution; sitting MLA Sovandeb Chattopadhyay had already resigned to vacate the seat for her. The high-stakes bypoll, watched as a referendum on her leadership just months after her landslide, draws unusually intense campaigning for a single-seat contest.",
+      "issueTags": ["politics"],
+      "weights": {
+        "baseSelectionWeight": 1.25,
+        "reactionProfile": "politics"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_09_bhabanipur_nomination__gov_action_bhabanipur_nomination",
+          "text": "Mamata personally canvasses Bhabanipur's mixed Gujarati, Marwari and Bengali wards daily, visiting temples and mosques and invoking her decade in office.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 4,
+              "corruptionScore": 0,
+              "mediaImage": 3,
+              "publicSupport": 4
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 15,
+            "badOutcome": "BJP mocks the all-out campaign for a single seat as proof she fears losing power despite her party's landslide.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -2,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.25
+        },
+        {
+          "reactionKey": "wb2021_2021_09_bhabanipur_nomination__opp_demands_bhabanipur_nomination",
+          "text": "BJP fields Priyanka Tibrewal and campaigns hard, with leaders asking why a chief minister needs to fight so intensely for a seat she is expected to win easily.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 3,
+              "corruptionScore": 0,
+              "mediaImage": 2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": 1
+            }
+          },
+          "risk": {
+            "chance": 16,
+            "badOutcome": "Ground reports suggest the challenge is gaining little traction in a seat TMC has dominated for a decade.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -2
+              }
+            }
+          },
+          "weight": 1.15
+        },
+        {
+          "reactionKey": "wb2021_2021_09_bhabanipur_nomination__joint_forum_bhabanipur_nomination",
+          "text": "Smaller fronts call for a peaceful, low-key bypoll given the constituency's history of communal harmony, urging all sides to avoid inflammatory rhetoric.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": -1,
+              "mediaImage": 2,
+              "publicSupport": 1
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 9,
+            "badOutcome": "The appeal is largely drowned out by the two big fronts' aggressive door-to-door campaigns.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.0
+        },
+        {
+          "reactionKey": "wb2021_2021_09_bhabanipur_nomination__no_comment",
+          "text": "Sanyukta Morcha leaders sit out the bypoll without fielding a serious candidate or issuing any statement on the contest.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -3,
+              "corruptionScore": 1,
+              "mediaImage": -3,
+              "publicSupport": -2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {}
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-09"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_10_bhabanipur_result",
+      "month": "2021-10",
+      "title": "Mamata Wins Bhabanipur by Record Margin, Returns to the Assembly (2021-10)",
+      "description": "Counting on 3 October gives Mamata Banerjee a record margin of 58,832 votes over BJP's Priyanka Tibrewal in the Bhabanipur bypoll, securing her Chief Ministership beyond the constitutional deadline and drawing celebrations across Kolkata. Banerjee frames the win, in a seat with a large non-Bengali electorate, as answering the 'conspiracy' of her Nandigram defeat.",
+      "issueTags": ["politics"],
+      "weights": {
+        "baseSelectionWeight": 1.2,
+        "reactionProfile": "politics"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_10_bhabanipur_result__gov_action_bhabanipur_result",
+          "text": "Mamata addresses supporters outside her Kalighat residence, thanking Bhabanipur's non-Bengali voters by name and vowing a stronger push on urban development.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 5,
+              "corruptionScore": 0,
+              "mediaImage": 4,
+              "publicSupport": 4
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -2
+            }
+          },
+          "risk": {
+            "chance": 12,
+            "badOutcome": "Overconfident post-win remarks are clipped out of context and used to suggest she is dismissive of the opposition's concerns.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -2,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.25
+        },
+        {
+          "reactionKey": "wb2021_2021_10_bhabanipur_result__opp_demands_bhabanipur_result",
+          "text": "Priyanka Tibrewal gracefully concedes but BJP leaders argue the margin reflects incumbency muscle rather than genuine enthusiasm, vowing a recount review.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": 0,
+              "mediaImage": 1,
+              "publicSupport": 1
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": 1
+            }
+          },
+          "risk": {
+            "chance": 18,
+            "badOutcome": "The recount review request is seen as ungracious given the scale of the loss, drawing ridicule rather than sympathy.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -3,
+                "corruptionScore": 0,
+                "mediaImage": -3,
+                "publicSupport": -2
+              }
+            }
+          },
+          "weight": 1.1
+        },
+        {
+          "reactionKey": "wb2021_2021_10_bhabanipur_result__joint_forum_bhabanipur_result",
+          "text": "Opposition fronts jointly congratulate the winner while calling on the Assembly to now focus on the pending post-poll violence hearings rather than further electioneering.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": -1,
+              "mediaImage": 2,
+              "publicSupport": 1
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "lawOrderMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 8,
+            "badOutcome": "The call for a shift in focus goes largely unheeded as both major fronts remain locked in electoral point-scoring.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.0
+        },
+        {
+          "reactionKey": "wb2021_2021_10_bhabanipur_result__no_comment",
+          "text": "Smaller opposition groups issue no statement on the result at all, effectively conceding the news cycle entirely to the two big fronts.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -3,
+              "corruptionScore": 1,
+              "mediaImage": -2,
+              "publicSupport": -2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {}
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-10"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_11_kirti_azad_pavan_varma_join_tmc",
+      "month": "2021-11",
+      "title": "Kirti Azad and Pavan Varma Join TMC as Party Pushes National Ambitions (2021-11)",
+      "description": "Former cricketer-turned-BJP-MP Kirti Azad and ex-diplomat Pavan Varma join the Trinamool Congress in Delhi on 23 November in Mamata Banerjee's presence, alongside Congress rebel Ashok Tanwar, as TMC accelerates its push to become a national alternative to the BJP. The recruitment drive follows the party's parallel expansion efforts in Goa and Tripura ahead of their upcoming state elections.",
+      "issueTags": ["politics"],
+      "weights": {
+        "baseSelectionWeight": 1.1,
+        "reactionProfile": "politics_national"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_11_kirti_azad_pavan_varma_join_tmc__gov_action_new_joinees",
+          "text": "TMC's central leadership formally welcomes the new recruits and hints they will be given roles in the party's Goa and national outreach campaigns.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 3,
+              "corruptionScore": 0,
+              "mediaImage": 3,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -1
+            }
+          },
+          "risk": {
+            "chance": 12,
+            "badOutcome": "Critics note none of the recruits have a real base outside Delhi, questioning whether this expands TMC's reach at all.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.15
+        },
+        {
+          "reactionKey": "wb2021_2021_11_kirti_azad_pavan_varma_join_tmc__opp_demands_new_joinees",
+          "text": "BJP's spokespersons mock the joinees as a 'collection of rejects' from other parties and question TMC's real prospects beyond Bengal.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": 0,
+              "mediaImage": 2,
+              "publicSupport": 1
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {}
+          },
+          "risk": {
+            "chance": 14,
+            "badOutcome": "The dismissive tone is seen as underestimating a party that just delivered a historic state landslide months earlier.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.1
+        },
+        {
+          "reactionKey": "wb2021_2021_11_kirti_azad_pavan_varma_join_tmc__joint_forum_new_joinees",
+          "text": "Congress state leaders in Bengal quietly urge their national leadership to engage TMC on seat-sharing rather than compete for the same defectors.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 1,
+              "corruptionScore": -1,
+              "mediaImage": 1,
+              "publicSupport": 1
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {}
+          },
+          "risk": {
+            "chance": 8,
+            "badOutcome": "The overture is ignored by Congress's national leadership, which sees TMC's expansion as a direct threat rather than an opportunity for cooperation.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.0
+        },
+        {
+          "reactionKey": "wb2021_2021_11_kirti_azad_pavan_varma_join_tmc__no_comment",
+          "text": "Local Bengal party units decline to comment on the Delhi joining ceremony, treating it as a purely central-leadership affair.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -2,
+              "corruptionScore": 1,
+              "mediaImage": -2,
+              "publicSupport": -1
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {}
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-11"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    },
+    {
+      "newsKey": "wb2021_2021_12_durga_puja_unesco_heritage",
+      "month": "2021-12",
+      "title": "Kolkata's Durga Puja Wins UNESCO Intangible Cultural Heritage Recognition (2021-12)",
+      "description": "UNESCO's Intergovernmental Committee, meeting in Paris, inscribes 'Durga Puja in Kolkata' on its Representative List of the Intangible Cultural Heritage of Humanity on 15 December, a recognition years in the making since the dossier's 2019 submission. The rare moment of unqualified good news is claimed by both the state government and the Centre, capping a turbulent political year on a unifying cultural note.",
+      "issueTags": ["identity", "infrastructure"],
+      "weights": {
+        "baseSelectionWeight": 1.15,
+        "reactionProfile": "governance"
+      },
+      "reactionOptions": [
+        {
+          "reactionKey": "wb2021_2021_12_durga_puja_unesco_heritage__gov_action_unesco_recognition",
+          "text": "Mamata Banerjee announces a state grant increase for community puja committees and proposes a heritage tourism circuit built around the recognition.",
+          "roleAllowed": ["GOVERNMENT"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 4,
+              "corruptionScore": 1,
+              "mediaImage": 4,
+              "publicSupport": 4
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -2
+            }
+          },
+          "risk": {
+            "chance": 10,
+            "badOutcome": "Opposition questions why state puja grants are rising even as flood and cyclone relief funds for the same districts remain delayed.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -2,
+                "corruptionScore": 1,
+                "mediaImage": -2,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.2
+        },
+        {
+          "reactionKey": "wb2021_2021_12_durga_puja_unesco_heritage__opp_demands_unesco_recognition",
+          "text": "BJP leaders credit the Union Culture Ministry's dossier work for the recognition and ask the state not to take sole political credit for a national achievement.",
+          "roleAllowed": ["OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 2,
+              "corruptionScore": 0,
+              "mediaImage": 2,
+              "publicSupport": 2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {}
+          },
+          "risk": {
+            "chance": 9,
+            "badOutcome": "The attempt to share credit is seen as churlish given how thoroughly the festival is identified with Bengal specifically.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": -1
+              }
+            }
+          },
+          "weight": 1.05
+        },
+        {
+          "reactionKey": "wb2021_2021_12_durga_puja_unesco_heritage__joint_forum_unesco_recognition",
+          "text": "Cultural bodies across party lines organise a cross-party civic reception honouring the artisans and dossier researchers behind the recognition.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": 3,
+              "corruptionScore": -1,
+              "mediaImage": 3,
+              "publicSupport": 3
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {
+              "bengalPolarizationMemory": -2
+            }
+          },
+          "risk": {
+            "chance": 6,
+            "badOutcome": "A handful of hardline voices boycott the reception, arguing it should not have included central government representatives.",
+            "effects": {
+              "playerParty": {
+                "partyMorale": -1,
+                "corruptionScore": 0,
+                "mediaImage": -1,
+                "publicSupport": 0
+              }
+            }
+          },
+          "weight": 1.1
+        },
+        {
+          "reactionKey": "wb2021_2021_12_durga_puja_unesco_heritage__no_comment",
+          "text": "Some Sanyukta Morcha figures stay silent on the recognition, seeing little political upside in a purely cultural announcement.",
+          "roleAllowed": ["GOVERNMENT", "OPPOSITION", "THIRD_PARTY"],
+          "effects": {
+            "playerParty": {
+              "partyMorale": -2,
+              "corruptionScore": 1,
+              "mediaImage": -2,
+              "publicSupport": -2
+            }
+          },
+          "hiddenEffects": {
+            "publicMemory": {}
+          },
+          "risk": {},
+          "weight": 0.2
+        }
+      ],
+      "type": "external",
+      "monthTags": ["2021-12"],
+      "crisisTriggerKey": null,
+      "crisisDuration": 2
+    }
+  ]
+}

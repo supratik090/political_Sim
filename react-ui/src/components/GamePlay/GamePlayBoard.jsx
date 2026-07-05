@@ -115,6 +115,27 @@ export default function GamePlayBoard() {
       })
       .catch(err => console.error("Failed to load building projects from backend, using fallbacks:", err));
   }, []);
+
+  const [scenarioBills, setScenarioBills] = useState([]);
+  const [scenarioEvents, setScenarioEvents] = useState([]);
+
+  useEffect(() => {
+    if (turnData?.scenarioKey) {
+      import('../../api/apiClient').then(client => {
+        if (client.fetchBillsForGameplay) {
+          client.fetchBillsForGameplay(turnData.scenarioKey)
+            .then(data => setScenarioBills(data || []))
+            .catch(err => console.error("Failed to load scenario bills:", err));
+        }
+        if (client.fetchEventsForGameplay) {
+          client.fetchEventsForGameplay(turnData.scenarioKey)
+            .then(data => setScenarioEvents(data || []))
+            .catch(err => console.error("Failed to load scenario events:", err));
+        }
+      });
+    }
+  }, [turnData?.scenarioKey]);
+
   const [commentaryExpanded, setCommentaryExpanded] = useState(false);
   const [commentaryFilter, setCommentaryFilter] = useState('ALL');
 
@@ -127,7 +148,11 @@ export default function GamePlayBoard() {
   const [bidConfirmed, setBidConfirmed] = useState(false);
   const [selectedRewardKey, setSelectedRewardKey] = useState('');
   const [rewardTargetPartyId, setRewardTargetPartyId] = useState('');
-  const [activeAccordion, setActiveAccordion] = useState(1); // 1-6
+  const [billVote, setBillVote] = useState('');
+  const [whipIssued, setWhipIssued] = useState(false);
+  const [proposedBillKey, setProposedBillKey] = useState('');
+  const [selectedEventOptionKey, setSelectedEventOptionKey] = useState('');
+  const [activeAccordion, setActiveAccordion] = useState(1); // 1-8
   const [rewardConfirmed, setRewardConfirmed] = useState(false);
   const [partyBuildingConfirmed, setPartyBuildingConfirmed] = useState(false);
   const [cardCategoryFilter, setCardCategoryFilter] = useState('agitation_movement');
@@ -171,6 +196,10 @@ export default function GamePlayBoard() {
     setRewardConfirmed(false);
     setPartyBuildingConfirmed(false);
     setCardCategoryFilter('agitation_movement');
+    setBillVote('');
+    setWhipIssued(false);
+    setProposedBillKey('');
+    setSelectedEventOptionKey('');
   };
 
   const loadTurnData = async (isNewTurn = false) => {
@@ -253,7 +282,11 @@ useEffect(() => {
         selectedIssueOptionKey: turnData.currentIssue ? selectedIssueOptionKey : 'routine_maintenance',
         bid: bidAmount,
         selectedRewardKey: selectedRewardKey || null,
-        rewardTargetPartyId: selectedRewardKey && rewardTargetPartyId ? rewardTargetPartyId : null
+        rewardTargetPartyId: selectedRewardKey && rewardTargetPartyId ? rewardTargetPartyId : null,
+        proposedBillKey: proposedBillKey || null,
+        billVote: turnData.proposedBillKeyThisTurn ? billVote : null,
+        selectedEventOptionKey: turnData.activeEventKey ? selectedEventOptionKey : null,
+        whipIssued: turnData.proposedBillKeyThisTurn ? whipIssued : false
       };
 
       const result = await advanceTurn(activeGameId, payload);
@@ -297,6 +330,15 @@ useEffect(() => {
         }
       }
 
+      // Default event option for skipping
+      let defaultEventOption = null;
+      if (turnData.activeEventKey) {
+        const activeEvDef = scenarioEvents.find(e => e.eventKey === turnData.activeEventKey);
+        if (activeEvDef && activeEvDef.options && activeEvDef.options.length > 0) {
+          defaultEventOption = activeEvDef.options[activeEvDef.options.length - 1].optionKey;
+        }
+      }
+
       const payload = {
         selectedCardKey: 'no_card',
         targetPartyId: null,
@@ -304,7 +346,11 @@ useEffect(() => {
         selectedIssueOptionKey: defaultIssueOpt,
         bid: 0,
         selectedRewardKey: null,
-        rewardTargetPartyId: null
+        rewardTargetPartyId: null,
+        proposedBillKey: null,
+        billVote: turnData.proposedBillKeyThisTurn ? 'ABSTAIN' : null,
+        selectedEventOptionKey: defaultEventOption,
+        whipIssued: false
       };
 
       const result = await advanceTurn(activeGameId, payload);
@@ -644,6 +690,7 @@ useEffect(() => {
               setCommentaryFilter={setCommentaryFilter}
               projectDefs={projectDefs}
               onOpenResolutionReport={() => setShowResolutionReport(true)}
+              scenarioBills={scenarioBills}
             />
           )}
 
@@ -703,6 +750,18 @@ useEffect(() => {
 
               // Action 7 props
               handleCooperationUpdate={setTurnData}
+
+              // Action 8 / Assembly props
+              billVote={billVote}
+              setBillVote={setBillVote}
+              whipIssued={whipIssued}
+              setWhipIssued={setWhipIssued}
+              proposedBillKey={proposedBillKey}
+              setProposedBillKey={setProposedBillKey}
+              selectedEventOptionKey={selectedEventOptionKey}
+              setSelectedEventOptionKey={setSelectedEventOptionKey}
+              scenarioBills={scenarioBills}
+              scenarioEvents={scenarioEvents}
 
               // Accordion state
               activeAccordion={activeAccordion}

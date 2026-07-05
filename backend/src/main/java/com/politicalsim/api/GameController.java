@@ -30,6 +30,12 @@ public class GameController {
     private final LobbyTelemetryService lobbyTelemetryService;
 
     @Autowired
+    private com.politicalsim.content.LegislativeBillDefinitionRepository billRepository;
+
+    @Autowired
+    private com.politicalsim.content.EventCardDefinitionRepository eventRepository;
+
+    @Autowired
     public GameController(GameService gameService, LobbyTelemetryService lobbyTelemetryService) {
         this.gameService = gameService;
         this.lobbyTelemetryService = lobbyTelemetryService;
@@ -65,6 +71,24 @@ public class GameController {
     @PostMapping("/{gameId}/start")
     public GameSession startGame(@PathVariable String gameId, @RequestParam(required = false) String userId) {
         return gameService.startGame(gameId, userId);
+    }
+
+    @GetMapping("/bills/scenario/{scenarioKey}")
+    public List<com.politicalsim.content.LegislativeBillDefinition> getBillsByScenario(@PathVariable String scenarioKey) {
+        List<com.politicalsim.content.LegislativeBillDefinition> list = billRepository.findByScenarioKey(scenarioKey);
+        if (list.isEmpty()) {
+            list = billRepository.findByScenarioKey("default");
+        }
+        return list;
+    }
+
+    @GetMapping("/events/scenario/{scenarioKey}")
+    public List<com.politicalsim.content.EventCardDefinition> getEventsByScenario(@PathVariable String scenarioKey) {
+        List<com.politicalsim.content.EventCardDefinition> list = eventRepository.findByScenarioKey(scenarioKey);
+        if (list.isEmpty()) {
+            list = eventRepository.findByScenarioKey("default");
+        }
+        return list;
     }
 
     @GetMapping

@@ -8,6 +8,10 @@ import com.politicalsim.content.NewsDefinition;
 import com.politicalsim.content.NewsDefinitionRepository;
 import com.politicalsim.content.ScenarioDefinition;
 import com.politicalsim.content.ScenarioDefinitionRepository;
+import com.politicalsim.content.LegislativeBillDefinition;
+import com.politicalsim.content.LegislativeBillDefinitionRepository;
+import com.politicalsim.content.EventCardDefinition;
+import com.politicalsim.content.EventCardDefinitionRepository;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -33,17 +37,23 @@ public class AdminContentController {
     private final CardDefinitionRepository cardRepository;
     private final NewsDefinitionRepository newsRepository;
     private final MonthlyIssueDefinitionRepository issueRepository;
+    private final LegislativeBillDefinitionRepository billRepository;
+    private final EventCardDefinitionRepository eventRepository;
 
     public AdminContentController(
             ScenarioDefinitionRepository scenarioRepository,
             CardDefinitionRepository cardRepository,
             NewsDefinitionRepository newsRepository,
-            MonthlyIssueDefinitionRepository issueRepository
+            MonthlyIssueDefinitionRepository issueRepository,
+            LegislativeBillDefinitionRepository billRepository,
+            EventCardDefinitionRepository eventRepository
     ) {
         this.scenarioRepository = scenarioRepository;
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
         this.issueRepository = issueRepository;
+        this.billRepository = billRepository;
+        this.eventRepository = eventRepository;
     }
 
     @GetMapping("/scenarios")
@@ -195,6 +205,84 @@ public class AdminContentController {
         return Map.of("status", "deleted", "id", id);
     }
 
+    // --- LEGISLATIVE BILLS ENDPOINTS ---
+    @GetMapping("/bills")
+    public List<LegislativeBillDefinition> listBills(@RequestParam(required = false) String scenarioKey) {
+        if (scenarioKey == null || scenarioKey.isBlank()) {
+            return billRepository.findAll();
+        }
+        return billRepository.findByScenarioKey(scenarioKey);
+    }
+
+    @GetMapping("/bills/{id}")
+    public LegislativeBillDefinition getBill(@PathVariable String id) {
+        return billRepository.findById(id)
+                .orElseThrow(() -> notFound("Bill not found: " + id));
+    }
+
+    @PostMapping("/bills")
+    @ResponseStatus(HttpStatus.CREATED)
+    public LegislativeBillDefinition createBill(@RequestBody LegislativeBillDefinition bill) {
+        DefinitionCache.clearAll();
+        bill.setId(null);
+        return billRepository.save(bill);
+    }
+
+    @PutMapping("/bills/{id}")
+    public LegislativeBillDefinition updateBill(@PathVariable String id, @RequestBody LegislativeBillDefinition bill) {
+        requireBill(id);
+        DefinitionCache.clearAll();
+        bill.setId(id);
+        return billRepository.save(bill);
+    }
+
+    @DeleteMapping("/bills/{id}")
+    public Map<String, String> deleteBill(@PathVariable String id) {
+        requireBill(id);
+        DefinitionCache.clearAll();
+        billRepository.deleteById(id);
+        return Map.of("status", "deleted", "id", id);
+    }
+
+    // --- EVENT CARDS ENDPOINTS ---
+    @GetMapping("/events")
+    public List<EventCardDefinition> listEvents(@RequestParam(required = false) String scenarioKey) {
+        if (scenarioKey == null || scenarioKey.isBlank()) {
+            return eventRepository.findAll();
+        }
+        return eventRepository.findByScenarioKey(scenarioKey);
+    }
+
+    @GetMapping("/events/{id}")
+    public EventCardDefinition getEvent(@PathVariable String id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> notFound("Event card not found: " + id));
+    }
+
+    @PostMapping("/events")
+    @ResponseStatus(HttpStatus.CREATED)
+    public EventCardDefinition createEvent(@RequestBody EventCardDefinition event) {
+        DefinitionCache.clearAll();
+        event.setId(null);
+        return eventRepository.save(event);
+    }
+
+    @PutMapping("/events/{id}")
+    public EventCardDefinition updateEvent(@PathVariable String id, @RequestBody EventCardDefinition event) {
+        requireEvent(id);
+        DefinitionCache.clearAll();
+        event.setId(id);
+        return eventRepository.save(event);
+    }
+
+    @DeleteMapping("/events/{id}")
+    public Map<String, String> deleteEvent(@PathVariable String id) {
+        requireEvent(id);
+        DefinitionCache.clearAll();
+        eventRepository.deleteById(id);
+        return Map.of("status", "deleted", "id", id);
+    }
+
     private void requireScenario(String id) {
         if (!scenarioRepository.existsById(id)) {
             throw notFound("Scenario not found: " + id);
@@ -216,6 +304,18 @@ public class AdminContentController {
     private void requireIssue(String id) {
         if (!issueRepository.existsById(id)) {
             throw notFound("Issue item not found: " + id);
+        }
+    }
+
+    private void requireBill(String id) {
+        if (!billRepository.existsById(id)) {
+            throw notFound("Bill not found: " + id);
+        }
+    }
+
+    private void requireEvent(String id) {
+        if (!eventRepository.existsById(id)) {
+            throw notFound("Event card not found: " + id);
         }
     }
 

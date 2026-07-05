@@ -24,7 +24,8 @@ export default function StatsView({
   commentaryFilter,
   setCommentaryFilter,
   projectDefs = {},
-  onOpenResolutionReport
+  onOpenResolutionReport,
+  scenarioBills = []
 }) {
   // In multiplayer: the current user's party is identified by activeHumanPartyId.
   // humanPlayerMap: { partyId -> userId } — contains ALL human players.
@@ -148,25 +149,34 @@ export default function StatsView({
 
       {/* Special Event Alert for No-Confidence */}
       {(() => {
-        if (turnData.lastElectionHeld) return null; // already shown in the banner
-        const hasNoConfidence = turnData.lastResults?.some(r => r.toLowerCase().includes('no-confidence')) ||
-                                turnData.lastRoundCommentary?.some(c => c.toLowerCase().includes('no-confidence'));
-        if (!hasNoConfidence) return null;
+        const noConfidenceSucceeded = turnData.lastResults?.some(r => 
+          r.startsWith('No-Confidence Successful') || r.startsWith('No-Confidence Lost')
+        );
+        const noConfidenceFailed = turnData.lastResults?.some(r => 
+          r.startsWith('No-Confidence Motion failed')
+        );
+
+        if (!noConfidenceSucceeded && !noConfidenceFailed) return null;
+
         return (
           <div style={{
-            background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-            border: '2px solid #2563eb',
+            background: noConfidenceSucceeded 
+              ? 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)' 
+              : 'linear-gradient(135deg, #78350f 0%, #b45309 100%)',
+            border: `2px solid ${noConfidenceSucceeded ? '#2563eb' : '#d97706'}`,
             borderRadius: '12px',
             padding: '15px',
             marginBottom: '20px',
             color: '#ffffff',
-            boxShadow: '0 4px 15px rgba(37, 99, 235, 0.2)'
+            boxShadow: `0 4px 15px ${noConfidenceSucceeded ? 'rgba(37, 99, 235, 0.2)' : 'rgba(217, 119, 6, 0.2)'}`
           }}>
             <h3 style={{ margin: '0 0 5px 0', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px' }}>
               ⚡ SPECIAL CONSTITUTIONAL EVENT: No-Confidence Vote
             </h3>
             <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.5 }}>
-              The Opposition successfully triggered a No-Confidence Motion, leading to early state elections. Voting results determined the new Government!
+              {noConfidenceSucceeded 
+                ? 'The Opposition successfully triggered a No-Confidence Motion, leading to early state elections. Voting results determined the new Government!'
+                : 'The Opposition triggered a No-Confidence Motion, but the Government survived the vote. No early elections were held.'}
             </p>
           </div>
         );
@@ -202,6 +212,125 @@ export default function StatsView({
                 </li>
               ))}
             </ul>
+          </div>
+        );
+      })()}
+
+      {/* Last Turn Legislative Bill Vote Results */}
+      {(() => {
+        const lastTurnNum = turnData.turnNumber - 1;
+        const lastResolvedBill = turnData.bills?.find(b => b.billKey === turnData.lastResolvedBillKey);
+        const voteHappenedLastRound = lastResolvedBill && lastResolvedBill.turnResolved === lastTurnNum;
+        if (!voteHappenedLastRound) return null;
+
+        return (
+          <div style={{
+            border: '1px solid var(--primary-border)',
+            borderRadius: '12px',
+            padding: '20px',
+            background: '#ffffff',
+            marginBottom: '25px',
+            boxShadow: '0 4px 12px rgba(33,60,81,0.05)'
+          }}>
+            <h4 style={{ margin: '0 0 6px 0', fontSize: '13px', color: 'var(--primary-dark)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              🗳️ Last Turn Legislative Vote Tally
+            </h4>
+            <p style={{ margin: '0 0 15px 0', fontSize: '12px', color: '#6b7280', lineHeight: 1.4 }}>
+              Vote results for bill: <strong>{scenarioBills?.find(b => b.billKey === turnData.lastResolvedBillKey)?.name || turnData.lastResolvedBillKey}</strong>.
+            </p>
+
+            {(() => {
+              const yes = turnData.lastBillYesVotes || 0;
+              const no = turnData.lastBillNoVotes || 0;
+              const abstain = turnData.lastBillAbstainVotes || 0;
+              const passed = yes > no && yes >= 30.0;
+              
+              let defeatReason = '';
+              if (!passed) {
+                if (yes > no && yes < 30.0) {
+                  defeatReason = 'Quorum not present (minimum 30% YES votes required).';
+                } else {
+                  defeatReason = 'NO votes were greater than or equal to YES votes.';
+                }
+              }
+
+              return (
+                <div>
+                  <div style={{
+                    background: passed ? 'rgba(34, 197, 94, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+                    border: `1px solid ${passed ? '#22c55e' : '#ef4444'}`,
+                    borderRadius: '8px',
+                    padding: '10px 12px',
+                    marginBottom: '15px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', fontSize: '13px', color: passed ? '#15803d' : '#b91c1c' }}>
+                      {passed ? '✅ PASSED' : '❌ DEFEATED'}
+                    </div>
+                    {!passed && (
+                      <div style={{ fontSize: '11px', color: '#7f1d1d', fontWeight: 500 }}>
+                        Reason: {defeatReason}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Chart Bar */}
+                  <div style={{ display: 'flex', height: '24px', borderRadius: '6px', overflow: 'hidden', background: '#f3f4f6', marginBottom: '15px', border: '1px solid #e5e7eb' }}>
+                    {yes > 0 && (
+                      <div style={{ width: `${yes}%`, background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '10px', fontWeight: 'bold' }} title={`YES: ${yes.toFixed(1)}%`}>
+                        YES {yes.toFixed(1)}%
+                      </div>
+                    )}
+                    {no > 0 && (
+                      <div style={{ width: `${no}%`, background: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '10px', fontWeight: 'bold' }} title={`NO: ${no.toFixed(1)}%`}>
+                        NO {no.toFixed(1)}%
+                      </div>
+                    )}
+                    {abstain > 0 && (
+                      <div style={{ width: `${abstain}%`, background: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '10px', fontWeight: 'bold' }} title={`ABSTAIN: ${abstain.toFixed(1)}%`}>
+                        ABS {abstain.toFixed(1)}%
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Vote Breakdown by Party */}
+                  <div style={{ fontSize: '12px' }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#374151' }}>Party Vote Breakdown:</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {Object.entries(turnData.lastBillPartyVotes || {}).map(([partyName, voteText]) => {
+                        let color = '#374151';
+                        let bg = '#f3f4f6';
+                        if (voteText.startsWith('YES')) {
+                          color = '#166534';
+                          bg = '#dcfce7';
+                        } else if (voteText.startsWith('NO')) {
+                          color = '#991b1b';
+                          bg = '#fee2e2';
+                        } else if (voteText === 'ABSTAIN') {
+                          color = '#374151';
+                          bg = '#e5e7eb';
+                        }
+                        return (
+                          <div key={partyName} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', borderRadius: '6px', background: '#fafafa', border: '1px solid #f0f0f0' }}>
+                            <span style={{ fontWeight: 500, color: '#374151' }}>{partyName}</span>
+                            <span style={{
+                              fontSize: '11px',
+                              fontWeight: 'bold',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              color: color,
+                              backgroundColor: bg
+                            }}>{voteText}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         );
       })()}
@@ -752,6 +881,151 @@ export default function StatsView({
           </div>
         </div>
       )}
+
+      {/* Legislative Assembly Status Card */}
+      <div style={{
+        border: '1px solid var(--primary-border)',
+        borderRadius: '12px',
+        marginBottom: '25px',
+        background: '#ffffff',
+        overflow: 'hidden',
+        boxShadow: '0 4px 12px rgba(33,60,81,0.05)'
+      }}>
+        {/* Card Header */}
+        <div style={{
+          background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.05)',
+          padding: '15px 20px',
+          borderBottom: '1px solid var(--primary-border)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <h3 style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: 'var(--primary-dark)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            🏛️ Legislative Assembly Agenda
+          </h3>
+          <span style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-dark)', background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.15)', padding: '2px 8px', borderRadius: '10px' }}>
+            Active Bills
+          </span>
+        </div>
+
+        {/* Card Body */}
+        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          
+          {/* Active Bill Status */}
+          {turnData.proposedBillKeyThisTurn ? (() => {
+            const activeBillDef = scenarioBills.find(b => b.billKey === turnData.proposedBillKeyThisTurn);
+            const billName = activeBillDef ? activeBillDef.name : turnData.proposedBillKeyThisTurn;
+            const proposerParty = turnData.parties?.find(p => p.id === (turnData.bills?.find(b => b.billKey === turnData.proposedBillKeyThisTurn)?.proposedByPartyId));
+            return (
+              <div style={{
+                background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.03)',
+                border: '1px solid var(--primary-border)',
+                borderRadius: '8px',
+                padding: '12px 15px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '11px', background: '#3b82f6', color: '#fff', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                    🗳️ ACTIVE VOTE THIS MONTH
+                  </span>
+                  {proposerParty && (
+                    <span style={{ fontSize: '11px', color: '#4b5563', fontWeight: 'bold' }}>
+                      Proposed by: {proposerParty.name}
+                    </span>
+                  )}
+                </div>
+                <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>
+                  {billName}
+                </h4>
+                <p style={{ margin: 0, fontSize: '12px', color: '#6b7280', lineHeight: 1.4 }}>
+                  {activeBillDef?.description || 'This bill is currently tabled and being voted on.'}
+                </p>
+              </div>
+            );
+          })() : (
+            <div style={{
+              background: '#f8fafc',
+              border: '1px dashed #cbd5e1',
+              borderRadius: '8px',
+              padding: '15px',
+              textAlign: 'center',
+              color: '#64748b',
+              fontSize: '12px',
+              fontStyle: 'italic'
+            }}>
+              No active bill is up for vote this month. {turnData.activeEventKey ? 'A state affair event is currently active.' : ''}
+            </div>
+          )}
+
+          {/* Legislative History / Bill Tracker */}
+          <div>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '12px', color: '#4b5563', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              📜 Bill Tracker History
+            </h4>
+            
+            {(!turnData.bills || turnData.bills.length === 0) ? (
+              <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' }}>
+                No bills in the agenda pool.
+              </p>
+            ) : (() => {
+              // Group bills
+              const passedBills = turnData.bills.filter(b => b.status === 'PASSED');
+              const failedBills = turnData.bills.filter(b => b.status === 'FAILED');
+              const pendingBills = turnData.bills.filter(b => b.status === 'PENDING_VOTE');
+              const notProposedBills = turnData.bills.filter(b => b.status === 'NOT_PROPOSED');
+
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {/* Lists of passed & failed */}
+                  {passedBills.length === 0 && failedBills.length === 0 && pendingBills.length === 0 && (
+                    <p style={{ margin: 0, fontSize: '12px', color: '#64748b', fontStyle: 'italic' }}>
+                      No bills have been voted on or tabled yet. Propose bills in the Legislative tab.
+                    </p>
+                  )}
+
+                  {pendingBills.map(b => {
+                    const def = scenarioBills.find(x => x.billKey === b.billKey);
+                    return (
+                      <div key={b.billKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '12px', background: '#fff' }}>
+                        <span style={{ fontWeight: '600' }}>📋 {def?.name || b.billKey}</span>
+                        <span style={{ background: '#3b82f6', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>PENDING VOTE (Turn {b.turnProposed})</span>
+                      </div>
+                    );
+                  })}
+
+                  {passedBills.map(b => {
+                    const def = scenarioBills.find(x => x.billKey === b.billKey);
+                    return (
+                      <div key={b.billKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid #bbf7d0', borderRadius: '6px', fontSize: '12px', background: '#f0fdf4' }}>
+                        <span style={{ fontWeight: '600', color: '#166534' }}>✅ {def?.name || b.billKey}</span>
+                        <span style={{ background: '#22c55e', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>PASSED (Turn {b.turnResolved})</span>
+                      </div>
+                    );
+                  })}
+
+                  {failedBills.map(b => {
+                    const def = scenarioBills.find(x => x.billKey === b.billKey);
+                    return (
+                      <div key={b.billKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '12px', background: '#fef2f2' }}>
+                        <span style={{ fontWeight: '600', color: '#9f1239' }}>❌ {def?.name || b.billKey}</span>
+                        <span style={{ background: '#ef4444', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>FAILED (Turn {b.turnResolved})</span>
+                      </div>
+                    );
+                  })}
+
+                  {/* Summary counts */}
+                  <div style={{ display: 'flex', gap: '15px', fontSize: '11px', color: '#64748b', fontWeight: 'bold', borderTop: '1px dashed var(--primary-border)', paddingTop: '8px', marginTop: '4px' }}>
+                    <span>Total Pool: {turnData.bills.length}</span>
+                    <span style={{ color: '#166534' }}>Passed: {passedBills.length}</span>
+                    <span style={{ color: '#9f1239' }}>Defeated: {failedBills.length}</span>
+                    <span>Remaining Agenda: {notProposedBills.length}</span>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+        </div>
+      </div>
 
       {/* Commentary Section */}
       <div style={{ 

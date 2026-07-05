@@ -9,6 +9,8 @@ import com.politicalsim.content.CardDefinition;
 import com.politicalsim.content.CardDefinitionRepository;
 import com.politicalsim.content.MonthlyIssueDefinition;
 import com.politicalsim.content.MonthlyIssueDefinitionRepository;
+import com.politicalsim.content.LegislativeBillDefinition;
+import com.politicalsim.content.LegislativeBillDefinitionRepository;
 import com.politicalsim.party.ControllerType;
 import com.politicalsim.party.Ideology;
 import com.politicalsim.party.PartyRole;
@@ -29,6 +31,7 @@ public class GameSessionService {
 
     private static List<CardDefinition> cachedCards = null;
     private static final Map<String, List<MonthlyIssueDefinition>> cachedIssuesByScenario = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Map<String, GameSessionContent> contentCache = new java.util.concurrent.ConcurrentHashMap<>();
 
     private List<CardDefinition> getCachedCards() {
         if (cachedCards == null) {
@@ -59,6 +62,7 @@ public class GameSessionService {
     public static void clearCaches() {
         cachedCards = null;
         cachedIssuesByScenario.clear();
+        contentCache.clear();
         log.info("[METRIC] Static definition caches cleared.");
     }
 
@@ -91,6 +95,25 @@ public class GameSessionService {
         } catch (Exception e) {
             log.error("[CACHE] Failed to preload scenario issues", e);
         }
+
+        // 3. Preload bills and events
+        try {
+            List<String> scenarioKeys = scenarioRepository.findAll().stream()
+                    .map(ScenarioDefinition::getScenarioKey)
+                    .filter(java.util.Objects::nonNull)
+                    .toList();
+
+            for (String key : scenarioKeys) {
+                long t = System.currentTimeMillis();
+                com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, key);
+                com.politicalsim.content.DefinitionCache.getEventsForScenario(eventRepository, key);
+                log.info("[CACHE] Bills and events for '{}' preloaded in {} ms", key, (System.currentTimeMillis() - t));
+            }
+            com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, "default");
+            com.politicalsim.content.DefinitionCache.getEventsForScenario(eventRepository, "default");
+        } catch (Exception e) {
+            log.error("[CACHE] Failed to preload bills and events", e);
+        }
         
         log.info("[CACHE] Total preloading finished in {} ms", (System.currentTimeMillis() - start));
     }
@@ -100,6 +123,8 @@ public class GameSessionService {
     private final CardDefinitionRepository cardRepository;
     private final MonthlyIssueDefinitionRepository issueRepository;
     private final GameSessionContentRepository contentRepository;
+    private final LegislativeBillDefinitionRepository billRepository;
+    private final com.politicalsim.content.EventCardDefinitionRepository eventRepository;
     private final String defaultStateName;
 
     public GameSessionService(
@@ -108,6 +133,8 @@ public class GameSessionService {
             CardDefinitionRepository cardRepository,
             MonthlyIssueDefinitionRepository issueRepository,
             GameSessionContentRepository contentRepository,
+            LegislativeBillDefinitionRepository billRepository,
+            com.politicalsim.content.EventCardDefinitionRepository eventRepository,
             @Value("${political-sim.default-state-name}") String defaultStateName
     ) {
         this.repository = repository;
@@ -115,16 +142,48 @@ public class GameSessionService {
         this.cardRepository = cardRepository;
         this.issueRepository = issueRepository;
         this.contentRepository = contentRepository;
+        this.billRepository = billRepository;
+        this.eventRepository = eventRepository;
         this.defaultStateName = defaultStateName;
     }
 
     private void populateSessionContent(GameSession session) {
         if (session != null) {
-            contentRepository.findById(session.getId()).ifPresent(content -> {
+            GameSessionContent content = contentCache.computeIfAbsent(session.getId(), id -> 
+                contentRepository.findById(id).orElse(null)
+            );
+            if (content != null) {
                 session.setGameCards(content.getGameCards());
                 session.setGameIssues(content.getGameIssues());
-            });
+            }
         }
+    }
+
+    private void initializeLegislativeBills(GameSession session) {
+        List<LegislativeBillDefinition> allBills = com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, session.getScenarioKey());
+        allBills = allBills.stream().filter(LegislativeBillDefinition::isActive).toList();
+
+        List<LegislativeBillDefinition> govtPool = allBills.stream()
+                .filter(b -> "GOVERNMENT".equalsIgnoreCase(b.getProposingRole()))
+                .collect(java.util.stream.Collectors.toList());
+        List<LegislativeBillDefinition> oppPool = allBills.stream()
+                .filter(b -> "OPPOSITION".equalsIgnoreCase(b.getProposingRole()))
+                .collect(java.util.stream.Collectors.toList());
+
+        java.util.Collections.shuffle(govtPool);
+        java.util.Collections.shuffle(oppPool);
+
+        List<LegislativeBillDefinition> chosenGovt = govtPool.subList(0, Math.min(10, govtPool.size()));
+        List<LegislativeBillDefinition> chosenOpp = oppPool.subList(0, Math.min(10, oppPool.size()));
+
+        List<LegislativeBillState> states = new java.util.ArrayList<>();
+        for (LegislativeBillDefinition b : chosenGovt) {
+            states.add(new LegislativeBillState(b.getBillKey()));
+        }
+        for (LegislativeBillDefinition b : chosenOpp) {
+            states.add(new LegislativeBillState(b.getBillKey()));
+        }
+        session.setBills(states);
     }
 
     public GameSession createGame(CreateGameRequest request, RewardDefinition firstReward) {
@@ -183,6 +242,9 @@ public class GameSessionService {
             session.setStatus(GameStatus.ACTIVE);
         }
         session.setParties(parties);
+        for (PartyState p : parties) {
+            p.setAssemblySeatShare(p.getStats().getPublicSupport());
+        }
         session.setGovernmentParty(governmentParty);
         session.setOppositionParty(oppositionParty);
         session.setCardUsageByParty(initialCardUsage(parties));
@@ -246,11 +308,14 @@ public class GameSessionService {
         }
         session.setGameIssues(selectedIssues);
 
+        initializeLegislativeBills(session);
+
         normalizePublicSupport(session);
 
         GameSession saved = repository.save(session);
         GameSessionContent content = new GameSessionContent(saved.getId(), selectedCards, selectedIssues);
         contentRepository.save(content);
+        contentCache.put(saved.getId(), content);
 
         saved.setGameCards(selectedCards);
         saved.setGameIssues(selectedIssues);

@@ -10,6 +10,23 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
   const [recipientId, setRecipientId] = useState(otherParties[0]?.id || '');
   const [offerType, setOfferType] = useState('EXCHANGE');
 
+  // Lobbying details
+  const [scenarioBills, setScenarioBills] = useState([]);
+  const [lobbyBillKey, setLobbyBillKey] = useState('');
+  const [offeredMedia, setOfferedMedia] = useState(0);
+
+  useEffect(() => {
+    if (turnData.scenarioKey) {
+      import('../../api/apiClient').then(client => {
+        if (client.fetchBillsForGameplay) {
+          client.fetchBillsForGameplay(turnData.scenarioKey)
+            .then(data => setScenarioBills(data || []))
+            .catch(err => console.error("Failed to load scenario bills:", err));
+        }
+      });
+    }
+  }, [turnData.scenarioKey]);
+
   // Exchange details
   const [offeredCoins, setOfferedCoins] = useState(0);
   const [offeredMorale, setOfferedMorale] = useState(0);
@@ -80,14 +97,16 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
       recipientPartyId: recipientId,
       recipientPartyName: recipientParty?.name,
       type: offerType,
-      offeredCoins: offerType === 'EXCHANGE' ? parseInt(offeredCoins) || 0 : 0,
-      offeredMorale: offerType === 'EXCHANGE' ? parseInt(offeredMorale) || 0 : 0,
+      lobbyBillKey: offerType === 'LOBBYING' ? lobbyBillKey : null,
+      offeredCoins: (offerType === 'EXCHANGE' || offerType === 'LOBBYING') ? parseInt(offeredCoins) || 0 : 0,
+      offeredMorale: (offerType === 'EXCHANGE' || offerType === 'LOBBYING') ? parseInt(offeredMorale) || 0 : 0,
+      offeredMedia: offerType === 'LOBBYING' ? parseInt(offeredMedia) || 0 : 0,
       offeredSupport: offerType === 'EXCHANGE' ? parseInt(offeredSupport) || 0 : 0,
-      offeredBuildingKeys: offerType === 'EXCHANGE' ? offeredBuildingKeys : [],
+      offeredBuildingKeys: (offerType === 'EXCHANGE' || offerType === 'LOBBYING') ? offeredBuildingKeys : [],
       requestedCoins: offerType === 'EXCHANGE' ? parseInt(requestedCoins) || 0 : 0,
       requestedSupport: offerType === 'EXCHANGE' ? parseInt(requestedSupport) || 0 : 0,
       requestedMorale: offerType === 'EXCHANGE' ? parseInt(requestedMorale) || 0 : 0,
-      durationTurns: offerType === 'NON_AGGRESSION' ? parseInt(durationTurns) || 10 : 0,
+      durationTurns: (offerType === 'NON_AGGRESSION' || offerType === 'LOBBYING') ? parseInt(durationTurns) || 0 : 0,
       senderPaysPact: offerType === 'NON_AGGRESSION' ? includePayment && senderPaysPact : false,
       pactPaymentResource: offerType === 'NON_AGGRESSION' && includePayment ? pactPaymentResource : null,
       pactPaymentValue: offerType === 'NON_AGGRESSION' && includePayment && pactPaymentResource !== 'COMPLETED_BUILDING' ? parseInt(pactPaymentValue) || 0 : 0,
@@ -121,6 +140,8 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
       setOfferedCoins(0);
       setOfferedMorale(0);
       setOfferedSupport(0);
+      setOfferedMedia(0);
+      setLobbyBillKey('');
       setOfferedBuildingKeys([]);
       setRequestedCoins(0);
       setRequestedSupport(0);
@@ -148,6 +169,20 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
   };
 
   const getResourceString = (offer) => {
+    if (offer.type === 'LOBBYING') {
+      const giveParts = [];
+      if (offer.offeredCoins > 0) giveParts.push(`${offer.offeredCoins} Coins`);
+      if (offer.offeredMorale > 0) giveParts.push(`${offer.offeredMorale} Morale`);
+      if (offer.offeredMedia > 0) giveParts.push(`${offer.offeredMedia} Media Image`);
+      if (offer.offeredBuildingKeys && offer.offeredBuildingKeys.length > 0) {
+        const names = offer.offeredBuildingKeys.map(k => PROJECT_DEFS[k]?.name || k).join(', ');
+        giveParts.push(`Buildings [${names}]`);
+      }
+      if (offer.durationTurns > 0) {
+        giveParts.push(`${offer.durationTurns}-turn Non-Aggression Pact`);
+      }
+      return `Lobbying: GIVES {${giveParts.join(', ') || 'Nothing'}} in exchange for Pledging to vote YES on Bill '${offer.lobbyBillKey}'`;
+    }
     if (offer.type === 'NON_AGGRESSION') {
       let desc = `${offer.durationTurns}-turn Non-Aggression Pact`;
       if (offer.pactPaymentValue > 0 || (offer.pactPaymentBuildingKeys && offer.pactPaymentBuildingKeys.length > 0)) {
@@ -164,9 +199,9 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
       return desc;
     } else {
       const giveParts = [];
-      if (offer.offeredCoins > 0) giveParts.add(`${offer.offeredCoins} Coins`);
-      if (offer.offeredMorale > 0) giveParts.add(`${offer.offeredMorale} Morale`);
-      if (offer.offeredSupport > 0) giveParts.add(`${offer.offeredSupport}% Support`);
+      if (offer.offeredCoins > 0) giveParts.push(`${offer.offeredCoins} Coins`);
+      if (offer.offeredMorale > 0) giveParts.push(`${offer.offeredMorale} Morale`);
+      if (offer.offeredSupport > 0) giveParts.push(`${offer.offeredSupport}% Support`);
       if (offer.offeredBuildingKeys && offer.offeredBuildingKeys.length > 0) {
         const names = offer.offeredBuildingKeys.map(k => PROJECT_DEFS[k]?.name || k).join(', ');
         giveParts.push(`Buildings [${names}]`);
@@ -277,6 +312,10 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
                 <input type="radio" name="offerType" checked={offerType === 'EXCHANGE'} onChange={() => setOfferType('EXCHANGE')} style={{ display: 'none' }} />
                 💱 Exchange Assets
               </label>
+              <label style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', border: `1px solid ${offerType === 'LOBBYING' ? 'var(--primary-dark)' : 'var(--primary-border)'}`, borderRadius: '4px', padding: '8px', cursor: 'pointer', background: offerType === 'LOBBYING' ? 'rgba(33,60,81,0.05)' : '#fff', fontSize: '12px', fontWeight: 'bold' }}>
+                <input type="radio" name="offerType" checked={offerType === 'LOBBYING'} onChange={() => setOfferType('LOBBYING')} style={{ display: 'none' }} />
+                🗳️ Lobby for Bill
+              </label>
               <label style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', border: `1px solid ${offerType === 'NON_AGGRESSION' ? 'var(--primary-dark)' : 'var(--primary-border)'}`, borderRadius: '4px', padding: '8px', cursor: 'pointer', background: offerType === 'NON_AGGRESSION' ? 'rgba(33,60,81,0.05)' : '#fff', fontSize: '12px', fontWeight: 'bold' }}>
                 <input type="radio" name="offerType" checked={offerType === 'NON_AGGRESSION'} onChange={() => setOfferType('NON_AGGRESSION')} style={{ display: 'none' }} />
                 🕊️ Non-Aggression Pact
@@ -290,6 +329,67 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
           <h5 style={{ margin: 0, fontSize: '12px', color: 'var(--primary-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
             🎁 What You Offer (Give)
           </h5>
+
+          {offerType === 'LOBBYING' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div>
+                <label htmlFor="lobby-bill-select" style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'gray' }}>Select Bill to Lobby for (Binding vote pledge):</label>
+                <select
+                  id="lobby-bill-select"
+                  value={lobbyBillKey}
+                  onChange={(e) => setLobbyBillKey(e.target.value)}
+                  style={{ width: '100%', padding: '6px', fontSize: '13px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}
+                >
+                  <option value="">-- Choose a Bill --</option>
+                  {(scenarioBills || []).map(b => (
+                    <option key={b.billKey} value={b.billKey}>{b.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <div style={{ flex: 1 }}>
+                  <label htmlFor="lobby-coins" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Coins:</label>
+                  <input id="lobby-coins" type="number" min="0" value={offeredCoins} onChange={(e) => setOfferedCoins(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label htmlFor="lobby-morale" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Morale:</label>
+                  <input id="lobby-morale" type="number" min="0" value={offeredMorale} onChange={(e) => setOfferedMorale(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label htmlFor="lobby-media" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Media Image:</label>
+                  <input id="lobby-media" type="number" min="0" value={offeredMedia} onChange={(e) => setOfferedMedia(Math.max(0, parseInt(e.target.value) || 0))} style={{ width: '100%', padding: '5px', fontSize: '12px', borderRadius: '4px', border: '1px solid var(--primary-border)' }} />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="lobby-duration" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: 'gray' }}>Add Non-Aggression Pact duration (optional):</label>
+                <select id="lobby-duration" value={durationTurns} onChange={(e) => setDurationTurns(parseInt(e.target.value))} style={{ width: '100%', padding: '6px', fontSize: '12px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}>
+                  <option value={0}>None</option>
+                  <option value={5}>5 Months</option>
+                  <option value={10}>10 Months</option>
+                  <option value={15}>15 Months</option>
+                </select>
+              </div>
+
+              {myCompletedProjects.length > 0 && (
+                <div style={{ marginTop: '5px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'gray' }}>Completed Buildings to Offer:</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxHeight: '100px', overflowY: 'auto', padding: '6px', border: '1px solid var(--primary-border)', borderRadius: '4px' }}>
+                    {myCompletedProjects.map(proj => {
+                      const pDef = PROJECT_DEFS[proj.projectKey] || {};
+                      return (
+                        <label key={proj.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' }}>
+                          <input type="checkbox" checked={offeredBuildingKeys.includes(proj.projectKey)} onChange={() => toggleBuildingSelection(proj.projectKey, 'OFFER')} />
+                          🏗️ {pDef.name || proj.projectKey}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {offerType === 'EXCHANGE' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
