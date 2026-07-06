@@ -16,8 +16,8 @@ export default function HowToPlay() {
     },
     {
       id: 3,
-      title: 'Action 3: Party News Reaction (Required)',
-      description: 'Resolve an internal policy decision, monthly governance issue, or local crisis, presented as an urgent TV Breaking News alert. This focuses on managing internal morale, corruption, and immediate crisis management.',
+      title: 'Action 3: Factions Management (Placeholder)',
+      description: 'Manage the loyalty and influence of your party\'s 5 factions (Veteran, Youth, Trade Union, Liberal, Conservative). Allocate Patronage points, Funding, and Media attention to keep their loyalty high and generate positive turn-by-turn yields. Be careful—unloyal factions reduce project yields and increase corruption.',
       imagePlaceholder: '/action3_screenshot.png'
     },
     {

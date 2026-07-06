@@ -26,7 +26,7 @@ class GameServiceProjectTest {
         private GameSession currentSession;
 
         public MockGameSessionService(GameSession session) {
-            super(null, null, null, null, null, null, null, null);
+            super(null, null, null, null, null, null, null);
             this.currentSession = session;
         }
 
@@ -108,11 +108,10 @@ class GameServiceProjectTest {
 
         com.politicalsim.content.DefinitionCache.newsCache.put("test_scenario", new ArrayList<>());
         com.politicalsim.content.DefinitionCache.cardsCache.put("test_scenario", new ArrayList<>());
-        com.politicalsim.content.DefinitionCache.issuesCache.put("test_scenario", new ArrayList<>());
 
-        RoundResolutionEngine roundEngine = new RoundResolutionEngine(null, null, null, null, null);
+        RoundResolutionEngine roundEngine = new RoundResolutionEngine(null, null, null);
         sessionService = new MockGameSessionService(session);
-        gameService = new GameService(sessionService, roundEngine, null, null, null, null, null, null);
+        gameService = new GameService(sessionService, roundEngine, null, null, null, null, null);
     }
 
     @Test

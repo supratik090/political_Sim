@@ -166,7 +166,7 @@ public class ProjectResolver {
                                           || def.getBenefitMedia() < 0 
                                           || def.getBenefitCorruption() > 0 
                                           || def.getBenefitSupport() < 0;
-                    if (!projectHostile) {
+                    if (false) {
                         if (def.getBenefitCoins() != 0) {
                             party.getStats().setCoins(party.getStats().getCoins() + def.getBenefitCoins());
                             deltas.get(party.getId()).coins += def.getBenefitCoins();

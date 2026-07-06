@@ -42,7 +42,6 @@ public class GameService {
     private final RoundResolutionEngine roundResolutionEngine;
     private final CardDefinitionRepository cardRepository;
     private final NewsDefinitionRepository newsRepository;
-    private final MonthlyIssueDefinitionRepository issueRepository;
     private final ScenarioDefinitionRepository scenarioRepository;
     private final AiDecisionService aiDecisionService;
     private final CooperationResolver cooperationResolver;
@@ -54,12 +53,11 @@ public class GameService {
             RoundResolutionEngine roundResolutionEngine,
             CardDefinitionRepository cardRepository,
             NewsDefinitionRepository newsRepository,
-            MonthlyIssueDefinitionRepository issueRepository,
             ScenarioDefinitionRepository scenarioRepository,
             AiDecisionService aiDecisionService,
             com.politicalsim.ai.BrokeFightBackService brokeFightBackService
     ) {
-        this(gameSessionService, roundResolutionEngine, cardRepository, newsRepository, issueRepository, scenarioRepository, aiDecisionService, brokeFightBackService, new LegislativeAiService(null));
+        this(gameSessionService, roundResolutionEngine, cardRepository, newsRepository, scenarioRepository, aiDecisionService, brokeFightBackService, new LegislativeAiService(null));
     }
 
     @Autowired
@@ -68,7 +66,6 @@ public class GameService {
             RoundResolutionEngine roundResolutionEngine,
             CardDefinitionRepository cardRepository,
             NewsDefinitionRepository newsRepository,
-            MonthlyIssueDefinitionRepository issueRepository,
             ScenarioDefinitionRepository scenarioRepository,
             AiDecisionService aiDecisionService,
             com.politicalsim.ai.BrokeFightBackService brokeFightBackService,
@@ -78,7 +75,6 @@ public class GameService {
         this.roundResolutionEngine = roundResolutionEngine;
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
-        this.issueRepository = issueRepository;
         this.scenarioRepository = scenarioRepository;
         this.aiDecisionService = aiDecisionService;
         this.brokeFightBackService = brokeFightBackService;
@@ -318,7 +314,7 @@ public class GameService {
         List<CardDefinition> availableCards = getAvailableHumanCards(session);
         List<NewsDefinition> currentNews = getCurrentNews(session);
         PartyState activeHumanParty = getActiveHumanParty(session);
-        MonthlyIssueDefinition currentIssue = activeHumanParty == null ? null : getCurrentIssue(session, activeHumanParty);
+        Object currentIssue = null;
         
         List<HeldRewardView> activePlayerHeldRewards = new ArrayList<>();
         if (activeHumanParty != null && session.getPartyHeldRewards() != null) {
@@ -466,8 +462,6 @@ public class GameService {
 
         CardDefinition selectedCard = findAvailableCard(session, request.getSelectedCardKey(), activeHumanParty);
         PartyState targetParty = resolveTargetParty(session, activeHumanParty, selectedCard, request.getTargetPartyId());
-        MonthlyIssueDefinition selectedIssue = getCurrentIssue(session, activeHumanParty);
-        IssueOptionDefinition selectedIssueOption = findIssueOption(selectedIssue, request.getSelectedIssueOptionKey());
         session.getCurrentRoundSubmissions().removeIf(submission -> submission.getPartyId().equals(activeHumanParty.getId()));
         
         RoundSubmission sub = toSubmission(
@@ -475,8 +469,8 @@ public class GameService {
                 targetParty,
                 selectedCard,
                 request.getSelectedNewsReactions(),
-                selectedIssue,
-                selectedIssueOption
+                null,
+                null
         );
         sub.setBid(request.getBid());
         sub.setProposedBillKey(request.getProposedBillKey());
@@ -484,6 +478,8 @@ public class GameService {
         sub.setSelectedEventOptionKey(request.getSelectedEventOptionKey());
         sub.setWhipIssued(request.isWhipIssued());
         sub.setSelectedRewardKey(request.getSelectedRewardKey());
+        sub.setAllocations(request.getAllocations());
+        sub.setFactionCrisisChoice(request.getFactionCrisisChoice());
         if (request.getSelectedRewardKey() != null && !request.getSelectedRewardKey().isBlank()) {
             sub.setRewardTargetPartyId(request.getRewardTargetPartyId());
             if (request.getRewardTargetPartyId() != null) {
@@ -677,7 +673,7 @@ public class GameService {
     }
 
     private RoundSubmission toSubmission(PartyState party, PartyState targetParty, CardDefinition card, Map<String, String> newsReactions,
-            MonthlyIssueDefinition issue, IssueOptionDefinition issueOption) {
+            Object issue, Object issueOption) {
         RoundSubmission submission = new RoundSubmission();
         submission.setPartyId(party.getId());
         submission.setPartyName(party.getName());
@@ -688,12 +684,6 @@ public class GameService {
         submission.setCardKey(card.getCardKey());
         submission.setCardName(card.getName());
         submission.setNewsReactions(new LinkedHashMap<>(newsReactions));
-        if (issue != null && issueOption != null) {
-            submission.setIssueKey(issue.getIssueKey());
-            submission.setIssueTitle(issue.getTitle());
-            submission.setIssueOptionKey(issueOption.getOptionKey());
-            submission.setIssueOptionText(issueOption.getText());
-        }
         return submission;
     }
 
@@ -708,6 +698,65 @@ public class GameService {
             if (session.getCurrentRoundSubmissions().stream().anyMatch(s -> s.getPartyId().equals(party.getId()))) {
                 continue;
             }
+
+            // AI Faction Bribe Behavior
+            if (party.getStats().getCoins() > 150 && new java.util.Random().nextDouble() < 0.25) {
+                com.politicalsim.party.FactionState bestTargetFs = null;
+                PartyState bestTargetParty = null;
+                int lowestLoyalty = 101;
+                
+                for (PartyState opp : session.getParties()) {
+                    if (opp.getId().equals(party.getId()) || opp.getRole() == com.politicalsim.party.PartyRole.DEFEATED || !opp.isActive()) {
+                        continue;
+                    }
+                    for (com.politicalsim.party.FactionState fs : opp.getFactions()) {
+                        if (fs.isActive() && fs.getLoyalty() < lowestLoyalty) {
+                            lowestLoyalty = fs.getLoyalty();
+                            bestTargetFs = fs;
+                            bestTargetParty = opp;
+                        }
+                    }
+                }
+                
+                if (bestTargetFs != null && bestTargetParty != null && party.getStats().getCoins() >= 20) {
+                    party.getStats().setCoins(party.getStats().getCoins() - 20);
+                    
+                    int patronageCoins = bestTargetFs.getPatronage() * 2;
+                    int postCoins = "Fund Manager Post".equals(bestTargetFs.getPost()) ? 8 : 0;
+                    int baseCoins = patronageCoins + postCoins;
+                    for (ProjectState ps : bestTargetParty.getProjects()) {
+                        if (ps.getProgressPercent() == 100 && bestTargetFs.getKey().equals(ps.getManagingFactionKey())) {
+                            if ("PARTY_HQ".equals(ps.getProjectKey())) {
+                                baseCoins += 12;
+                            }
+                        }
+                    }
+                    
+                    double bribeAppeal = 20.0 / (10.0 + baseCoins);
+                    double successProb = (1.0 - (bestTargetFs.getLoyalty() / 100.0)) + bribeAppeal * 0.20;
+                    successProb = Math.max(0.05, Math.min(0.95, successProb));
+                    
+                    double roll = new java.util.Random().nextDouble();
+                    if (roll < successProb) {
+                        double deltaLoyalty = 5.0 * bribeAppeal * (1.5 - (bestTargetFs.getLoyalty() / 100.0));
+                        int loyaltyLoss = (int) Math.round(deltaLoyalty);
+                        if (loyaltyLoss < 1) loyaltyLoss = 1;
+                        bestTargetFs.setLoyalty(Math.max(0, bestTargetFs.getLoyalty() - loyaltyLoss));
+                        
+                        String msg = "🚨 AI Sabotage: " + party.getName() + " successfully bribed " + bestTargetParty.getName() + "'s " + bestTargetFs.getName() + "! Loyalty fell by -" + loyaltyLoss + "% (Current: " + bestTargetFs.getLoyalty() + "%).";
+                        session.getLastRoundCommentary().add(msg);
+                        session.getLastResults().add("🚨 AI " + party.getName() + " successfully bribed opponent faction " + bestTargetFs.getName());
+                    } else {
+                        party.getStats().setMediaImage(Math.max(0, party.getStats().getMediaImage() - 10));
+                        bestTargetParty.getStats().setPartyMorale(Math.min(100, bestTargetParty.getStats().getPartyMorale() + 5));
+                        
+                        String msg = "🚨 AI Sabotage Exposed: " + party.getName() + " attempted to bribe " + bestTargetParty.getName() + "'s " + bestTargetFs.getName() + " but was EXPOSED! " + party.getName() + " loses -10 Media Image and " + bestTargetParty.getName() + " gains +5 Morale.";
+                        session.getLastRoundCommentary().add(msg);
+                        session.getLastResults().add("🚨 AI " + party.getName() + " bribe attempt on " + bestTargetFs.getName() + " exposed!");
+                    }
+                }
+            }
+
             PartyState opponent = chooseOpponentExcludingPacts(session, party);
             AiDecision decision = aiDecisionService.chooseCard(session, party, opponent, getAvailableCardsForParty(session, party));
             Map<String, String> reactions = new LinkedHashMap<>();
@@ -717,11 +766,83 @@ public class GameService {
                     reactions.put(news.getNewsKey(), reaction.getReactionKey());
                 }
             }
-            MonthlyIssueDefinition issue = getCurrentIssue(session, party);
-            IssueOptionDefinition issueOption = chooseComputerIssueOption(party, issue);
             PartyState targetParty = chooseAiTarget(session, party, decision.card());
-            RoundSubmission submission = toSubmission(party, targetParty, decision.card(), reactions, issue, issueOption);
+            RoundSubmission submission = toSubmission(party, targetParty, decision.card(), reactions, null, null);
             submission.setAiIntent(decision.intent().name());
+
+            // AI Legislative Proposing and Lobbying
+            String proposedBillKey = aiDecisionService.chooseBillToPropose(session, party);
+            if (proposedBillKey != null) {
+                int totalYesVotes = 0;
+                int totalParties = 0;
+                List<PartyState> potentialLobbyTargets = new ArrayList<>();
+                for (PartyState other : session.getParties()) {
+                    if (other.getRole() == com.politicalsim.party.PartyRole.DEFEATED || !other.isActive()) {
+                        continue;
+                    }
+                    totalParties++;
+                    if (other.getId().equals(party.getId())) {
+                        totalYesVotes++;
+                    } else {
+                        String vote = legislativeAiService.evaluateAiBillVote(session, other, proposedBillKey);
+                        if ("YES".equals(vote)) {
+                            totalYesVotes++;
+                        } else {
+                            potentialLobbyTargets.add(other);
+                        }
+                    }
+                }
+                boolean hasMajority = totalYesVotes > (totalParties / 2);
+                if (!hasMajority && !potentialLobbyTargets.isEmpty() && party.getStats().getCoins() >= 35) {
+                    PartyState lobbyTarget = potentialLobbyTargets.get(new java.util.Random().nextInt(potentialLobbyTargets.size()));
+                    
+                    CooperationOffer lobbyOffer = new CooperationOffer();
+                    lobbyOffer.setId(java.util.UUID.randomUUID().toString());
+                    lobbyOffer.setTurnCreated(session.getTurnNumber());
+                    lobbyOffer.setStatus(CooperationOffer.OfferStatus.PENDING);
+                    lobbyOffer.setType(CooperationOffer.OfferType.LOBBYING);
+                    lobbyOffer.setSenderPartyId(party.getId());
+                    lobbyOffer.setSenderPartyName(party.getName());
+                    lobbyOffer.setRecipientPartyId(lobbyTarget.getId());
+                    lobbyOffer.setRecipientPartyName(lobbyTarget.getName());
+                    lobbyOffer.setLobbyBillKey(proposedBillKey);
+                    
+                    lobbyOffer.setOfferedCoins(15);
+                    if (party.getStats().getPartyMorale() > 30) {
+                        lobbyOffer.setOfferedMorale(5);
+                    }
+                    
+                    if (session.getCooperationOffers() == null) {
+                        session.setCooperationOffers(new java.util.ArrayList<>());
+                    }
+                    
+                    if (lobbyTarget.getControllerType() == com.politicalsim.party.ControllerType.COMPUTER) {
+                        boolean accepted = aiDecisionService.evaluateCooperationOffer(session, lobbyTarget, lobbyOffer);
+                        if (accepted) {
+                            cooperationResolver.executeCooperationTrade(session, lobbyOffer);
+                            lobbyOffer.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
+                            session.getLobbyPledges().add(new com.politicalsim.game.LobbyPledge(
+                                lobbyTarget.getId(),
+                                proposedBillKey
+                            ));
+                            session.getLastRoundCommentary().add("🤝 Lobbying Success: AI " + party.getName() + " convinced AI " + lobbyTarget.getName() + " to pledge YES on Bill " + proposedBillKey + ".");
+                        } else {
+                            lobbyOffer.setStatus(CooperationOffer.OfferStatus.REJECTED);
+                        }
+                    }
+                    session.getCooperationOffers().add(lobbyOffer);
+                }
+                submission.setProposedBillKey(proposedBillKey);
+            }
+
+            // AI Faction Crisis management
+            if (party.getActiveFactionCrisisKey() != null && !party.getActiveFactionCrisisKey().isEmpty()) {
+                String crisisChoice = aiDecisionService.chooseFactionCrisisChoice(session, party);
+                submission.setFactionCrisisChoice(crisisChoice);
+            }
+
+            // AI Faction allocations
+            aiDecisionService.makeFactionAllocations(session, party, submission);
 
             // AI Legislative Vote Selection
             String activeBillKey = session.getProposedBillKeyThisTurn();
@@ -729,7 +850,6 @@ public class GameService {
                 String aiVote = legislativeAiService.evaluateAiBillVote(session, party, activeBillKey);
                 submission.setBillVote(aiVote);
                 
-                // AI Whip Selection: if vote is YES/NO and they can afford it, and has corruption or support risk, issue whip
                 boolean canAffordWhip = party.getStats().getCoins() >= 25;
                 boolean isYesOrNo = "YES".equalsIgnoreCase(aiVote) || "NO".equalsIgnoreCase(aiVote);
                 boolean shouldWhip = isYesOrNo && canAffordWhip && (party.getStats().getCorruptionScore() > 30 || party.getStats().getPublicSupport() >= 20);
@@ -1179,100 +1299,7 @@ public class GameService {
                 .toList();
     }
 
-    public MonthlyIssueDefinition getCurrentIssue(GameSession session, PartyState party) {
-        // Preserve the pre-shuffled order stored in gameIssues — do NOT re-sort here.
-        List<MonthlyIssueDefinition> issues = getIssuesForSession(session).stream()
-                .filter(MonthlyIssueDefinition::isActive)
-                .filter(issue -> issue.getRoleAllowed().contains(party.getRole().name()))
-                .toList();
-        if (issues.isEmpty()) {
-            return fallbackIssue(party);
-        }
-        int partyOffset = Math.floorMod(party.getId().hashCode(), issues.size());
-        int index = Math.floorMod(session.getTurnNumber() - 1 + partyOffset, issues.size());
-        return issues.get(index);
-    }
 
-    private IssueOptionDefinition findIssueOption(MonthlyIssueDefinition issue, String optionKey) {
-        return issue.getOptions().stream()
-                .filter(option -> option.getOptionKey().equals(optionKey))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Issue option not available: " + optionKey));
-    }
-
-    private IssueOptionDefinition chooseComputerIssueOption(PartyState party, MonthlyIssueDefinition issue) {
-        return issue.getOptions().stream()
-                .max((left, right) -> Double.compare(scoreIssueOption(party, left), scoreIssueOption(party, right)))
-                .orElseThrow(() -> new IllegalArgumentException("Issue has no options: " + issue.getIssueKey()));
-    }
-
-    private double scoreIssueOption(PartyState party, IssueOptionDefinition option) {
-        Map<String, Object> effects = partyEffect(option.getEffects(), "selfParty");
-        double score = 0;
-        
-        int coinEffect = intValue(effects.get("coins"));
-        double coinWeight = 0.25;
-        if (coinEffect < 0) {
-            int currentCoins = party.getStats().getCoins();
-            if (currentCoins < 30) {
-                coinWeight = 2.0; // 8x penalty multiplier (0.25 * 8 = 2.0)
-            } else if (currentCoins < 50) {
-                coinWeight = 1.0; // 4x penalty multiplier (0.25 * 4 = 1.0)
-            } else if (currentCoins < 75) {
-                coinWeight = 0.5; // 2x penalty multiplier (0.25 * 2 = 0.5)
-            }
-        }
-        score += coinEffect * coinWeight;
-        
-        int moraleEffect = intValue(effects.get("partyMorale"));
-        double moraleWeight = 2.0;
-        if (moraleEffect < 0) {
-            int currentMorale = party.getStats().getPartyMorale();
-            if (currentMorale < 20) {
-                moraleWeight = 16.0; // 8x penalty multiplier (2.0 * 8 = 16.0)
-            } else if (currentMorale < 35) {
-                moraleWeight = 8.0;  // 4x penalty multiplier (2.0 * 4 = 8.0)
-            } else if (currentMorale < 50) {
-                moraleWeight = 4.0;  // 2x penalty multiplier (2.0 * 2 = 4.0)
-            }
-        }
-        score += moraleEffect * moraleWeight;
-        
-        score += intValue(effects.get("mediaImage")) * 2.0;
-        score += intValue(effects.get("publicSupport")) * 4.0;
-        score -= intValue(effects.get("corruptionScore")) * 3.0;
-        if (party.getStats().getCoins() < 80) {
-            score += Math.max(0, intValue(effects.get("coins"))) * 0.4;
-        }
-        if (party.getStats().getCorruptionScore() > 40) {
-            score -= Math.max(0, intValue(effects.get("corruptionScore"))) * 2.0;
-        }
-        score -= intValue(option.getRisk().get("chance")) * 0.05;
-        return score;
-    }
-
-    private MonthlyIssueDefinition fallbackIssue(PartyState party) {
-        MonthlyIssueDefinition issue = new MonthlyIssueDefinition();
-        issue.setScenarioKey("fallback");
-        issue.setIssueKey("routine_role_review_" + party.getRole().name().toLowerCase());
-        issue.setRoleAllowed(List.of(party.getRole().name()));
-        issue.setCategory(party.getRole() == PartyRole.GOVERNMENT ? "governance_review" : "party_review");
-        issue.setTitle(party.getRole() == PartyRole.GOVERNMENT ? "Routine Governance Review" : "Routine Party Review");
-        issue.setDescription("No special monthly issue is configured for this role yet. Handle routine political maintenance.");
-        IssueOptionDefinition option = new IssueOptionDefinition();
-        option.setOptionKey("routine_maintenance");
-        option.setText("Handle routine maintenance without major public drama.");
-        option.setEffects(Map.of("selfParty", Map.of(
-                "coins", -2,
-                "partyMorale", 1,
-                "corruptionScore", 0,
-                "mediaImage", 0,
-                "publicSupport", 0
-        )));
-        option.setRisk(Map.of());
-        issue.setOptions(List.of(option));
-        return issue;
-    }
 
     private NoConfidenceStatus getNoConfidenceStatus(GameSession session) {
         boolean playerIsOpposition = session.getPlayerPartyIds().contains(session.getOppositionParty().getId());
@@ -1613,57 +1640,11 @@ public class GameService {
         });
     }
 
-    /**
-     * Loads all candidate issues for a scenario with 'default' fallback chain:
-     *   scenarioKey → alternativeScenarioKey → "default" → empty list
-     * Result is cached since it represents the full pool (not per-game).
-     */
-    private List<MonthlyIssueDefinition> getIssuesForScenario(String scenarioKey) {
-        return DefinitionCache.issuesCache.computeIfAbsent(scenarioKey, key -> {
-            List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKey(key);
-            if (issues.isEmpty()) {
-                String altKey = getAlternativeScenarioKey(key);
-                if (altKey != null) {
-                    issues = issueRepository.findByScenarioKey(altKey);
-                }
-            }
-            if (issues.isEmpty()) {
-                // Generic fallback: definitions tagged with scenarioKey="default"
-                issues = issueRepository.findByScenarioKey("default");
-            }
-            return issues;
-        });
-    }
-
-    /**
-     * Builds a per-game issue list:
-     *  1. Loads full pool (scenarioKey → "default" fallback).
-     *  2. If pool > 60, randomly samples 60 entries.
-     *  3. Shuffles the selected entries so every game has a unique order.
-     * The result is stored in GameSession.gameIssues and persisted.
-     */
-    private List<MonthlyIssueDefinition> buildGameIssues(String scenarioKey) {
-        List<MonthlyIssueDefinition> pool = new ArrayList<>(getIssuesForScenario(scenarioKey));
-        java.util.Collections.shuffle(pool); // randomise before slicing
-        if (pool.size() > 60) {
-            pool = pool.subList(0, 60);
-        }
-        return pool;
-    }
-
     private List<CardDefinition> getCardsForSession(GameSession session) {
         if (session.getGameCards() != null && !session.getGameCards().isEmpty()) {
             return session.getGameCards();
         }
         return getCardsForScenario(session.getScenarioKey());
-    }
-
-    private List<MonthlyIssueDefinition> getIssuesForSession(GameSession session) {
-        if (session.getGameIssues() != null && !session.getGameIssues().isEmpty()) {
-            return session.getGameIssues();
-        }
-        // Fallback for old sessions that predate per-game issue storage
-        return getIssuesForScenario(session.getScenarioKey());
     }
 
     public TurnView fundProject(String gameId, String partyId, String projectIdOrKey, int progress) {
@@ -2279,5 +2260,83 @@ public class GameService {
             session.setSecretMetricSequence(list);
             session.setSecretMetric(list.get(0));
         }
+    }
+
+    public TurnView bribeFaction(String gameId, String targetPartyId, String factionKey, int coins) {
+        GameSession session = getGame(gameId);
+        PartyState sender = getActiveHumanParty(session);
+        if (sender == null) {
+            throw new IllegalArgumentException("No active human player found.");
+        }
+        if (sender.getId().equals(targetPartyId)) {
+            throw new IllegalArgumentException("Cannot target your own party with a bribe.");
+        }
+        PartyState targetParty = findParty(session, targetPartyId);
+        if (targetParty == null || !targetParty.isActive() || targetParty.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+            throw new IllegalArgumentException("Target party is not active or defeated.");
+        }
+
+        com.politicalsim.party.FactionState fs = targetParty.getFactions().stream()
+                .filter(f -> f.getKey().equals(factionKey))
+                .findFirst().orElse(null);
+        if (fs == null || !fs.isActive()) {
+            throw new IllegalArgumentException("Target faction is not active.");
+        }
+
+        if (coins <= 0) {
+            throw new IllegalArgumentException("Bribe coins must be greater than zero.");
+        }
+
+        // Bribe costs coins
+        if (sender.getStats().getCoins() < coins) {
+            throw new IllegalArgumentException("Insufficient coins. Bribe costs " + coins + " Coins.");
+        }
+
+        // Deduct coins
+        sender.getStats().setCoins(sender.getStats().getCoins() - coins);
+
+        // 1. Calculate Target Faction Coin Yield
+        int patronageCoins = fs.getPatronage() * 2;
+        int postCoins = "Fund Manager Post".equals(fs.getPost()) ? 8 : 0;
+        int baseCoins = patronageCoins + postCoins;
+        for (ProjectState ps : targetParty.getProjects()) {
+            if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
+                if ("PARTY_HQ".equals(ps.getProjectKey())) {
+                    baseCoins += 12;
+                }
+            }
+        }
+
+        // 2. Bribe Appeal
+        double bribeAppeal = (double) coins / (10.0 + baseCoins);
+
+        // 3. Success Probability
+        double successProb = (1.0 - (fs.getLoyalty() / 100.0)) + bribeAppeal * 0.20;
+        successProb = Math.max(0.05, Math.min(0.95, successProb));
+
+        double roll = new java.util.Random().nextDouble();
+        if (roll < successProb) {
+            // Success! Loyalty Loss
+            double deltaLoyalty = 5.0 * bribeAppeal * (1.5 - (fs.getLoyalty() / 100.0));
+            int loyaltyLoss = (int) Math.round(deltaLoyalty);
+            if (loyaltyLoss < 1) loyaltyLoss = 1;
+            
+            fs.setLoyalty(Math.max(0, fs.getLoyalty() - loyaltyLoss));
+
+            String msg = "🚨 Bribe Successful: " + sender.getName() + " bribed " + targetParty.getName() + "'s " + fs.getName() + "! Loyalty fell by -" + loyaltyLoss + "% (Current: " + fs.getLoyalty() + "%).";
+            session.getLastRoundCommentary().add(msg);
+            session.getLastResults().add("🚨 " + sender.getName() + " successfully bribed opponent faction " + fs.getName());
+        } else {
+            // Failed: Exposure Scandal
+            sender.getStats().setMediaImage(Math.max(0, sender.getStats().getMediaImage() - 10));
+            targetParty.getStats().setPartyMorale(Math.min(100, targetParty.getStats().getPartyMorale() + 5));
+
+            String msg = "🚨 Bribe Scandal Exposed: " + sender.getName() + " attempted to bribe " + targetParty.getName() + "'s " + fs.getName() + " but was EXPOSED! " + sender.getName() + " loses -10 Media Image and " + targetParty.getName() + " gains +5 Morale.";
+            session.getLastRoundCommentary().add(msg);
+            session.getLastResults().add("🚨 " + sender.getName() + " bribe attempt on " + fs.getName() + " exposed!");
+        }
+
+        gameSessionService.save(session);
+        return getTurnView(gameId);
     }
 }

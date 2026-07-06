@@ -20,23 +20,20 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private final CardDefinitionRepository cardRepository;
     private final NewsDefinitionRepository newsRepository;
-    private final MonthlyIssueDefinitionRepository issueRepository;
     private final ScenarioDefinitionRepository scenarioRepository;
     private final LegislativeBillDefinitionRepository billRepository;
-    private final EventCardDefinitionRepository eventRepository;
+    private final FactionDefinitionRepository factionRepository;
 
     public DatabaseSeeder(CardDefinitionRepository cardRepository,
                           NewsDefinitionRepository newsRepository,
-                          MonthlyIssueDefinitionRepository issueRepository,
                           ScenarioDefinitionRepository scenarioRepository,
                           LegislativeBillDefinitionRepository billRepository,
-                          EventCardDefinitionRepository eventRepository) {
+                          FactionDefinitionRepository factionRepository) {
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
-        this.issueRepository = issueRepository;
         this.scenarioRepository = scenarioRepository;
         this.billRepository = billRepository;
-        this.eventRepository = eventRepository;
+        this.factionRepository = factionRepository;
     }
 
     @Override
@@ -97,22 +94,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             log.info("News already seeded (count: {}). Skipping.", newsRepository.count());
         }
 
-        // 4. Seed Monthly Issues
-        if (issueRepository.count() == 0) {
-            File issuesFile = new File(seedDir, "issues.json");
-            if (issuesFile.exists()) {
-                log.info("Seeding Monthly Issues from issues.json...");
-                List<MonthlyIssueDefinition> issues = mapper.readValue(issuesFile, new TypeReference<List<MonthlyIssueDefinition>>() {});
-                issueRepository.saveAll(issues);
-                log.info("Successfully seeded {} monthly issues.", issues.size());
-            } else {
-                log.warn("issues.json not found in seed directory.");
-            }
-        } else {
-            log.info("Monthly Issues already seeded (count: {}). Skipping.", issueRepository.count());
-        }
-
-        // 5. Seed Legislative Bills
+        // 4. Seed Legislative Bills
         if (billRepository.count() == 0) {
             File billsFile = new File(seedDir, "bills.json");
             if (billsFile.exists()) {
@@ -127,19 +109,19 @@ public class DatabaseSeeder implements CommandLineRunner {
             log.info("Legislative Bills already seeded (count: {}). Skipping.", billRepository.count());
         }
 
-        // 6. Seed Event Cards
-        if (eventRepository.count() == 0) {
-            File eventsFile = new File(seedDir, "events.json");
-            if (eventsFile.exists()) {
-                log.info("Seeding Event Cards from events.json...");
-                List<EventCardDefinition> events = mapper.readValue(eventsFile, new TypeReference<List<EventCardDefinition>>() {});
-                eventRepository.saveAll(events);
-                log.info("Successfully seeded {} event cards.", events.size());
+        // 5. Seed Factions
+        if (factionRepository.count() == 0) {
+            File factionsFile = new File(seedDir, "factions.json");
+            if (factionsFile.exists()) {
+                log.info("Seeding Factions from factions.json...");
+                List<FactionDefinition> factions = mapper.readValue(factionsFile, new TypeReference<List<FactionDefinition>>() {});
+                factionRepository.saveAll(factions);
+                log.info("Successfully seeded {} factions.", factions.size());
             } else {
-                log.warn("events.json not found in seed directory.");
+                log.warn("factions.json not found in seed directory.");
             }
         } else {
-            log.info("Event Cards already seeded (count: {}). Skipping.", eventRepository.count());
+            log.info("Factions already seeded (count: {}). Skipping.", factionRepository.count());
         }
 
         log.info("Database seeding check complete.");

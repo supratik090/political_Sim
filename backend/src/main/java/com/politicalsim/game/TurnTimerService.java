@@ -4,7 +4,6 @@ import com.politicalsim.ai.AiDecision;
 import com.politicalsim.ai.AiDecisionService;
 import com.politicalsim.api.TurnAdvanceRequest;
 import com.politicalsim.content.CardDefinition;
-import com.politicalsim.content.MonthlyIssueDefinition;
 import com.politicalsim.content.NewsDefinition;
 import com.politicalsim.content.NewsReactionDefinition;
 import com.politicalsim.party.PartyState;
@@ -117,12 +116,7 @@ public class TurnTimerService {
         request.setSelectedNewsReactions(reactions);
 
         // 3. Choose Issue Option
-        MonthlyIssueDefinition issue = gameService.getCurrentIssue(session, party);
-        if (issue != null && !issue.getOptions().isEmpty()) {
-            request.setSelectedIssueOptionKey(issue.getOptions().get(0).getOptionKey());
-        } else {
-            request.setSelectedIssueOptionKey("dummy_option"); // Should not happen
-        }
+        request.setSelectedIssueOptionKey("dummy_option");
 
         // 4. Bid
         String metric = roundResolutionEngine.getBiddingMetricForTurn(session.getTurnNumber());

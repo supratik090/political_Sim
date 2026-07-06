@@ -17,8 +17,6 @@ import com.politicalsim.content.CardDefinition;
 import com.politicalsim.content.CardDefinitionRepository;
 import com.politicalsim.content.NewsDefinition;
 import com.politicalsim.content.NewsDefinitionRepository;
-import com.politicalsim.content.MonthlyIssueDefinition;
-import com.politicalsim.content.MonthlyIssueDefinitionRepository;
 import com.politicalsim.content.ScenarioDefinition;
 import com.politicalsim.content.ScenarioDefinitionRepository;
 
@@ -33,9 +31,6 @@ class DiagnosticDbTest {
 
     @Autowired
     private NewsDefinitionRepository newsRepository;
-
-    @Autowired
-    private MonthlyIssueDefinitionRepository issueRepository;
 
     @Autowired
     private ScenarioDefinitionRepository scenarioDefinitionRepository;
@@ -64,11 +59,6 @@ class DiagnosticDbTest {
                 .map(CardDefinition::getScenarioKey).filter(java.util.Objects::nonNull)
                 .distinct().sorted().collect(Collectors.toList());
         System.out.println("Card keys   : " + cardKeys);
-
-        List<String> issueKeys = issueRepository.findAll().stream()
-                .map(MonthlyIssueDefinition::getScenarioKey).filter(java.util.Objects::nonNull)
-                .distinct().sorted().collect(Collectors.toList());
-        System.out.println("Issue keys  : " + issueKeys);
 
         System.out.println("========== DB SCENARIO KEYS LIST END ==========\n");
     }
@@ -558,10 +548,6 @@ class DiagnosticDbTest {
         List<NewsDefinition> news = newsRepository.findAll();
         mapper.writeValue(new java.io.File(dir, "news.json"), news);
         System.out.println("Exported " + news.size() + " news.");
-        
-        List<MonthlyIssueDefinition> issues = issueRepository.findAll();
-        mapper.writeValue(new java.io.File(dir, "issues.json"), issues);
-        System.out.println("Exported " + issues.size() + " issues.");
         
         System.out.println("========== EXPORT COMPLETE ==========\n");
     }

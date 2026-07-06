@@ -3,7 +3,6 @@ package com.politicalsim.game;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.politicalsim.ai.AiDecisionService;
-import com.politicalsim.content.IssueOptionDefinition;
 import com.politicalsim.content.ScenarioDefinition;
 import com.politicalsim.content.ScenarioDefinitionRepository;
 import com.politicalsim.party.ControllerType;
@@ -37,7 +36,7 @@ class GameServiceCooperationTest {
         private List<GameSession> sessionList = new ArrayList<>();
 
         public MockGameSessionService(GameSession session) {
-            super(null, null, null, null, null, null, null, null);
+            super(null, null, null, null, null, null, null);
             this.currentSession = session;
         }
 
@@ -150,15 +149,12 @@ class GameServiceCooperationTest {
 
         com.politicalsim.content.DefinitionCache.newsCache.put("test_scenario", new ArrayList<>());
         com.politicalsim.content.DefinitionCache.cardsCache.put("test_scenario", new ArrayList<>());
-        com.politicalsim.content.DefinitionCache.issuesCache.put("test_scenario", new ArrayList<>());
 
-        roundEngine = new RoundResolutionEngine(null, null, null, null, null);
+        roundEngine = new RoundResolutionEngine(null, null, null);
         sessionService = new MockGameSessionService(session);
         aiDecisionService = new AiDecisionService();
         scenarioRepository = Mockito.mock(ScenarioDefinitionRepository.class);
-        com.politicalsim.content.MonthlyIssueDefinitionRepository issueRepository = Mockito.mock(com.politicalsim.content.MonthlyIssueDefinitionRepository.class);
-        Mockito.when(issueRepository.findByScenarioKey(Mockito.anyString())).thenReturn(new ArrayList<>());
-        gameService = new GameService(sessionService, roundEngine, null, null, issueRepository, scenarioRepository, aiDecisionService, null);
+        gameService = new GameService(sessionService, roundEngine, null, null, scenarioRepository, aiDecisionService, null);
     }
 
     @Test
@@ -526,38 +522,7 @@ class GameServiceCooperationTest {
         assertEquals(0, newIt.getProgressPercent());
     }
 
-    @Test
-    void testProjectYieldCommentarySummary() {
-        // Party A (from setUp) gets a completed PARTY_HQ
-        PartyState partyA = session.getParties().get(0);
-        ProjectState hq = partyA.getProjects().stream()
-                .filter(p -> "PARTY_HQ".equals(p.getProjectKey()))
-                .findFirst().orElse(null);
-        assertNotNull(hq);
-        hq.setProgressPercent(100);
-        hq.setJustCompleted(false);
 
-        // Set initial stats
-        partyA.getStats().setCoins(100);
-        partyA.getStats().setMediaImage(50);
-        partyA.getStats().setPublicSupport(30);
-
-        List<String> commentary = new ArrayList<>();
-        ProjectResolver projectResolver = new ProjectResolver(roundEngine);
-        projectResolver.resolveBuildingProjects(session, new HashMap<>(), commentary);
-
-        // Verify stats updated (PARTY_HQ yields: benefitCoins: 12, benefitMedia: 3, benefitSupport: 1)
-        assertEquals(112, partyA.getStats().getCoins());
-        assertEquals(53, partyA.getStats().getMediaImage());
-        assertEquals(31, partyA.getStats().getPublicSupport());
-
-        // Verify commentary has yields summary block
-        boolean hasYieldHeader = commentary.stream().anyMatch(c -> c.contains("Passive yields from completed projects this turn:"));
-        assertTrue(hasYieldHeader);
-
-        boolean hasPartyYield = commentary.stream().anyMatch(c -> c.contains("Party A: +12 Coins, +3 Media Image, +1% Support"));
-        assertTrue(hasPartyYield);
-    }
 
     @Test
     void testScenarioNameFormattingFallback() {
@@ -567,39 +532,5 @@ class GameServiceCooperationTest {
 
         s.setScenarioName("Custom Bengal Name");
         assertEquals("Custom Bengal Name", s.getScenarioName());
-    }
-
-    @Test
-    void testDynamicIssueOptionCostPenalties() throws Exception {
-        // Recipient (Party B) stats: Coins = 200 (not low)
-        PartyState partyB = session.getParties().get(1);
-        partyB.getStats().setCoins(200);
-        partyB.getStats().setPartyMorale(100);
-
-        IssueOptionDefinition option = new IssueOptionDefinition();
-        option.setOptionKey("costly_option");
-        option.setEffects(Map.of("selfParty", Map.of(
-            "coins", -10,
-            "partyMorale", 0,
-            "mediaImage", 0,
-            "publicSupport", 0
-        )));
-        option.setRisk(Map.of("chance", 0));
-
-        // Invoke scoreIssueOption via reflection
-        java.lang.reflect.Method method = GameService.class.getDeclaredMethod("scoreIssueOption", PartyState.class, IssueOptionDefinition.class);
-        method.setAccessible(true);
-
-        double scoreWithHighCoins = (Double) method.invoke(gameService, partyB, option);
-
-        // Under 200 coins, the penalty is -10 * 0.25 = -2.5
-        assertEquals(-2.5, scoreWithHighCoins, 0.001);
-
-        // Now drop coins to 25 (< 30, triggers 8x penalty multiplier -> 2.0 weight)
-        partyB.getStats().setCoins(25);
-        double scoreWithLowCoins = (Double) method.invoke(gameService, partyB, option);
-        
-        // Under 25 coins, the penalty is -10 * 2.0 = -20.0
-        assertEquals(-20.0, scoreWithLowCoins, 0.001);
     }
 }

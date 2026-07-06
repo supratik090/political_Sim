@@ -33,9 +33,6 @@ public class GameController {
     private com.politicalsim.content.LegislativeBillDefinitionRepository billRepository;
 
     @Autowired
-    private com.politicalsim.content.EventCardDefinitionRepository eventRepository;
-
-    @Autowired
     public GameController(GameService gameService, LobbyTelemetryService lobbyTelemetryService) {
         this.gameService = gameService;
         this.lobbyTelemetryService = lobbyTelemetryService;
@@ -82,14 +79,7 @@ public class GameController {
         return list;
     }
 
-    @GetMapping("/events/scenario/{scenarioKey}")
-    public List<com.politicalsim.content.EventCardDefinition> getEventsByScenario(@PathVariable String scenarioKey) {
-        List<com.politicalsim.content.EventCardDefinition> list = eventRepository.findByScenarioKey(scenarioKey);
-        if (list.isEmpty()) {
-            list = eventRepository.findByScenarioKey("default");
-        }
-        return list;
-    }
+
 
     @GetMapping
     public List<GameSession> listGames(@org.springframework.web.bind.annotation.RequestParam(required = false) String userId) {
@@ -167,6 +157,15 @@ public class GameController {
             @RequestParam String offerId,
             @RequestParam boolean accept) {
         return gameService.respondToCooperationOffer(gameId, offerId, accept);
+    }
+
+    @PostMapping("/{gameId}/bribe")
+    public TurnView bribeFaction(
+            @PathVariable String gameId,
+            @RequestParam String targetPartyId,
+            @RequestParam String factionKey,
+            @RequestParam int coins) {
+        return gameService.bribeFaction(gameId, targetPartyId, factionKey, coins);
     }
 
     @GetMapping("/building-projects/definitions")

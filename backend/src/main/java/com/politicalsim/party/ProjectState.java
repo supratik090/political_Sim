@@ -81,6 +81,7 @@ public class ProjectState {
     }
 
     private int completionTurn;
+    private String managingFactionKey = "None";
 
     public int getCompletionTurn() {
         return completionTurn;
@@ -88,6 +89,14 @@ public class ProjectState {
 
     public void setCompletionTurn(int completionTurn) {
         this.completionTurn = completionTurn;
+    }
+
+    public String getManagingFactionKey() {
+        return managingFactionKey;
+    }
+
+    public void setManagingFactionKey(String managingFactionKey) {
+        this.managingFactionKey = managingFactionKey != null ? managingFactionKey : "None";
     }
 }
 

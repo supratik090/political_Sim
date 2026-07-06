@@ -198,7 +198,18 @@ public class RoundSubmission {
         this.selectedEventOptionKey = selectedEventOptionKey;
     }
 
+    private String factionCrisisChoice;
+
+    public String getFactionCrisisChoice() {
+        return factionCrisisChoice;
+    }
+
+    public void setFactionCrisisChoice(String factionCrisisChoice) {
+        this.factionCrisisChoice = factionCrisisChoice;
+    }
+
     private boolean whipIssued;
+    private Map<String, Object> allocations = new java.util.LinkedHashMap<>();
 
     public boolean isWhipIssued() {
         return whipIssued;
@@ -206,5 +217,16 @@ public class RoundSubmission {
 
     public void setWhipIssued(boolean whipIssued) {
         this.whipIssued = whipIssued;
+    }
+
+    public Map<String, Object> getAllocations() {
+        if (allocations == null) {
+            allocations = new java.util.LinkedHashMap<>();
+        }
+        return allocations;
+    }
+
+    public void setAllocations(Map<String, Object> allocations) {
+        this.allocations = allocations;
     }
 }

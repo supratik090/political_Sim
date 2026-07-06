@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchScenarios, fetchCards, fetchNews, fetchIssues, fetchBills, fetchEvents, apiPost, apiPut, apiDelete } from '../../api/apiClient';
+import { fetchScenarios, fetchCards, fetchNews, fetchBills, fetchFactions, apiPost, apiPut, apiDelete } from '../../api/apiClient';
 
 export default function AdminConsole() {
   const [activeTab, setActiveTab] = useState('SCENARIOS');
@@ -24,9 +24,8 @@ export default function AdminConsole() {
       if (activeTab === 'SCENARIOS') resData = await fetchScenarios();
       if (activeTab === 'CARDS') resData = await fetchCards(filterKey);
       if (activeTab === 'NEWS') resData = await fetchNews(filterKey);
-      if (activeTab === 'ISSUES') resData = await fetchIssues(filterKey);
       if (activeTab === 'BILLS') resData = await fetchBills(filterKey);
-      if (activeTab === 'EVENTS') resData = await fetchEvents(filterKey);
+      if (activeTab === 'FACTIONS') resData = await fetchFactions();
       setData(resData);
     } catch (err) {
       console.error(err);
@@ -40,9 +39,8 @@ export default function AdminConsole() {
     if (activeTab === 'SCENARIOS') return '/api/admin/scenarios';
     if (activeTab === 'CARDS') return '/api/admin/cards';
     if (activeTab === 'NEWS') return '/api/admin/news';
-    if (activeTab === 'ISSUES') return '/api/admin/issues';
     if (activeTab === 'BILLS') return '/api/admin/bills';
-    if (activeTab === 'EVENTS') return '/api/admin/events';
+    if (activeTab === 'FACTIONS') return '/api/admin/factions';
     return '';
   };
 
@@ -84,7 +82,7 @@ export default function AdminConsole() {
   const renderTabs = () => (
     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
       <div style={{ display: 'flex', gap: '10px', flex: '1 1 auto' }}>
-        {['SCENARIOS', 'CARDS', 'NEWS', 'ISSUES', 'BILLS', 'EVENTS'].map(tab => (
+        {['SCENARIOS', 'CARDS', 'NEWS', 'BILLS', 'FACTIONS'].map(tab => (
           <button
             key={tab}
             className={activeTab === tab ? 'selected' : ''}
@@ -146,7 +144,7 @@ export default function AdminConsole() {
   };
 
   const renderFilterInput = () => {
-    if (activeTab === 'SCENARIOS') return null;
+    if (activeTab === 'SCENARIOS' || activeTab === 'FACTIONS') return null;
     return (
       <div style={{ marginBottom: '20px' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>Filter by Scenario Key</label>
@@ -206,7 +204,7 @@ export default function AdminConsole() {
           Admin Rule Editor
         </h1>
         <p style={{ fontSize: '15px', marginTop: '8px', opacity: 0.95, color: '#ffffff' }}>
-          Maintain scenario rules, cards, news, and monthly issues directly in JSON format.
+          Maintain scenario rules, cards, news, and legislative bills directly in JSON format.
         </p>
       </div>
 
@@ -215,9 +213,8 @@ export default function AdminConsole() {
       {activeTab === 'SCENARIOS' && <CreateTemplate defaultJson={{ scenarioKey: 'new_scenario', active: true }} />}
       {activeTab === 'CARDS' && <CreateTemplate defaultJson={{ scenarioKey: filterKey, cardKey: 'new_card', cost: 1, active: true }} />}
       {activeTab === 'NEWS' && <CreateTemplate defaultJson={{ scenarioKey: filterKey, newsKey: 'new_news', active: true }} />}
-      {activeTab === 'ISSUES' && <CreateTemplate defaultJson={{ scenarioKey: filterKey, issues: [] }} />}
       {activeTab === 'BILLS' && <CreateTemplate defaultJson={{ scenarioKey: filterKey, billKey: 'new_bill', proposingRole: 'GOVERNMENT', pointsPassed: 10, pointsFailed: -5, effectsPassed: {}, effectsFailed: {}, active: true }} />}
-      {activeTab === 'EVENTS' && <CreateTemplate defaultJson={{ scenarioKey: filterKey, eventKey: 'new_event', options: [], active: true }} />}
+      {activeTab === 'FACTIONS' && <CreateTemplate defaultJson={{ scenarioKey: 'default', factionKey: 'new_faction', name: 'New Faction Name', startingLoyalty: 70, startingInfluence: 30, satisfiedEffects: {}, rebelliousEffects: {} }} />}
 
       <hr style={{ margin: '30px 0', borderColor: 'var(--primary-border)', opacity: 0.3 }} />
       

@@ -177,4 +177,54 @@ public class PartyState {
     public void setAssemblySeatShare(int assemblySeatShare) {
         this.assemblySeatShare = assemblySeatShare;
     }
+
+    private boolean factionCrisisTriggered = false;
+    private String activeFactionCrisisKey = null;
+    private int factionPowerCap = 100;
+    private String cappedFactionKey = null;
+
+    public boolean isFactionCrisisTriggered() {
+        return factionCrisisTriggered;
+    }
+
+    public void setFactionCrisisTriggered(boolean factionCrisisTriggered) {
+        this.factionCrisisTriggered = factionCrisisTriggered;
+    }
+
+    public String getActiveFactionCrisisKey() {
+        return activeFactionCrisisKey;
+    }
+
+    public void setActiveFactionCrisisKey(String activeFactionCrisisKey) {
+        this.activeFactionCrisisKey = activeFactionCrisisKey;
+    }
+
+    public int getFactionPowerCap() {
+        return factionPowerCap;
+    }
+
+    public void setFactionPowerCap(int factionPowerCap) {
+        this.factionPowerCap = factionPowerCap;
+    }
+
+    public String getCappedFactionKey() {
+        return cappedFactionKey;
+    }
+
+    public void setCappedFactionKey(String cappedFactionKey) {
+        this.cappedFactionKey = cappedFactionKey;
+    }
+
+    private java.util.List<FactionState> factions = new java.util.ArrayList<>();
+
+    public java.util.List<FactionState> getFactions() {
+        if (factions == null) {
+            factions = new java.util.ArrayList<>();
+        }
+        return factions;
+    }
+
+    public void setFactions(java.util.List<FactionState> factions) {
+        this.factions = factions;
+    }
 }

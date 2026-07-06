@@ -195,7 +195,7 @@ export default function GamePlayBoard() {
     setFundedThisTurn([]);
     setRewardConfirmed(false);
     setPartyBuildingConfirmed(false);
-    setCardCategoryFilter('agitation_movement');
+    setCardCategoryFilter('governance');
     setBillVote('');
     setWhipIssued(false);
     setProposedBillKey('');
@@ -275,6 +275,36 @@ useEffect(() => {
     setLoading(true);
     setError('');
     try {
+      const storageKey = `political_sim_party_management_${activeGameId}_${turnData.turnNumber || 0}`;
+      const saved = localStorage.getItem(storageKey);
+      let factionAllocs = {};
+      let factionCrisisChoice = null;
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          factionCrisisChoice = parsed.factionCrisisChoice || null;
+          factionAllocs = {
+            factions: (parsed.factions || []).map(f => ({
+              key: f.id,
+              loyalty: f.loyalty,
+              influence: f.influence,
+              post: f.post,
+              patronage: f.patronage,
+              active: f.active
+            })),
+            projects: (parsed.factions || []).reduce((acc, f) => {
+              const map = {};
+              (f.projects || []).forEach(p => {
+                map[p.projectKey || p.id] = f.id;
+              });
+              return { ...acc, ...map };
+            }, {})
+          };
+        } catch (e) {
+          console.error("Failed to parse allocations from localStorage", e);
+        }
+      }
+
       const payload = {
         selectedCardKey: selectedCard?.cardKey,
         targetPartyId: selectedCard && cardRequiresTarget(selectedCard) ? targetPartyId : null,
@@ -286,7 +316,9 @@ useEffect(() => {
         proposedBillKey: proposedBillKey || null,
         billVote: turnData.proposedBillKeyThisTurn ? billVote : null,
         selectedEventOptionKey: turnData.activeEventKey ? selectedEventOptionKey : null,
-        whipIssued: turnData.proposedBillKeyThisTurn ? whipIssued : false
+        whipIssued: turnData.proposedBillKeyThisTurn ? whipIssued : false,
+        allocations: factionAllocs,
+        factionCrisisChoice: factionCrisisChoice
       };
 
       const result = await advanceTurn(activeGameId, payload);
@@ -651,7 +683,7 @@ useEffect(() => {
           className={`view-toggle-button ${activeView === 'INFO' ? 'selected' : ''}`}
           onClick={() => setActiveView('INFO')}
         >
-          📊 Stats &amp; Commentary
+          📊 Party info
         </button>
         <button
           className={`view-toggle-button ${activeView === 'ACTION' ? 'selected' : ''}`}

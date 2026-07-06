@@ -4,7 +4,6 @@ import com.politicalsim.party.PartyState;
 import com.politicalsim.party.PartyStats;
 import com.politicalsim.publicmood.PublicState;
 import com.politicalsim.content.CardDefinition;
-import com.politicalsim.content.MonthlyIssueDefinition;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -69,7 +68,7 @@ public class GameSession {
     @Transient
     private List<CardDefinition> gameCards = new ArrayList<>();
     @Transient
-    private List<MonthlyIssueDefinition> gameIssues = new ArrayList<>();
+    private List<Object> gameIssues = new ArrayList<>();
     private boolean lastElectionHeld;
     private String lastElectionWinner;
     private Map<String, Integer> lastElectionVoteShares = new LinkedHashMap<>();
@@ -428,11 +427,11 @@ public class GameSession {
         this.gameCards = gameCards;
     }
 
-    public List<MonthlyIssueDefinition> getGameIssues() {
+    public List<Object> getGameIssues() {
         return gameIssues;
     }
 
-    public void setGameIssues(List<MonthlyIssueDefinition> gameIssues) {
+    public void setGameIssues(List<Object> gameIssues) {
         this.gameIssues = gameIssues;
     }
 

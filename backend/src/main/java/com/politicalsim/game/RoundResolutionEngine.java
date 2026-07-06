@@ -2,17 +2,12 @@ package com.politicalsim.game;
 
 import com.politicalsim.content.CardDefinition;
 import com.politicalsim.content.CardDefinitionRepository;
-import com.politicalsim.content.IssueOptionDefinition;
-import com.politicalsim.content.MonthlyIssueDefinition;
-import com.politicalsim.content.MonthlyIssueDefinitionRepository;
 import com.politicalsim.content.NewsDefinition;
 import com.politicalsim.content.NewsDefinitionRepository;
 import com.politicalsim.content.NewsReactionDefinition;
 import com.politicalsim.content.DefinitionCache;
 import com.politicalsim.content.LegislativeBillDefinition;
 import com.politicalsim.content.LegislativeBillDefinitionRepository;
-import com.politicalsim.content.EventCardDefinition;
-import com.politicalsim.content.EventCardDefinitionRepository;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
 import com.politicalsim.party.PartyStats;
@@ -58,9 +53,7 @@ public class RoundResolutionEngine {
 
     private final CardDefinitionRepository cardRepository;
     private final NewsDefinitionRepository newsRepository;
-    private final MonthlyIssueDefinitionRepository issueRepository;
     private final LegislativeBillDefinitionRepository billRepository;
-    private final EventCardDefinitionRepository eventRepository;
  
     private final CardPlayResolver cardPlayResolver;
     private final BiddingResolver biddingResolver;
@@ -70,15 +63,11 @@ public class RoundResolutionEngine {
     public RoundResolutionEngine(
             CardDefinitionRepository cardRepository,
             NewsDefinitionRepository newsRepository,
-            MonthlyIssueDefinitionRepository issueRepository,
-            LegislativeBillDefinitionRepository billRepository,
-            EventCardDefinitionRepository eventRepository
+            LegislativeBillDefinitionRepository billRepository
     ) {
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
-        this.issueRepository = issueRepository;
         this.billRepository = billRepository;
-        this.eventRepository = eventRepository;
         this.cardPlayResolver = new CardPlayResolver(this);
         this.biddingResolver = new BiddingResolver(this);
         this.projectResolver = new ProjectResolver(this);
@@ -185,13 +174,13 @@ public class RoundResolutionEngine {
         // Resolve active legislative bill if tabled
         resolveLegislativeBills(session, commentary, resultLines);
 
-        // Resolve active random event card if triggered
-        resolveEventChoices(session, supportPressure, commentary);
+
 
 
 
         resolveActiveCrisis(session, supportPressure, commentary);
         projectResolver.resolveBuildingProjects(session, supportPressure, commentary);
+        resolveFactions(session, commentary);
         resolvePublicSupport(session, supportPressure, commentary);
         applyMonthlyStatDrift(session, commentary);
         applyHiddenMetricRules(session, commentary);
@@ -419,52 +408,74 @@ public class RoundResolutionEngine {
                 splitCommentaries.add("⚠️ Pledge Broken: " + party.getName() + " failed to issue a whip to enforce their pledge to vote YES on '" + billDef.getName() + "', suffering -20 Morale and +20 Corruption!");
             }
 
+            // Determine faction rebellion weight based on disloyal factions' power/influence
+            double rebelWeight = 0.0;
+            List<String> rebelFactionNames = new ArrayList<>();
+            if (party.getFactions() != null) {
+                for (com.politicalsim.party.FactionState fs : party.getFactions()) {
+                    if (fs.isActive() && fs.getLoyalty() < 50) {
+                        double share = weight * (fs.getInfluence() / 100.0);
+                        rebelWeight += share;
+                        rebelFactionNames.add(fs.getName() + " (" + fs.getInfluence() + "% power)");
+                    }
+                }
+            }
+
             if (whip) {
                 party.getStats().setCoins(Math.max(0, party.getStats().getCoins() - 25));
                 splitCommentaries.add("📢 Whip Enforced: " + party.getName() + " issued a legislative whip (Cost: 25 Coins) to secure 100% of their " + String.format("%.1f", weight) + "% voter share for " + vote.toUpperCase() + ".");
                 if ("YES".equalsIgnoreCase(vote)) {
                     yesWeight += weight;
                     yesParties.add(party.getName() + " (Whip)");
+                    lastBillPartyVotes.put(party.getName(), "YES (Whip)");
                 } else {
                     noWeight += weight;
                     noParties.add(party.getName() + " (Whip)");
+                    lastBillPartyVotes.put(party.getName(), "NO (Whip)");
                 }
-                lastBillPartyVotes.put(party.getName(), vote.toUpperCase() + " (Whip)");
             } else {
                 if ("YES".equalsIgnoreCase(vote)) {
-                    double rebellionRate = (party.getStats().getCorruptionScore() * 0.7 + (100 - party.getStats().getMediaImage()) * 0.3) / 100.0;
-                    rebellionRate = Math.max(0.0, Math.min(1.0, rebellionRate));
-                    double partyVoteWeight = weight * (1.0 - rebellionRate);
-                    double rebelVoteWeight = weight * rebellionRate;
+                    double corruptionRebelRate = (party.getStats().getCorruptionScore() * 0.7 + (100 - party.getStats().getMediaImage()) * 0.3) / 100.0;
+                    double generalRebelWeight = weight * Math.max(0.0, Math.min(1.0, corruptionRebelRate));
+                    double finalRebelWeight = Math.min(weight, Math.max(rebelWeight, generalRebelWeight));
+                    double partyVoteWeight = Math.max(0.0, weight - finalRebelWeight);
 
                     yesWeight += partyVoteWeight;
-                    noWeight += rebelVoteWeight;
+                    noWeight += finalRebelWeight;
 
                     yesParties.add(party.getName() + " (" + String.format("%.1f", partyVoteWeight) + "%)");
-                    if (rebelVoteWeight > 0) {
-                        noParties.add(party.getName() + " (Rebel: " + String.format("%.1f", rebelVoteWeight) + "%)");
-                        lastBillPartyVotes.put(party.getName(), String.format("YES (%.1f%%), NO (%.1f%% Rebel)", partyVoteWeight, rebelVoteWeight));
+                    if (finalRebelWeight > 0) {
+                        noParties.add(party.getName() + " (Rebel: " + String.format("%.1f", finalRebelWeight) + "%)");
+                        lastBillPartyVotes.put(party.getName(), String.format("YES (%.1f%%), NO (%.1f%% Rebel)", partyVoteWeight, finalRebelWeight));
                     } else {
                         lastBillPartyVotes.put(party.getName(), "YES");
                     }
-                    splitCommentaries.add("  - " + party.getName() + " voters split: " + String.format("%.1f", partyVoteWeight) + "% YES (party line), " + String.format("%.1f", rebelVoteWeight) + "% NO (rebelled due to " + party.getStats().getCorruptionScore() + "% corruption).");
+                    if (rebelWeight > 0.0) {
+                        splitCommentaries.add("  - " + party.getName() + " voters split: " + String.format("%.1f", partyVoteWeight) + "% YES (party line), " + String.format("%.1f", finalRebelWeight) + "% NO (rebelled due to disloyal factions: " + String.join(", ", rebelFactionNames) + ").");
+                    } else {
+                        splitCommentaries.add("  - " + party.getName() + " voters split: " + String.format("%.1f", partyVoteWeight) + "% YES (party line), " + String.format("%.1f", finalRebelWeight) + "% NO (rebelled due to " + party.getStats().getCorruptionScore() + "% corruption).");
+                    }
                 } else if ("NO".equalsIgnoreCase(vote)) {
-                    double rebellionRate = (party.getStats().getCorruptionScore() * 0.7 + (100 - party.getStats().getMediaImage()) * 0.3) / 100.0;
-                    rebellionRate = Math.max(0.0, Math.min(1.0, rebellionRate));
-                    double partyVoteWeight = weight * (1.0 - rebellionRate);
-                    double rebelVoteWeight = weight * rebellionRate;
+                    double corruptionRebelRate = (party.getStats().getCorruptionScore() * 0.7 + (100 - party.getStats().getMediaImage()) * 0.3) / 100.0;
+                    double generalRebelWeight = weight * Math.max(0.0, Math.min(1.0, corruptionRebelRate));
+                    double finalRebelWeight = Math.min(weight, Math.max(rebelWeight, generalRebelWeight));
+                    double partyVoteWeight = Math.max(0.0, weight - finalRebelWeight);
 
                     noWeight += partyVoteWeight;
-                    yesWeight += rebelVoteWeight;
+                    yesWeight += finalRebelWeight;
 
                     noParties.add(party.getName() + " (" + String.format("%.1f", partyVoteWeight) + "%)");
-                    if (rebelVoteWeight > 0) {
-                        yesParties.add(party.getName() + " (Rebel: " + String.format("%.1f", rebelVoteWeight) + "%)");
-                        lastBillPartyVotes.put(party.getName(), String.format("NO (%.1f%%), YES (%.1f%% Rebel)", partyVoteWeight, rebelVoteWeight));
+                    if (finalRebelWeight > 0) {
+                        yesParties.add(party.getName() + " (Rebel: " + String.format("%.1f", finalRebelWeight) + "%)");
+                        lastBillPartyVotes.put(party.getName(), String.format("NO (%.1f%%), YES (%.1f%% Rebel)", partyVoteWeight, finalRebelWeight));
                     } else {
                         lastBillPartyVotes.put(party.getName(), "NO");
                     }
-                    splitCommentaries.add("  - " + party.getName() + " voters split: " + String.format("%.1f", partyVoteWeight) + "% NO (party line), " + String.format("%.1f", rebelVoteWeight) + "% YES (rebelled due to " + party.getStats().getCorruptionScore() + "% corruption).");
+                    if (rebelWeight > 0.0) {
+                        splitCommentaries.add("  - " + party.getName() + " voters split: " + String.format("%.1f", partyVoteWeight) + "% NO (party line), " + String.format("%.1f", finalRebelWeight) + "% YES (rebelled due to disloyal factions: " + String.join(", ", rebelFactionNames) + ").");
+                    } else {
+                        splitCommentaries.add("  - " + party.getName() + " voters split: " + String.format("%.1f", partyVoteWeight) + "% NO (party line), " + String.format("%.1f", finalRebelWeight) + "% YES (rebelled due to " + party.getStats().getCorruptionScore() + "% corruption).");
+                    }
                 } else {
                     abstainWeight += weight;
                     abstainParties.add(party.getName() + " (" + String.format("%.1f", weight) + "%)");
@@ -711,9 +722,6 @@ public class RoundResolutionEngine {
                 session.setLastBillProposedTurn(session.getTurnNumber());
             }
             session.setActiveEventKey(null);
-        } else {
-            // No bill proposed, select event card
-            selectNextEventCard(session, commentary, resultLines);
         }
     }
 
@@ -740,84 +748,6 @@ public class RoundResolutionEngine {
         resolvePublicSupport(session, pressure, new ArrayList<>());
     }
 
-    private void selectNextEventCard(GameSession session, List<String> commentary, List<String> resultLines) {
-        if (eventRepository == null) {
-            return;
-        }
-        List<EventCardDefinition> allEvents = com.politicalsim.content.DefinitionCache.getEventsForScenario(eventRepository, session.getScenarioKey());
-        allEvents = allEvents.stream().filter(EventCardDefinition::isActive).toList();
-        if (!allEvents.isEmpty()) {
-            EventCardDefinition chosen = allEvents.get(new Random().nextInt(allEvents.size()));
-            session.setActiveEventKey(chosen.getEventKey());
-            commentary.add("📢 RANDOM EVENT DETECTED: '" + chosen.getName() + "' is active this turn. Review choices under the Affairs tab!");
-        }
-    }
-
-    public void resolveEventChoices(GameSession session, Map<String, Integer> supportPressure, List<String> commentary) {
-        if (eventRepository == null) {
-            return;
-        }
-        String activeEvent = session.getActiveEventKey();
-        if (activeEvent == null || activeEvent.isBlank()) {
-            return;
-        }
-
-        EventCardDefinition eventDef = DefinitionCache.getEventsForScenario(eventRepository, session.getScenarioKey()).stream()
-                .filter(e -> e.getEventKey().equals(activeEvent))
-                .findFirst()
-                .orElseGet(() -> DefinitionCache.getEventsForScenario(eventRepository, "default").stream()
-                        .filter(e -> e.getEventKey().equals(activeEvent))
-                        .findFirst()
-                        .orElse(null));
-
-        if (eventDef == null) {
-            return;
-        }
-
-        for (PartyState party : session.getParties()) {
-            if (!party.isActive() || party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
-                continue;
-            }
-            String chosenOptionKey = session.getCurrentRoundSubmissions().stream()
-                    .filter(s -> s.getPartyId().equals(party.getId()))
-                    .findFirst()
-                    .map(RoundSubmission::getSelectedEventOptionKey)
-                    .orElse(null);
-
-            if (chosenOptionKey == null) {
-                if (!eventDef.getOptions().isEmpty()) {
-                    chosenOptionKey = eventDef.getOptions().get(eventDef.getOptions().size() - 1).getOptionKey();
-                }
-            }
-
-            if (chosenOptionKey != null) {
-                final String fOptionKey = chosenOptionKey;
-                EventCardDefinition.EventOption option = eventDef.getOptions().stream()
-                        .filter(o -> o.getOptionKey().equals(fOptionKey))
-                        .findFirst().orElse(null);
-
-                if (option != null) {
-                    applyEventCost(party, option.getCost());
-                    applyEffectsMap(session, party, option.getEffects());
-                    commentary.add("📢 Event Resolved: " + party.getName() + " resolved event '" + eventDef.getName() + "' by choosing: '" + option.getText() + "'.");
-                }
-            }
-        }
-        // Event resolved, clear it
-        session.setActiveEventKey(null);
-    }
-
-    private void applyEventCost(PartyState party, Map<String, Object> cost) {
-        if (cost == null) return;
-        if (cost.containsKey("coins")) {
-            int coins = intValue(cost.get("coins"));
-            party.getStats().setCoins(Math.max(0, party.getStats().getCoins() - coins));
-        }
-        if (cost.containsKey("partyMorale")) {
-            int morale = intValue(cost.get("partyMorale"));
-            party.getStats().setPartyMorale(Math.max(0, party.getStats().getPartyMorale() - morale));
-        }
-    }
 
     public String getBiddingMetricForTurn(int turnNumber) {
         int cycleTurn = ((turnNumber - 1) % 5) + 1;
@@ -1161,42 +1091,7 @@ public class RoundResolutionEngine {
                 .orElse(null);
     }
 
-    void resolveIssueChoice(GameSession session, PartyState actor, RoundSubmission submission,
-                            Map<String, Integer> supportPressure, List<String> commentary) {
-        if (submission.getIssueKey() == null || submission.getIssueOptionKey() == null) {
-            return;
-        }
-        MonthlyIssueDefinition issue = getIssueByKey(session, actor, submission.getIssueKey());
-        if (issue == null) {
-            return;
-        }
-        IssueOptionDefinition option = findIssueOption(issue, submission.getIssueOptionKey());
-        if (option == null) {
-            return;
-        }
-        boolean isTriple = session.getTripleImpactTurn() == session.getTurnNumber();
-        applyEffects(session, actor, partyEffect(option.getEffects(), "selfParty"), supportPressure, isTriple);
-        applyIssueRisk(session, actor, option, supportPressure, commentary, isTriple);
-        commentary.add("💬 Issue Handling: " + actor.getName() + " resolved monthly issue '" + issue.getTitle() + "' by choosing: '" + option.getText() + "'. Effects: " + formatEffectsObject(option.getEffects(), "selfParty"));
-        scheduleIssueDelayedEffects(session, actor, issue, option, commentary);
-    }
 
-    private void applyIssueRisk(GameSession session, PartyState actor, IssueOptionDefinition option,
-                                Map<String, Integer> supportPressure, List<String> commentary, boolean triple) {
-        int chance = intValue(option.getRisk().get("chance"));
-        if (chance <= 0 || !riskHit(session, "issue:" + actor.getId() + ":" + option.getOptionKey(), chance)) {
-            return;
-        }
-        applyEffects(session, actor, riskEffect(option.getRisk(), "selfParty"), supportPressure, triple);
-        Object badOutcome = option.getRisk().get("badOutcome");
-        commentary.add("Surprise: " + actor.getName() + "'s issue response backfired"
-                + (badOutcome == null ? "." : ": " + badOutcome + "."));
-    }
-
-    private void applyIssueRisk(GameSession session, PartyState actor, IssueOptionDefinition option,
-                                Map<String, Integer> supportPressure, List<String> commentary) {
-        applyIssueRisk(session, actor, option, supportPressure, commentary, false);
-    }
 
     private void resolveDueDelayedEffects(GameSession session, Map<String, Integer> supportPressure, List<String> commentary) {
         if (session.getDelayedEffects() == null || session.getDelayedEffects().isEmpty()) {
@@ -1254,21 +1149,7 @@ public class RoundResolutionEngine {
         }
     }
 
-    private void scheduleIssueDelayedEffects(GameSession session, PartyState actor, MonthlyIssueDefinition issue,
-                                             IssueOptionDefinition option, List<String> commentary) {
-        if (option.getDelayedEffects() == null) {
-            return;
-        }
-        for (Map<String, Object> delayedEffect : option.getDelayedEffects()) {
-            scheduleDelayedEffect(session, actor, "issue", issue.getIssueKey(), issue.getTitle(),
-                    partyEffectFromEffectsObject(delayedEffect.get("effects"), "selfParty"),
-                    intValue(delayedEffect.get("minTurns")),
-                    intValue(delayedEffect.get("maxTurns")),
-                    intValueOrDefault(delayedEffect.get("chance"), 100),
-                    stringValue(delayedEffect.get("commentary"), issue.getTitle() + " has delayed consequences."),
-                    commentary);
-        }
-    }
+
 
     private void scheduleNewsDelayedEffects(GameSession session, PartyState actor, NewsDefinition news,
                                             NewsReactionDefinition reaction, List<String> commentary) {
@@ -1870,44 +1751,7 @@ public class RoundResolutionEngine {
                 .toList();
     }
 
-    private MonthlyIssueDefinition getIssueByKey(GameSession session, PartyState party, String issueKey) {
-        return getIssuesForSession(session).stream()
-                .filter(MonthlyIssueDefinition::isActive)
-                .filter(issue -> issue.getRoleAllowed().contains(party.getRole().name()))
-                .filter(issue -> issue.getIssueKey().equals(issueKey))
-                .findFirst()
-                .orElseGet(() -> fallbackIssue(party));
-    }
 
-    private IssueOptionDefinition findIssueOption(MonthlyIssueDefinition issue, String optionKey) {
-        return issue.getOptions().stream()
-                .filter(option -> option.getOptionKey().equals(optionKey))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Issue option not available: " + optionKey));
-    }
-
-    private MonthlyIssueDefinition fallbackIssue(PartyState party) {
-        MonthlyIssueDefinition issue = new MonthlyIssueDefinition();
-        issue.setScenarioKey("fallback");
-        issue.setIssueKey("routine_role_review_" + party.getRole().name().toLowerCase());
-        issue.setRoleAllowed(List.of(party.getRole().name()));
-        issue.setCategory(party.getRole() == PartyRole.GOVERNMENT ? "governance_review" : "party_review");
-        issue.setTitle(party.getRole() == PartyRole.GOVERNMENT ? "Routine Governance Review" : "Routine Party Review");
-        issue.setDescription("No special monthly issue is configured for this role yet. Handle routine political maintenance.");
-        IssueOptionDefinition option = new IssueOptionDefinition();
-        option.setOptionKey("routine_maintenance");
-        option.setText("Handle routine maintenance without major public drama.");
-        option.setEffects(Map.of("selfParty", Map.of(
-                "coins", -2,
-                "partyMorale", 1,
-                "corruptionScore", 0,
-                "mediaImage", 0,
-                "publicSupport", 0
-        )));
-        option.setRisk(Map.of());
-        issue.setOptions(List.of(option));
-        return issue;
-    }
 
     private int usedCount(GameSession session, PartyState party, CardDefinition card) {
         if (session.getCardUsageByParty() == null) {
@@ -2017,37 +1861,11 @@ public class RoundResolutionEngine {
         });
     }
 
-    private List<MonthlyIssueDefinition> getIssuesForScenario(String scenarioKey) {
-        if (issueRepository == null) {
-            return List.of();
-        }
-        return DefinitionCache.issuesCache.computeIfAbsent(scenarioKey, key -> {
-            List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(key);
-            if (issues.isEmpty()) {
-                String altKey = getAlternativeScenarioKey(key);
-                if (altKey != null) {
-                    issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(altKey);
-                }
-            }
-            if (issues.isEmpty()) {
-                issues = issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc("west_bengal_2000");
-            }
-            return issues;
-        });
-    }
-
     private List<CardDefinition> getCardsForSession(GameSession session) {
         if (session.getGameCards() != null && !session.getGameCards().isEmpty()) {
             return session.getGameCards();
         }
         return getCardsForScenario(session.getScenarioKey());
-    }
-
-    private List<MonthlyIssueDefinition> getIssuesForSession(GameSession session) {
-        if (session.getGameIssues() != null && !session.getGameIssues().isEmpty()) {
-            return session.getGameIssues();
-        }
-        return getIssuesForScenario(session.getScenarioKey());
     }
 
     private void resolveActiveCrisis(GameSession session, Map<String, Integer> supportPressure, List<String> commentary) {
@@ -2292,6 +2110,412 @@ public class RoundResolutionEngine {
                     + " via " + sourceName + "! They suffer a backlash of -15 Party Morale for their betrayal.";
             commentary.add(msg);
             session.getLastResults().add("🚨 Pact Violation: " + actor.getName() + " attacked " + target.getName());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void resolveFactions(GameSession session, List<String> commentary) {
+        commentary.add("📢 Party Factions Management & Yields Resolution:");
+        
+        for (PartyState party : session.getParties()) {
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED || !party.isActive()) {
+                continue;
+            }
+
+            RoundSubmission sub = session.getCurrentRoundSubmissions().stream()
+                    .filter(s -> s.getPartyId().equals(party.getId()))
+                    .findFirst().orElse(null);
+
+            boolean isHuman = session.getPlayerPartyIds().contains(party.getId());
+            
+            // Apply a natural loyalty decay of -2 loyalty per round
+            for (com.politicalsim.party.FactionState fs : party.getFactions()) {
+                if (fs.isActive()) {
+                    fs.setLoyalty(fs.getLoyalty() - 2);
+                }
+            }
+
+            if (sub != null && sub.getAllocations() != null && !sub.getAllocations().isEmpty()) {
+                Map<String, Object> allocs = sub.getAllocations();
+                
+                // Parse submitted factions list
+                if (allocs.containsKey("factions")) {
+                    List<Map<String, Object>> submittedFactions = (List<Map<String, Object>>) allocs.get("factions");
+                    for (Map<String, Object> sf : submittedFactions) {
+                        String fKey = (String) sf.get("key");
+                        int sLoyalty = ((Number) sf.get("loyalty")).intValue();
+                        int sInfluence = ((Number) sf.get("influence")).intValue();
+                        String sPost = (String) sf.get("post");
+                        int sPatronage = ((Number) sf.get("patronage")).intValue();
+                        boolean sActive = sf.containsKey("active") ? (Boolean) sf.get("active") : true;
+
+                        com.politicalsim.party.FactionState fs = party.getFactions().stream()
+                                .filter(f -> f.getKey().equals(fKey))
+                                .findFirst().orElse(null);
+                        if (fs != null) {
+                            fs.setLoyalty(sLoyalty);
+                            fs.setInfluence(sInfluence);
+                            fs.setPost(sPost);
+                            fs.setPatronage(sPatronage);
+                            fs.setActive(sActive);
+                        }
+                    }
+                }
+
+                // Parse project assignments
+                if (allocs.containsKey("projects")) {
+                    Map<String, String> projectAssignments = (Map<String, String>) allocs.get("projects");
+                    for (ProjectState ps : party.getProjects()) {
+                        if (projectAssignments.containsKey(ps.getId())) {
+                            ps.setManagingFactionKey(projectAssignments.get(ps.getId()));
+                        } else if (projectAssignments.containsKey(ps.getProjectKey())) {
+                            ps.setManagingFactionKey(projectAssignments.get(ps.getProjectKey()));
+                        } else {
+                            if (ps.getProgressPercent() == 100) {
+                                ps.setManagingFactionKey("None");
+                            }
+                        }
+                    }
+                }
+            } else {
+                // AI/Computer Faction Auto-Allocation
+                List<com.politicalsim.party.FactionState> activeFs = party.getFactions().stream()
+                        .filter(com.politicalsim.party.FactionState::isActive)
+                        .sorted(java.util.Comparator.comparingInt(com.politicalsim.party.FactionState::getLoyalty))
+                        .collect(java.util.stream.Collectors.toList());
+
+                if (!activeFs.isEmpty()) {
+                    com.politicalsim.party.FactionState lowest = activeFs.get(0);
+                    lowest.setPatronage(lowest.getPatronage() + 1);
+                    lowest.setLoyalty(lowest.getLoyalty() + 8);
+
+                    lowest.setPost("Secretary Post");
+                    lowest.setLoyalty(lowest.getLoyalty() + 15);
+
+                    if (activeFs.size() > 1) {
+                        com.politicalsim.party.FactionState secondLowest = activeFs.get(1);
+                        secondLowest.setPost("Fund Manager Post");
+                        secondLowest.setLoyalty(secondLowest.getLoyalty() + 15);
+                    }
+                }
+
+                List<com.politicalsim.party.FactionState> highestFs = party.getFactions().stream()
+                        .filter(com.politicalsim.party.FactionState::isActive)
+                        .sorted((f1, f2) -> Integer.compare(f2.getLoyalty(), f1.getLoyalty()))
+                        .collect(java.util.stream.Collectors.toList());
+
+                if (!highestFs.isEmpty()) {
+                    String bestFactionKey = highestFs.get(0).getKey();
+                    for (ProjectState ps : party.getProjects()) {
+                        if (ps.getProgressPercent() == 100 && "None".equals(ps.getManagingFactionKey())) {
+                            ps.setManagingFactionKey(bestFactionKey);
+                        }
+                    }
+                }
+            }
+
+            // 2. Proportional Power (Influence) Recalculation based on allocations yields
+            double totalYieldSum = 0;
+            java.util.Map<String, Double> factionYieldSums = new java.util.HashMap<>();
+            List<com.politicalsim.party.FactionState> activeFs = party.getFactions().stream()
+                    .filter(com.politicalsim.party.FactionState::isActive)
+                    .collect(java.util.stream.Collectors.toList());
+
+            for (com.politicalsim.party.FactionState fs : activeFs) {
+                double mult = 1.0;
+                int loyalty = fs.getLoyalty();
+                if (loyalty >= 90) mult = 2.0;
+                else if (loyalty >= 80) mult = 1.5;
+                else if (loyalty >= 50) mult = 1.0;
+                else if (loyalty >= 30) mult = 0.5;
+                else mult = 0.0;
+
+                int patronageCoins = fs.getPatronage() * 2;
+                int postCoins = "Fund Manager Post".equals(fs.getPost()) ? 8 : 0;
+                int baseCoins = patronageCoins + postCoins;
+
+                int patronageMorale = fs.getPatronage() * 1;
+                int postMorale = "Secretary Post".equals(fs.getPost()) ? 6 : 0;
+
+                int projectMorale = 0;
+                int projectMedia = 0;
+                for (ProjectState ps : party.getProjects()) {
+                    if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
+                        if ("CADRE_OFFICE".equals(ps.getProjectKey())) {
+                            projectMorale += 5;
+                        } else if ("IT_CELL".equals(ps.getProjectKey())) {
+                            projectMedia += 2;
+                        } else if ("THINK_TANK".equals(ps.getProjectKey())) {
+                            projectMedia += 4;
+                        } else if ("YOUTH_WING".equals(ps.getProjectKey())) {
+                            projectMorale += 3;
+                        } else if ("PARTY_HQ".equals(ps.getProjectKey())) {
+                            baseCoins += 12;
+                            projectMedia += 3;
+                        } else if ("TRAINING_ACADEMY".equals(ps.getProjectKey())) {
+                            projectMorale += 3;
+                        }
+                    }
+                }
+
+                int baseMorale = patronageMorale + postMorale + projectMorale;
+                int patronageCorruption = fs.getPatronage() * -1;
+                int postCorruption = !"None".equals(fs.getPost()) ? 2 : 0;
+                int baseCorruption = patronageCorruption + postCorruption;
+                int patronageMedia = fs.getPatronage() * 1;
+                int baseMedia = patronageMedia + projectMedia;
+                double baseSupport = fs.getLoyalty() >= 50 ? (fs.getInfluence() * 0.01) : -(fs.getInfluence() * 0.01);
+
+                double coinsYield = Math.round(baseCoins * mult);
+                double supportYield = Math.abs(baseSupport * mult);
+                double moraleYield = Math.round(baseMorale * mult);
+                double corruptionYield = Math.abs(Math.round(baseCorruption * (2 - mult)));
+                double mediaYield = Math.round(baseMedia * mult);
+
+                double sum = coinsYield + supportYield * 10 + moraleYield + corruptionYield + mediaYield;
+                factionYieldSums.put(fs.getKey(), sum);
+                totalYieldSum += sum;
+            }
+
+            if (totalYieldSum > 0 && !activeFs.isEmpty()) {
+                int remainingInfluence = 100;
+                
+                com.politicalsim.party.FactionState cappedFs = null;
+                if (party.getCappedFactionKey() != null) {
+                    cappedFs = activeFs.stream()
+                            .filter(f -> f.getKey().equals(party.getCappedFactionKey()))
+                            .findFirst().orElse(null);
+                }
+                
+                int cappedShare = 0;
+                if (cappedFs != null) {
+                    int rawShare = (int) Math.round((factionYieldSums.get(cappedFs.getKey()) / totalYieldSum) * 100.0);
+                    cappedShare = Math.min(party.getFactionPowerCap(), Math.max(1, rawShare));
+                    cappedFs.setInfluence(cappedShare);
+                    remainingInfluence -= cappedShare;
+                }
+                
+                final com.politicalsim.party.FactionState finalCappedFs = cappedFs;
+                List<com.politicalsim.party.FactionState> nonCappedFs = activeFs.stream()
+                        .filter(f -> finalCappedFs == null || !f.getKey().equals(finalCappedFs.getKey()))
+                        .collect(java.util.stream.Collectors.toList());
+                        
+                double nonCappedYieldSum = 0;
+                for (com.politicalsim.party.FactionState fs : nonCappedFs) {
+                    nonCappedYieldSum += factionYieldSums.get(fs.getKey());
+                }
+                
+                for (int i = 0; i < nonCappedFs.size(); i++) {
+                    com.politicalsim.party.FactionState fs = nonCappedFs.get(i);
+                    if (i == nonCappedFs.size() - 1) {
+                        fs.setInfluence(Math.max(1, remainingInfluence));
+                    } else {
+                        int share = 0;
+                        if (nonCappedYieldSum > 0) {
+                            share = (int) Math.round((factionYieldSums.get(fs.getKey()) / nonCappedYieldSum) * remainingInfluence);
+                        } else {
+                            share = remainingInfluence / nonCappedFs.size();
+                        }
+                        fs.setInfluence(Math.max(1, share));
+                        remainingInfluence -= fs.getInfluence();
+                    }
+                }
+            }
+
+            // 3. Yield calculations using newly recalculated influence
+            int totalCoins = 0;
+            double totalSupport = 0;
+            int totalMorale = 0;
+            int totalCorruption = 0;
+            int totalMedia = 0;
+
+            for (com.politicalsim.party.FactionState fs : party.getFactions()) {
+                if (!fs.isActive()) continue;
+
+                double mult = 1.0;
+                int loyalty = fs.getLoyalty();
+                if (loyalty >= 90) mult = 2.0;
+                else if (loyalty >= 80) mult = 1.5;
+                else if (loyalty >= 50) mult = 1.0;
+                else if (loyalty >= 30) mult = 0.5;
+                else mult = 0.0;
+
+                int patronageCoins = fs.getPatronage() * 2;
+                int postCoins = "Fund Manager Post".equals(fs.getPost()) ? 8 : 0;
+                int baseCoins = patronageCoins + postCoins;
+
+                int patronageMorale = fs.getPatronage() * 1;
+                int postMorale = "Secretary Post".equals(fs.getPost()) ? 6 : 0;
+
+                int projectMorale = 0;
+                int projectMedia = 0;
+                
+                for (ProjectState ps : party.getProjects()) {
+                    if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
+                        if ("CADRE_OFFICE".equals(ps.getProjectKey())) {
+                            projectMorale += 5;
+                        } else if ("IT_CELL".equals(ps.getProjectKey())) {
+                            projectMedia += 2;
+                        } else if ("THINK_TANK".equals(ps.getProjectKey())) {
+                            projectMedia += 4;
+                        } else if ("YOUTH_WING".equals(ps.getProjectKey())) {
+                            projectMorale += 3;
+                        } else if ("PARTY_HQ".equals(ps.getProjectKey())) {
+                            baseCoins += 12;
+                            projectMedia += 3;
+                        } else if ("TRAINING_ACADEMY".equals(ps.getProjectKey())) {
+                            projectMorale += 3;
+                        }
+                    }
+                }
+
+                int baseMorale = patronageMorale + postMorale + projectMorale;
+                int patronageCorruption = fs.getPatronage() * -1;
+                int postCorruption = !"None".equals(fs.getPost()) ? 2 : 0;
+                int baseCorruption = patronageCorruption + postCorruption;
+                int patronageMedia = fs.getPatronage() * 1;
+                int baseMedia = patronageMedia + projectMedia;
+                double baseSupport = fs.getLoyalty() >= 50 ? (fs.getInfluence() * 0.01) : -(fs.getInfluence() * 0.01);
+
+                totalCoins += Math.round(baseCoins * mult);
+                totalSupport += baseSupport * mult;
+                totalMorale += Math.round(baseMorale * mult);
+                totalCorruption += Math.round(baseCorruption * (2 - mult));
+                totalMedia += Math.round(baseMedia * mult);
+            }
+
+            int finalCoins = totalCoins;
+            double finalSupport = Math.ceil(totalSupport);
+            int finalMorale = totalMorale >= 0 ? totalMorale : Math.max(-5, totalMorale);
+            int finalCorruption = totalCorruption <= 0 ? totalCorruption : Math.min(5, totalCorruption);
+            int finalMedia = totalMedia;
+
+            // 1. Process Faction Crisis choice resolution if active
+            String crisisKey = party.getActiveFactionCrisisKey();
+            if (crisisKey != null && !crisisKey.isEmpty()) {
+                String choice = sub != null ? sub.getFactionCrisisChoice() : "A";
+                if (choice == null || choice.isEmpty()) {
+                    choice = "A";
+                }
+                
+                com.politicalsim.party.FactionState targetFs = party.getFactions().stream()
+                        .filter(f -> f.getKey().equals(crisisKey))
+                        .findFirst().orElse(null);
+                        
+                if (targetFs != null) {
+                    if ("A".equalsIgnoreCase(choice)) {
+                        finalCoins -= 50;
+                        finalMedia -= 20;
+                        targetFs.setLoyalty(60);
+                        targetFs.setInfluence(Math.max(1, targetFs.getInfluence() - 10));
+                        commentary.add("🚨 Faction Crisis Resolved (Option A - Concessions): " + party.getName() + " conceded to the rebellious " + targetFs.getName() + ", costing -50 Coins and -20 Media. Faction loyalty restored to 60%, power reduced by 10%.");
+                    } else if ("B".equalsIgnoreCase(choice)) {
+                        finalMorale -= 20;
+                        finalSupport -= 5.0;
+                        targetFs.setLoyalty(50);
+                        party.setFactionPowerCap(20);
+                        party.setCappedFactionKey(targetFs.getKey());
+                        if (targetFs.getInfluence() > 20) {
+                            targetFs.setInfluence(20);
+                        }
+                        commentary.add("🚨 Faction Crisis Resolved (Option B - Purge): " + party.getName() + " purged rebellious leaders from the " + targetFs.getName() + ", costing -20 Morale and -5% Support. Faction loyalty set to 50%, power permanently capped at 20%.");
+                    } else if ("C".equalsIgnoreCase(choice)) {
+                        finalSupport -= 15.0;
+                        finalMorale -= 30;
+                        targetFs.setActive(false);
+                        commentary.add("🚨 Faction Crisis Resolved (Option C - Party Split): " + party.getName() + " suffered a severe Party Split as the " + targetFs.getName() + " defected! Cost: -15% Support, -30 Morale. Faction permanently dissolved.");
+                    }
+                }
+                party.setActiveFactionCrisisKey(null);
+            }
+
+            // 2. Faction perks check
+            boolean veteranPerkActive = false;
+            boolean youthPerkActive = false;
+            boolean tradePerkActive = false;
+            
+            for (com.politicalsim.party.FactionState fs : party.getFactions()) {
+                if (!fs.isActive()) continue;
+                if ("veteran".equals(fs.getKey()) && fs.getLoyalty() >= 80 && fs.getInfluence() >= 50) {
+                    veteranPerkActive = true;
+                } else if ("youth".equals(fs.getKey()) && fs.getLoyalty() >= 80 && fs.getInfluence() >= 40) {
+                    youthPerkActive = true;
+                } else if ("trade".equals(fs.getKey()) && fs.getLoyalty() >= 80 && fs.getInfluence() >= 40) {
+                    tradePerkActive = true;
+                }
+            }
+
+            if (veteranPerkActive) {
+                finalCoins += 25;
+                finalSupport += 3.0;
+                commentary.add("  - 🌟 " + party.getName() + "'s Loyalists Perk (Elder Statesmen) is ACTIVE! (+25 Coins, +3% Support)");
+            }
+            if (youthPerkActive) {
+                finalMorale += 5;
+                finalSupport += 3.0;
+                finalMedia += 5;
+                commentary.add("  - 🌟 " + party.getName() + "'s Youth Wing Perk (Campaign Machine) is ACTIVE! (+5 Morale, +3% Support, +5 Media)");
+            }
+            if (tradePerkActive) {
+                finalCorruption -= 5;
+                commentary.add("  - 🌟 " + party.getName() + "'s Trade Unions Perk (Strike Force) is ACTIVE! (-5 Corruption)");
+                // Debuff opponent active parties
+                for (PartyState opponent : session.getParties()) {
+                    if (opponent.getId().equals(party.getId()) || opponent.getRole() == com.politicalsim.party.PartyRole.DEFEATED || !opponent.isActive()) {
+                        continue;
+                    }
+                    opponent.getStats().setPartyMorale(Math.max(0, opponent.getStats().getPartyMorale() - 3));
+                    int opponentSupportLoss = Math.min(opponent.getStats().getPublicSupport(), 3);
+                    if (opponentSupportLoss > 0) {
+                        opponent.getStats().setPublicSupport(opponent.getStats().getPublicSupport() - opponentSupportLoss);
+                        session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + opponentSupportLoss);
+                    }
+                    commentary.add("    ⚠️ Opponent " + opponent.getName() + " suffers -3 Morale and -3% Support due to " + party.getName() + "'s Trade Unions strike!");
+                }
+            }
+
+            // Cap the results again to enforce game design limits
+            finalMorale = finalMorale >= 0 ? finalMorale : Math.max(-5, finalMorale);
+            finalCorruption = finalCorruption <= 0 ? finalCorruption : Math.min(5, finalCorruption);
+
+            party.getStats().setCoins(party.getStats().getCoins() + finalCoins);
+            party.getStats().setPartyMorale(Math.min(100, Math.max(0, party.getStats().getPartyMorale() + finalMorale)));
+            party.getStats().setCorruptionScore(Math.min(100, Math.max(0, party.getStats().getCorruptionScore() + finalCorruption)));
+            party.getStats().setMediaImage(Math.min(100, Math.max(0, party.getStats().getMediaImage() + finalMedia)));
+            
+            if (finalSupport > 0) {
+                int undecided = session.getPublicState().getUndecidedSupport();
+                int supportGain = Math.min(undecided, (int) Math.round(finalSupport));
+                if (supportGain > 0) {
+                    party.getStats().setPublicSupport(party.getStats().getPublicSupport() + supportGain);
+                    session.getPublicState().setUndecidedSupport(undecided - supportGain);
+                }
+            } else if (finalSupport < 0) {
+                int supportLoss = Math.min(party.getStats().getPublicSupport(), (int) Math.round(Math.abs(finalSupport)));
+                party.getStats().setPublicSupport(party.getStats().getPublicSupport() - supportLoss);
+                session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + supportLoss);
+            }
+
+            commentary.add("  - " + party.getName() + ": Coins +" + finalCoins + ", Morale " + (finalMorale >= 0 ? "+" : "") + finalMorale + ", Corruption " + (finalCorruption >= 0 ? "+" : "") + finalCorruption + ", Media Image " + (finalMedia >= 0 ? "+" : "") + finalMedia + ", Support " + (finalSupport >= 0 ? "+" : "") + finalSupport + "%");
+
+            // Enforce defeat check if public support drops to 0%
+            if (party.getStats().getPublicSupport() <= 0) {
+                party.setRole(com.politicalsim.party.PartyRole.DEFEATED);
+                party.setActive(false);
+                commentary.add("💀 DEFEAT: " + party.getName() + "'s public support has dropped to 0%! The party has dissolved and is DEFEATED.");
+            }
+
+            // 3. Trigger new Faction Ultimatum crisis check for next turn
+            if (!party.isFactionCrisisTriggered()) {
+                for (com.politicalsim.party.FactionState fs : party.getFactions()) {
+                    if (fs.isActive() && fs.getLoyalty() < 30 && fs.getInfluence() >= 40) {
+                        party.setFactionCrisisTriggered(true);
+                        party.setActiveFactionCrisisKey(fs.getKey());
+                        commentary.add("🚨 FACTION ULTIMATUM: The rebellious " + fs.getName() + " has reached " + fs.getLoyalty() + "% Loyalty and " + fs.getInfluence() + "% Power. They have issued an ultimatum to " + party.getName() + "! The party must resolve this crisis in their next turn.");
+                        break;
+                    }
+                }
+            }
         }
     }
 }

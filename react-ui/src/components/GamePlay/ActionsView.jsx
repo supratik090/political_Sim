@@ -99,7 +99,7 @@ export default function ActionsView({
   
   const isSection3Completed = turnData.activeEventKey
     ? (selectedEventOptionKey !== '' && selectedEventOptionKey !== null && selectedEventOptionKey !== undefined)
-    : (!turnData.currentIssue || selectedIssueOptionKey !== '');
+    : (selectedIssueOptionKey === 'mock_done');
   const isBidCompleted = bidConfirmed;
 
   const hasRewards = turnData.activePlayerHeldRewards && turnData.activePlayerHeldRewards.length > 0;
@@ -238,10 +238,10 @@ export default function ActionsView({
         />
       </ActionSection>
 
-      {/* 3. Event */}
+      {/* 3. Party Management */}
       <ActionSection
         num={3}
-        title="Event"
+        title="Party Management"
         isCompleted={isSection3Completed}
         activeAccordion={activeAccordion}
         setActiveAccordion={setActiveAccordion}

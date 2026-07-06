@@ -2,7 +2,6 @@ package com.politicalsim.api;
 
 import com.politicalsim.game.GameStatus;
 import com.politicalsim.content.CardDefinition;
-import com.politicalsim.content.MonthlyIssueDefinition;
 import com.politicalsim.content.NewsDefinition;
 import com.politicalsim.game.DelayedEffect;
 import com.politicalsim.game.RoundSubmission;
@@ -32,7 +31,7 @@ public record TurnView(
         PartyView oppositionParty,
         List<CardDefinition> availableCards,
         List<NewsDefinition> currentNews,
-        MonthlyIssueDefinition currentIssue,
+        Object currentIssue,
         PublicState publicState,
         boolean noConfidenceAvailable,
         String noConfidenceReason,

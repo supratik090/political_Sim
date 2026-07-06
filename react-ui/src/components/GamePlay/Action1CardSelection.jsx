@@ -25,8 +25,8 @@ export default function Action1CardSelection({
       {/* Card Category Filter Bar */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px', borderBottom: '1px solid rgba(101, 148, 177, 0.2)', paddingBottom: '12px' }}>
         {[
-          { key: 'agitation_movement', label: 'Agitation ✊' },
           { key: 'governance', label: 'Governance 🏛️' },
+          { key: 'agitation_movement', label: 'Agitation ✊' },
           { key: 'positive_service', label: 'Welfare 🤝' },
           { key: 'media_narrative', label: 'Media 📢' },
           { key: 'organization_resource', label: 'Organization 🏢' },

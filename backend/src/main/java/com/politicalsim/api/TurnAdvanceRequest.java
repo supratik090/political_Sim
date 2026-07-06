@@ -99,11 +99,34 @@ public class TurnAdvanceRequest {
         this.selectedEventOptionKey = selectedEventOptionKey;
     }
 
+    private String factionCrisisChoice;
+
+    public String getFactionCrisisChoice() {
+        return factionCrisisChoice;
+    }
+
+    public void setFactionCrisisChoice(String factionCrisisChoice) {
+        this.factionCrisisChoice = factionCrisisChoice;
+    }
+
     public boolean isWhipIssued() {
         return whipIssued;
     }
 
     public void setWhipIssued(boolean whipIssued) {
         this.whipIssued = whipIssued;
+    }
+
+    private Map<String, Object> allocations = new java.util.LinkedHashMap<>();
+
+    public Map<String, Object> getAllocations() {
+        if (allocations == null) {
+            allocations = new java.util.LinkedHashMap<>();
+        }
+        return allocations;
+    }
+
+    public void setAllocations(Map<String, Object> allocations) {
+        this.allocations = allocations;
     }
 }

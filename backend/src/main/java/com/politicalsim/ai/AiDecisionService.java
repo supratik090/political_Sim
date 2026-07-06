@@ -15,10 +15,24 @@ import java.util.List;
 import java.util.Map;
 import com.politicalsim.game.CooperationOffer;
 import com.politicalsim.game.NonAggressionPact;
+import com.politicalsim.game.LegislativeBillState;
+import com.politicalsim.party.ProjectState;
+import com.politicalsim.content.LegislativeBillDefinition;
+import com.politicalsim.content.LegislativeBillDefinitionRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AiDecisionService {
+
+    private final LegislativeBillDefinitionRepository billRepository;
+
+    public AiDecisionService() {
+        this.billRepository = null;
+    }
+
+    public AiDecisionService(LegislativeBillDefinitionRepository billRepository) {
+        this.billRepository = billRepository;
+    }
 
     public AiDecision chooseCard(GameSession session, PartyState party, PartyState opponent, List<CardDefinition> cards) {
         AiIntent intent = chooseIntent(session, party, opponent);
@@ -1217,6 +1231,353 @@ public class AiDecisionService {
             return score;
         } catch (Exception e) {
             return 0.0;
+        }
+    }
+
+    public String chooseBillToPropose(GameSession session, PartyState party) {
+        if (billRepository == null) {
+            return null;
+        }
+        if (session.getProposedBillKeyThisTurn() != null && !session.getProposedBillKeyThisTurn().isEmpty()) {
+            return null;
+        }
+
+        String myRoleStr = party.getRole() == PartyRole.GOVERNMENT ? "GOVERNMENT" : "OPPOSITION";
+        List<LegislativeBillDefinition> allBills = com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, session.getScenarioKey());
+        List<LegislativeBillState> currentSessionBills = session.getBills();
+        
+        List<String> eligibleBillKeys = currentSessionBills.stream()
+                .filter(b -> "NOT_PROPOSED".equals(b.getStatus()))
+                .map(LegislativeBillState::getBillKey)
+                .toList();
+
+        List<LegislativeBillDefinition> proposePool = allBills.stream()
+                .filter(b -> eligibleBillKeys.contains(b.getBillKey()))
+                .filter(b -> myRoleStr.equalsIgnoreCase(b.getProposingRole()))
+                .toList();
+
+        if (proposePool.isEmpty()) {
+            return null;
+        }
+
+        AiIntent intent = chooseIntent(session, party, null);
+        LegislativeBillDefinition bestBill = null;
+        double bestUtility = -9999.0;
+
+        for (LegislativeBillDefinition bill : proposePool) {
+            double utility = scoreBillForAi(session, party, bill, intent);
+            if (utility > bestUtility) {
+                bestUtility = utility;
+                bestBill = bill;
+            }
+        }
+
+        if (bestBill != null && bestUtility > 0.0) {
+            return bestBill.getBillKey();
+        }
+        return null;
+    }
+
+    public double scoreBillForAi(GameSession session, PartyState party, LegislativeBillDefinition bill, AiIntent intent) {
+        Map<String, Object> passedEffects = bill.getEffectsPassed();
+        if (passedEffects == null) {
+            return 0.0;
+        }
+
+        double utility = intentBillEffectsFit(intent, passedEffects);
+
+        int supportEffect = intValue(passedEffects.get("publicSupport"));
+        int moraleEffect = intValue(passedEffects.get("partyMorale"));
+        int mediaEffect = intValue(passedEffects.get("mediaImage"));
+        int corruptionEffect = intValue(passedEffects.get("corruptionScore"));
+        int coinsEffect = intValue(passedEffects.get("coins"));
+
+        utility += supportEffect * 2.5;
+        utility += moraleEffect * 1.5;
+        utility += mediaEffect * 1.5;
+        utility -= corruptionEffect * 2.0;
+        utility += coinsEffect * 0.1;
+
+        return utility;
+    }
+
+    private double intentBillEffectsFit(AiIntent intent, Map<String, Object> effects) {
+        int coins = intValue(effects.get("coins"));
+        int morale = intValue(effects.get("partyMorale"));
+        int support = intValue(effects.get("publicSupport"));
+        int corruption = intValue(effects.get("corruptionScore"));
+        int media = intValue(effects.get("mediaImage"));
+
+        double fit = 0.0;
+        switch (intent) {
+            case RAISE_FUNDS:
+                if (coins > 0) fit += coins * 3.0;
+                break;
+            case GAIN_SUPPORT:
+            case PREPARE_ELECTION:
+                if (support > 0) fit += support * 5.0;
+                break;
+            case RESTORE_MORALE:
+                if (morale > 0) fit += morale * 3.0;
+                break;
+            case DEFEND_IMAGE:
+                if (media > 0) fit += media * 3.0;
+                break;
+            case SURVIVE_SCANDAL:
+                if (corruption < 0) fit += Math.abs(corruption) * 4.0;
+                break;
+            default:
+                break;
+        }
+        return fit;
+    }
+
+    public String chooseFactionCrisisChoice(GameSession session, PartyState party) {
+        PartyStats stats = party.getStats();
+        if (stats.getCoins() >= 55 && stats.getMediaImage() >= 25) {
+            return "A";
+        }
+        if (stats.getPartyMorale() >= 25 && stats.getPublicSupport() >= 8) {
+            return "B";
+        }
+        return "C";
+    }
+
+    public void makeFactionAllocations(GameSession session, PartyState party, RoundSubmission submission) {
+        List<com.politicalsim.party.FactionState> factions = party.getFactions();
+        if (factions == null || factions.isEmpty()) {
+            return;
+        }
+
+        int availablePatronage = 1;
+        List<String> unassignedProjectKeys = new ArrayList<>();
+        if (party.getProjects() != null) {
+            for (ProjectState p : party.getProjects()) {
+                if (p.getProgressPercent() == 100 && (p.getManagingFactionKey() == null || p.getManagingFactionKey().equals("None") || p.getManagingFactionKey().isEmpty())) {
+                    unassignedProjectKeys.add(p.getProjectKey());
+                }
+            }
+        }
+
+        List<String> assignedPosts = new ArrayList<>();
+        for (com.politicalsim.party.FactionState f : factions) {
+            if (f.isActive() && f.getPost() != null && !f.getPost().equals("None") && !f.getPost().isEmpty()) {
+                assignedPosts.add(f.getPost());
+            }
+        }
+        List<String> availablePosts = new ArrayList<>();
+        if (!assignedPosts.contains("Secretary Post")) {
+            availablePosts.add("Secretary Post");
+        }
+        if (!assignedPosts.contains("Fund Manager Post")) {
+            availablePosts.add("Fund Manager Post");
+        }
+
+        List<com.politicalsim.party.FactionState> activeFactions = new ArrayList<>();
+        for (com.politicalsim.party.FactionState f : factions) {
+            if (f.isActive()) {
+                activeFactions.add(f);
+            }
+        }
+        if (activeFactions.isEmpty()) {
+            return;
+        }
+
+        List<Map<String, Object>> factionStatesList = new ArrayList<>();
+        Map<String, String> projectAssignments = new java.util.HashMap<>();
+
+        List<SimFaction> simFactions = new ArrayList<>();
+        for (com.politicalsim.party.FactionState f : activeFactions) {
+            simFactions.add(new SimFaction(f));
+        }
+
+        AiProfile profile = profileFor(party);
+        boolean balanced = profile.getStyle() == AiStyle.STRENGTH_BUILDER || profile.getStyle() == AiStyle.BALANCED_STRATEGIST;
+
+        for (SimFaction sf : simFactions) {
+            if (sf.loyalty < 35) {
+                if (availablePatronage > 0) {
+                    sf.patronage += 1;
+                    sf.loyalty = Math.min(100, sf.loyalty + 5);
+                    availablePatronage--;
+                } else if (!availablePosts.isEmpty()) {
+                    String post = availablePosts.remove(0);
+                    sf.post = post;
+                    sf.loyalty = Math.min(100, sf.loyalty + 15);
+                }
+            }
+        }
+
+        while (!availablePosts.isEmpty()) {
+            String post = availablePosts.remove(0);
+            SimFaction target = null;
+            if (balanced) {
+                simFactions.sort((a, b) -> {
+                    boolean aHas = a.post != null && !a.post.equals("None");
+                    boolean bHas = b.post != null && !b.post.equals("None");
+                    if (aHas != bHas) return aHas ? 1 : -1;
+                    return Integer.compare(a.loyalty, b.loyalty);
+                });
+                target = simFactions.get(0);
+            } else {
+                if (post.equals("Fund Manager Post")) {
+                    target = findSimFactionByKey(simFactions, "veteran");
+                } else {
+                    target = findSimFactionByKey(simFactions, "youth");
+                }
+                if (target == null || (target.post != null && !target.post.equals("None"))) {
+                    simFactions.sort((a, b) -> Integer.compare(a.loyalty, b.loyalty));
+                    target = simFactions.get(0);
+                }
+            }
+            if (target != null) {
+                target.post = post;
+                target.loyalty = Math.min(100, target.loyalty + 15);
+            }
+        }
+
+        while (availablePatronage > 0) {
+            SimFaction target = null;
+            if (balanced) {
+                simFactions.sort((a, b) -> Integer.compare(a.loyalty, b.loyalty));
+                target = simFactions.get(0);
+            } else {
+                String preferredKey = profile.getStyle() == AiStyle.AGGRESSIVE_BIDDER ? "veteran" : "youth";
+                target = findSimFactionByKey(simFactions, preferredKey);
+                if (target == null) {
+                    simFactions.sort((a, b) -> Integer.compare(b.influence, a.influence));
+                    target = simFactions.get(0);
+                }
+            }
+            if (target != null) {
+                target.patronage += 1;
+                target.loyalty = Math.min(100, target.loyalty + 5);
+            }
+            availablePatronage--;
+        }
+
+        for (String projKey : unassignedProjectKeys) {
+            SimFaction target = null;
+            if (balanced) {
+                simFactions.sort((a, b) -> Integer.compare(a.projectCount, b.projectCount));
+                target = simFactions.get(0);
+            } else {
+                String preferredKey = profile.getStyle() == AiStyle.AGGRESSIVE_BIDDER ? "veteran" : "youth";
+                target = findSimFactionByKey(simFactions, preferredKey);
+                if (target == null) {
+                    simFactions.sort((a, b) -> Integer.compare(b.influence, a.influence));
+                    target = simFactions.get(0);
+                }
+            }
+            if (target != null) {
+                target.projectCount++;
+                projectAssignments.put(projKey, target.key);
+            }
+        }
+
+        recalculateSimInfluences(simFactions, party);
+
+        for (SimFaction sf : simFactions) {
+            Map<String, Object> fMap = new java.util.HashMap<>();
+            fMap.put("key", sf.key);
+            fMap.put("name", sf.name);
+            fMap.put("loyalty", sf.loyalty);
+            fMap.put("influence", sf.influence);
+            fMap.put("post", sf.post);
+            fMap.put("patronage", sf.patronage);
+            fMap.put("active", true);
+            factionStatesList.add(fMap);
+        }
+
+        for (com.politicalsim.party.FactionState f : factions) {
+            if (!f.isActive()) {
+                Map<String, Object> fMap = new java.util.HashMap<>();
+                fMap.put("key", f.getKey());
+                fMap.put("name", f.getName());
+                fMap.put("loyalty", 0);
+                fMap.put("influence", 0);
+                fMap.put("post", "None");
+                fMap.put("patronage", 0);
+                fMap.put("active", false);
+                factionStatesList.add(fMap);
+            }
+        }
+
+        Map<String, Object> allocationsMap = new java.util.HashMap<>();
+        allocationsMap.put("factions", factionStatesList);
+        allocationsMap.put("projects", projectAssignments);
+        submission.setAllocations(allocationsMap);
+    }
+
+    private SimFaction findSimFactionByKey(List<SimFaction> list, String key) {
+        for (SimFaction sf : list) {
+            if (sf.key.equals(key)) return sf;
+        }
+        return null;
+    }
+
+    private void recalculateSimInfluences(List<SimFaction> simFactions, PartyState party) {
+        double totalYieldSum = 0.0;
+        Map<String, Double> yieldSums = new java.util.HashMap<>();
+
+        for (SimFaction sf : simFactions) {
+            double factor = 1.0;
+            if (sf.loyalty >= 90) factor = 2.0;
+            else if (sf.loyalty >= 80) factor = 1.5;
+            else if (sf.loyalty >= 50) factor = 1.0;
+            else if (sf.loyalty >= 30) factor = 0.5;
+            else factor = 0.0;
+
+            int coinsYield = sf.patronage * 2 + (sf.post.equals("Fund Manager Post") ? 8 : 0);
+            int moraleYield = sf.patronage * 1 + (sf.post.equals("Secretary Post") ? 6 : 0);
+            int corruptionYield = sf.patronage * -1 + (sf.post.equals("None") ? 0 : 2);
+            int mediaYield = sf.patronage * 1;
+
+            coinsYield += sf.projectCount * 2;
+            moraleYield += sf.projectCount * 2;
+
+            double coinsVal = Math.round(coinsYield * factor);
+            double supportVal = Math.abs((sf.loyalty >= 50 ? (sf.influence * 0.01) : -(sf.influence * 0.01)) * factor);
+            double moraleVal = Math.round(moraleYield * factor);
+            double corruptionVal = Math.round(corruptionYield * (2.0 - factor));
+            double mediaVal = Math.round(mediaYield * factor);
+
+            double sum = coinsVal + supportVal * 10.0 + moraleVal + Math.abs(corruptionVal) + mediaVal;
+            yieldSums.put(sf.key, sum);
+            totalYieldSum += sum;
+        }
+
+        if (totalYieldSum > 0.0) {
+            int remainingInfluence = 100;
+            for (int i = 0; i < simFactions.size(); i++) {
+                SimFaction sf = simFactions.get(i);
+                if (i == simFactions.size() - 1) {
+                    sf.influence = remainingInfluence;
+                } else {
+                    int inf = (int) Math.round((yieldSums.get(sf.key) / totalYieldSum) * 100.0);
+                    sf.influence = Math.max(1, inf);
+                    remainingInfluence -= sf.influence;
+                }
+            }
+        }
+    }
+
+    private static class SimFaction {
+        String key;
+        String name;
+        int loyalty;
+        int influence;
+        String post;
+        int patronage;
+        int projectCount = 0;
+
+        SimFaction(com.politicalsim.party.FactionState f) {
+            this.key = f.getKey();
+            this.name = f.getName();
+            this.loyalty = Math.max(0, f.getLoyalty() - 2);
+            this.influence = f.getInfluence();
+            this.post = f.getPost() == null ? "None" : f.getPost();
+            this.patronage = f.getPatronage();
         }
     }
 }

@@ -90,20 +90,22 @@ export const setProjectTarget = (gameId, partyId, projectKey, targetPartyId) =>
 export const createCooperationOffer = (gameId, payload) => apiPost(`/api/games/${gameId}/cooperation/offer`, payload);
 export const respondToCooperationOffer = (gameId, offerId, accept) => 
   apiPost(`/api/games/${gameId}/cooperation/respond?offerId=${offerId}&accept=${accept}`);
+export const bribeFaction = (gameId, targetPartyId, factionKey, coins) =>
+  apiPost(`/api/games/${gameId}/bribe?targetPartyId=${targetPartyId}&factionKey=${factionKey}&coins=${coins}`);
 
 export const fetchBillsForGameplay = (scenarioKey) => apiGet(`/api/games/bills/scenario/${scenarioKey}`);
-export const fetchEventsForGameplay = (scenarioKey) => apiGet(`/api/games/events/scenario/${scenarioKey}`);
-
-
 
 // Admin API bindings
 export const fetchScenarios = () => apiGet('/api/admin/scenarios');
 export const fetchCards = (scenarioKey) => apiGet('/api/admin/cards', scenarioKey ? { scenarioKey } : {});
 export const fetchNews = (scenarioKey) => apiGet('/api/admin/news', scenarioKey ? { scenarioKey } : {});
-export const fetchIssues = (scenarioKey) => apiGet('/api/admin/issues', scenarioKey ? { scenarioKey } : {});
 export const fetchBills = (scenarioKey) => apiGet('/api/admin/bills', scenarioKey ? { scenarioKey } : {});
-export const fetchEvents = (scenarioKey) => apiGet('/api/admin/events', scenarioKey ? { scenarioKey } : {});
+export const fetchFactions = () => apiGet('/api/admin/factions');
 export const fetchScenarioProgress = (userId) => apiGet('/api/scenarios/progress', userId ? { userId } : {});
+export const getFaction = (id) => apiGet(`/api/admin/factions/${id}`);
+export const createFaction = (payload) => apiPost('/api/admin/factions', payload);
+export const updateFaction = (id, payload) => apiPut(`/api/admin/factions/${id}`, payload);
+export const deleteFaction = (id) => apiDelete(`/api/admin/factions/${id}`);
 
 // Auth API bindings
 export const registerUser = (payload) => apiPost('/api/auth/register', payload);

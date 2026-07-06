@@ -17,6 +17,61 @@ const getCleanSymbol = (name, symbol) => {
   return symbol && symbol !== 'undefined' ? symbol : 'Flag';
 };
 
+const calculateFactionYield = (f, p, projectDefs) => {
+  if (!f.active) return { coins: 0, support: 0, morale: 0, corruption: 0, media: 0 };
+  
+  let mult = 1.0;
+  if (f.loyalty >= 90) mult = 2.0;
+  else if (f.loyalty >= 80) mult = 1.5;
+  else if (f.loyalty >= 50) mult = 1.0;
+  else if (f.loyalty >= 30) mult = 0.5;
+  else mult = 0.0;
+
+  const powerShare = f.influence / 100.0;
+
+  const patronageCoins = f.patronage * 2;
+  const postCoins = f.post === 'Fund Manager Post' ? 8 : 0;
+  let baseCoins = patronageCoins + postCoins;
+
+  const patronageMorale = f.patronage * 1;
+  const postMorale = f.post === 'Secretary Post' ? 6 : 0;
+  
+  let projectMorale = 0;
+  let projectMedia = 0;
+  
+  const completedProjects = (p.projects || []).filter(proj => proj.progressPercent === 100 && proj.managingFactionKey === f.key);
+  completedProjects.forEach(proj => {
+    const def = projectDefs[proj.projectKey];
+    if (def) {
+      if (proj.projectKey === 'CADRE_OFFICE') projectMorale += 5;
+      else if (proj.projectKey === 'TRAINING_ACADEMY') projectMorale += 3;
+      else if (proj.projectKey === 'YOUTH_WING') projectMorale += 3;
+      else if (proj.projectKey === 'IT_CELL') projectMedia += 2;
+      else if (proj.projectKey === 'THINK_TANK') projectMedia += 4;
+      else if (proj.projectKey === 'PARTY_HQ') {
+        baseCoins += 12;
+        projectMedia += 3;
+      }
+    }
+  });
+
+  const baseMorale = patronageMorale + postMorale + projectMorale;
+  const patronageCorruption = f.patronage * -1;
+  const postCorruption = f.post !== 'None' ? 2 : 0;
+  const baseCorruption = patronageCorruption + postCorruption;
+  const patronageMedia = f.patronage * 1;
+  const baseMedia = patronageMedia + projectMedia;
+  const baseSupport = f.loyalty >= 50 ? (f.influence * 0.01) : -(f.influence * 0.01);
+ 
+  return {
+    coins: Math.round(baseCoins * mult),
+    support: parseFloat((baseSupport * mult).toFixed(1)),
+    morale: Math.round(baseMorale * mult),
+    corruption: Math.round(baseCorruption * (2 - mult)),
+    media: Math.round(baseMedia * mult)
+  };
+};
+
 export default function StatsView({
   turnData,
   commentaryExpanded,
@@ -467,9 +522,7 @@ export default function StatsView({
                     {item.name}
                     {item.isPlayer && <span style={{ marginLeft: '4px', fontSize: '10px', background: 'var(--selected-highlight)', color: '#fff', padding: '1px 5px', borderRadius: '6px', fontWeight: 700 }}> You</span>}
                     {item.isOtherHuman && <span style={{ marginLeft: '4px', fontSize: '10px', background: 'var(--primary-dark)', color: '#fff', padding: '1px 5px', borderRadius: '6px', fontWeight: 700 }}>Player</span>}
-                    {item.symbol && item.symbol !== 'N/A' && (
-                      <span style={{ fontSize: '10px', opacity: 0.6, marginLeft: '4px' }}>({item.symbol})</span>
-                    )}
+
                   </span>
                 </div>
                 <div style={{ fontWeight: 'bold', color: 'var(--primary-dark)' }}>
@@ -647,6 +700,42 @@ export default function StatsView({
                       </span>
                     </div>
                   </div>
+
+                  {/* Factions Loyalty & Power */}
+                  {party.factions && party.factions.length > 0 && (
+                    <div style={{ marginTop: '15px', paddingTop: '12px', borderTop: '1px dashed rgba(101, 148, 177, 0.2)' }}>
+                      <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: 'var(--primary-dark)', display: 'block', marginBottom: '8px', letterSpacing: '0.05em' }}>
+                        ⚡ Factions (Loyalty / Power)
+                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {party.factions.map(f => {
+                          let label = f.name;
+                          if (f.key === 'veteran') label = 'Loyalists';
+                          if (f.key === 'youth') label = 'Youth Wing';
+                          if (f.key === 'trade') label = 'Trade Unions';
+
+                          if (!f.active) {
+                            return (
+                              <div key={f.key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', color: '#94a3b8', fontStyle: 'italic' }}>
+                                <span>{label}</span>
+                                <span>Purged</span>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div key={f.key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', alignItems: 'center' }}>
+                              <span style={{ fontWeight: '500', color: 'var(--card-text)' }}>{label}</span>
+                              <span style={{ fontSize: '11px' }}>
+                                L: <strong style={{ color: f.loyalty >= 80 ? '#16a34a' : (f.loyalty >= 50 ? '#ca8a04' : '#dc2626') }}>{f.loyalty}%</strong> | 
+                                P: <strong style={{ color: 'var(--primary-dark)', marginLeft: '3px' }}>{f.influence}%</strong>
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Last Action and Bids */}
@@ -1151,9 +1240,9 @@ export default function StatsView({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '14px' }}>🏗️</span>
+            <span style={{ fontSize: '14px' }}>🛡️</span>
             <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.05em', color: 'var(--primary-dark)', fontWeight: 'bold' }}>
-              Completed Projects & Yield View
+              Party info
             </h4>
           </div>
         </div>
@@ -1163,7 +1252,7 @@ export default function StatsView({
           {(() => {
             const activeParties = (turnData.parties || []).filter(p => p.role !== 'DEFEATED');
             return (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
                 {activeParties.map(p => {
                   const completedProjects = (p.projects || [])
                     .filter(proj => proj.progressPercent === 100)
@@ -1180,75 +1269,125 @@ export default function StatsView({
                     const rawKey = proj.projectKey;
                     const def = projectDefs[rawKey];
                     if (def) {
-                      netCoins += def.benefitCoins || 0;
-                      netMorale += def.benefitMorale || 0;
-                      netCorruption += def.benefitCorruption || 0;
-                      netMedia += def.benefitMedia || 0;
-                      netSupport += def.benefitSupport || 0;
+                      const f = (p.factions || []).find(fac => fac.key === proj.managingFactionKey);
+                      let mult = 1.0;
+                      let powerShare = 1.0;
+                      if (f && f.active) {
+                        powerShare = f.influence / 100.0;
+                        if (f.loyalty >= 90) mult = 2.0;
+                        else if (f.loyalty >= 80) mult = 1.5;
+                        else if (f.loyalty >= 50) mult = 1.0;
+                        else if (f.loyalty >= 30) mult = 0.5;
+                        else mult = 0.0;
+                      }
+                      
+                      netCoins += Math.round((def.benefitCoins || 0) * powerShare * mult);
+                      netMorale += Math.round((def.benefitMorale || 0) * powerShare * mult);
+                      netCorruption += Math.round((def.benefitCorruption || 0) * powerShare * (2.0 - mult));
+                      netMedia += Math.round((def.benefitMedia || 0) * powerShare * mult);
+                      netSupport += Math.round((def.benefitSupport || 0) * powerShare * mult);
                     }
                   });
 
                   return (
-                    <div key={p.id} style={{ borderBottom: '1px solid rgba(101, 148, 177, 0.1)', paddingBottom: '15px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <div key={p.id} style={{ borderBottom: '1px solid rgba(101, 148, 177, 0.15)', paddingBottom: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                         <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: getPartyColor(p) }} />
-                        <h5 style={{ margin: 0, fontSize: '14px', color: 'var(--primary-dark)' }}>
+                        <h5 style={{ margin: 0, fontSize: '15px', color: 'var(--primary-dark)', fontWeight: 'bold' }}>
                           {p.name} {p.id === myPartyId && '(You)'}
                         </h5>
                       </div>
 
-                      {completedProjects.length === 0 ? (
-                        <div style={{ fontSize: '12px', color: '#64748b', paddingLeft: '18px' }}>
-                          No completed projects yet.
-                        </div>
-                      ) : (
-                        <div style={{ paddingLeft: '18px' }}>
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
-                            {completedProjects.map(proj => {
-                              const def = projectDefs[proj.projectKey];
-                              const name = def ? def.name : proj.projectKey;
-                              return (
-                                <span 
-                                  key={proj.id} 
-                                  style={{ 
-                                    fontSize: '11px', 
-                                    background: 'rgba(101, 148, 177, 0.1)', 
-                                    color: 'var(--primary-dark)', 
-                                    padding: '4px 10px', 
-                                    borderRadius: '6px',
-                                    fontWeight: '600'
-                                  }}
-                                >
-                                  {name} {proj.targetPartyName && `🎯 ${proj.targetPartyName}`}
-                                </span>
-                              );
-                            })}
-                          </div>
+                      {/* Party Factions Details Grid */}
+                      <div style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '15px' }}>
+                        {(() => {
+                          const activeFactions = (p.factions || []).filter(f => f.active);
+                          const factionYields = activeFactions.map(f => {
+                            const y = calculateFactionYield(f, p, projectDefs);
+                            const completedProjects = (p.projects || []).filter(proj => proj.progressPercent === 100 && proj.managingFactionKey === f.key);
+                            return { faction: f, yields: y, projects: completedProjects };
+                          });
 
-                          {/* Net Yield Row */}
-                          <div style={{ 
-                            fontSize: '12px', 
-                            background: 'rgba(23, 184, 144, 0.05)', 
-                            border: '1px solid rgba(23, 184, 144, 0.15)',
-                            padding: '8px 12px', 
-                            borderRadius: '8px', 
-                            display: 'inline-flex', 
-                            gap: '12px',
-                            color: '#15803d',
-                            fontWeight: '600'
-                          }}>
-                            <span>Net Yield:</span>
-                            {netCoins !== 0 && <span>💰 {netCoins > 0 ? '+' : ''}{netCoins} Coins</span>}
-                            {netSupport !== 0 && <span>📈 {netSupport > 0 ? '+' : ''}{netSupport}% Support</span>}
-                            {netMorale !== 0 && <span>✊ {netMorale > 0 ? '+' : ''}{netMorale} Morale</span>}
-                            {netCorruption !== 0 && <span>⚖️ {netCorruption > 0 ? '+' : ''}{netCorruption} Corruption</span>}
-                            {netMedia !== 0 && <span>📢 {netMedia > 0 ? '+' : ''}{netMedia} Media</span>}
-                           {netCoins === 0 && netMorale === 0 && netCorruption === 0 && netMedia === 0 && netSupport === 0 && (
-                              <span style={{ color: '#64748b' }}>No per-turn yields</span>
-                            )}
-                          </div>
+                          return factionYields.map(fy => {
+                            const { faction: f, yields: y, projects } = fy;
+                            const getMoodText = (loy) => {
+                              if (loy >= 80) return 'Good 😊';
+                              if (loy >= 50) return 'Neutral 😐';
+                              if (loy >= 30) return 'Bad 😡';
+                              return 'Rebel 💀';
+                            };
+                            const getMoodColor = (loy) => {
+                              if (loy >= 80) return '#22c55e';
+                              if (loy >= 50) return '#64748b';
+                              if (loy >= 30) return '#f97316';
+                              return '#ef4444';
+                            };
+                            
+                            return (
+                              <div key={f.key || f.id} style={{
+                                background: '#ffffff',
+                                border: `1.5px solid ${getMoodColor(f.loyalty)}`,
+                                borderRadius: '8px',
+                                padding: '12px 16px',
+                                boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
+                              }}>
+                                {/* Header row: Faction Name, Power, Loyalty */}
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', borderBottom: '1px solid var(--primary-border)', paddingBottom: '6px' }}>
+                                  <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>{f.name}</span>
+                                  <span style={{ fontSize: '11px', color: 'var(--card-text)' }}>
+                                    Power: <b>{f.influence}%</b> | Loyalty: <b style={{ color: getMoodColor(f.loyalty) }}>{f.loyalty}% ({getMoodText(f.loyalty)})</b>
+                                  </span>
+                                </div>
+
+                                {/* Allocation details */}
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '11px', color: '#475569', marginBottom: '8px' }}>
+                                  <div>
+                                    💼 <b>Post:</b> {f.post !== 'None' ? f.post : 'None'}
+                                  </div>
+                                  <div>
+                                    🏗️ <b>Projects:</b> {projects.length === 0 ? 'None' : projects.map(proj => {
+                                      const def = projectDefs[proj.projectKey];
+                                      return def ? def.name : proj.projectKey;
+                                    }).join(', ')}
+                                  </div>
+                                </div>
+
+                                {/* Faction Yields row */}
+                                <div style={{ display: 'flex', gap: '15px', fontSize: '11px', fontWeight: 'bold' }}>
+                                  <span style={{ color: '#15803d' }}>Coins: {y.coins >= 0 ? '+' : ''}{y.coins} 💰</span>
+                                  <span style={{ color: '#1d4ed8' }}>Support: {y.support >= 0 ? '+' : ''}{y.support}% 📈</span>
+                                  <span style={{ color: '#a21caf' }}>Morale: {y.morale >= 0 ? '+' : ''}{y.morale} ✊</span>
+                                  <span style={{ color: y.corruption > 0 ? '#b91c1c' : '#15803d' }}>Corruption: {y.corruption >= 0 ? '+' : ''}{y.corruption} ⚖️</span>
+                                  <span style={{ color: '#ec4899' }}>Media: {y.media >= 0 ? '+' : ''}{y.media} 📢</span>
+                                </div>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+
+                      {/* Net Yield Row */}
+                      <div style={{ paddingLeft: '18px' }}>
+                        <div style={{ 
+                          fontSize: '12px', 
+                          background: 'rgba(22, 163, 74, 0.05)', 
+                          border: '1.5px solid rgba(22, 163, 74, 0.25)',
+                          padding: '10px 16px', 
+                          borderRadius: '8px', 
+                          display: 'inline-flex', 
+                          flexWrap: 'wrap',
+                          gap: '14px',
+                          color: '#166534',
+                          fontWeight: 'bold'
+                        }}>
+                          <span>Combined Yield Sum:</span>
+                          <span>💰 {netCoins >= 0 ? '+' : ''}{netCoins} Coins</span>
+                          <span>📈 {netSupport >= 0 ? '+' : ''}{netSupport}% Support</span>
+                          <span>✊ {netMorale >= 0 ? '+' : ''}{netMorale} Morale</span>
+                          <span>⚖️ {netCorruption >= 0 ? '+' : ''}{netCorruption} Corruption</span>
+                          <span>📢 {netMedia >= 0 ? '+' : ''}{netMedia} Media</span>
                         </div>
-                      )}
+                      </div>
                     </div>
                   );
                 })}

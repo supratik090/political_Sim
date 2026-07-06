@@ -2,16 +2,12 @@ package com.politicalsim.admin;
 
 import com.politicalsim.content.CardDefinition;
 import com.politicalsim.content.CardDefinitionRepository;
-import com.politicalsim.content.MonthlyIssueDefinition;
-import com.politicalsim.content.MonthlyIssueDefinitionRepository;
 import com.politicalsim.content.NewsDefinition;
 import com.politicalsim.content.NewsDefinitionRepository;
 import com.politicalsim.content.ScenarioDefinition;
 import com.politicalsim.content.ScenarioDefinitionRepository;
 import com.politicalsim.content.LegislativeBillDefinition;
 import com.politicalsim.content.LegislativeBillDefinitionRepository;
-import com.politicalsim.content.EventCardDefinition;
-import com.politicalsim.content.EventCardDefinitionRepository;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -36,24 +32,21 @@ public class AdminContentController {
     private final ScenarioDefinitionRepository scenarioRepository;
     private final CardDefinitionRepository cardRepository;
     private final NewsDefinitionRepository newsRepository;
-    private final MonthlyIssueDefinitionRepository issueRepository;
     private final LegislativeBillDefinitionRepository billRepository;
-    private final EventCardDefinitionRepository eventRepository;
+    private final com.politicalsim.content.FactionDefinitionRepository factionRepository;
 
     public AdminContentController(
             ScenarioDefinitionRepository scenarioRepository,
             CardDefinitionRepository cardRepository,
             NewsDefinitionRepository newsRepository,
-            MonthlyIssueDefinitionRepository issueRepository,
             LegislativeBillDefinitionRepository billRepository,
-            EventCardDefinitionRepository eventRepository
+            com.politicalsim.content.FactionDefinitionRepository factionRepository
     ) {
         this.scenarioRepository = scenarioRepository;
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
-        this.issueRepository = issueRepository;
         this.billRepository = billRepository;
-        this.eventRepository = eventRepository;
+        this.factionRepository = factionRepository;
     }
 
     @GetMapping("/scenarios")
@@ -167,44 +160,6 @@ public class AdminContentController {
         return Map.of("status", "deleted", "id", id);
     }
 
-    @GetMapping("/issues")
-    public List<MonthlyIssueDefinition> listIssues(@RequestParam(required = false) String scenarioKey) {
-        if (scenarioKey == null || scenarioKey.isBlank()) {
-            return issueRepository.findAll();
-        }
-        return issueRepository.findByScenarioKeyOrderByCategoryAscTitleAsc(scenarioKey);
-    }
-
-    @GetMapping("/issues/{id}")
-    public MonthlyIssueDefinition getIssue(@PathVariable String id) {
-        return issueRepository.findById(id)
-                .orElseThrow(() -> notFound("Issue item not found: " + id));
-    }
-
-    @PostMapping("/issues")
-    @ResponseStatus(HttpStatus.CREATED)
-    public MonthlyIssueDefinition createIssue(@RequestBody MonthlyIssueDefinition issue) {
-        DefinitionCache.clearAll();
-        issue.setId(null);
-        return issueRepository.save(issue);
-    }
-
-    @PutMapping("/issues/{id}")
-    public MonthlyIssueDefinition updateIssue(@PathVariable String id, @RequestBody MonthlyIssueDefinition issue) {
-        requireIssue(id);
-        DefinitionCache.clearAll();
-        issue.setId(id);
-        return issueRepository.save(issue);
-    }
-
-    @DeleteMapping("/issues/{id}")
-    public Map<String, String> deleteIssue(@PathVariable String id) {
-        requireIssue(id);
-        DefinitionCache.clearAll();
-        issueRepository.deleteById(id);
-        return Map.of("status", "deleted", "id", id);
-    }
-
     // --- LEGISLATIVE BILLS ENDPOINTS ---
     @GetMapping("/bills")
     public List<LegislativeBillDefinition> listBills(@RequestParam(required = false) String scenarioKey) {
@@ -244,43 +199,43 @@ public class AdminContentController {
         return Map.of("status", "deleted", "id", id);
     }
 
-    // --- EVENT CARDS ENDPOINTS ---
-    @GetMapping("/events")
-    public List<EventCardDefinition> listEvents(@RequestParam(required = false) String scenarioKey) {
-        if (scenarioKey == null || scenarioKey.isBlank()) {
-            return eventRepository.findAll();
-        }
-        return eventRepository.findByScenarioKey(scenarioKey);
+    @GetMapping("/factions")
+    public List<com.politicalsim.content.FactionDefinition> listFactions() {
+        return factionRepository.findAll();
     }
 
-    @GetMapping("/events/{id}")
-    public EventCardDefinition getEvent(@PathVariable String id) {
-        return eventRepository.findById(id)
-                .orElseThrow(() -> notFound("Event card not found: " + id));
+    @GetMapping("/factions/{id}")
+    public com.politicalsim.content.FactionDefinition getFaction(@PathVariable String id) {
+        return factionRepository.findById(id)
+                .orElseThrow(() -> notFound("Faction not found: " + id));
     }
 
-    @PostMapping("/events")
-    @ResponseStatus(HttpStatus.CREATED)
-    public EventCardDefinition createEvent(@RequestBody EventCardDefinition event) {
+    @PostMapping("/factions")
+    public com.politicalsim.content.FactionDefinition createFaction(@RequestBody com.politicalsim.content.FactionDefinition faction) {
         DefinitionCache.clearAll();
-        event.setId(null);
-        return eventRepository.save(event);
+        return factionRepository.save(faction);
     }
 
-    @PutMapping("/events/{id}")
-    public EventCardDefinition updateEvent(@PathVariable String id, @RequestBody EventCardDefinition event) {
-        requireEvent(id);
+    @PutMapping("/factions/{id}")
+    public com.politicalsim.content.FactionDefinition updateFaction(@PathVariable String id, @RequestBody com.politicalsim.content.FactionDefinition faction) {
+        requireFaction(id);
+        faction.setId(id);
         DefinitionCache.clearAll();
-        event.setId(id);
-        return eventRepository.save(event);
+        return factionRepository.save(faction);
     }
 
-    @DeleteMapping("/events/{id}")
-    public Map<String, String> deleteEvent(@PathVariable String id) {
-        requireEvent(id);
+    @DeleteMapping("/factions/{id}")
+    public Map<String, String> deleteFaction(@PathVariable String id) {
+        requireFaction(id);
         DefinitionCache.clearAll();
-        eventRepository.deleteById(id);
+        factionRepository.deleteById(id);
         return Map.of("status", "deleted", "id", id);
+    }
+
+    private void requireFaction(String id) {
+        if (!factionRepository.existsById(id)) {
+            throw notFound("Faction not found: " + id);
+        }
     }
 
     private void requireScenario(String id) {
@@ -301,21 +256,9 @@ public class AdminContentController {
         }
     }
 
-    private void requireIssue(String id) {
-        if (!issueRepository.existsById(id)) {
-            throw notFound("Issue item not found: " + id);
-        }
-    }
-
     private void requireBill(String id) {
         if (!billRepository.existsById(id)) {
             throw notFound("Bill not found: " + id);
-        }
-    }
-
-    private void requireEvent(String id) {
-        if (!eventRepository.existsById(id)) {
-            throw notFound("Event card not found: " + id);
         }
     }
 

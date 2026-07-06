@@ -7,8 +7,6 @@ import com.politicalsim.content.ScenarioDefinition;
 import com.politicalsim.content.ScenarioDefinitionRepository;
 import com.politicalsim.content.CardDefinition;
 import com.politicalsim.content.CardDefinitionRepository;
-import com.politicalsim.content.MonthlyIssueDefinition;
-import com.politicalsim.content.MonthlyIssueDefinitionRepository;
 import com.politicalsim.content.LegislativeBillDefinition;
 import com.politicalsim.content.LegislativeBillDefinitionRepository;
 import com.politicalsim.party.ControllerType;
@@ -30,7 +28,6 @@ public class GameSessionService {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GameSessionService.class);
 
     private static List<CardDefinition> cachedCards = null;
-    private static final Map<String, List<MonthlyIssueDefinition>> cachedIssuesByScenario = new java.util.concurrent.ConcurrentHashMap<>();
     private static final Map<String, GameSessionContent> contentCache = new java.util.concurrent.ConcurrentHashMap<>();
 
     private List<CardDefinition> getCachedCards() {
@@ -42,26 +39,8 @@ public class GameSessionService {
         return cachedCards;
     }
 
-    private List<MonthlyIssueDefinition> getCachedIssuesForScenario(String scenarioKey) {
-        String queryKey = scenarioKey == null ? "default" : scenarioKey;
-        return cachedIssuesByScenario.computeIfAbsent(queryKey, key -> {
-            List<MonthlyIssueDefinition> issues = issueRepository.findByScenarioKey(key);
-            if (issues.isEmpty()) {
-                String altKey = key.endsWith("_2006") ? key.replace("_2006", "_2001") : null;
-                if (altKey != null) {
-                    issues = issueRepository.findByScenarioKey(altKey);
-                }
-            }
-            if (issues.isEmpty()) {
-                issues = issueRepository.findByScenarioKey("default");
-            }
-            return issues.stream().filter(MonthlyIssueDefinition::isActive).toList();
-        });
-    }
-
     public static void clearCaches() {
         cachedCards = null;
-        cachedIssuesByScenario.clear();
         contentCache.clear();
         log.info("[METRIC] Static definition caches cleared.");
     }
@@ -78,25 +57,8 @@ public class GameSessionService {
         } catch (Exception e) {
             log.error("[CACHE] Failed to preload cards", e);
         }
-        
-        // 2. Preload scenario issues
-        try {
-            List<String> scenarioKeys = scenarioRepository.findAll().stream()
-                    .map(ScenarioDefinition::getScenarioKey)
-                    .filter(java.util.Objects::nonNull)
-                    .toList();
-            
-            for (String key : scenarioKeys) {
-                long t = System.currentTimeMillis();
-                getCachedIssuesForScenario(key);
-                log.info("[CACHE] Scenario issues for '{}' preloaded in {} ms", key, (System.currentTimeMillis() - t));
-            }
-            getCachedIssuesForScenario("default");
-        } catch (Exception e) {
-            log.error("[CACHE] Failed to preload scenario issues", e);
-        }
 
-        // 3. Preload bills and events
+        // 2. Preload bills
         try {
             List<String> scenarioKeys = scenarioRepository.findAll().stream()
                     .map(ScenarioDefinition::getScenarioKey)
@@ -106,13 +68,11 @@ public class GameSessionService {
             for (String key : scenarioKeys) {
                 long t = System.currentTimeMillis();
                 com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, key);
-                com.politicalsim.content.DefinitionCache.getEventsForScenario(eventRepository, key);
-                log.info("[CACHE] Bills and events for '{}' preloaded in {} ms", key, (System.currentTimeMillis() - t));
+                log.info("[CACHE] Bills for '{}' preloaded in {} ms", key, (System.currentTimeMillis() - t));
             }
             com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, "default");
-            com.politicalsim.content.DefinitionCache.getEventsForScenario(eventRepository, "default");
         } catch (Exception e) {
-            log.error("[CACHE] Failed to preload bills and events", e);
+            log.error("[CACHE] Failed to preload bills", e);
         }
         
         log.info("[CACHE] Total preloading finished in {} ms", (System.currentTimeMillis() - start));
@@ -121,29 +81,26 @@ public class GameSessionService {
     private final GameSessionRepository repository;
     private final ScenarioDefinitionRepository scenarioRepository;
     private final CardDefinitionRepository cardRepository;
-    private final MonthlyIssueDefinitionRepository issueRepository;
     private final GameSessionContentRepository contentRepository;
     private final LegislativeBillDefinitionRepository billRepository;
-    private final com.politicalsim.content.EventCardDefinitionRepository eventRepository;
+    private final com.politicalsim.content.FactionDefinitionRepository factionRepository;
     private final String defaultStateName;
 
     public GameSessionService(
             GameSessionRepository repository,
             ScenarioDefinitionRepository scenarioRepository,
             CardDefinitionRepository cardRepository,
-            MonthlyIssueDefinitionRepository issueRepository,
             GameSessionContentRepository contentRepository,
             LegislativeBillDefinitionRepository billRepository,
-            com.politicalsim.content.EventCardDefinitionRepository eventRepository,
+            com.politicalsim.content.FactionDefinitionRepository factionRepository,
             @Value("${political-sim.default-state-name}") String defaultStateName
     ) {
         this.repository = repository;
         this.scenarioRepository = scenarioRepository;
         this.cardRepository = cardRepository;
-        this.issueRepository = issueRepository;
         this.contentRepository = contentRepository;
         this.billRepository = billRepository;
-        this.eventRepository = eventRepository;
+        this.factionRepository = factionRepository;
         this.defaultStateName = defaultStateName;
     }
 
@@ -154,7 +111,7 @@ public class GameSessionService {
             );
             if (content != null) {
                 session.setGameCards(content.getGameCards());
-                session.setGameIssues(content.getGameIssues());
+                session.setGameIssues(new ArrayList<>());
             }
         }
     }
@@ -242,8 +199,42 @@ public class GameSessionService {
             session.setStatus(GameStatus.ACTIVE);
         }
         session.setParties(parties);
+        List<com.politicalsim.content.FactionDefinition> factionDefs = com.politicalsim.content.DefinitionCache.getFactionsForScenario(factionRepository, finalKey);
+        if (factionDefs == null || factionDefs.isEmpty()) {
+            factionDefs = new ArrayList<>();
+            com.politicalsim.content.FactionDefinition fd1 = new com.politicalsim.content.FactionDefinition();
+            fd1.setFactionKey("veteran");
+            fd1.setName("Loyalists");
+            fd1.setStartingLoyalty(80);
+            fd1.setStartingInfluence(45);
+            factionDefs.add(fd1);
+
+            com.politicalsim.content.FactionDefinition fd2 = new com.politicalsim.content.FactionDefinition();
+            fd2.setFactionKey("youth");
+            fd2.setName("Youth Wing");
+            fd2.setStartingLoyalty(55);
+            fd2.setStartingInfluence(35);
+            factionDefs.add(fd2);
+
+            com.politicalsim.content.FactionDefinition fd3 = new com.politicalsim.content.FactionDefinition();
+            fd3.setFactionKey("trade");
+            fd3.setName("Trade Unions");
+            fd3.setStartingLoyalty(65);
+            fd3.setStartingInfluence(20);
+            factionDefs.add(fd3);
+        }
         for (PartyState p : parties) {
             p.setAssemblySeatShare(p.getStats().getPublicSupport());
+            List<com.politicalsim.party.FactionState> fStates = new ArrayList<>();
+            for (com.politicalsim.content.FactionDefinition fd : factionDefs) {
+                fStates.add(new com.politicalsim.party.FactionState(
+                    fd.getFactionKey(),
+                    fd.getName(),
+                    fd.getStartingLoyalty(),
+                    fd.getStartingInfluence()
+                ));
+            }
+            p.setFactions(fStates);
         }
         session.setGovernmentParty(governmentParty);
         session.setOppositionParty(oppositionParty);
@@ -297,28 +288,19 @@ public class GameSessionService {
         }
         session.setGameCards(selectedCards);
 
-        long t2 = System.currentTimeMillis();
-        List<MonthlyIssueDefinition> pool = new ArrayList<>(getCachedIssuesForScenario(request.getScenarioKey()));
-        log.info("[METRIC] getCachedIssuesForScenario took {} ms (count={})", (System.currentTimeMillis() - t2), pool.size());
-        
-        List<MonthlyIssueDefinition> selectedIssues = new ArrayList<>(pool);
-        if (selectedIssues.size() > 60) {
-            java.util.Collections.shuffle(selectedIssues);
-            selectedIssues = selectedIssues.subList(0, 60);
-        }
-        session.setGameIssues(selectedIssues);
+        session.setGameIssues(new ArrayList<>());
 
         initializeLegislativeBills(session);
 
         normalizePublicSupport(session);
 
         GameSession saved = repository.save(session);
-        GameSessionContent content = new GameSessionContent(saved.getId(), selectedCards, selectedIssues);
+        GameSessionContent content = new GameSessionContent(saved.getId(), selectedCards, new ArrayList<>());
         contentRepository.save(content);
         contentCache.put(saved.getId(), content);
 
         saved.setGameCards(selectedCards);
-        saved.setGameIssues(selectedIssues);
+        saved.setGameIssues(new ArrayList<>());
         return saved;
     }
 
