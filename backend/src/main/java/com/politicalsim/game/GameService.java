@@ -301,6 +301,35 @@ public class GameService {
                     }
                 }
             }
+
+            // -- Factions: sync loyalty, influence, post, patronage into PartyState and PMS map
+            @SuppressWarnings("unchecked")
+            java.util.List<java.util.Map<String, Object>> factionsData =
+                    (java.util.List<java.util.Map<String, Object>>) allocations.get("factions");
+            if (factionsData != null && !factionsData.isEmpty()) {
+                com.politicalsim.party.PartyState party = session.getParties().stream()
+                        .filter(p -> p.getId().equals(partyId)).findFirst().orElse(null);
+                java.util.Map<String, Integer> patronageMap = new java.util.HashMap<>();
+                if (party != null) {
+                    for (java.util.Map<String, Object> fData : factionsData) {
+                        String fKey = (String) fData.get("key");
+                        if (fKey == null) continue;
+                        com.politicalsim.party.FactionState fs = party.getFactions().stream()
+                                .filter(f -> f.getKey().equals(fKey)).findFirst().orElse(null);
+                        if (fs != null) {
+                            if (fData.get("loyalty")   instanceof Number n) fs.setLoyalty(n.intValue());
+                            if (fData.get("influence") instanceof Number n) fs.setInfluence(n.intValue());
+                            if (fData.get("post")      instanceof String s) fs.setPost(s);
+                            if (fData.get("active")    instanceof Boolean b) fs.setActive(b);
+                            int incomingPatronage = (fData.get("patronage") instanceof Number n) ? n.intValue() : 0;
+                            fs.setPatronage(incomingPatronage);
+                            patronageMap.put(fKey, incomingPatronage);
+                        }
+                    }
+                }
+                // Store patronage keyed by faction key for next-turn rehydration
+                pms.setAllocatedPatronagePoints(patronageMap);
+            }
         }
 
         // Deduct what was actually consumed this turn, bounded to 0
@@ -366,7 +395,7 @@ public class GameService {
         pms.setUnallocatedPatronagePoints(remaining);
         log.info("[PartyMgmt Lock] Party '{}': {} patronage consumed, {} remaining", partyId, consumed, remaining);
 
-        Map<String,Integer> assignedPointsMap= new HashMap<>();
+        Map<String,Integer> assignedPointsMap = new HashMap<>();
         // Apply faction state snapshot (loyalty, influence, post, patronage)
         if (req.getFactions() != null && !req.getFactions().isEmpty()) {
             for (java.util.Map<String, Object> fData : req.getFactions()) {
@@ -377,16 +406,21 @@ public class GameService {
                     com.politicalsim.party.FactionState fs = party.getFactions().stream()
                             .filter(f -> f.getKey().equals(fKey)).findFirst().orElse(null);
                     if (fs != null) {
-                        assignedPointsMap.put(fs.getName(),fs.getPatronage());
-                        if (fData.get("loyalty") instanceof Number n) fs.setLoyalty(n.intValue());
+                        // Apply incoming values from payload FIRST
+                        if (fData.get("loyalty")   instanceof Number n) fs.setLoyalty(n.intValue());
                         if (fData.get("influence") instanceof Number n) fs.setInfluence(n.intValue());
-                        if (fData.get("patronage") instanceof Number n) fs.setPatronage(n.intValue());
-                        if (fData.get("post") instanceof String s) fs.setPost(s);
-                        if (fData.get("active") instanceof Boolean b) fs.setActive(b);
+                        if (fData.get("post")      instanceof String s) fs.setPost(s);
+                        if (fData.get("active")    instanceof Boolean b) fs.setActive(b);
+                        // Persist patronage by faction KEY (not name) so frontend can look it up by key
+                        int incomingPatronage = (fData.get("patronage") instanceof Number n) ? n.intValue() : 0;
+                        fs.setPatronage(incomingPatronage);
+                        assignedPointsMap.put(fKey, incomingPatronage);
+                        log.info("[PartyMgmt Lock] Faction '{}' patronage={} loyalty={} post={}",
+                                fKey, incomingPatronage, fs.getLoyalty(), fs.getPost());
                     }
-                    pms.setAllocatedPatronagePoints(assignedPointsMap);
                 }
             }
+            pms.setAllocatedPatronagePoints(assignedPointsMap);
         }
 
         // Apply project assignments

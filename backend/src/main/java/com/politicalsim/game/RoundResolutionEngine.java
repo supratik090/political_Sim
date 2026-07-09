@@ -2199,19 +2199,7 @@ public class RoundResolutionEngine {
                     }
                 }
 
-                List<com.politicalsim.party.FactionState> highestFs = party.getFactions().stream()
-                        .filter(com.politicalsim.party.FactionState::isActive)
-                        .sorted((f1, f2) -> Integer.compare(f2.getLoyalty(), f1.getLoyalty()))
-                        .collect(java.util.stream.Collectors.toList());
 
-                if (!highestFs.isEmpty()) {
-                    String bestFactionKey = highestFs.get(0).getKey();
-                    for (ProjectState ps : party.getProjects()) {
-                        if (ps.getProgressPercent() == 100 && "None".equals(ps.getManagingFactionKey())) {
-                            ps.setManagingFactionKey(bestFactionKey);
-                        }
-                    }
-                }
             }
 
             // 2. Proportional Power (Influence) Recalculation based on allocations yields

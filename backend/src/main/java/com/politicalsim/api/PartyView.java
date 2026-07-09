@@ -2,6 +2,7 @@ package com.politicalsim.api;
 
 import com.politicalsim.ai.AiProfile;
 import com.politicalsim.party.ControllerType;
+import com.politicalsim.party.FactionState;
 import com.politicalsim.party.Ideology;
 import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyStats;
@@ -21,7 +22,9 @@ public record PartyView(
         PartyStats stats,
         boolean playerControlled,
         List<com.politicalsim.party.ProjectState> projects,
-        int assemblySeatShare
+        int assemblySeatShare,
+        List<FactionState> factions,
+        String activeFactionCrisisKey
 ) {
     public static PartyView from(PartyState party, String playerPartyId) {
         return from(party, List.of(playerPartyId));
@@ -41,7 +44,9 @@ public record PartyView(
                 party.getStats(),
                 playerPartyIds.contains(party.getId()),
                 party.getProjects(),
-                party.getAssemblySeatShare()
+                party.getAssemblySeatShare(),
+                party.getFactions(),
+                party.getActiveFactionCrisisKey()
         );
     }
 }

@@ -22,28 +22,17 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
     // Loyalty decay is 2% per active faction per turn
     const decayedLoyalty = Math.max(0, f.loyalty - 2);
     const delegatedProjects = (activeParty?.projects || []).filter(p => p.progressPercent === 100 && p.managingFactionKey === f.key);
-    const projectsMapped = delegatedProjects.map(p => {
-      let name = p.projectKey;
-      let icon = '🏗️';
-      let desc = 'Delegated project.';
-      if (p.projectKey === 'PARTY_HQ') { name = 'Party Headquarters'; icon = '🏢'; desc = 'Yields: +12 Coins, +3 Media Image.'; }
-      else if (p.projectKey === 'IT_CELL') { name = 'IT Cell (Digital Bureau)'; icon = '💻'; desc = 'Yields: +2 Media Image.'; }
-      else if (p.projectKey === 'CADRE_OFFICE') { name = 'District Cadre Offices'; icon = '🏘️'; desc = 'Yields: +5 Morale.'; }
-      else if (p.projectKey === 'THINK_TANK') { name = 'Policy Research Think Tank'; icon = '🧠'; desc = 'Yields: +4 Media Image.'; }
-      else if (p.projectKey === 'TRAINING_ACADEMY') { name = 'Grassroots Training Academy'; icon = '🏫'; desc = 'Yields: +3 Morale.'; }
-      else if (p.projectKey === 'YOUTH_WING') { name = 'Youth Wing Network'; icon = '✊'; desc = 'Yields: +3 Morale.'; }
+    const projectsMapped = delegatedProjects.map(p => ({
+      id: p.id,
+      projectKey: p.projectKey,
+      type: 'project',
+      name: p.name || p.projectKey,
+      desc: p.yieldDesc || 'Delegated project.',
+      icon: p.icon || '🏗️',
+      color: 'linear-gradient(135deg, #115e59 0%, #0d9488 100%)',
+      isPermanentlyAssigned: true // Lock projects from previous turns
+    }));
 
-      return {
-        id: p.id,
-        projectKey: p.projectKey,
-        type: 'project',
-        name,
-        desc,
-        icon,
-        color: 'linear-gradient(135deg, #115e59 0%, #0d9488 100%)',
-        isPermanentlyAssigned: true // Lock projects from previous turns
-      };
-    });
 
     let accentColor = '#ef4444';
     if (f.key === 'youth') accentColor = '#f97316';
@@ -70,26 +59,16 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
   const unassignedProjects = (activeParty?.projects || []).filter(
     p => p.progressPercent === 100 && (p.managingFactionKey === 'None' || !p.managingFactionKey)
   );
-  const projectCards = unassignedProjects.map(p => {
-    const PROJECT_META = {
-      PARTY_HQ:         { name: 'Party Headquarters',          icon: '🏢', desc: 'Yields: +12 Coins, +3 Media Image.' },
-      IT_CELL:          { name: 'IT Cell (Digital Bureau)',     icon: '💻', desc: 'Yields: +2 Media Image.' },
-      CADRE_OFFICE:     { name: 'District Cadre Offices',      icon: '🏘️', desc: 'Yields: +5 Morale.' },
-      THINK_TANK:       { name: 'Policy Research Think Tank',  icon: '🧠', desc: 'Yields: +4 Media Image.' },
-      TRAINING_ACADEMY: { name: 'Grassroots Training Academy', icon: '🏫', desc: 'Yields: +3 Morale.' },
-      YOUTH_WING:       { name: 'Youth Wing Network',          icon: '✊', desc: 'Yields: +3 Morale.' },
-    };
-    const meta = PROJECT_META[p.projectKey] || { name: p.projectKey, icon: '🏗️', desc: 'Completed project.' };
-    return {
-      id: p.id || p.projectKey,
-      projectKey: p.projectKey,
-      type: 'project',
-      name: meta.name,
-      desc: meta.desc,
-      icon: meta.icon,
-      color: 'linear-gradient(135deg, #115e59 0%, #0d9488 100%)'
-    };
-  });
+  const projectCards = unassignedProjects.map(p => ({
+    id: p.id || p.projectKey,
+    projectKey: p.projectKey,
+    type: 'project',
+    name: p.name || p.projectKey,
+    desc: p.yieldDesc || 'Completed project.',
+    icon: p.icon || '🏗️',
+    color: 'linear-gradient(135deg, #115e59 0%, #0d9488 100%)'
+  }));
+
 
   // ----- Build deck from partyManagementState (from backend MongoDB) -----
   const partyMgmtState = turnData?.partyManagementState;
@@ -145,43 +124,32 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
 
 
 const getInitialFactions = (partyState, factionsList) => {
-  // 1. Fallback to factionsList if it already contains valid data
-  if (factionsList && factionsList.length > 0) {
-    return factionsList;
-  }
-
-  // Define your base static defaults
+  // Define base static defaults (used only when backend factions list is empty)
   const defaults = [
-    { id: 'veteran', name: 'Loyalists', baseLoyalty: 80, loyalty: 80, influence: 45, post: 'None', patronage: 0, projects: [], active: true, accentColor: '#ef4444' },
-    { id: 'youth', name: 'Youth Wing', baseLoyalty: 55, loyalty: 55, influence: 35, post: 'None', patronage: 0, projects: [], active: true, accentColor: '#f97316' },
-    { id: 'trade', name: 'Trade Unions', baseLoyalty: 65, loyalty: 65, influence: 20, post: 'None', patronage: 0, active: true, projects: [], accentColor: '#14b8a6' }
+    { id: 'veteran', name: 'Loyalists',    baseLoyalty: 80, loyalty: 80, influence: 45, post: 'None', patronage: 0, projects: [], active: true, accentColor: '#ef4444' },
+    { id: 'youth',   name: 'Youth Wing',   baseLoyalty: 55, loyalty: 55, influence: 35, post: 'None', patronage: 0, projects: [], active: true, accentColor: '#f97316' },
+    { id: 'trade',   name: 'Trade Unions', baseLoyalty: 65, loyalty: 65, influence: 20, post: 'None', patronage: 0, projects: [], active: true, accentColor: '#14b8a6' }
   ];
 
-  // 2. If no partyState is provided, immediately return the defaults
-  if (!partyState) return defaults;
+  // Base list: prefer live backend factions, fall back to static defaults
+  const baseList = (factionsList && factionsList.length > 0) ? factionsList : defaults;
 
-  // Dictionary to match the partyState keys with your faction IDs
-  const patronageKeyMap = {
-    'veteran': 'Veterans Faction',
-    'youth': 'Youth Wing',
-    'trade': 'Trade Unions'
-  };
+  // If no partyManagementState, return base list as-is
+  if (!partyState) return baseList;
 
-  // 3. Map over defaults and inject live data from partyState
-  return defaults.map(faction => {
-    // Extract dynamic patronage points
-    const stateKey = patronageKeyMap[faction.id];
-    const livePatronage = partyState.allocatedPatronagePoints?.[stateKey] ?? 0;
+  // Enrich each faction with persisted patronage (keyed by faction key) and assigned posts
+  return baseList.map(faction => {
+    // allocatedPatronagePoints is stored by faction key (e.g. 'veteran', 'youth', 'trade')
+    const livePatronage = partyState.allocatedPatronagePoints?.[faction.id] ?? faction.patronage ?? 0;
 
-    // Filter and collect all assigned posts for this specific faction
-    const assignedPostsForFaction = partyState.assignedPosts
-      ?.filter(p => p.assignedFactionKey === faction.id)
-      .map(p => p.postName) || [];
+    // Posts are stored in partyState.posts (ScheduledPost list) with assignedFactionKey
+    const assignedPostsForFaction = (partyState.posts || [])
+      .filter(p => p.status === 'ASSIGNED' && p.assignedFactionKey === faction.id)
+      .map(p => p.postName);
 
-    // Combine multiple posts into a string or fallback to 'None'
     const livePostString = assignedPostsForFaction.length > 0
       ? assignedPostsForFaction.join(', ')
-      : 'None';
+      : (faction.post || 'None');
 
     return {
       ...faction,
@@ -190,6 +158,7 @@ const getInitialFactions = (partyState, factionsList) => {
     };
   });
 };
+
 
   // Load state from localStorage or fallback to defaults
   const [factions, setFactions] = useState(() => {
@@ -247,18 +216,25 @@ const [deck, setDeck] = useState(() => {
   });
 
 
-
-  // Save state to localStorage (for undo/history within this turn only)
-  useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify({ factions, deck, history, factionCrisisChoice, assignedPostKeys }));
-  }, [factions, deck, history, factionCrisisChoice, assignedPostKeys, storageKey]);
+  // Lock state: once locked, the allocations are saved to MongoDB and cannot be changed.
+  // Persisted in localStorage so the locked state survives page refresh / re-entry.
+  const [isLocked, setIsLocked] = useState(() => {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try { return JSON.parse(saved).isLocked === true; } catch (e) { return false; }
+    }
+    return false;
+  });
+  const [lockError, setLockError] = useState(null);
+  const [isLocking, setIsLocking] = useState(false);
 
   const [showCrisisModal, setShowCrisisModal] = useState(false);
 
-  // Lock state: once locked, the allocations are saved to MongoDB and cannot be changed
-  const [isLocked, setIsLocked] = useState(false);
-  const [lockError, setLockError] = useState(null);
-  const [isLocking, setIsLocking] = useState(false);
+  // Save state to localStorage (persists across refresh for the current turn)
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify({ factions, deck, history, factionCrisisChoice, assignedPostKeys, isLocked }));
+  }, [factions, deck, history, factionCrisisChoice, assignedPostKeys, isLocked, storageKey]);
+
 
   const handleLock = useCallback(async () => {
     if (isLocked || isLocking) return;
@@ -1096,7 +1072,7 @@ const [deck, setDeck] = useState(() => {
                   fontWeight: 'bold',
                   cursor: (history.length > 0 && !isLocked) ? 'pointer' : 'default',
                   fontSize: '13px',
-                  opacity: (history.length > 0 && !isLocked) ? 1 : 0.6
+                  opacity: (history.length > 0 && !isLocked) ? 1 : 0.4
                 }}
               >
                 ↩ Undo
@@ -1110,11 +1086,15 @@ const [deck, setDeck] = useState(() => {
                   flex: '1 1 0%',
                   minWidth: '150px',
                   padding: '10px 15px',
-                  background: isLocked ? '#22c55e' : 'var(--party-primary-color, var(--primary-dark))',
+                  background: isLocked
+                    ? 'var(--selected-highlight, #22c55e)'
+                    : 'var(--party-primary-color, var(--primary-dark))',
                   borderWidth: '1.5px',
                   borderStyle: 'solid',
-                  borderColor: isLocked ? '#22c55e' : 'var(--party-primary-color, var(--party-primary-color))',
-                  color: 'rgb(255, 255, 255)',
+                  borderColor: isLocked
+                    ? 'var(--selected-highlight, #22c55e)'
+                    : 'var(--party-primary-color, var(--primary-dark))',
+                  color: isLocked ? 'var(--primary-dark, #1e3a5f)' : '#ffffff',
                   fontWeight: 'bold',
                   borderRadius: '6px',
                   cursor: isLocked ? 'default' : 'pointer',
@@ -1127,7 +1107,7 @@ const [deck, setDeck] = useState(() => {
                   gap: '6px'
                 }}
               >
-                {isLocking ? '⏳ Saving...' : '🔒 Confirm Bid'}
+                {isLocking ? '⏳ Saving...' : isLocked ? '✅ Allocations Locked' : '🔒 Confirm'}
               </button>
             </div>
           </div>
