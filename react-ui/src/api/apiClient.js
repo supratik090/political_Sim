@@ -93,6 +93,9 @@ export const respondToCooperationOffer = (gameId, offerId, accept) =>
 export const bribeFaction = (gameId, targetPartyId, factionKey, coins) =>
   apiPost(`/api/games/${gameId}/bribe?targetPartyId=${targetPartyId}&factionKey=${factionKey}&coins=${coins}`);
 
+export const lockPartyManagement = (gameId, partyId, payload) =>
+  apiPost(`/api/games/${gameId}/party-management/lock?partyId=${partyId}`, payload);
+
 export const fetchBillsForGameplay = (scenarioKey) => apiGet(`/api/games/bills/scenario/${scenarioKey}`);
 
 // Admin API bindings

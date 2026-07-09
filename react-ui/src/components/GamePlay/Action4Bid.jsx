@@ -31,34 +31,15 @@ export default function Action4Bid({
         </p>
       )}
 
-      {/* Present Bidding Scenario Across Parties */}
-      {turnData.lastRoundBids && (
-        <div style={{ background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.02)', border: '1.5px solid var(--party-primary-color, var(--primary-border))', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
-          <h5 style={{ margin: '0 0 10px 0', color: 'var(--primary-dark)', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            📊 Present Bidding Scenario (Last Round Bids)
-          </h5>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {turnData.parties?.map(p => {
-              const bid = turnData.lastRoundBids[p.id];
-              const isWinner = turnData.lastRoundWinnerPartyId === p.id;
-              return (
-                <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', alignItems: 'center', color: 'var(--primary-dark)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: getPartyColor(p), border: '1px solid rgba(0,0,0,0.1)' }} />
-                    <span style={{ fontWeight: p.id === turnData.activeHumanPartyId ? 'bold' : 'normal' }}>
-                      {p.name} {p.id === turnData.activeHumanPartyId && '(You)'}
-                    </span>
-                  </div>
-                  <span style={{ fontWeight: 'bold' }}>
-                    {bid !== undefined ? `${bid} ${turnData.lastRoundBiddingMetric || ''}` : '0'}
-                    {isWinner && <span style={{ marginLeft: '8px', color: '#22c55e', fontSize: '11px', fontWeight: '900' }}>🏆 WINNER</span>}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+
+
+            {turnData.currentRewardName && (
+              <div style={{ background: 'rgba(101,148,177,0.08)', borderLeft: '4px solid var(--selected-highlight)', padding: '10px 15px', borderRadius: '0 8px 8px 0', marginBottom: '15px' }}>
+                <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold', color: 'var(--primary-dark)', opacity: 0.8 }}>Bidding For</div>
+                <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--primary-dark)', marginTop: '2px' }}>🎯 {turnData.currentRewardName}</div>
+                <div style={{ fontSize: '11px', opacity: 0.8, fontStyle: 'italic', marginTop: '4px' }}>{turnData.currentRewardDescription}</div>
+              </div>
+            )}
 
       {/* Current Cycle Standings */}
       <div style={{ background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.04)', border: '1.5px dashed var(--party-primary-color, var(--primary-border))', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
@@ -88,13 +69,7 @@ export default function Action4Bid({
         </div>
       </div>
 
-      {turnData.currentRewardName && (
-        <div style={{ background: 'rgba(101,148,177,0.08)', borderLeft: '4px solid var(--selected-highlight)', padding: '10px 15px', borderRadius: '0 8px 8px 0', marginBottom: '15px' }}>
-          <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold', color: 'var(--primary-dark)', opacity: 0.8 }}>Bidding For</div>
-          <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--primary-dark)', marginTop: '2px' }}>🎯 {turnData.currentRewardName}</div>
-          <div style={{ fontSize: '11px', opacity: 0.8, fontStyle: 'italic', marginTop: '4px' }}>{turnData.currentRewardDescription}</div>
-        </div>
-      )}
+
       
       <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
         <div>
@@ -135,29 +110,7 @@ export default function Action4Bid({
 
         {/* Buttons Row */}
         <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-          {/* Option 1: Pass */}
-          <button
-            disabled={bidConfirmed}
-            onClick={() => {
-              setBidAmount(0);
-            }}
-            style={{
-              flex: 1,
-              minWidth: '150px',
-              padding: '10px 15px',
-              background: bidAmount === 0 ? 'var(--party-primary-color, var(--primary-dark))' : '#ffffff',
-              color: bidAmount === 0 ? '#ffffff' : 'var(--party-primary-color, var(--primary-dark))',
-              borderWidth: '1.5px',
-              borderStyle: 'solid',
-              borderColor: 'var(--party-primary-color, var(--party-primary-color))',
-              fontWeight: 'bold',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '13px'
-            }}
-          >
-            💤 Pass (Bid 0)
-          </button>
+
 
           <button
             onClick={() => setBidConfirmed(!bidConfirmed)}

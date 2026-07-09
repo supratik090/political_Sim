@@ -9,6 +9,7 @@ import com.politicalsim.publicmood.PublicState;
 import com.politicalsim.game.CooperationOffer;
 import com.politicalsim.game.NonAggressionPact;
 import java.time.LocalDate;
+import com.politicalsim.party.PartyManagementState;
 import java.time.LocalDateTime;
 
 import java.util.List;
@@ -76,6 +77,7 @@ public record TurnView(
         double lastBillYesVotes,
         double lastBillNoVotes,
         double lastBillAbstainVotes,
-        Map<String, String> lastBillPartyVotes
+        Map<String, String> lastBillPartyVotes,
+        PartyManagementState partyManagementState
 ) {
 }

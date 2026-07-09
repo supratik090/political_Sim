@@ -283,8 +283,27 @@ useEffect(() => {
         try {
           const parsed = JSON.parse(saved);
           factionCrisisChoice = parsed.factionCrisisChoice || null;
+          const savedFactions = parsed.factions || [];
+
+          // Count patronage points used (patronage field delta from base 0)
+          const patronageUsed = savedFactions.reduce((sum, f) => sum + (f.patronage || 0), 0);
+
+          // Build postAssignments: { postKey -> factionId } for all posts that were assigned this turn
+          // The faction's post field will be set to the post name; we look up postKey from postsConfig
+          const postAssignments = {};
+          savedFactions.forEach(f => {
+            if (f.post && f.post !== 'None') {
+              // Try to match post name to a postKey - the post card carries postKey if assigned this turn
+              // We also transmit factions data so RoundResolutionEngine can update FactionState directly
+              const matchingPost = (parsed.assignedPostKeys || {})[f.id];
+              if (matchingPost) postAssignments[matchingPost] = f.id;
+            }
+          });
+
           factionAllocs = {
-            factions: (parsed.factions || []).map(f => ({
+            patronageUsed,
+            postAssignments,
+            factions: savedFactions.map(f => ({
               key: f.id,
               loyalty: f.loyalty,
               influence: f.influence,
@@ -292,7 +311,7 @@ useEffect(() => {
               patronage: f.patronage,
               active: f.active
             })),
-            projects: (parsed.factions || []).reduce((acc, f) => {
+            projects: savedFactions.reduce((acc, f) => {
               const map = {};
               (f.projects || []).forEach(p => {
                 map[p.projectKey || p.id] = f.id;

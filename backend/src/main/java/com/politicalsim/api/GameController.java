@@ -173,6 +173,19 @@ public class GameController {
         return com.politicalsim.party.BuildingProject.getConfigs();
     }
 
+    /**
+     * Immediately persists party management card allocations to MongoDB.
+     * Called when the player clicks "Lock Allocations" in Action 3.
+     * This replaces the localStorage-based submission approach with a direct API save.
+     */
+    @PostMapping("/{gameId}/party-management/lock")
+    public com.politicalsim.party.PartyManagementState lockPartyManagement(
+            @PathVariable String gameId,
+            @RequestParam String partyId,
+            @RequestBody PartyManagementLockRequest request) {
+        return gameService.lockPartyManagement(gameId, partyId, request);
+    }
+
     @ExceptionHandler(GameNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleGameNotFound(GameNotFoundException exception) {

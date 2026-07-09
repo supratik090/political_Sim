@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { getPostByKey, getPostByName, POSTS_CONFIG } from './postsConfig';
+import { lockPartyManagement } from '../../api/apiClient';
 
 export default function Action3PartyDecision({
   turnData,
@@ -9,8 +11,11 @@ export default function Action3PartyDecision({
   setSelectedEventOptionKey,
   scenarioEvents = []
 }) {
-  // Key for localStorage persistence, unique per session & turn number
-  const storageKey = `political_sim_party_management_${turnData.id || 'default'}_${turnData.turnNumber || 0}`;
+// A robust key that guarantees isolation across different games AND turns
+const gameSessionId = turnData?.gameId || turnData?.scenarioId || 'default_session';
+const turnNumber = turnData?.turnNumber || 0;
+
+const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnNumber}`;
 
   // Build factions list dynamically from activeParty or fallback
   const factionsList = (activeParty?.factions || []).map(f => {
@@ -27,7 +32,7 @@ export default function Action3PartyDecision({
       else if (p.projectKey === 'THINK_TANK') { name = 'Policy Research Think Tank'; icon = '🧠'; desc = 'Yields: +4 Media Image.'; }
       else if (p.projectKey === 'TRAINING_ACADEMY') { name = 'Grassroots Training Academy'; icon = '🏫'; desc = 'Yields: +3 Morale.'; }
       else if (p.projectKey === 'YOUTH_WING') { name = 'Youth Wing Network'; icon = '✊'; desc = 'Yields: +3 Morale.'; }
-      
+
       return {
         id: p.id,
         projectKey: p.projectKey,
@@ -59,73 +64,160 @@ export default function Action3PartyDecision({
     };
   });
 
-  const initialFactions = factionsList.length > 0 ? factionsList : [
+
+
+  // ----- Projects: completed + unassigned - defined FIRST so buildDeckFromBackendState can use it -----
+  const unassignedProjects = (activeParty?.projects || []).filter(
+    p => p.progressPercent === 100 && (p.managingFactionKey === 'None' || !p.managingFactionKey)
+  );
+  const projectCards = unassignedProjects.map(p => {
+    const PROJECT_META = {
+      PARTY_HQ:         { name: 'Party Headquarters',          icon: '🏢', desc: 'Yields: +12 Coins, +3 Media Image.' },
+      IT_CELL:          { name: 'IT Cell (Digital Bureau)',     icon: '💻', desc: 'Yields: +2 Media Image.' },
+      CADRE_OFFICE:     { name: 'District Cadre Offices',      icon: '🏘️', desc: 'Yields: +5 Morale.' },
+      THINK_TANK:       { name: 'Policy Research Think Tank',  icon: '🧠', desc: 'Yields: +4 Media Image.' },
+      TRAINING_ACADEMY: { name: 'Grassroots Training Academy', icon: '🏫', desc: 'Yields: +3 Morale.' },
+      YOUTH_WING:       { name: 'Youth Wing Network',          icon: '✊', desc: 'Yields: +3 Morale.' },
+    };
+    const meta = PROJECT_META[p.projectKey] || { name: p.projectKey, icon: '🏗️', desc: 'Completed project.' };
+    return {
+      id: p.id || p.projectKey,
+      projectKey: p.projectKey,
+      type: 'project',
+      name: meta.name,
+      desc: meta.desc,
+      icon: meta.icon,
+      color: 'linear-gradient(135deg, #115e59 0%, #0d9488 100%)'
+    };
+  });
+
+  // ----- Build deck from partyManagementState (from backend MongoDB) -----
+  const partyMgmtState = turnData?.partyManagementState;
+
+  const buildDeckFromBackendState = () => {
+    const cards = [];
+    if (partyMgmtState) {
+      // Patronage point cards
+      const count = partyMgmtState.unallocatedPatronagePoints || 0;
+      for (let i = 0; i < count; i++) {
+        cards.push({
+          id: `pat-${i}`,
+          type: 'patronage',
+          name: 'Patronage Point',
+          desc: 'Increases loyalty by +5%. Yields: +2 Coins, +1 Morale, -1 Corruption, +1 Media Image.',
+          icon: '🛡️',
+          color: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)'
+        });
+      }
+      // AVAILABLE post cards
+      const availablePosts = (partyMgmtState.posts || []).filter(p => p.status === 'AVAILABLE');
+      availablePosts.forEach((sp, i) => {
+        const def = getPostByKey(sp.postKey);
+        cards.push({
+          id: `post-${sp.postKey}-${i}`,
+          postKey: sp.postKey,
+          type: 'post',
+          name: sp.postName,
+          desc: def?.desc || `Assigns a leadership role. Boosts loyalty by +${def?.loyaltyBoost || 10}.`,
+          icon: def?.icon || '💼',
+          color: def?.color || 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)',
+          loyaltyBoost: def?.loyaltyBoost || 10,
+          coinBonus: def?.coinBonus || 0,
+          moraleBonus: def?.moraleBonus || 0,
+          mediaBonus: def?.mediaBonus || 0
+        });
+      });
+    } else {
+      // Legacy fallback
+      cards.push({ id: 'pat-1', type: 'patronage', name: 'Patronage Point', desc: 'Increases loyalty by +5%.', icon: '🛡️', color: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)' });
+      const assignedPosts = (activeParty?.factions || []).map(f => f.post).filter(p => p && p !== 'None');
+      if (!assignedPosts.includes('Secretary')) cards.push({ id: 'post-1', postKey: 'SECRETARY', type: 'post', name: 'Secretary', desc: 'Chief administrator. +15 Loyalty, +6 Morale/turn.', icon: '📋', loyaltyBoost: 15, coinBonus: 0, moraleBonus: 6, mediaBonus: 0, color: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)' });
+      if (!assignedPosts.includes('Fund Manager')) cards.push({ id: 'post-2', postKey: 'FUND_MANAGER', type: 'post', name: 'Fund Manager', desc: 'Oversees finances. +10 Loyalty, +8 Coins/turn.', icon: '💰', loyaltyBoost: 10, coinBonus: 8, moraleBonus: 0, mediaBonus: 0, color: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)' });
+    }
+    // Always add unassigned completed projects (defined above)
+    cards.push(...projectCards);
+    return cards;
+  };
+
+  const initialDeck = buildDeckFromBackendState();
+
+
+
+
+const getInitialFactions = (partyState, factionsList) => {
+  // 1. Fallback to factionsList if it already contains valid data
+  if (factionsList && factionsList.length > 0) {
+    return factionsList;
+  }
+
+  // Define your base static defaults
+  const defaults = [
     { id: 'veteran', name: 'Loyalists', baseLoyalty: 80, loyalty: 80, influence: 45, post: 'None', patronage: 0, projects: [], active: true, accentColor: '#ef4444' },
     { id: 'youth', name: 'Youth Wing', baseLoyalty: 55, loyalty: 55, influence: 35, post: 'None', patronage: 0, projects: [], active: true, accentColor: '#f97316' },
     { id: 'trade', name: 'Trade Unions', baseLoyalty: 65, loyalty: 65, influence: 20, post: 'None', patronage: 0, active: true, projects: [], accentColor: '#14b8a6' }
   ];
 
-  // The resource deck to allocate (exactly 1 Patronage Point card + Completed unassigned projects)
-  const unassignedProjects = (activeParty?.projects || []).filter(p => p.progressPercent === 100 && (p.managingFactionKey === 'None' || !p.managingFactionKey));
-  const projectCards = unassignedProjects.map(p => {
-    let name = p.projectKey;
-    let icon = '🏗️';
-    let desc = 'Delegated project.';
-    if (p.projectKey === 'PARTY_HQ') { name = 'Party Headquarters'; icon = '🏢'; desc = 'Yields: +12 Coins, +3 Media Image.'; }
-    else if (p.projectKey === 'IT_CELL') { name = 'IT Cell (Digital Bureau)'; icon = '💻'; desc = 'Yields: +2 Media Image.'; }
-    else if (p.projectKey === 'CADRE_OFFICE') { name = 'District Cadre Offices'; icon = '🏘️'; desc = 'Yields: +5 Morale.'; }
-    else if (p.projectKey === 'THINK_TANK') { name = 'Policy Research Think Tank'; icon = '🧠'; desc = 'Yields: +4 Media Image.'; }
-    else if (p.projectKey === 'TRAINING_ACADEMY') { name = 'Grassroots Training Academy'; icon = '🏫'; desc = 'Yields: +3 Morale.'; }
-    else if (p.projectKey === 'YOUTH_WING') { name = 'Youth Wing Network'; icon = '✊'; desc = 'Yields: +3 Morale.'; }
-    
+  // 2. If no partyState is provided, immediately return the defaults
+  if (!partyState) return defaults;
+
+  // Dictionary to match the partyState keys with your faction IDs
+  const patronageKeyMap = {
+    'veteran': 'Veterans Faction',
+    'youth': 'Youth Wing',
+    'trade': 'Trade Unions'
+  };
+
+  // 3. Map over defaults and inject live data from partyState
+  return defaults.map(faction => {
+    // Extract dynamic patronage points
+    const stateKey = patronageKeyMap[faction.id];
+    const livePatronage = partyState.allocatedPatronagePoints?.[stateKey] ?? 0;
+
+    // Filter and collect all assigned posts for this specific faction
+    const assignedPostsForFaction = partyState.assignedPosts
+      ?.filter(p => p.assignedFactionKey === faction.id)
+      .map(p => p.postName) || [];
+
+    // Combine multiple posts into a string or fallback to 'None'
+    const livePostString = assignedPostsForFaction.length > 0
+      ? assignedPostsForFaction.join(', ')
+      : 'None';
+
     return {
-      id: p.id,
-      projectKey: p.projectKey,
-      type: 'project',
-      name,
-      desc,
-      icon,
-      color: 'linear-gradient(135deg, #115e59 0%, #0d9488 100%)'
+      ...faction,
+      patronage: livePatronage,
+      post: livePostString
     };
   });
-
-  const assignedPosts = (activeParty?.factions || []).map(f => f.post).filter(p => p && p !== 'None');
-  const initialDeck = [
-    { id: 'pat-1', type: 'patronage', name: 'Patronage Point', desc: 'Increases loyalty by +5%. Yields: +2 Coins, +1 Morale, -1 Corruption, +1 Media Image.', icon: '🛡️', color: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)' }
-  ];
-  if (!assignedPosts.includes('Secretary Post')) {
-    initialDeck.push({ id: 'post-1', type: 'post', name: 'Secretary Post', desc: 'Assigns a leadership role. Boosts loyalty by +15% and increases morale yield.', icon: '💼', color: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)' });
-  }
-  if (!assignedPosts.includes('Fund Manager Post')) {
-    initialDeck.push({ id: 'post-2', type: 'post', name: 'Fund Manager Post', desc: 'Assigns financial oversight. Boosts loyalty by +15% and increases coin yield.', icon: '💰', color: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)' });
-  }
-  initialDeck.push(...projectCards);
+};
 
   // Load state from localStorage or fallback to defaults
   const [factions, setFactions] = useState(() => {
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.factions) return parsed.factions;
-      } catch (e) {
-        console.error("Failed to parse factions state from localStorage", e);
-      }
-    }
-    return initialFactions;
+return getInitialFactions(partyMgmtState, factionsList);
   });
 
-  const [deck, setDeck] = useState(() => {
+const [deck, setDeck] = useState(() => {
+  const saved = localStorage.getItem(storageKey);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.deck) return parsed.deck;
+    } catch (e) {
+      console.error("Failed to parse deck state from localStorage", e);
+    }
+  }
+
+  // ONLY run this heavy backend-to-deck parser on initial clean turn load!
+  return buildDeckFromBackendState();
+});
+
+  // Tracks which faction (id) received which post key this turn: { factionId -> postKey }
+  const [assignedPostKeys, setAssignedPostKeys] = useState(() => {
     const saved = localStorage.getItem(storageKey);
     if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.deck) return parsed.deck;
-      } catch (e) {
-        console.error("Failed to parse deck state from localStorage", e);
-      }
+      try { return JSON.parse(saved).assignedPostKeys || {}; } catch (e) { return {}; }
     }
-    return initialDeck;
+    return {};
   });
 
   const [history, setHistory] = useState(() => {
@@ -154,12 +246,60 @@ export default function Action3PartyDecision({
     return null;
   });
 
-  // Save state to localStorage whenever it updates
+
+
+  // Save state to localStorage (for undo/history within this turn only)
   useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify({ factions, deck, history, factionCrisisChoice }));
-  }, [factions, deck, history, factionCrisisChoice, storageKey]);
+    localStorage.setItem(storageKey, JSON.stringify({ factions, deck, history, factionCrisisChoice, assignedPostKeys }));
+  }, [factions, deck, history, factionCrisisChoice, assignedPostKeys, storageKey]);
 
   const [showCrisisModal, setShowCrisisModal] = useState(false);
+
+  // Lock state: once locked, the allocations are saved to MongoDB and cannot be changed
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockError, setLockError] = useState(null);
+  const [isLocking, setIsLocking] = useState(false);
+
+  const handleLock = useCallback(async () => {
+    if (isLocked || isLocking) return;
+    setIsLocking(true);
+    setLockError(null);
+    try {
+      const partyId = activeParty?.id || turnData?.activeHumanPartyId;
+      const gameId = turnData?.gameId;
+      if (!partyId || !gameId) throw new Error('Missing game or party ID');
+
+      // Build structured payload
+      const patronageUsed = factions.reduce((sum, f) => sum + (f.patronage || 0), 0);
+      const postAssignments = {};
+      Object.entries(assignedPostKeys).forEach(([factionId, postKey]) => {
+        postAssignments[postKey] = factionId;
+      });
+      const factionsPayload = factions.map(f => ({
+        key: f.id,
+        loyalty: f.loyalty,
+        influence: f.influence,
+        post: f.post,
+        patronage: f.patronage,
+        active: f.active
+      }));
+      // Project assignments: collect from all factions
+      const projects = {};
+      factions.forEach(f => {
+        (f.projects || []).forEach(p => { projects[p.projectKey || p.id] = f.id; });
+      });
+
+      await lockPartyManagement(gameId, partyId, { patronageUsed, postAssignments, factions: factionsPayload, projects });
+      setIsLocked(true);
+      // Mark this action complete
+      if (setSelectedIssueOptionKey) setSelectedIssueOptionKey('mock_done');
+    } catch (err) {
+      console.error('[PartyMgmt] Lock failed:', err);
+      setLockError(err.message || 'Failed to lock allocations. Please try again.');
+    } finally {
+      setIsLocking(false);
+    }
+  }, [isLocked, isLocking, factions, assignedPostKeys, activeParty, turnData, setSelectedIssueOptionKey]);
 
   // Automatically open the crisis modal if there's an active crisis and no choice is selected yet
   useEffect(() => {
@@ -168,16 +308,16 @@ export default function Action3PartyDecision({
     }
   }, [activeParty, factionCrisisChoice]);
 
-  // Ensure the section is considered completed so it doesn't block turn submission when deck is empty
+  // Moves page status to ready ONLY after locked is hit (isLocked is true)
   useEffect(() => {
     if (setSelectedIssueOptionKey) {
-      if (deck.length === 0) {
+      if (isLocked) {
         setSelectedIssueOptionKey('mock_done');
       } else {
         setSelectedIssueOptionKey('');
       }
     }
-  }, [deck, setSelectedIssueOptionKey]);
+  }, [isLocked, setSelectedIssueOptionKey]);
 
   const totalCardsCount = initialDeck.length;
 
@@ -208,10 +348,10 @@ export default function Action3PartyDecision({
 
       const patronageMorale = f.patronage * 1;
       const postMorale = f.post === 'Secretary Post' ? 6 : 0;
-      
+
       let projectMorale = 0;
       let projectMedia = 0;
-      
+
       (f.projects || []).forEach(proj => {
         if (proj.projectKey === 'CADRE_OFFICE' || proj.id === 'proj-1') projectMorale += 5;
         else if (proj.projectKey === 'TRAINING_ACADEMY') projectMorale += 3;
@@ -233,35 +373,44 @@ export default function Action3PartyDecision({
       const baseSupport = f.loyalty >= 50 ? (f.influence * 0.01) : -(f.influence * 0.01);
 
       const coinsYield = Math.round(baseCoins * mult);
-      const supportYield = Math.abs(parseFloat((baseSupport * mult).toFixed(1)));
+      const supportYield = parseFloat((baseSupport * mult).toFixed(1));
       const moraleYield = Math.round(baseMorale * mult);
-      const corruptionYield = Math.round(baseCorruption * (2 - mult));
+      const corruptionYield = baseCorruption < 0
+        ? Math.round(baseCorruption * mult)
+        : Math.round(baseCorruption * (2 - mult));
       const mediaYield = Math.round(baseMedia * mult);
 
-      const sum = coinsYield + supportYield * 10 + moraleYield + Math.abs(corruptionYield) + mediaYield;
+      const sum = Math.max(0, coinsYield + supportYield * 10 + moraleYield + Math.abs(corruptionYield) + mediaYield);
       yieldSums[f.id] = sum;
       totalYieldSum += sum;
     });
 
     let updatedFactions = rawFactions;
     if (totalYieldSum > 0 && activeFactions.length > 0) {
-      let remainingInfluence = 100;
-      updatedFactions = rawFactions.map((f) => {
+      let remainingInfluence = 100 - activeFactions.length;
+      const quotas = activeFactions.map(f => {
+        const exact = (yieldSums[f.id] / totalYieldSum) * remainingInfluence;
+        return { id: f.id, exact, int: Math.floor(exact), remainder: exact - Math.floor(exact) };
+      });
+      let allocated = quotas.reduce((acc, q) => acc + q.int, 0);
+      quotas.sort((a, b) => b.remainder - a.remainder);
+      for (let i = 0; i < remainingInfluence - allocated; i++) {
+        quotas[i].int += 1;
+      }
+      updatedFactions = rawFactions.map(f => {
         if (!f.active) return f;
-        const activeIdx = activeFactions.findIndex(af => af.id === f.id);
-        const isLastActive = activeIdx === activeFactions.length - 1;
-        
-        let newInfluence = 0;
-        if (isLastActive) {
-          newInfluence = remainingInfluence;
-        } else {
-          newInfluence = Math.round((yieldSums[f.id] / totalYieldSum) * 100);
-          remainingInfluence -= newInfluence;
-        }
-        return {
-          ...f,
-          influence: Math.max(1, newInfluence)
-        };
+        const quota = quotas.find(q => q.id === f.id);
+        return { ...f, influence: 1 + quota.int };
+      });
+    } else if (activeFactions.length > 0) {
+      const base = Math.floor(100 / activeFactions.length);
+      const rem = 100 % activeFactions.length;
+      let i = 0;
+      updatedFactions = rawFactions.map(f => {
+        if (!f.active) return f;
+        const inf = base + (i < rem ? 1 : 0);
+        i++;
+        return { ...f, influence: inf };
       });
     }
 
@@ -273,6 +422,7 @@ export default function Action3PartyDecision({
     updateFactionsState(initialFactions);
     setDeck(initialDeck);
     setHistory([]);
+    setAssignedPostKeys({});
   };
 
   // Allocate top card to a faction
@@ -299,7 +449,11 @@ export default function Action3PartyDecision({
           loyaltyChange = 5;
         } else if (cardToAllocate.type === 'post') {
           postVal = cardToAllocate.name;
-          loyaltyChange = 15;
+          // Use dynamic loyaltyBoost from postsConfig - look up by postKey or name
+          const postDef = cardToAllocate.postKey
+            ? getPostByKey(cardToAllocate.postKey)
+            : getPostByName(cardToAllocate.name);
+          loyaltyChange = postDef?.loyaltyBoost ?? 10;
         } else if (cardToAllocate.type === 'project') {
           projectsVal.push(cardToAllocate);
         }
@@ -315,6 +469,11 @@ export default function Action3PartyDecision({
       }
       return f;
     });
+
+    // Track post key assignment for backend submission
+    if (cardToAllocate.type === 'post' && cardToAllocate.postKey) {
+      setAssignedPostKeys(prev => ({ ...prev, [factionId]: cardToAllocate.postKey }));
+    }
 
     setDeck(newDeck);
     updateFactionsState(updatedFactions);
@@ -343,7 +502,9 @@ export default function Action3PartyDecision({
 
       // Distribute influence
       const activeOthers = factions.filter(f => f.active && f.id !== factionId);
-      const influenceShare = activeOthers.length > 0 ? Math.round(dissolved.influence / activeOthers.length) : 0;
+      const baseShare = activeOthers.length > 0 ? Math.floor(dissolved.influence / activeOthers.length) : 0;
+      const remShare = activeOthers.length > 0 ? dissolved.influence % activeOthers.length : 0;
+      let i = 0;
 
       const updatedFactions = factions.map(f => {
         if (f.id === factionId) {
@@ -358,9 +519,11 @@ export default function Action3PartyDecision({
           };
         }
         if (f.active) {
+          const inf = f.influence + baseShare + (i < remShare ? 1 : 0);
+          i++;
           return {
             ...f,
-            influence: f.influence + influenceShare,
+            influence: inf,
             // Drastic shift drops loyalty slightly of other factions (-10 loyalty due to internal disruption)
             loyalty: Math.max(0, f.loyalty - 10)
           };
@@ -382,35 +545,35 @@ export default function Action3PartyDecision({
     return { factor: 0.0, badge: '⛔ Stoppage (0%)', color: '#ef4444' };
   };
 
-  // Calculate individual faction yields
+  // Calculate individual faction yields - uses dynamic postsConfig values
   const calculateYield = (faction) => {
     if (!faction.active) return { coins: 0, support: 0, morale: 0, corruption: 0, media: 0 };
     const mult = getMultiplierInfo(faction.loyalty).factor;
-    
-    // Benefits of patronage points: 2 coins, 1 morale, -1 corruption, 1 media, no support
+
+    // Look up the post definition dynamically (by name for backwards compatibility)
+    const postDef = faction.post && faction.post !== 'None' ? getPostByName(faction.post) : null;
+
+    // Benefits of patronage points: 2 coins, 1 morale, -1 corruption, 1 media
     const patronageCoins = faction.patronage * 2;
-    const postCoins = faction.post === 'Fund Manager Post' ? 8 : 0;
+    const postCoins = postDef ? postDef.coinBonus : 0;
     let baseCoins = patronageCoins + postCoins;
 
     const patronageMorale = faction.patronage * 1;
-    const postMorale = faction.post === 'Secretary Post' ? 6 : 0;
-    
-    // Project yields are calculated here and scaled by faction loyalty
+    const postMorale = postDef ? postDef.moraleBonus : 0;
+
+    // Project yields
     let projectMorale = 0;
     let projectMedia = 0;
-    
     (faction.projects || []).forEach(proj => {
       if (proj.projectKey === 'CADRE_OFFICE' || proj.id === 'proj-1') projectMorale += 5;
       else if (proj.projectKey === 'TRAINING_ACADEMY') projectMorale += 3;
       else if (proj.projectKey === 'YOUTH_WING') projectMorale += 3;
       else if (proj.projectKey === 'IT_CELL') projectMedia += 2;
       else if (proj.projectKey === 'THINK_TANK') projectMedia += 4;
-      else if (proj.projectKey === 'PARTY_HQ') {
-        baseCoins += 12;
-        projectMedia += 3;
-      }
+      else if (proj.projectKey === 'PARTY_HQ') { baseCoins += 12; projectMedia += 3; }
     });
 
+    const postMedia = postDef ? postDef.mediaBonus : 0;
     const baseMorale = patronageMorale + postMorale + projectMorale;
 
     const patronageCorruption = faction.patronage * -1;
@@ -418,7 +581,7 @@ export default function Action3PartyDecision({
     const baseCorruption = patronageCorruption + postCorruption;
 
     const patronageMedia = faction.patronage * 1;
-    const baseMedia = patronageMedia + projectMedia;
+    const baseMedia = patronageMedia + postMedia + projectMedia;
 
     const baseSupport = faction.loyalty >= 50 ? (faction.influence * 0.01) : -(faction.influence * 0.01);
 
@@ -426,10 +589,11 @@ export default function Action3PartyDecision({
       coins: Math.round(baseCoins * mult),
       support: parseFloat((baseSupport * mult).toFixed(1)),
       morale: Math.round(baseMorale * mult),
-      corruption: Math.round(baseCorruption * (2 - mult)),
+      corruption: baseCorruption < 0 ? Math.round(baseCorruption * mult) : Math.round(baseCorruption * (2 - mult)),
       media: Math.round(baseMedia * mult)
     };
   };
+
 
   // Sum combined yields
   const totalYields = factions.reduce((acc, f) => {
@@ -451,7 +615,7 @@ export default function Action3PartyDecision({
   // Morale negative yields capped to -5
   const finalMorale = totalYields.morale >= 0 ? totalYields.morale : Math.max(-5, totalYields.morale);
   // Corruption negative yields (which is positive corruption addition) capped to +5
-  const finalCorruption = totalYields.corruption <= 0 ? totalYields.corruption : Math.min(5, totalYields.corruption);
+  const finalCorruption = totalYields.corruption <= 0 ? Math.max(-5, totalYields.corruption) : Math.min(5, totalYields.corruption);
 
   const topCard = deck[0];
   const activeFactionsList = factions.filter(f => f.active);
@@ -513,7 +677,7 @@ export default function Action3PartyDecision({
               ⚠️ REBELLIOUS FACTION ULTIMATUM
             </h4>
             <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'rgba(255,255,255,0.9)' }}>
-              The rebellious <b>{activeParty.factions.find(f => f.key === activeParty.activeFactionCrisisKey)?.name || 'Faction'}</b> has issued an ultimatum! 
+              The rebellious <b>{activeParty.factions.find(f => f.key === activeParty.activeFactionCrisisKey)?.name || 'Faction'}</b> has issued an ultimatum!
               {factionCrisisChoice ? (
                 <span> Selected Resolution: <b style={{ textTransform: 'uppercase', color: '#facc15' }}>Option {factionCrisisChoice}</b></span>
               ) : (
@@ -583,9 +747,9 @@ export default function Action3PartyDecision({
 
             {/* Options list */}
             <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              
+
               {/* Option A */}
-              <div 
+              <div
                 onClick={() => {
                   setFactionCrisisChoice('A');
                   setShowCrisisModal(false);
@@ -612,7 +776,7 @@ export default function Action3PartyDecision({
               </div>
 
               {/* Option B */}
-              <div 
+              <div
                 onClick={() => {
                   setFactionCrisisChoice('B');
                   setShowCrisisModal(false);
@@ -639,7 +803,7 @@ export default function Action3PartyDecision({
               </div>
 
               {/* Option C */}
-              <div 
+              <div
                 onClick={() => {
                   setFactionCrisisChoice('C');
                   setShowCrisisModal(false);
@@ -866,13 +1030,13 @@ export default function Action3PartyDecision({
                     if (!f || !f.active) return { active: false, loyalty: 0, power: 0 };
                     return { active: f.loyalty >= reqL && f.influence >= reqP, loyalty: f.loyalty, power: f.influence };
                   };
-                  
+
                   const perks = [
                     { id: 'veteran', name: 'Loyalists (Elder Statesmen)', reqL: 80, reqP: 50, desc: '+25 Coins, +3% Support per turn' },
                     { id: 'youth', name: 'Youth Wing (Campaign Machine)', reqL: 80, reqP: 40, desc: '+5 Morale, +3% Support, +5 Media per turn' },
                     { id: 'trade', name: 'Trade Unions (Strike Force)', reqL: 80, reqP: 40, desc: '-5 Corruption; -3% Support & -3 Morale to opponents' }
                   ];
-                  
+
                   return perks.map(p => {
                     const stat = getPerkStatus(p.id, p.reqL, p.reqP);
                     return (
@@ -910,25 +1074,62 @@ export default function Action3PartyDecision({
             </div>
           </div>
 
-          <div style={{ display: 'flex', marginTop: '14px' }}>
-            <button
-              onClick={handleUndo}
-              disabled={history.length === 0}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                background: '#ffffff',
-                border: '1.5px solid var(--party-primary-color, var(--primary-border))',
-                color: history.length > 0 ? 'var(--primary-dark)' : '#94a3b8',
-                borderRadius: '6px',
-                fontWeight: 'bold',
-                cursor: history.length > 0 ? 'pointer' : 'default',
-                fontSize: '12px',
-                opacity: history.length > 0 ? 1 : 0.6
-              }}
-            >
-              ↩ Undo
-            </button>
+          <div style={{ display: 'flex', marginTop: '14px', flexDirection: 'column', gap: '8px' }}>
+            {/* Error message */}
+            {lockError && (
+              <div style={{ color: '#f87171', fontSize: '12px', padding: '6px 10px', background: '#450a0a', borderRadius: '6px', border: '1px solid #ef4444' }}>
+                ⚠️ {lockError}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                onClick={handleUndo}
+                disabled={history.length === 0 || isLocked}
+                style={{
+                  flex: '0 0 auto',
+                  padding: '10px 15px',
+                  background: '#ffffff',
+                  border: '1.5px solid var(--party-primary-color, var(--primary-border))',
+                  color: (history.length > 0 && !isLocked) ? 'var(--primary-dark)' : '#94a3b8',
+                  borderRadius: '6px',
+                  fontWeight: 'bold',
+                  cursor: (history.length > 0 && !isLocked) ? 'pointer' : 'default',
+                  fontSize: '13px',
+                  opacity: (history.length > 0 && !isLocked) ? 1 : 0.6
+                }}
+              >
+                ↩ Undo
+              </button>
+
+              {/* Lock Allocations button */}
+              <button
+                onClick={handleLock}
+                disabled={isLocked || isLocking}
+                style={{
+                  flex: '1 1 0%',
+                  minWidth: '150px',
+                  padding: '10px 15px',
+                  background: isLocked ? '#22c55e' : 'var(--party-primary-color, var(--primary-dark))',
+                  borderWidth: '1.5px',
+                  borderStyle: 'solid',
+                  borderColor: isLocked ? '#22c55e' : 'var(--party-primary-color, var(--party-primary-color))',
+                  color: 'rgb(255, 255, 255)',
+                  fontWeight: 'bold',
+                  borderRadius: '6px',
+                  cursor: isLocked ? 'default' : 'pointer',
+                  fontSize: '13px',
+                  opacity: isLocking ? 0.7 : 1,
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}
+              >
+                {isLocking ? '⏳ Saving...' : '🔒 Confirm Bid'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -981,7 +1182,7 @@ export default function Action3PartyDecision({
 
           const mood = getMoodBadge(f.loyalty);
           const activePerk = checkPerkActive(f.id, f.loyalty, f.influence);
-          
+
           let cardClass = "themed-action-card";
           if (f.loyalty < 30) cardClass += " rebel-border-flash";
           else if (activePerk) cardClass += " gold-perk-glow";

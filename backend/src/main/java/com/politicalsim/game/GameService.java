@@ -16,13 +16,12 @@ import com.politicalsim.party.PartyState;
 import com.politicalsim.party.PartyStats;
 import com.politicalsim.party.ProjectState;
 import com.politicalsim.party.BuildingProject;
+import com.politicalsim.party.PartyManagementState;
+import com.politicalsim.party.PartyManagementRepository;
+import com.politicalsim.party.PostsConfig;
+import com.politicalsim.party.ScheduledPost;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +46,7 @@ public class GameService {
     private final CooperationResolver cooperationResolver;
     private final com.politicalsim.ai.BrokeFightBackService brokeFightBackService;
     private final LegislativeAiService legislativeAiService;
+    private final PartyManagementRepository partyManagementRepository;
 
     public GameService(
             GameSessionService gameSessionService,
@@ -57,7 +57,7 @@ public class GameService {
             AiDecisionService aiDecisionService,
             com.politicalsim.ai.BrokeFightBackService brokeFightBackService
     ) {
-        this(gameSessionService, roundResolutionEngine, cardRepository, newsRepository, scenarioRepository, aiDecisionService, brokeFightBackService, new LegislativeAiService(null));
+        this(gameSessionService, roundResolutionEngine, cardRepository, newsRepository, scenarioRepository, aiDecisionService, brokeFightBackService, new LegislativeAiService(null), null);
     }
 
     @Autowired
@@ -69,7 +69,8 @@ public class GameService {
             ScenarioDefinitionRepository scenarioRepository,
             AiDecisionService aiDecisionService,
             com.politicalsim.ai.BrokeFightBackService brokeFightBackService,
-            LegislativeAiService legislativeAiService
+            LegislativeAiService legislativeAiService,
+            PartyManagementRepository partyManagementRepository
     ) {
         this.gameSessionService = gameSessionService;
         this.roundResolutionEngine = roundResolutionEngine;
@@ -78,9 +79,11 @@ public class GameService {
         this.scenarioRepository = scenarioRepository;
         this.aiDecisionService = aiDecisionService;
         this.brokeFightBackService = brokeFightBackService;
-        this.legislativeAiService = legislativeAiService;
+        this.legislativeAiService = legislativeAiService != null ? legislativeAiService : new LegislativeAiService(null);
+        this.partyManagementRepository = partyManagementRepository;
         this.cooperationResolver = new CooperationResolver(this);
     }
+
 
     public CampaignProgressResponse getCampaignProgress(String userId) {
         List<ScenarioDefinition> allActive = scenarioRepository.findAll().stream()
@@ -221,7 +224,187 @@ public class GameService {
         }
         log.info("[METRIC] Retain institutions took {} ms", (System.currentTimeMillis() - step3));
         log.info("[METRIC] Total createGame took {} ms", (System.currentTimeMillis() - start));
+
+        // Initialise PartyManagementState for every player party in this game
+        initPartyManagementStates(session);
+
         return session;
+    }
+
+    /**
+     * Called once when a new game is created. For every player party, generates a
+     * PartyManagementState with pre-scheduled posts (shuffled, one per 5 turns) and
+     * saves it to MongoDB.
+     */
+    private void initPartyManagementStates(GameSession session) {
+        if (partyManagementRepository == null) return;
+        // Delete any stale state for this game (e.g. re-start)
+        partyManagementRepository.deleteByGameId(session.getId());
+        for (String partyId : session.getPlayerPartyIds()) {
+            PartyManagementState pms = new PartyManagementState(session.getId(), partyId);
+            pms.setPosts(PostsConfig.buildScheduledPosts());
+            partyManagementRepository.save(pms);
+        }
+    }
+
+    /**
+     * Called during turn resolution to:
+     * 1. Unlock PENDING posts that have reached their scheduled turn.
+     * 2. Apply the player's submitted allocations from the UI:
+     *    - patronageUsed: how many patronage cards were placed on factions this turn
+     *    - postAssignments: map of { postKey -> factionKey } for posts placed this turn
+     * 3. Grant +1 patronage point for the NEXT turn.
+     * Saves the updated PartyManagementState to MongoDB.
+     */
+    public void updatePartyManagementOnTurn(GameSession session, String partyId,
+                                             java.util.Map<String, Object> allocations,
+                                             int resolvedTurnNumber) {
+        if (partyManagementRepository == null) return;
+
+        PartyManagementState pms = partyManagementRepository
+                .findByGameIdAndPartyId(session.getId(), partyId)
+                .orElse(null);
+        if (pms == null) {
+            // Auto-create for games that existed before this feature
+            pms = new PartyManagementState(session.getId(), partyId);
+            pms.setPosts(PostsConfig.buildScheduledPosts());
+        }
+
+        // 1. Unlock posts whose scheduled turn has arrived (before applying allocations)
+        for (ScheduledPost sp : pms.getPosts()) {
+            if (sp.getStatus() == ScheduledPost.Status.PENDING
+                    && sp.getAvailableOnTurn() <= resolvedTurnNumber) {
+                sp.setStatus(ScheduledPost.Status.AVAILABLE);
+            }
+        }
+
+        // 2. Apply submitted allocations
+        int patronageConsumedThisTurn = 0;
+        if (allocations != null && !allocations.isEmpty()) {
+
+            // -- Patronage: how many patronage cards were dragged onto factions this turn
+            Object patronageUsedObj = allocations.get("patronageUsed");
+            if (patronageUsedObj instanceof Number) {
+                patronageConsumedThisTurn = ((Number) patronageUsedObj).intValue();
+            }
+
+            // -- Posts: { postKey -> factionKey }
+            Object postAssignmentsObj = allocations.get("postAssignments");
+            if (postAssignmentsObj instanceof java.util.Map<?, ?> postMap) {
+                for (ScheduledPost sp : pms.getPosts()) {
+                    Object factionKeyObj = postMap.get(sp.getPostKey());
+                    if (factionKeyObj instanceof String factionKey && !factionKey.isBlank()) {
+                        sp.setStatus(ScheduledPost.Status.ASSIGNED);
+                        sp.setAssignedFactionKey(factionKey);
+                        log.info("[PartyMgmt] Post '{}' assigned to faction '{}' for party '{}'",
+                                sp.getPostKey(), factionKey, partyId);
+                    }
+                }
+            }
+        }
+
+        // Deduct what was actually consumed this turn, bounded to 0
+        int currentUnallocated = pms.getUnallocatedPatronagePoints();
+        int afterDeduction = Math.max(0, currentUnallocated - patronageConsumedThisTurn);
+        // Grant +1 for the next turn
+        pms.setUnallocatedPatronagePoints(afterDeduction + 1);
+
+        log.info("[PartyMgmt] Party '{}' turn {}: consumed {} patronage, {} remaining + 1 new = {}",
+                partyId, resolvedTurnNumber, patronageConsumedThisTurn,
+                afterDeduction, pms.getUnallocatedPatronagePoints());
+
+        partyManagementRepository.save(pms);
+    }
+
+    /**
+     * Convenience method to fetch PartyManagementState for the active human party.
+     */
+    public PartyManagementState getPartyManagementState(String gameId, String partyId) {
+        if (partyManagementRepository == null) return null;
+        return partyManagementRepository.findByGameIdAndPartyId(gameId, partyId).orElse(null);
+    }
+
+    /**
+     * Immediately persists the player's card allocation choices to MongoDB.
+     * Called when the player clicks "Lock Allocations" in Action 3.
+     * This eliminates the need for localStorage as the source of truth.
+     *
+     * Returns the updated PartyManagementState so the frontend can refresh.
+     */
+    public com.politicalsim.party.PartyManagementState lockPartyManagement(
+            String gameId, String partyId, com.politicalsim.api.PartyManagementLockRequest req) {
+
+        if (partyManagementRepository == null) {
+            throw new IllegalStateException("Party management repository not available.");
+        }
+
+        GameSession session = getGame(gameId);
+        com.politicalsim.party.PartyManagementState pms = partyManagementRepository
+                .findByGameIdAndPartyId(gameId, partyId)
+                .orElseGet(() -> {
+                    com.politicalsim.party.PartyManagementState newPms =
+                            new com.politicalsim.party.PartyManagementState(gameId, partyId);
+                    newPms.setPosts(com.politicalsim.party.PostsConfig.buildScheduledPosts());
+                    return newPms;
+                });
+
+        // Apply post assignments
+        if (req.getPostAssignments() != null && !req.getPostAssignments().isEmpty()) {
+            for (com.politicalsim.party.ScheduledPost sp : pms.getPosts()) {
+                String factionKey = req.getPostAssignments().get(sp.getPostKey());
+                if (factionKey != null && !factionKey.isBlank()) {
+                    sp.setStatus(com.politicalsim.party.ScheduledPost.Status.ASSIGNED);
+                    sp.setAssignedFactionKey(factionKey);
+                    log.info("[PartyMgmt Lock] Post '{}' assigned to faction '{}'", sp.getPostKey(), factionKey);
+                }
+            }
+        }
+
+        // Deduct consumed patronage points
+        int consumed = req.getPatronageUsed();
+        int remaining = Math.max(0, pms.getUnallocatedPatronagePoints() - consumed);
+        pms.setUnallocatedPatronagePoints(remaining);
+        log.info("[PartyMgmt Lock] Party '{}': {} patronage consumed, {} remaining", partyId, consumed, remaining);
+
+        Map<String,Integer> assignedPointsMap= new HashMap<>();
+        // Apply faction state snapshot (loyalty, influence, post, patronage)
+        if (req.getFactions() != null && !req.getFactions().isEmpty()) {
+            for (java.util.Map<String, Object> fData : req.getFactions()) {
+                String fKey = (String) fData.get("key");
+                com.politicalsim.party.PartyState party = session.getParties().stream()
+                        .filter(p -> p.getId().equals(partyId)).findFirst().orElse(null);
+                if (party != null && fKey != null) {
+                    com.politicalsim.party.FactionState fs = party.getFactions().stream()
+                            .filter(f -> f.getKey().equals(fKey)).findFirst().orElse(null);
+                    if (fs != null) {
+                        assignedPointsMap.put(fs.getName(),fs.getPatronage());
+                        if (fData.get("loyalty") instanceof Number n) fs.setLoyalty(n.intValue());
+                        if (fData.get("influence") instanceof Number n) fs.setInfluence(n.intValue());
+                        if (fData.get("patronage") instanceof Number n) fs.setPatronage(n.intValue());
+                        if (fData.get("post") instanceof String s) fs.setPost(s);
+                        if (fData.get("active") instanceof Boolean b) fs.setActive(b);
+                    }
+                    pms.setAllocatedPatronagePoints(assignedPointsMap);
+                }
+            }
+        }
+
+        // Apply project assignments
+        if (req.getProjects() != null && !req.getProjects().isEmpty()) {
+            com.politicalsim.party.PartyState party = session.getParties().stream()
+                    .filter(p -> p.getId().equals(partyId)).findFirst().orElse(null);
+            if (party != null) {
+                for (com.politicalsim.party.ProjectState ps : party.getProjects()) {
+                    String assignedFaction = req.getProjects().get(ps.getProjectKey());
+                    if (assignedFaction != null) {
+                        ps.setManagingFactionKey(assignedFaction);
+                    }
+                }
+            }
+        }
+
+        gameSessionService.save(session);
+        return partyManagementRepository.save(pms);
     }
 
     private String getPrecedingScenarioKey(String scenarioKey) {
@@ -388,7 +571,8 @@ public class GameService {
                 session.getLastBillYesVotes(),
                 session.getLastBillNoVotes(),
                 session.getLastBillAbstainVotes(),
-                session.getLastBillPartyVotes()
+                session.getLastBillPartyVotes(),
+                getPartyManagementState(session.getId(), activeHumanParty == null ? null : activeHumanParty.getId())
         );
     }
 
@@ -585,6 +769,18 @@ public class GameService {
             startStats.put(party.getId(), copied);
         }
         session.setTurnStartStats(startStats);
+
+        // Persist party management state (patronage, posts) for each player party
+        int resolvedTurnNumber = session.getTurnNumber(); // turn AFTER increment already applied
+        for (String pid : session.getPlayerPartyIds()) {
+            RoundSubmission playerSub = session.getLastRoundSubmissions() != null
+                    ? session.getLastRoundSubmissions().stream()
+                        .filter(s -> s.getPartyId().equals(pid))
+                        .findFirst().orElse(null)
+                    : null;
+            java.util.Map<String, Object> allocs = playerSub != null ? playerSub.getAllocations() : null;
+            updatePartyManagementOnTurn(session, pid, allocs, resolvedTurnNumber);
+        }
 
         gameSessionService.save(session);
         return getTurnView(gameId);
