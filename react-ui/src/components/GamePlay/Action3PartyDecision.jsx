@@ -47,7 +47,7 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
 
     return {
       id: f.key,
-      name: f.name,
+      name: (f.key === 'loyalist' || f.key === 'veteran' || (f.name || '').toLowerCase().includes('veteran')) ? 'Loyalists' : f.name,
       baseLoyalty: decayedLoyalty,
       loyalty: decayedLoyalty,
       influence: f.influence,
