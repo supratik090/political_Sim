@@ -1,12 +1,15 @@
 package com.politicalsim.party;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FactionState {
     private String key; // veteran, youth, trade_union
     private String name;
     private boolean active = true;
     private int loyalty = 70;
     private int influence = 30;
-    private String post = "None"; // "Secretary Post", "Fund Manager Post", etc.
+    private List<String> post ; // "Secretary Post", "Fund Manager Post", etc.
     private int patronage = 0; // patronage points assigned
 
     public FactionState() {
@@ -18,7 +21,7 @@ public class FactionState {
         this.loyalty = loyalty;
         this.influence = influence;
         this.active = true;
-        this.post = "None";
+        this.post = new ArrayList<>();
         this.patronage = 0;
     }
 
@@ -62,11 +65,11 @@ public class FactionState {
         this.influence = Math.max(0, influence);
     }
 
-    public String getPost() {
+    public List<String> getPost() {
         return post;
     }
 
-    public void setPost(String post) {
+    public void setPost(List<String> post) {
         this.post = post;
     }
 

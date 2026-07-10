@@ -254,6 +254,7 @@ export default function ActionsView({
           selectedEventOptionKey={selectedEventOptionKey}
           setSelectedEventOptionKey={setSelectedEventOptionKey}
           scenarioEvents={scenarioEvents}
+          projectDefs={projectDefs}
         />
       </ActionSection>
 

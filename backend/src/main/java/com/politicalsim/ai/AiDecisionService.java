@@ -11,6 +11,7 @@ import com.politicalsim.party.PartyRole;
 import com.politicalsim.party.PartyState;
 import com.politicalsim.party.PartyStats;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import com.politicalsim.game.CooperationOffer;
@@ -19,6 +20,7 @@ import com.politicalsim.game.LegislativeBillState;
 import com.politicalsim.party.ProjectState;
 import com.politicalsim.content.LegislativeBillDefinition;
 import com.politicalsim.content.LegislativeBillDefinitionRepository;
+import com.politicalsim.party.PostsConfig;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -1361,16 +1363,15 @@ public class AiDecisionService {
 
         List<String> assignedPosts = new ArrayList<>();
         for (com.politicalsim.party.FactionState f : factions) {
-            if (f.isActive() && f.getPost() != null && !f.getPost().equals("None") && !f.getPost().isEmpty()) {
-                assignedPosts.add(f.getPost());
+            if (f.isActive() && f.getPost() != null && !f.getPost().isEmpty()) {
+                assignedPosts.addAll(f.getPost());
             }
         }
         List<String> availablePosts = new ArrayList<>();
-        if (!assignedPosts.contains("Secretary Post")) {
-            availablePosts.add("Secretary Post");
-        }
-        if (!assignedPosts.contains("Fund Manager Post")) {
-            availablePosts.add("Fund Manager Post");
+        for (PostsConfig.PostDefinition def : PostsConfig.ALL_POSTS) {
+            if (!assignedPosts.contains(def.key())) {
+                availablePosts.add(def.key());
+            }
         }
 
         List<com.politicalsim.party.FactionState> activeFactions = new ArrayList<>();
@@ -1391,88 +1392,32 @@ public class AiDecisionService {
             simFactions.add(new SimFaction(f));
         }
 
-        AiProfile profile = profileFor(party);
-        boolean balanced = profile.getStyle() == AiStyle.STRENGTH_BUILDER || profile.getStyle() == AiStyle.BALANCED_STRATEGIST;
+        int factionIndex = 0;
+        int numFactions = simFactions.size();
 
-        for (SimFaction sf : simFactions) {
-            if (sf.loyalty < 35) {
-                if (availablePatronage > 0) {
-                    sf.patronage += 1;
-                    sf.loyalty = Math.min(100, sf.loyalty + 5);
-                    availablePatronage--;
-                } else if (!availablePosts.isEmpty()) {
-                    String post = availablePosts.remove(0);
-                    sf.post = post;
-                    sf.loyalty = Math.min(100, sf.loyalty + 15);
-                }
-            }
+        // 1. Round-robin for availablePosts
+        for (String post : availablePosts) {
+            SimFaction target = simFactions.get(factionIndex % numFactions);
+            target.post.add(post);
+            target.loyalty = Math.min(100, target.loyalty + 15);
+            factionIndex++;
         }
 
-        while (!availablePosts.isEmpty()) {
-            String post = availablePosts.remove(0);
-            SimFaction target = null;
-            if (balanced) {
-                simFactions.sort((a, b) -> {
-                    boolean aHas = a.post != null && !a.post.equals("None");
-                    boolean bHas = b.post != null && !b.post.equals("None");
-                    if (aHas != bHas) return aHas ? 1 : -1;
-                    return Integer.compare(a.loyalty, b.loyalty);
-                });
-                target = simFactions.get(0);
-            } else {
-                if (post.equals("Fund Manager Post")) {
-                    target = findSimFactionByKey(simFactions, "veteran");
-                } else {
-                    target = findSimFactionByKey(simFactions, "youth");
-                }
-                if (target == null || (target.post != null && !target.post.equals("None"))) {
-                    simFactions.sort((a, b) -> Integer.compare(a.loyalty, b.loyalty));
-                    target = simFactions.get(0);
-                }
-            }
-            if (target != null) {
-                target.post = post;
-                target.loyalty = Math.min(100, target.loyalty + 15);
-            }
-        }
-
+        // 2. Round-robin for availablePatronage
         while (availablePatronage > 0) {
-            SimFaction target = null;
-            if (balanced) {
-                simFactions.sort((a, b) -> Integer.compare(a.loyalty, b.loyalty));
-                target = simFactions.get(0);
-            } else {
-                String preferredKey = profile.getStyle() == AiStyle.AGGRESSIVE_BIDDER ? "veteran" : "youth";
-                target = findSimFactionByKey(simFactions, preferredKey);
-                if (target == null) {
-                    simFactions.sort((a, b) -> Integer.compare(b.influence, a.influence));
-                    target = simFactions.get(0);
-                }
-            }
-            if (target != null) {
-                target.patronage += 1;
-                target.loyalty = Math.min(100, target.loyalty + 5);
-            }
+            SimFaction target = simFactions.get(factionIndex % numFactions);
+            target.patronage += 1;
+            target.loyalty = Math.min(100, target.loyalty + 5);
+            factionIndex++;
             availablePatronage--;
         }
 
+        // 3. Round-robin for unassigned projects
         for (String projKey : unassignedProjectKeys) {
-            SimFaction target = null;
-            if (balanced) {
-                simFactions.sort((a, b) -> Integer.compare(a.projectCount, b.projectCount));
-                target = simFactions.get(0);
-            } else {
-                String preferredKey = profile.getStyle() == AiStyle.AGGRESSIVE_BIDDER ? "veteran" : "youth";
-                target = findSimFactionByKey(simFactions, preferredKey);
-                if (target == null) {
-                    simFactions.sort((a, b) -> Integer.compare(b.influence, a.influence));
-                    target = simFactions.get(0);
-                }
-            }
-            if (target != null) {
-                target.projectCount++;
-                projectAssignments.put(projKey, target.key);
-            }
+            SimFaction target = simFactions.get(factionIndex % numFactions);
+            target.projectCount++;
+            projectAssignments.put(projKey, target.key);
+            factionIndex++;
         }
 
         recalculateSimInfluences(simFactions, party);
@@ -1528,10 +1473,26 @@ public class AiDecisionService {
             else if (sf.loyalty >= 30) factor = 0.5;
             else factor = 0.0;
 
-            int coinsYield = sf.patronage * 2 + (sf.post.equals("Fund Manager Post") ? 8 : 0);
-            int moraleYield = sf.patronage * 1 + (sf.post.equals("Secretary Post") ? 6 : 0);
-            int corruptionYield = sf.patronage * -1 + (sf.post.equals("None") ? 0 : 2);
-            int mediaYield = sf.patronage * 1;
+            int postCoins = 0;
+            int postMorale = 0;
+            int postMedia = 0;
+            if (sf.post != null) {
+                for (String pKey : sf.post) {
+                    PostsConfig.PostDefinition def = PostsConfig.findByKey(pKey);
+                    if (def == null) {
+                        def = PostsConfig.findByName(pKey);
+                    }
+                    if (def != null) {
+                        postCoins += def.coinYieldBonus();
+                        postMorale += def.moraleYieldBonus();
+                        postMedia += def.mediaYieldBonus();
+                    }
+                }
+            }
+            int coinsYield = sf.patronage * 2 + postCoins;
+            int moraleYield = sf.patronage * 1 + postMorale;
+            int corruptionYield = sf.patronage * -1 + (sf.post == null || sf.post.isEmpty() ? 0 : sf.post.size() * 2);
+            int mediaYield = sf.patronage * 1 + postMedia;
 
             coinsYield += sf.projectCount * 2;
             moraleYield += sf.projectCount * 2;
@@ -1567,7 +1528,7 @@ public class AiDecisionService {
         String name;
         int loyalty;
         int influence;
-        String post;
+        List<String> post;
         int patronage;
         int projectCount = 0;
 
@@ -1576,7 +1537,7 @@ public class AiDecisionService {
             this.name = f.getName();
             this.loyalty = Math.max(0, f.getLoyalty() - 2);
             this.influence = f.getInfluence();
-            this.post = f.getPost() == null ? "None" : f.getPost();
+            this.post = f.getPost() == null ? new ArrayList<>() : new ArrayList<>(f.getPost());
             this.patronage = f.getPatronage();
         }
     }

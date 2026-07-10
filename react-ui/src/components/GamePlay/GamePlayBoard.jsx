@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { fetchTurnView, advanceTurn, fundProject, destroyProject, setProjectTarget, fetchBuildingProjects } from '../../api/apiClient';
+import { fetchTurnView, advanceTurn, fundProject, destroyProject, setProjectTarget, fetchBuildingProjects, fetchPostDefinitions } from '../../api/apiClient';
 import { getPartyColor, cardRequiresTarget } from './gameUtils';
 import StatsView from './StatsView';
 import ActionsView from './ActionsView';
@@ -11,6 +11,7 @@ import SkipTurnConfirmationModal from './SkipTurnConfirmationModal';
 import GameTutorial from './GameTutorial';
 import { useMultiplayer } from '../../hooks/useMultiplayer';
 import ChatDrawer from '../../components/Chat/ChatDrawer';
+import { initializePostDefinitions } from './postsConfig';
 
 const PROJECT_EMOJIS = {
   PARTY_HQ: '🏢',
@@ -114,6 +115,12 @@ export default function GamePlayBoard() {
         setProjectDefs(formatted);
       })
       .catch(err => console.error("Failed to load building projects from backend, using fallbacks:", err));
+
+    fetchPostDefinitions()
+      .then(data => {
+        initializePostDefinitions(data);
+      })
+      .catch(err => console.error("Failed to load post definitions from backend:", err));
   }, []);
 
   const [scenarioBills, setScenarioBills] = useState([]);
@@ -135,6 +142,29 @@ export default function GamePlayBoard() {
       });
     }
   }, [turnData?.scenarioKey]);
+
+  useEffect(() => {
+    if (turnData?.gameId && turnData?.parties) {
+      const historyKey = `faction_loyalty_history_${turnData.gameId}`;
+      let historyData = {};
+      try {
+        historyData = JSON.parse(localStorage.getItem(historyKey) || '{}');
+      } catch (e) {}
+
+      const turnNum = turnData.turnNumber;
+      historyData[turnNum] = historyData[turnNum] || {};
+
+      turnData.parties.forEach(party => {
+        if (party.factions) {
+          party.factions.forEach(f => {
+            historyData[turnNum][f.key] = f.loyalty;
+          });
+        }
+      });
+
+      localStorage.setItem(historyKey, JSON.stringify(historyData));
+    }
+  }, [turnData]);
 
   const [commentaryExpanded, setCommentaryExpanded] = useState(false);
   const [commentaryFilter, setCommentaryFilter] = useState('ALL');
@@ -289,16 +319,7 @@ useEffect(() => {
           const patronageUsed = savedFactions.reduce((sum, f) => sum + (f.patronage || 0), 0);
 
           // Build postAssignments: { postKey -> factionId } for all posts that were assigned this turn
-          // The faction's post field will be set to the post name; we look up postKey from postsConfig
-          const postAssignments = {};
-          savedFactions.forEach(f => {
-            if (f.post && f.post !== 'None') {
-              // Try to match post name to a postKey - the post card carries postKey if assigned this turn
-              // We also transmit factions data so RoundResolutionEngine can update FactionState directly
-              const matchingPost = (parsed.assignedPostKeys || {})[f.id];
-              if (matchingPost) postAssignments[matchingPost] = f.id;
-            }
-          });
+          const postAssignments = parsed.assignedPostKeys || {};
 
           factionAllocs = {
             patronageUsed,

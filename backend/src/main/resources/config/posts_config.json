@@ -1,0 +1,152 @@
+[
+  {
+    "key": "SECRETARY",
+    "name": "Secretary",
+    "icon": "📋",
+    "description": "Party's chief administrator. Boosts loyalty and morale coordination.",
+    "loyaltyBoost": 15,
+    "coinYieldBonus": 0,
+    "moraleYieldBonus": 6,
+    "mediaYieldBonus": 0
+  },
+  {
+    "key": "PRESS_SECRETARY",
+    "name": "Press Secretary",
+    "icon": "📰",
+    "description": "Manages party communications and media. Improves media image.",
+    "loyaltyBoost": 8,
+    "coinYieldBonus": 0,
+    "moraleYieldBonus": 0,
+    "mediaYieldBonus": 4
+  },
+  {
+    "key": "FUND_MANAGER",
+    "name": "Fund Manager",
+    "icon": "💰",
+    "description": "Oversees party finances. Significantly boosts coin income.",
+    "loyaltyBoost": 10,
+    "coinYieldBonus": 8,
+    "moraleYieldBonus": 0,
+    "mediaYieldBonus": 0
+  },
+  {
+    "key": "DISTRICT_HEAD",
+    "name": "District Head",
+    "icon": "🏘️",
+    "description": "Leads party operations in a district. Provides grassroots morale.",
+    "loyaltyBoost": 5,
+    "coinYieldBonus": 0,
+    "moraleYieldBonus": 3,
+    "mediaYieldBonus": 0
+  },
+  {
+    "key": "CAMPAIGN_MANAGER",
+    "name": "Campaign Manager",
+    "icon": "📣",
+    "description": "Strategizes election campaigns. Boosts support and morale.",
+    "loyaltyBoost": 10,
+    "coinYieldBonus": 0,
+    "moraleYieldBonus": 4,
+    "mediaYieldBonus": 2
+  },
+  {
+    "key": "LEADER_IN_HOUSE",
+    "name": "Leader in House",
+    "icon": "🏛️",
+    "description": "Represents party in legislative house. Improves public support.",
+    "loyaltyBoost": 8,
+    "coinYieldBonus": 2,
+    "moraleYieldBonus": 2,
+    "mediaYieldBonus": 0
+  },
+  {
+    "key": "CHIEF_WHIP",
+    "name": "Chief Whip",
+    "icon": "⚖️",
+    "description": "Enforces party discipline. Stabilises loyalty across factions.",
+    "loyaltyBoost": 7,
+    "coinYieldBonus": 0,
+    "moraleYieldBonus": 3,
+    "mediaYieldBonus": 0
+  },
+  {
+    "key": "YOUTH_WING_PRES",
+    "name": "Youth Wing President",
+    "icon": "✊",
+    "description": "Leads the youth wing. Energises younger members, boosts morale.",
+    "loyaltyBoost": 6,
+    "coinYieldBonus": 0,
+    "moraleYieldBonus": 4,
+    "mediaYieldBonus": 1
+  },
+  {
+    "key": "TRADE_UNION_LIAISON",
+    "name": "Trade Union Liaison",
+    "icon": "🤝",
+    "description": "Bridges party and unions. Improves coin yields from labour sectors.",
+    "loyaltyBoost": 6,
+    "coinYieldBonus": 3,
+    "moraleYieldBonus": 2,
+    "mediaYieldBonus": 0
+  },
+  {
+    "key": "POLICY_DIRECTOR",
+    "name": "Policy Director",
+    "icon": "🧠",
+    "description": "Shapes party policy agenda. Increases media image significantly.",
+    "loyaltyBoost": 9,
+    "coinYieldBonus": 0,
+    "moraleYieldBonus": 0,
+    "mediaYieldBonus": 5
+  },
+  {
+    "key": "STATE_COORDINATOR",
+    "name": "State Coordinator",
+    "icon": "🗺️",
+    "description": "Manages party operations across the state. Improves coins and morale.",
+    "loyaltyBoost": 11,
+    "coinYieldBonus": 4,
+    "moraleYieldBonus": 3,
+    "mediaYieldBonus": 0
+  },
+  {
+    "key": "DIGITAL_MEDIA_HEAD",
+    "name": "Digital Media Head",
+    "icon": "💻",
+    "description": "Runs party's digital/social media. Provides strong media boost.",
+    "loyaltyBoost": 7,
+    "coinYieldBonus": 0,
+    "moraleYieldBonus": 0,
+    "mediaYieldBonus": 6
+  },
+  {
+    "key": "ELECTION_STRATEGIST",
+    "name": "Election Strategist",
+    "icon": "🗳️",
+    "description": "Plans electoral strategy. Major morale and media improvements.",
+    "loyaltyBoost": 12,
+    "coinYieldBonus": 0,
+    "moraleYieldBonus": 4,
+    "mediaYieldBonus": 4
+  },
+  {
+    "key": "SPOKESPERSON",
+    "name": "Spokesperson",
+    "icon": "🎤",
+    "description": "Official voice of the party. Boosts media image.",
+    "loyaltyBoost": 5,
+    "coinYieldBonus": 0,
+    "moraleYieldBonus": 0,
+    "mediaYieldBonus": 3
+  },
+  {
+    "key": "TREASURER",
+    "name": "Treasurer",
+    "icon": "🏦",
+    "description": "Controls party treasury. Large coin income boost.",
+    "loyaltyBoost": 14,
+    "coinYieldBonus": 10,
+    "moraleYieldBonus": 0,
+    "mediaYieldBonus": 0
+  }
+]

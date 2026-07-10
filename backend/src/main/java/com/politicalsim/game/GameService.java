@@ -319,7 +319,16 @@ public class GameService {
                         if (fs != null) {
                             if (fData.get("loyalty")   instanceof Number n) fs.setLoyalty(n.intValue());
                             if (fData.get("influence") instanceof Number n) fs.setInfluence(n.intValue());
-                            if (fData.get("post")      instanceof String s) fs.setPost(s);
+                            Object postVal = fData.get("post");
+                            if (postVal instanceof List<?> list) {
+                                fs.setPost(list.stream().map(Object::toString).toList());
+                            } else if (postVal instanceof String s) {
+                                if ("None".equals(s) || s.isBlank()) {
+                                    fs.setPost(new ArrayList<>());
+                                } else {
+                                    fs.setPost(Arrays.asList(s.split(",\\s*")));
+                                }
+                            }
                             if (fData.get("active")    instanceof Boolean b) fs.setActive(b);
                             int incomingPatronage = (fData.get("patronage") instanceof Number n) ? n.intValue() : 0;
                             fs.setPatronage(incomingPatronage);
@@ -409,7 +418,16 @@ public class GameService {
                         // Apply incoming values from payload FIRST
                         if (fData.get("loyalty")   instanceof Number n) fs.setLoyalty(n.intValue());
                         if (fData.get("influence") instanceof Number n) fs.setInfluence(n.intValue());
-                        if (fData.get("post")      instanceof String s) fs.setPost(s);
+                        Object postVal = fData.get("post");
+                        if (postVal instanceof List<?> list) {
+                            fs.setPost(list.stream().map(Object::toString).toList());
+                        } else if (postVal instanceof String s) {
+                            if ("None".equals(s) || s.isBlank()) {
+                                fs.setPost(new ArrayList<>());
+                            } else {
+                                fs.setPost(Arrays.asList(s.split(",\\s*")));
+                            }
+                        }
                         if (fData.get("active")    instanceof Boolean b) fs.setActive(b);
                         // Persist patronage by faction KEY (not name) so frontend can look it up by key
                         int incomingPatronage = (fData.get("patronage") instanceof Number n) ? n.intValue() : 0;
@@ -429,7 +447,10 @@ public class GameService {
                     .filter(p -> p.getId().equals(partyId)).findFirst().orElse(null);
             if (party != null) {
                 for (com.politicalsim.party.ProjectState ps : party.getProjects()) {
-                    String assignedFaction = req.getProjects().get(ps.getProjectKey());
+                    String assignedFaction = req.getProjects().get(ps.getId());
+                    if (assignedFaction == null) {
+                        assignedFaction = req.getProjects().get(ps.getProjectKey());
+                    }
                     if (assignedFaction != null) {
                         ps.setManagingFactionKey(assignedFaction);
                     }
@@ -952,12 +973,22 @@ public class GameService {
                     party.getStats().setCoins(party.getStats().getCoins() - 20);
                     
                     int patronageCoins = bestTargetFs.getPatronage() * 2;
-                    int postCoins = "Fund Manager Post".equals(bestTargetFs.getPost()) ? 8 : 0;
+                    int postCoins = 0;
+                    if (bestTargetFs.getPost() != null) {
+                        for (String pKey : bestTargetFs.getPost()) {
+                            PostsConfig.PostDefinition def = PostsConfig.findByKey(pKey);
+                            if (def == null) def = PostsConfig.findByName(pKey);
+                            if (def != null) postCoins += def.coinYieldBonus();
+                        }
+                    }
                     int baseCoins = patronageCoins + postCoins;
                     for (ProjectState ps : bestTargetParty.getProjects()) {
                         if (ps.getProgressPercent() == 100 && bestTargetFs.getKey().equals(ps.getManagingFactionKey())) {
-                            if ("PARTY_HQ".equals(ps.getProjectKey())) {
-                                baseCoins += 12;
+                            try {
+                                BuildingProject bProj = BuildingProject.valueOf(ps.getProjectKey());
+                                baseCoins += bProj.getBenefitCoins();
+                            } catch (Exception e) {
+                                // ignore invalid enum
                             }
                         }
                     }
@@ -2527,12 +2558,22 @@ public class GameService {
 
         // 1. Calculate Target Faction Coin Yield
         int patronageCoins = fs.getPatronage() * 2;
-        int postCoins = "Fund Manager Post".equals(fs.getPost()) ? 8 : 0;
+        int postCoins = 0;
+        if (fs.getPost() != null) {
+            for (String pKey : fs.getPost()) {
+                PostsConfig.PostDefinition def = PostsConfig.findByKey(pKey);
+                if (def == null) def = PostsConfig.findByName(pKey);
+                if (def != null) postCoins += def.coinYieldBonus();
+            }
+        }
         int baseCoins = patronageCoins + postCoins;
         for (ProjectState ps : targetParty.getProjects()) {
             if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
-                if ("PARTY_HQ".equals(ps.getProjectKey())) {
-                    baseCoins += 12;
+                try {
+                    BuildingProject bProj = BuildingProject.valueOf(ps.getProjectKey());
+                    baseCoins += bProj.getBenefitCoins();
+                } catch (Exception e) {
+                    // ignore invalid enum
                 }
             }
         }

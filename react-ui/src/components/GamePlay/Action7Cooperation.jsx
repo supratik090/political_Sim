@@ -590,7 +590,7 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
                 >
                   {(recipientParty?.factions || []).filter(f => f.active).map(f => (
                     <option key={f.key} value={f.key}>
-                      {f.name === 'veteran' ? 'Loyalists' : (f.name === 'Loyalists' ? 'Loyalists' : f.name)} (Loyalty: {f.loyalty}%, Power: {f.influence}%)
+                      {f.key === 'loyalist' || f.key === 'veteran' || f.name === 'veteran' || f.name === 'Loyalists' ? 'Loyalists' : f.name} (Loyalty: {f.loyalty}%, Power: {f.influence}%)
                     </option>
                   ))}
                 </select>
@@ -616,7 +616,9 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
 
                 // Calculate Yield
                 const patronageCoins = targetFaction.patronage * 2;
-                const postCoins = targetFaction.post === 'Fund Manager Post' ? 8 : 0;
+                const posts = Array.isArray(targetFaction.post) ? targetFaction.post : (targetFaction.post && targetFaction.post !== 'None' ? [targetFaction.post] : []);
+                const hasFundManager = posts.includes('FUND_MANAGER') || posts.includes('Fund Manager') || posts.includes('Fund Manager Post');
+                const postCoins = hasFundManager ? 8 : 0;
                 let baseCoins = patronageCoins + postCoins;
                 
                 // Completed projects
@@ -750,7 +752,7 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
                       }}
                     >
                       <div style={{ fontWeight: 'bold' }}>
-                        {f.name === 'veteran' ? 'Loyalists' : (f.name === 'Loyalists' ? 'Loyalists' : f.name)}
+                        {f.key === 'loyalist' || f.key === 'veteran' || f.name === 'veteran' || f.name === 'Loyalists' ? 'Loyalists' : f.name}
                       </div>
                       <div>
                         Loyalty: <span style={{ fontWeight: 'bold', color: f.loyalty >= 80 ? '#16a34a' : (f.loyalty >= 50 ? '#ca8a04' : '#dc2626') }}>{f.loyalty}%</span>

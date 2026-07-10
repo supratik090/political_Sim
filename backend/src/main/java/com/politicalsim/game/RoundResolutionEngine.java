@@ -13,17 +13,12 @@ import com.politicalsim.party.PartyState;
 import com.politicalsim.party.PartyStats;
 import com.politicalsim.party.ProjectState;
 import com.politicalsim.party.BuildingProject;
+import com.politicalsim.party.PostsConfig;
 import com.politicalsim.publicmood.PublicState;
 
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class RoundResolutionEngine {
@@ -2126,12 +2121,11 @@ public class RoundResolutionEngine {
                     .filter(s -> s.getPartyId().equals(party.getId()))
                     .findFirst().orElse(null);
 
-            boolean isHuman = session.getPlayerPartyIds().contains(party.getId());
-            
-            // Apply a natural loyalty decay of -2 loyalty per round
+
+            // Apply a natural loyalty decay of -4 loyalty per round
             for (com.politicalsim.party.FactionState fs : party.getFactions()) {
                 if (fs.isActive()) {
-                    fs.setLoyalty(fs.getLoyalty() - 2);
+                    fs.setLoyalty(fs.getLoyalty() - 4);
                 }
             }
 
@@ -2145,7 +2139,23 @@ public class RoundResolutionEngine {
                         String fKey = (String) sf.get("key");
                         int sLoyalty = ((Number) sf.get("loyalty")).intValue();
                         int sInfluence = ((Number) sf.get("influence")).intValue();
-                        String sPost = (String) sf.get("post");
+                        Object postVal = sf.get("post");
+                        List<String> postsList = new ArrayList<>();
+                        if (postVal instanceof List) {
+                            for (Object o : (List<?>) postVal) {
+                                if (o != null) {
+                                    postsList.add(o.toString());
+                                }
+                            }
+                        } else if (postVal instanceof String sVal) {
+                            if (sVal.contains(",")) {
+                                for (String part : sVal.split(",")) {
+                                    postsList.add(part.trim());
+                                }
+                            } else if (!"None".equalsIgnoreCase(sVal) && !sVal.isBlank()) {
+                                postsList.add(sVal.trim());
+                            }
+                        }
                         int sPatronage = ((Number) sf.get("patronage")).intValue();
                         boolean sActive = sf.containsKey("active") ? (Boolean) sf.get("active") : true;
 
@@ -2155,7 +2165,7 @@ public class RoundResolutionEngine {
                         if (fs != null) {
                             fs.setLoyalty(sLoyalty);
                             fs.setInfluence(sInfluence);
-                            fs.setPost(sPost);
+                            fs.setPost(postsList);
                             fs.setPatronage(sPatronage);
                             fs.setActive(sActive);
                         }
@@ -2189,12 +2199,12 @@ public class RoundResolutionEngine {
                     lowest.setPatronage(lowest.getPatronage() + 1);
                     lowest.setLoyalty(lowest.getLoyalty() + 8);
 
-                    lowest.setPost("Secretary Post");
+                    lowest.getPost().add("SECRETARY");
                     lowest.setLoyalty(lowest.getLoyalty() + 15);
 
                     if (activeFs.size() > 1) {
                         com.politicalsim.party.FactionState secondLowest = activeFs.get(1);
-                        secondLowest.setPost("Fund Manager Post");
+                        secondLowest.getPost().add("FUND_MANAGER");
                         secondLowest.setLoyalty(secondLowest.getLoyalty() + 15);
                     }
                 }
@@ -2219,40 +2229,58 @@ public class RoundResolutionEngine {
                 else mult = 0.0;
 
                 int patronageCoins = fs.getPatronage() * 2;
-                int postCoins = "Fund Manager Post".equals(fs.getPost()) ? 8 : 0;
-                int baseCoins = patronageCoins + postCoins;
-
                 int patronageMorale = fs.getPatronage() * 1;
-                int postMorale = "Secretary Post".equals(fs.getPost()) ? 6 : 0;
+                int patronageCorruption = fs.getPatronage() * -1;
+                int patronageMedia = fs.getPatronage() * 1;
 
-                int projectMorale = 0;
-                int projectMedia = 0;
-                for (ProjectState ps : party.getProjects()) {
-                    if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
-                        if ("CADRE_OFFICE".equals(ps.getProjectKey())) {
-                            projectMorale += 5;
-                        } else if ("IT_CELL".equals(ps.getProjectKey())) {
-                            projectMedia += 2;
-                        } else if ("THINK_TANK".equals(ps.getProjectKey())) {
-                            projectMedia += 4;
-                        } else if ("YOUTH_WING".equals(ps.getProjectKey())) {
-                            projectMorale += 3;
-                        } else if ("PARTY_HQ".equals(ps.getProjectKey())) {
-                            baseCoins += 12;
-                            projectMedia += 3;
-                        } else if ("TRAINING_ACADEMY".equals(ps.getProjectKey())) {
-                            projectMorale += 3;
+                int postCoins = 0;
+                int postMorale = 0;
+                int postMedia = 0;
+                if (fs.getPost() != null) {
+                    for (String pKey : fs.getPost()) {
+                        if (pKey == null || pKey.equals("None") || pKey.isBlank()) continue;
+                        PostsConfig.PostDefinition pDef = PostsConfig.findByKey(pKey);
+                        if (pDef == null) {
+                            pDef = PostsConfig.findByName(pKey);
+                        }
+                        if (pDef != null) {
+                            postCoins += pDef.coinYieldBonus();
+                            postMorale += pDef.moraleYieldBonus();
+                            postMedia += pDef.mediaYieldBonus();
                         }
                     }
                 }
 
+                int projectCoins = 0;
+                int projectMorale = 0;
+                int projectMedia = 0;
+                int projectCorruption = 0;
+                double projectSupport = 0;
+                if (party.getProjects() != null) {
+                    for (ProjectState ps : party.getProjects()) {
+                        if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
+                            try {
+                                BuildingProject bp = BuildingProject.valueOf(ps.getProjectKey());
+                                BuildingProject.ProjectConfig pConfig = BuildingProject.getConfigs().get(bp);
+                                if (pConfig != null) {
+                                    projectCoins += pConfig.benefitCoins;
+                                    projectMorale += pConfig.benefitMorale;
+                                    projectMedia += pConfig.benefitMedia;
+                                    projectCorruption += pConfig.benefitCorruption;
+                                    projectSupport += (pConfig.benefitSupport * 0.01);
+                                }
+                            } catch (Exception e) {
+                                // ignore
+                            }
+                        }
+                    }
+                }
+
+                int baseCoins = patronageCoins + postCoins + projectCoins;
                 int baseMorale = patronageMorale + postMorale + projectMorale;
-                int patronageCorruption = fs.getPatronage() * -1;
-                int postCorruption = !"None".equals(fs.getPost()) ? 2 : 0;
-                int baseCorruption = patronageCorruption + postCorruption;
-                int patronageMedia = fs.getPatronage() * 1;
-                int baseMedia = patronageMedia + projectMedia;
-                double baseSupport = fs.getLoyalty() >= 50 ? (fs.getInfluence() * 0.01) : -(fs.getInfluence() * 0.01);
+                int baseCorruption = patronageCorruption + projectCorruption;
+                int baseMedia = patronageMedia + postMedia + projectMedia;
+                double baseSupport = (fs.getLoyalty() >= 50 ? (fs.getInfluence() * 0.01) : -(fs.getInfluence() * 0.01)) + projectSupport;
 
                 double coinsYield = Math.round(baseCoins * mult);
                 double supportYield = Math.abs(baseSupport * mult);
@@ -2329,41 +2357,58 @@ public class RoundResolutionEngine {
                 else mult = 0.0;
 
                 int patronageCoins = fs.getPatronage() * 2;
-                int postCoins = "Fund Manager Post".equals(fs.getPost()) ? 8 : 0;
-                int baseCoins = patronageCoins + postCoins;
-
                 int patronageMorale = fs.getPatronage() * 1;
-                int postMorale = "Secretary Post".equals(fs.getPost()) ? 6 : 0;
+                int patronageCorruption = fs.getPatronage() * -1;
+                int patronageMedia = fs.getPatronage() * 1;
 
-                int projectMorale = 0;
-                int projectMedia = 0;
-                
-                for (ProjectState ps : party.getProjects()) {
-                    if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
-                        if ("CADRE_OFFICE".equals(ps.getProjectKey())) {
-                            projectMorale += 5;
-                        } else if ("IT_CELL".equals(ps.getProjectKey())) {
-                            projectMedia += 2;
-                        } else if ("THINK_TANK".equals(ps.getProjectKey())) {
-                            projectMedia += 4;
-                        } else if ("YOUTH_WING".equals(ps.getProjectKey())) {
-                            projectMorale += 3;
-                        } else if ("PARTY_HQ".equals(ps.getProjectKey())) {
-                            baseCoins += 12;
-                            projectMedia += 3;
-                        } else if ("TRAINING_ACADEMY".equals(ps.getProjectKey())) {
-                            projectMorale += 3;
+                int postCoins = 0;
+                int postMorale = 0;
+                int postMedia = 0;
+                if (fs.getPost() != null) {
+                    for (String pKey : fs.getPost()) {
+                        if (pKey == null || pKey.equals("None") || pKey.isBlank()) continue;
+                        PostsConfig.PostDefinition pDef = PostsConfig.findByKey(pKey);
+                        if (pDef == null) {
+                            pDef = PostsConfig.findByName(pKey);
+                        }
+                        if (pDef != null) {
+                            postCoins += pDef.coinYieldBonus();
+                            postMorale += pDef.moraleYieldBonus();
+                            postMedia += pDef.mediaYieldBonus();
                         }
                     }
                 }
 
+                int projectCoins = 0;
+                int projectMorale = 0;
+                int projectMedia = 0;
+                int projectCorruption = 0;
+                double projectSupport = 0;
+                if (party.getProjects() != null) {
+                    for (ProjectState ps : party.getProjects()) {
+                        if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
+                            try {
+                                BuildingProject bp = BuildingProject.valueOf(ps.getProjectKey());
+                                BuildingProject.ProjectConfig pConfig = BuildingProject.getConfigs().get(bp);
+                                if (pConfig != null) {
+                                    projectCoins += pConfig.benefitCoins;
+                                    projectMorale += pConfig.benefitMorale;
+                                    projectMedia += pConfig.benefitMedia;
+                                    projectCorruption += pConfig.benefitCorruption;
+                                    projectSupport += (pConfig.benefitSupport * 0.01);
+                                }
+                            } catch (Exception e) {
+                                // ignore
+                            }
+                        }
+                    }
+                }
+
+                int baseCoins = patronageCoins + postCoins + projectCoins;
                 int baseMorale = patronageMorale + postMorale + projectMorale;
-                int patronageCorruption = fs.getPatronage() * -1;
-                int postCorruption = !"None".equals(fs.getPost()) ? 2 : 0;
-                int baseCorruption = patronageCorruption + postCorruption;
-                int patronageMedia = fs.getPatronage() * 1;
-                int baseMedia = patronageMedia + projectMedia;
-                double baseSupport = fs.getLoyalty() >= 50 ? (fs.getInfluence() * 0.01) : -(fs.getInfluence() * 0.01);
+                int baseCorruption = patronageCorruption + projectCorruption;
+                int baseMedia = patronageMedia + postMedia + projectMedia;
+                double baseSupport = (fs.getLoyalty() >= 50 ? (fs.getInfluence() * 0.01) : -(fs.getInfluence() * 0.01)) + projectSupport;
 
                 totalCoins += Math.round(baseCoins * mult);
                 totalSupport += baseSupport * mult;
@@ -2424,7 +2469,7 @@ public class RoundResolutionEngine {
             
             for (com.politicalsim.party.FactionState fs : party.getFactions()) {
                 if (!fs.isActive()) continue;
-                if ("veteran".equals(fs.getKey()) && fs.getLoyalty() >= 80 && fs.getInfluence() >= 50) {
+                if ("loyalist".equals(fs.getKey()) && fs.getLoyalty() >= 80 && fs.getInfluence() >= 50) {
                     veteranPerkActive = true;
                 } else if ("youth".equals(fs.getKey()) && fs.getLoyalty() >= 80 && fs.getInfluence() >= 40) {
                     youthPerkActive = true;

@@ -9,7 +9,8 @@ export default function Action3PartyDecision({
   activeParty,
   selectedEventOptionKey,
   setSelectedEventOptionKey,
-  scenarioEvents = []
+  scenarioEvents = [],
+  projectDefs = {}
 }) {
 // A robust key that guarantees isolation across different games AND turns
 const gameSessionId = turnData?.gameId || turnData?.scenarioId || 'default_session';
@@ -33,10 +34,16 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
       isPermanentlyAssigned: true // Lock projects from previous turns
     }));
 
-
     let accentColor = '#ef4444';
     if (f.key === 'youth') accentColor = '#f97316';
     if (f.key === 'trade') accentColor = '#14b8a6';
+
+    const rawPost = f.post;
+    const postArray = Array.isArray(rawPost) ? rawPost : (rawPost && rawPost !== 'None' ? [rawPost] : []);
+    const postKeys = postArray.map(p => {
+      const def = getPostByName(p);
+      return def ? def.key : p;
+    });
 
     return {
       id: f.key,
@@ -44,12 +51,12 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
       baseLoyalty: decayedLoyalty,
       loyalty: decayedLoyalty,
       influence: f.influence,
-      post: f.post || 'None',
+      post: postKeys,
       patronage: 0,
       projects: projectsMapped,
       active: f.active,
       accentColor,
-      isPostPermanentlyAssigned: f.post && f.post !== 'None' // Lock posts from previous turns
+      isPostPermanentlyAssigned: postKeys.length > 0 // Lock posts from previous turns
     };
   });
 
@@ -109,9 +116,12 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
     } else {
       // Legacy fallback
       cards.push({ id: 'pat-1', type: 'patronage', name: 'Patronage Point', desc: 'Increases loyalty by +5%.', icon: '🛡️', color: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)' });
-      const assignedPosts = (activeParty?.factions || []).map(f => f.post).filter(p => p && p !== 'None');
-      if (!assignedPosts.includes('Secretary')) cards.push({ id: 'post-1', postKey: 'SECRETARY', type: 'post', name: 'Secretary', desc: 'Chief administrator. +15 Loyalty, +6 Morale/turn.', icon: '📋', loyaltyBoost: 15, coinBonus: 0, moraleBonus: 6, mediaBonus: 0, color: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)' });
-      if (!assignedPosts.includes('Fund Manager')) cards.push({ id: 'post-2', postKey: 'FUND_MANAGER', type: 'post', name: 'Fund Manager', desc: 'Oversees finances. +10 Loyalty, +8 Coins/turn.', icon: '💰', loyaltyBoost: 10, coinBonus: 8, moraleBonus: 0, mediaBonus: 0, color: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)' });
+      const assignedPosts = (activeParty?.factions || []).flatMap(f => {
+        const rawPost = f.post;
+        return Array.isArray(rawPost) ? rawPost : (rawPost && rawPost !== 'None' ? [rawPost] : []);
+      });
+      if (!assignedPosts.includes('SECRETARY') && !assignedPosts.includes('Secretary')) cards.push({ id: 'post-1', postKey: 'SECRETARY', type: 'post', name: 'Secretary', desc: 'Chief administrator. +15 Loyalty, +6 Morale/turn.', icon: '📋', loyaltyBoost: 15, coinBonus: 0, moraleBonus: 6, mediaBonus: 0, color: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)' });
+      if (!assignedPosts.includes('FUND_MANAGER') && !assignedPosts.includes('Fund Manager')) cards.push({ id: 'post-2', postKey: 'FUND_MANAGER', type: 'post', name: 'Fund Manager', desc: 'Oversees finances. +10 Loyalty, +8 Coins/turn.', icon: '💰', loyaltyBoost: 10, coinBonus: 8, moraleBonus: 0, mediaBonus: 0, color: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)' });
     }
     // Always add unassigned completed projects (defined above)
     cards.push(...projectCards);
@@ -126,9 +136,9 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
 const getInitialFactions = (partyState, factionsList) => {
   // Define base static defaults (used only when backend factions list is empty)
   const defaults = [
-    { id: 'veteran', name: 'Loyalists',    baseLoyalty: 80, loyalty: 80, influence: 45, post: 'None', patronage: 0, projects: [], active: true, accentColor: '#ef4444' },
-    { id: 'youth',   name: 'Youth Wing',   baseLoyalty: 55, loyalty: 55, influence: 35, post: 'None', patronage: 0, projects: [], active: true, accentColor: '#f97316' },
-    { id: 'trade',   name: 'Trade Unions', baseLoyalty: 65, loyalty: 65, influence: 20, post: 'None', patronage: 0, projects: [], active: true, accentColor: '#14b8a6' }
+    { id: 'loyalist', name: 'Loyalists',    baseLoyalty: 75, loyalty: 75, influence: 45, post: [], patronage: 0, projects: [], active: true, accentColor: '#ef4444' },
+    { id: 'youth',   name: 'Youth Wing',   baseLoyalty: 75, loyalty: 75, influence: 35, post: [], patronage: 0, projects: [], active: true, accentColor: '#f97316' },
+    { id: 'trade',   name: 'Trade Unions', baseLoyalty: 75, loyalty: 75, influence: 20, post: [], patronage: 0, projects: [], active: true, accentColor: '#14b8a6' }
   ];
 
   // Base list: prefer live backend factions, fall back to static defaults
@@ -145,16 +155,23 @@ const getInitialFactions = (partyState, factionsList) => {
     // Posts are stored in partyState.posts (ScheduledPost list) with assignedFactionKey
     const assignedPostsForFaction = (partyState.posts || [])
       .filter(p => p.status === 'ASSIGNED' && p.assignedFactionKey === faction.id)
-      .map(p => p.postName);
+      .map(p => p.postKey);
 
-    const livePostString = assignedPostsForFaction.length > 0
-      ? assignedPostsForFaction.join(', ')
-      : (faction.post || 'None');
+    const rawPost = faction.post;
+    const existingPosts = Array.isArray(rawPost) ? rawPost : (rawPost && rawPost !== 'None' ? [rawPost] : []);
+    
+    // Normalize to keys
+    const normalizedExisting = existingPosts.map(p => {
+      const def = getPostByName(p);
+      return def ? def.key : p;
+    });
+
+    const allPosts = Array.from(new Set([...normalizedExisting, ...assignedPostsForFaction]));
 
     return {
       ...faction,
       patronage: livePatronage,
-      post: livePostString
+      post: allPosts
     };
   });
 };
@@ -162,7 +179,16 @@ const getInitialFactions = (partyState, factionsList) => {
 
   // Load state from localStorage or fallback to defaults
   const [factions, setFactions] = useState(() => {
-return getInitialFactions(partyMgmtState, factionsList);
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.factions) return parsed.factions;
+      } catch (e) {
+        console.error("Failed to parse factions state from localStorage", e);
+      }
+    }
+    return getInitialFactions(partyMgmtState, factionsList);
   });
 
 const [deck, setDeck] = useState(() => {
@@ -247,10 +273,7 @@ const [deck, setDeck] = useState(() => {
 
       // Build structured payload
       const patronageUsed = factions.reduce((sum, f) => sum + (f.patronage || 0), 0);
-      const postAssignments = {};
-      Object.entries(assignedPostKeys).forEach(([factionId, postKey]) => {
-        postAssignments[postKey] = factionId;
-      });
+      const postAssignments = assignedPostKeys;
       const factionsPayload = factions.map(f => ({
         key: f.id,
         loyalty: f.loyalty,
@@ -262,7 +285,7 @@ const [deck, setDeck] = useState(() => {
       // Project assignments: collect from all factions
       const projects = {};
       factions.forEach(f => {
-        (f.projects || []).forEach(p => { projects[p.projectKey || p.id] = f.id; });
+        (f.projects || []).forEach(p => { projects[p.id || p.projectKey] = f.id; });
       });
 
       await lockPartyManagement(gameId, partyId, { patronageUsed, postAssignments, factions: factionsPayload, projects });
@@ -317,46 +340,8 @@ const [deck, setDeck] = useState(() => {
     let totalYieldSum = 0;
 
     activeFactions.forEach(f => {
-      const mult = getMultiplierInfo(f.loyalty).factor;
-      const patronageCoins = f.patronage * 2;
-      const postCoins = f.post === 'Fund Manager Post' ? 8 : 0;
-      let baseCoins = patronageCoins + postCoins;
-
-      const patronageMorale = f.patronage * 1;
-      const postMorale = f.post === 'Secretary Post' ? 6 : 0;
-
-      let projectMorale = 0;
-      let projectMedia = 0;
-
-      (f.projects || []).forEach(proj => {
-        if (proj.projectKey === 'CADRE_OFFICE' || proj.id === 'proj-1') projectMorale += 5;
-        else if (proj.projectKey === 'TRAINING_ACADEMY') projectMorale += 3;
-        else if (proj.projectKey === 'YOUTH_WING') projectMorale += 3;
-        else if (proj.projectKey === 'IT_CELL') projectMedia += 2;
-        else if (proj.projectKey === 'THINK_TANK') projectMedia += 4;
-        else if (proj.projectKey === 'PARTY_HQ') {
-          baseCoins += 12;
-          projectMedia += 3;
-        }
-      });
-
-      const baseMorale = patronageMorale + postMorale + projectMorale;
-      const patronageCorruption = f.patronage * -1;
-      const postCorruption = f.post !== 'None' ? 2 : 0;
-      const baseCorruption = patronageCorruption + postCorruption;
-      const patronageMedia = f.patronage * 1;
-      const baseMedia = patronageMedia + projectMedia;
-      const baseSupport = f.loyalty >= 50 ? (f.influence * 0.01) : -(f.influence * 0.01);
-
-      const coinsYield = Math.round(baseCoins * mult);
-      const supportYield = parseFloat((baseSupport * mult).toFixed(1));
-      const moraleYield = Math.round(baseMorale * mult);
-      const corruptionYield = baseCorruption < 0
-        ? Math.round(baseCorruption * mult)
-        : Math.round(baseCorruption * (2 - mult));
-      const mediaYield = Math.round(baseMedia * mult);
-
-      const sum = Math.max(0, coinsYield + supportYield * 10 + moraleYield + Math.abs(corruptionYield) + mediaYield);
+      const y = calculateYield(f);
+      const sum = Math.max(0, y.coins + y.support * 10 + y.morale + Math.abs(y.corruption) + y.media);
       yieldSums[f.id] = sum;
       totalYieldSum += sum;
     });
@@ -424,7 +409,12 @@ const [deck, setDeck] = useState(() => {
           patronageVal += 1;
           loyaltyChange = 5;
         } else if (cardToAllocate.type === 'post') {
-          postVal = cardToAllocate.name;
+          const existingPosts = Array.isArray(postVal) ? postVal : (postVal && postVal !== 'None' ? [postVal] : []);
+          if (!existingPosts.includes(cardToAllocate.postKey)) {
+            postVal = [...existingPosts, cardToAllocate.postKey];
+          } else {
+            postVal = existingPosts;
+          }
           // Use dynamic loyaltyBoost from postsConfig - look up by postKey or name
           const postDef = cardToAllocate.postKey
             ? getPostByKey(cardToAllocate.postKey)
@@ -448,7 +438,7 @@ const [deck, setDeck] = useState(() => {
 
     // Track post key assignment for backend submission
     if (cardToAllocate.type === 'post' && cardToAllocate.postKey) {
-      setAssignedPostKeys(prev => ({ ...prev, [factionId]: cardToAllocate.postKey }));
+      setAssignedPostKeys(prev => ({ ...prev, [cardToAllocate.postKey]: factionId }));
     }
 
     setDeck(newDeck);
@@ -468,9 +458,18 @@ const [deck, setDeck] = useState(() => {
       for (let i = 0; i < dissolved.patronage; i++) {
         cardsToReturn.push({ id: `pat-refund-${factionId}-${i}-${Date.now()}`, type: 'patronage', name: 'Patronage Point', desc: 'Increases loyalty by +5%. Yields: +2 Coins, +1 Morale, -1 Corruption, +1 Media Image.', icon: '🛡️', color: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)' });
       }
-      if (dissolved.post !== 'None') {
+      if (Array.isArray(dissolved.post)) {
+        dissolved.post.forEach(postKey => {
+          const postCardDef = initialDeck.find(d => d.postKey === postKey);
+          if (postCardDef) {
+            cardsToReturn.push({ ...postCardDef, id: `post-refund-${factionId}-${postKey}-${Date.now()}` });
+          }
+        });
+      } else if (dissolved.post && dissolved.post !== 'None') {
         const postCardDef = initialDeck.find(d => d.name === dissolved.post);
-        cardsToReturn.push({ ...postCardDef, id: `post-refund-${factionId}-${Date.now()}` });
+        if (postCardDef) {
+          cardsToReturn.push({ ...postCardDef, id: `post-refund-${factionId}-${Date.now()}` });
+        }
       }
       dissolved.projects.forEach(proj => {
         cardsToReturn.push(proj);
@@ -521,45 +520,54 @@ const [deck, setDeck] = useState(() => {
     return { factor: 0.0, badge: '⛔ Stoppage (0%)', color: '#ef4444' };
   };
 
-  // Calculate individual faction yields - uses dynamic postsConfig values
-  const calculateYield = (faction) => {
+  // Calculate individual faction yields - uses dynamic config values
+  function calculateYield(faction) {
     if (!faction.active) return { coins: 0, support: 0, morale: 0, corruption: 0, media: 0 };
     const mult = getMultiplierInfo(faction.loyalty).factor;
 
-    // Look up the post definition dynamically (by name for backwards compatibility)
-    const postDef = faction.post && faction.post !== 'None' ? getPostByName(faction.post) : null;
-
-    // Benefits of patronage points: 2 coins, 1 morale, -1 corruption, 1 media
     const patronageCoins = faction.patronage * 2;
-    const postCoins = postDef ? postDef.coinBonus : 0;
-    let baseCoins = patronageCoins + postCoins;
-
     const patronageMorale = faction.patronage * 1;
-    const postMorale = postDef ? postDef.moraleBonus : 0;
+    const patronageCorruption = faction.patronage * -1;
+    const patronageMedia = faction.patronage * 1;
 
-    // Project yields
-    let projectMorale = 0;
-    let projectMedia = 0;
-    (faction.projects || []).forEach(proj => {
-      if (proj.projectKey === 'CADRE_OFFICE' || proj.id === 'proj-1') projectMorale += 5;
-      else if (proj.projectKey === 'TRAINING_ACADEMY') projectMorale += 3;
-      else if (proj.projectKey === 'YOUTH_WING') projectMorale += 3;
-      else if (proj.projectKey === 'IT_CELL') projectMedia += 2;
-      else if (proj.projectKey === 'THINK_TANK') projectMedia += 4;
-      else if (proj.projectKey === 'PARTY_HQ') { baseCoins += 12; projectMedia += 3; }
+    let postCoins = 0;
+    let postMorale = 0;
+    let postMedia = 0;
+
+    const posts = Array.isArray(faction.post) ? faction.post : (faction.post && faction.post !== 'None' ? [faction.post] : []);
+    posts.forEach(pKey => {
+      const postDef = getPostByKey(pKey) || getPostByName(pKey);
+      if (postDef) {
+        postCoins += postDef.coinBonus || 0;
+        postMorale += postDef.moraleBonus || 0;
+        postMedia += postDef.mediaBonus || 0;
+      }
     });
 
-    const postMedia = postDef ? postDef.mediaBonus : 0;
+    let projectCoins = 0;
+    let projectMorale = 0;
+    let projectMedia = 0;
+    let projectCorruption = 0;
+    let projectSupport = 0;
+
+    (faction.projects || []).forEach(proj => {
+      const pConfig = projectDefs[proj.projectKey];
+      if (pConfig) {
+        projectCoins += pConfig.benefitCoins || 0;
+        projectMorale += pConfig.benefitMorale || 0;
+        projectMedia += pConfig.benefitMedia || 0;
+        projectCorruption += pConfig.benefitCorruption || 0;
+        projectSupport += (pConfig.benefitSupport || 0) * 0.01;
+      }
+    });
+
+    const baseCoins = patronageCoins + postCoins + projectCoins;
     const baseMorale = patronageMorale + postMorale + projectMorale;
-
-    const patronageCorruption = faction.patronage * -1;
-    const postCorruption = faction.post !== 'None' ? 2 : 0;
-    const baseCorruption = patronageCorruption + postCorruption;
-
-    const patronageMedia = faction.patronage * 1;
+    const baseCorruption = patronageCorruption + projectCorruption;
     const baseMedia = patronageMedia + postMedia + projectMedia;
-
-    const baseSupport = faction.loyalty >= 50 ? (faction.influence * 0.01) : -(faction.influence * 0.01);
+    const baseSupport = faction.loyalty >= 50
+      ? (faction.influence * 0.01) + projectSupport
+      : -(faction.influence * 0.01) + projectSupport;
 
     return {
       coins: Math.round(baseCoins * mult),
@@ -568,7 +576,7 @@ const [deck, setDeck] = useState(() => {
       corruption: baseCorruption < 0 ? Math.round(baseCorruption * mult) : Math.round(baseCorruption * (2 - mult)),
       media: Math.round(baseMedia * mult)
     };
-  };
+  }
 
 
   // Sum combined yields
@@ -1008,7 +1016,7 @@ const [deck, setDeck] = useState(() => {
                   };
 
                   const perks = [
-                    { id: 'veteran', name: 'Loyalists (Elder Statesmen)', reqL: 80, reqP: 50, desc: '+25 Coins, +3% Support per turn' },
+                    { id: 'loyalist', name: 'Loyalists (Elder Statesmen)', reqL: 80, reqP: 50, desc: '+25 Coins, +3% Support per turn' },
                     { id: 'youth', name: 'Youth Wing (Campaign Machine)', reqL: 80, reqP: 40, desc: '+5 Morale, +3% Support, +5 Media per turn' },
                     { id: 'trade', name: 'Trade Unions (Strike Force)', reqL: 80, reqP: 40, desc: '-5 Corruption; -3% Support & -3 Morale to opponents' }
                   ];
@@ -1154,7 +1162,7 @@ const [deck, setDeck] = useState(() => {
           };
 
           const checkPerkActive = (fid, loyalty, power) => {
-            if (fid === 'veteran' && loyalty >= 80 && power >= 50) return 'Elder Statesmen';
+            if (fid === 'loyalist' && loyalty >= 80 && power >= 50) return 'Elder Statesmen';
             if (fid === 'youth' && loyalty >= 80 && power >= 40) return 'Campaign Machine';
             if (fid === 'trade' && loyalty >= 80 && power >= 40) return 'Strike Force';
             return null;
@@ -1191,8 +1199,14 @@ const [deck, setDeck] = useState(() => {
                     <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>
                        {f.name}
                     </h5>
-                    <div style={{ fontSize: '11px', color: 'var(--card-text)', marginTop: '2px' }}>
-                      Power: <b>{f.influence}%</b> | Loyalty: <b style={{ color: mood.color }}>{f.loyalty}%</b>
+                    <div style={{ fontSize: '11px', color: 'var(--card-text)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '3px', flexWrap: 'wrap' }}>
+                      ⚡ <b>{f.influence}%</b> | ✊ <b style={{ color: mood.color }}>{f.loyalty}%</b>
+                      {(() => {
+                        const diff = f.loyalty - f.baseLoyalty;
+                        if (diff > 0) return <span style={{ color: '#22c55e', fontSize: '10px', fontWeight: 'bold', marginLeft: '3px' }}>▲ +{diff}%</span>;
+                        if (diff < 0) return <span style={{ color: '#ef4444', fontSize: '10px', fontWeight: 'bold', marginLeft: '3px' }}>▼ {diff}%</span>;
+                        return null;
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -1242,7 +1256,7 @@ const [deck, setDeck] = useState(() => {
                   border: '1px dashed var(--primary-border)',
                   marginBottom: '14px'
                 }}>
-                  {f.patronage === 0 && f.post === 'None' && f.projects.length === 0 ? (
+                  {(f.patronage === 0 && (!f.post || f.post.length === 0) && f.projects.length === 0) ? (
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -1276,23 +1290,30 @@ const [deck, setDeck] = useState(() => {
                         </div>
                       )}
 
-                      {/* Post */}
-                      {f.post !== 'None' && (
-                        <div style={{
-                          background: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)',
-                          padding: '6px 10px',
-                          borderRadius: '4px',
-                          fontSize: '11.5px',
-                          fontWeight: 'bold',
-                          color: '#ffffff',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}>
-                          <span>💼 {f.post}</span>
-                          <span style={{ fontSize: '10px', opacity: 0.85 }}>{f.isPostPermanentlyAssigned ? '🔒 Locked' : '📌'}</span>
-                        </div>
-                      )}
+                      {/* Posts */}
+                      {Array.isArray(f.post) && f.post.map((postKey, idx) => {
+                        const postDef = getPostByKey(postKey) || getPostByName(postKey);
+                        if (!postDef) return null;
+                        return (
+                          <div
+                            key={`post-badge-${idx}`}
+                            style={{
+                              background: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)',
+                              padding: '6px 10px',
+                              borderRadius: '4px',
+                              fontSize: '11.5px',
+                              fontWeight: 'bold',
+                              color: '#ffffff',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center'
+                            }}
+                          >
+                            <span>💼 {postDef.name}</span>
+                            <span style={{ fontSize: '10px', opacity: 0.85 }}>{f.isPostPermanentlyAssigned ? '🔒 Locked' : '📌'}</span>
+                          </div>
+                        );
+                      })}
 
                       {/* Projects */}
                       {f.projects.map((proj, idx) => (

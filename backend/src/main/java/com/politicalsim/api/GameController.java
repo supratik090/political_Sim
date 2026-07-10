@@ -172,6 +172,11 @@ public class GameController {
     public Map<com.politicalsim.party.BuildingProject, com.politicalsim.party.BuildingProject.ProjectConfig> getBuildingProjectDefinitions() {
         return com.politicalsim.party.BuildingProject.getConfigs();
     }
+ 
+    @GetMapping("/posts/definitions")
+    public List<com.politicalsim.party.PostsConfig.PostDefinition> getPostDefinitions() {
+        return com.politicalsim.party.PostsConfig.ALL_POSTS;
+    }
 
     /**
      * Immediately persists party management card allocations to MongoDB.

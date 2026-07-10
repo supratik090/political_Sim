@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { getPartyColor, checkDefeatWarnings, renderStatDelta } from './gameUtils';
 import { getPartyThemeByName } from '../../constants/partyThemes';
+import { getPostByKey, getPostByName } from './postsConfig';
 
 const getCleanSymbol = (name, symbol) => {
   const normName = (name || '').toLowerCase().trim();
@@ -27,47 +28,56 @@ const calculateFactionYield = (f, p, projectDefs) => {
   else if (f.loyalty >= 30) mult = 0.5;
   else mult = 0.0;
 
-  const powerShare = f.influence / 100.0;
-
   const patronageCoins = f.patronage * 2;
-  const postCoins = f.post === 'Fund Manager Post' ? 8 : 0;
-  let baseCoins = patronageCoins + postCoins;
-
   const patronageMorale = f.patronage * 1;
-  const postMorale = f.post === 'Secretary Post' ? 6 : 0;
+  const patronageCorruption = f.patronage * -1;
+  const patronageMedia = f.patronage * 1;
+
+  let postCoins = 0;
+  let postMorale = 0;
+  let postMedia = 0;
+
+  const posts = Array.isArray(f.post) ? f.post : (f.post && f.post !== 'None' ? [f.post] : []);
+  posts.forEach(pKey => {
+    const postDef = getPostByKey(pKey) || getPostByName(pKey);
+    if (postDef) {
+      postCoins += postDef.coinBonus || 0;
+      postMorale += postDef.moraleBonus || 0;
+      postMedia += postDef.mediaBonus || 0;
+    }
+  });
   
+  let projectCoins = 0;
   let projectMorale = 0;
   let projectMedia = 0;
+  let projectCorruption = 0;
+  let projectSupport = 0;
   
   const completedProjects = (p.projects || []).filter(proj => proj.progressPercent === 100 && proj.managingFactionKey === f.key);
   completedProjects.forEach(proj => {
     const def = projectDefs[proj.projectKey];
     if (def) {
-      if (proj.projectKey === 'CADRE_OFFICE') projectMorale += 5;
-      else if (proj.projectKey === 'TRAINING_ACADEMY') projectMorale += 3;
-      else if (proj.projectKey === 'YOUTH_WING') projectMorale += 3;
-      else if (proj.projectKey === 'IT_CELL') projectMedia += 2;
-      else if (proj.projectKey === 'THINK_TANK') projectMedia += 4;
-      else if (proj.projectKey === 'PARTY_HQ') {
-        baseCoins += 12;
-        projectMedia += 3;
-      }
+      projectCoins += def.benefitCoins || 0;
+      projectMorale += def.benefitMorale || 0;
+      projectMedia += def.benefitMedia || 0;
+      projectCorruption += def.benefitCorruption || 0;
+      projectSupport += (def.benefitSupport || 0) * 0.01;
     }
   });
 
+  const baseCoins = patronageCoins + postCoins + projectCoins;
   const baseMorale = patronageMorale + postMorale + projectMorale;
-  const patronageCorruption = f.patronage * -1;
-  const postCorruption = f.post !== 'None' ? 2 : 0;
-  const baseCorruption = patronageCorruption + postCorruption;
-  const patronageMedia = f.patronage * 1;
-  const baseMedia = patronageMedia + projectMedia;
-  const baseSupport = f.loyalty >= 50 ? (f.influence * 0.01) : -(f.influence * 0.01);
+  const baseCorruption = patronageCorruption + projectCorruption;
+  const baseMedia = patronageMedia + postMedia + projectMedia;
+  const baseSupport = f.loyalty >= 50
+    ? (f.influence * 0.01) + projectSupport
+    : -(f.influence * 0.01) + projectSupport;
  
   return {
     coins: Math.round(baseCoins * mult),
     support: parseFloat((baseSupport * mult).toFixed(1)),
     morale: Math.round(baseMorale * mult),
-    corruption: Math.round(baseCorruption * (2 - mult)),
+    corruption: baseCorruption < 0 ? Math.round(baseCorruption * mult) : Math.round(baseCorruption * (2 - mult)),
     media: Math.round(baseMedia * mult)
   };
 };
@@ -82,6 +92,7 @@ export default function StatsView({
   onOpenResolutionReport,
   scenarioBills = []
 }) {
+  const [isPartyInfoCollapsed, setIsPartyInfoCollapsed] = useState(true);
   // In multiplayer: the current user's party is identified by activeHumanPartyId.
   // humanPlayerMap: { partyId -> userId } — contains ALL human players.
   // We use activeHumanPartyId to show "You", and show "Player" for other human parties.
@@ -710,7 +721,7 @@ export default function StatsView({
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         {party.factions.map(f => {
                           let label = f.name;
-                          if (f.key === 'veteran') label = 'Loyalists';
+                          if (f.key === 'loyalist' || f.key === 'veteran') label = 'Loyalists';
                           if (f.key === 'youth') label = 'Youth Wing';
                           if (f.key === 'trade') label = 'Trade Unions';
 
@@ -726,9 +737,24 @@ export default function StatsView({
                           return (
                             <div key={f.key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', alignItems: 'center' }}>
                               <span style={{ fontWeight: '500', color: 'var(--card-text)' }}>{label}</span>
-                              <span style={{ fontSize: '11px' }}>
-                                L: <strong style={{ color: f.loyalty >= 80 ? '#16a34a' : (f.loyalty >= 50 ? '#ca8a04' : '#dc2626') }}>{f.loyalty}%</strong> | 
-                                P: <strong style={{ color: 'var(--primary-dark)', marginLeft: '3px' }}>{f.influence}%</strong>
+                              <span style={{ fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                ✊ <strong style={{ color: f.loyalty >= 80 ? '#16a34a' : (f.loyalty >= 50 ? '#ca8a04' : '#dc2626') }}>{f.loyalty}%</strong>
+                                {(() => {
+                                  const historyKey = `faction_loyalty_history_${turnData?.gameId || 'default'}`;
+                                  let prevLoyalty = null;
+                                  try {
+                                    const historyData = JSON.parse(localStorage.getItem(historyKey) || '{}');
+                                    prevLoyalty = historyData[turnData.turnNumber - 1]?.[f.key];
+                                  } catch (e) {}
+                                  if (prevLoyalty !== null && prevLoyalty !== undefined) {
+                                    const diff = f.loyalty - prevLoyalty;
+                                    if (diff > 0) return <span style={{ color: '#22c55e', fontSize: '9px', fontWeight: 'bold', marginLeft: '1px' }}>▲</span>;
+                                    if (diff < 0) return <span style={{ color: '#ef4444', fontSize: '9px', fontWeight: 'bold', marginLeft: '1px' }}>▼</span>;
+                                  }
+                                  return null;
+                                })()}
+                                <span style={{ color: '#cbd5e1', margin: '0 2px' }}>|</span>
+                                ⚡ <strong style={{ color: 'var(--primary-dark)' }}>{f.influence}%</strong>
                               </span>
                             </div>
                           );
@@ -1229,14 +1255,16 @@ export default function StatsView({
       }}>
         {/* Header */}
         <div 
+          onClick={() => setIsPartyInfoCollapsed(!isPartyInfoCollapsed)}
           style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center', 
             padding: '15px 20px', 
             background: 'rgba(101, 148, 177, 0.05)', 
-            borderBottom: '1px solid var(--primary-border)',
-            userSelect: 'none'
+            borderBottom: isPartyInfoCollapsed ? 'none' : '1px solid var(--primary-border)',
+            userSelect: 'none',
+            cursor: 'pointer'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1245,10 +1273,14 @@ export default function StatsView({
               Party info
             </h4>
           </div>
+          <span style={{ fontSize: '12.5px', fontWeight: 'bold', color: 'var(--primary-dark)', opacity: 0.8 }}>
+            {isPartyInfoCollapsed ? '▼ Expand' : '▲ Collapse'}
+          </span>
         </div>
 
         {/* Content */}
-        <div style={{ padding: '20px' }}>
+        {!isPartyInfoCollapsed && (
+          <div style={{ padding: '20px' }}>
           {(() => {
             const activeParties = (turnData.parties || []).filter(p => p.role !== 'DEFEATED');
             return (
@@ -1334,15 +1366,39 @@ export default function StatsView({
                                 {/* Header row: Faction Name, Power, Loyalty */}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', borderBottom: '1px solid var(--primary-border)', paddingBottom: '6px' }}>
                                   <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>{f.name}</span>
-                                  <span style={{ fontSize: '11px', color: 'var(--card-text)' }}>
-                                    Power: <b>{f.influence}%</b> | Loyalty: <b style={{ color: getMoodColor(f.loyalty) }}>{f.loyalty}% ({getMoodText(f.loyalty)})</b>
+                                  <span style={{ fontSize: '11px', color: 'var(--card-text)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                    ⚡ <b>{f.influence}%</b> | ✊ <b style={{ color: getMoodColor(f.loyalty) }}>{f.loyalty}% ({getMoodText(f.loyalty)})</b>
+                                    {(() => {
+                                      const historyKey = `faction_loyalty_history_${turnData?.gameId || 'default'}`;
+                                      let prevLoyalty = null;
+                                      try {
+                                        const historyData = JSON.parse(localStorage.getItem(historyKey) || '{}');
+                                        prevLoyalty = historyData[turnData.turnNumber - 1]?.[f.key];
+                                      } catch (e) {}
+                                      if (prevLoyalty !== null && prevLoyalty !== undefined) {
+                                        const diff = f.loyalty - prevLoyalty;
+                                        if (diff > 0) return <span style={{ color: '#22c55e', fontSize: '9px', fontWeight: 'bold', marginLeft: '1px' }}>▲</span>;
+                                        if (diff < 0) return <span style={{ color: '#ef4444', fontSize: '9px', fontWeight: 'bold', marginLeft: '1px' }}>▼</span>;
+                                      }
+                                      return null;
+                                    })()}
                                   </span>
                                 </div>
 
                                 {/* Allocation details */}
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '11px', color: '#475569', marginBottom: '8px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', fontSize: '11px', color: '#475569', marginBottom: '8px' }}>
                                   <div>
-                                    💼 <b>Post:</b> {f.post !== 'None' ? f.post : 'None'}
+                                    💼 <b>Posts:</b> {(() => {
+                                      const posts = Array.isArray(f.post) ? f.post : (f.post && f.post !== 'None' ? [f.post] : []);
+                                      if (posts.length === 0) return 'None';
+                                      return posts.map(pKey => {
+                                        const def = getPostByKey(pKey) || getPostByName(pKey);
+                                        return def ? def.name : pKey;
+                                      }).join(', ');
+                                    })()}
+                                  </div>
+                                  <div>
+                                    🛡️ <b>Patronage:</b> {f.patronage > 0 ? `${f.patronage} Point${f.patronage > 1 ? 's' : ''}` : 'None'}
                                   </div>
                                   <div>
                                     🏗️ <b>Projects:</b> {projects.length === 0 ? 'None' : projects.map(proj => {
@@ -1395,6 +1451,7 @@ export default function StatsView({
             );
           })()}
         </div>
+      )}
       </div>
     </div>
   );

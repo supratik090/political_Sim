@@ -203,23 +203,23 @@ public class GameSessionService {
         if (factionDefs == null || factionDefs.isEmpty()) {
             factionDefs = new ArrayList<>();
             com.politicalsim.content.FactionDefinition fd1 = new com.politicalsim.content.FactionDefinition();
-            fd1.setFactionKey("veteran");
+            fd1.setFactionKey("loyalist");
             fd1.setName("Loyalists");
-            fd1.setStartingLoyalty(80);
+            fd1.setStartingLoyalty(75);
             fd1.setStartingInfluence(45);
             factionDefs.add(fd1);
 
             com.politicalsim.content.FactionDefinition fd2 = new com.politicalsim.content.FactionDefinition();
             fd2.setFactionKey("youth");
             fd2.setName("Youth Wing");
-            fd2.setStartingLoyalty(55);
+            fd2.setStartingLoyalty(75);
             fd2.setStartingInfluence(35);
             factionDefs.add(fd2);
 
             com.politicalsim.content.FactionDefinition fd3 = new com.politicalsim.content.FactionDefinition();
             fd3.setFactionKey("trade");
             fd3.setName("Trade Unions");
-            fd3.setStartingLoyalty(65);
+            fd3.setStartingLoyalty(75);
             fd3.setStartingInfluence(20);
             factionDefs.add(fd3);
         }

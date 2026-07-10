@@ -1,9 +1,9 @@
 [
   {
     "scenarioKey": "default",
-    "factionKey": "veteran",
+    "factionKey": "loyalist",
     "name": "Loyalists",
-    "startingLoyalty": 85,
+    "startingLoyalty": 75,
     "startingInfluence": 45,
     "satisfiedEffects": {
       "coins": 10,
@@ -19,7 +19,7 @@
     "scenarioKey": "default",
     "factionKey": "youth",
     "name": "Youth Wing",
-    "startingLoyalty": 60,
+    "startingLoyalty": 75,
     "startingInfluence": 35,
     "satisfiedEffects": {
       "coins": 5,
@@ -35,7 +35,7 @@
     "scenarioKey": "default",
     "factionKey": "trade",
     "name": "Trade Unions",
-    "startingLoyalty": 70,
+    "startingLoyalty": 75,
     "startingInfluence": 20,
     "satisfiedEffects": {
       "coins": 5,
