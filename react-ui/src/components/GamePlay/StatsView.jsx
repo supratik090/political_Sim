@@ -102,7 +102,7 @@ export default function StatsView({
     }));
   };
   // In multiplayer: the current user's party is identified by activeHumanPartyId.
-  // humanPlayerMap: { partyId -> userId } — contains ALL human players.
+  // humanPlayerMap: { partyId -> userId } — contains ALL human players.Factions (Loyalty / Power)
   // We use activeHumanPartyId to show "You", and show "Player" for other human parties.
   const { user } = useGameStore();
   const humanPlayerMap = turnData.humanPlayerMap || {};

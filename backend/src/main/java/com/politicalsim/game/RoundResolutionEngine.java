@@ -612,50 +612,41 @@ public class RoundResolutionEngine {
     private void selectNextProposedBill(GameSession session, List<String> commentary, List<String> resultLines) {
         String nextBillKey = null;
         String proposerId = null;
+        int turn = session.getTurnNumber();
 
         List<PartyState> governmentParties = session.getParties().stream()
                 .filter(p -> p.getRole() == com.politicalsim.party.PartyRole.GOVERNMENT)
                 .toList();
         List<PartyState> oppositionParties = session.getParties().stream()
-                .filter(p -> p.getRole() == com.politicalsim.party.PartyRole.OPPOSITION)
+                .filter(p -> p.getRole() == com.politicalsim.party.PartyRole.OPPOSITION || p.getRole() == PartyRole.THIRD_PARTY )
                 .toList();
 
-        // 1. Check Government submissions
-        for (PartyState gov : governmentParties) {
-            String proposedKey = findProposedBillInSubmissions(session, gov.getId());
-            if (proposedKey != null) {
-                nextBillKey = proposedKey;
-                proposerId = gov.getId();
-                break;
-            }
-        }
+        // Put the groups in a master list representing the base priority order
+        List<List<PartyState>> priorityGroups = new ArrayList<>(List.of(governmentParties, oppositionParties));
+        int shift = turn % 2;
+        java.util.Collections.rotate(priorityGroups, -shift);
 
-        // 2. Check Opposition submissions
-        if (nextBillKey == null) {
-            for (PartyState opp : oppositionParties) {
-                String proposedKey = findProposedBillInSubmissions(session, opp.getId());
-                if (proposedKey != null) {
-                    nextBillKey = proposedKey;
-                    proposerId = opp.getId();
-                    break;
-                }
-            }
-        }
-
-        // 3. Check other parties
-        if (nextBillKey == null) {
-            for (PartyState party : session.getParties()) {
-                if (!party.isActive() || party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
-                    continue;
-                }
+        // Process the groups in their dynamically rotated order
+        for (List<PartyState> group : priorityGroups) {
+            for (PartyState party : group) {
                 String proposedKey = findProposedBillInSubmissions(session, party.getId());
                 if (proposedKey != null) {
                     nextBillKey = proposedKey;
                     proposerId = party.getId();
+
+                    // Fixed the hardcoded "Opposition Tabling" string to match the actual roles dynamically
+                    String roleName = party.getRole().toString().toLowerCase();
+                    commentary.add("🏛️ Tabling (" + roleName + "): Bill " + proposedKey + " Proposed by " + proposerId);
                     break;
                 }
             }
+            // If we found a bill in this group, stop checking lower priority groups
+            if (nextBillKey != null) {
+                break;
+            }
         }
+
+
 
         // 4. Forced Government proposal rule
         boolean isForced = (session.getTurnNumber() - session.getLastBillProposedTurn()) >= 5;

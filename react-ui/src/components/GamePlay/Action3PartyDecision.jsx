@@ -258,7 +258,9 @@ const [deck, setDeck] = useState(() => {
 
   // Save state to localStorage (persists across refresh for the current turn)
   useEffect(() => {
+  if (isLocked) {
     localStorage.setItem(storageKey, JSON.stringify({ factions, deck, history, factionCrisisChoice, assignedPostKeys, isLocked }));
+    }
   }, [factions, deck, history, factionCrisisChoice, assignedPostKeys, isLocked, storageKey]);
 
 
@@ -306,6 +308,11 @@ const [deck, setDeck] = useState(() => {
       setShowCrisisModal(true);
     }
   }, [activeParty, factionCrisisChoice]);
+
+  // 1. Lock the turn immediately when the component mounts
+  useEffect(() => {
+    setIsLocked(false);
+  }, []); // Empty array ensures this only runs once on mount
 
   // Moves page status to ready ONLY after locked is hit (isLocked is true)
   useEffect(() => {
