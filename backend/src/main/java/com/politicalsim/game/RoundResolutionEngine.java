@@ -2187,7 +2187,7 @@ public class RoundResolutionEngine {
                         }
                     }
                 }
-            } else {
+            } else if (party.getControllerType() == com.politicalsim.party.ControllerType.COMPUTER) {
                 // AI/Computer Faction Auto-Allocation
                 List<com.politicalsim.party.FactionState> activeFs = party.getFactions().stream()
                         .filter(com.politicalsim.party.FactionState::isActive)
