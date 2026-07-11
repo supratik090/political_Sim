@@ -68,9 +68,9 @@ class DiagnosticDbTest {
     // ──────────────────────────────────────────────────────────────────────────
     @Test
     void printLastGameSessionDetails() {
-        final String TARGET_SCENARIO = "bihar_2001";
+        final String TARGET_SCENARIO = "uttar_pradesh_2001";
         System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
-        System.out.println(  "║      BIHAR 2001 — LAST LOST GAME SESSION AUTOPSY             ║");
+        System.out.println(  "║   UTTAR PRADESH 2001 — LAST GAME SESSION AUTOPSY             ║");
         System.out.println(  "╚══════════════════════════════════════════════════════════════╝");
 
         List<GameSession> allSessions = repository.findAllByOrderByCurrentDateDesc();
@@ -79,46 +79,8 @@ class DiagnosticDbTest {
             return;
         }
 
-        // Priority 1: Bihar 2001 session that ended very early (turn < 2) — any status
-        GameSession session = allSessions.stream()
-                .filter(s -> TARGET_SCENARIO.equals(s.getScenarioKey()))
-                .filter(s -> s.getTurnNumber() < 2)
-                .filter(s -> s.getStatus() != com.politicalsim.game.GameStatus.ACTIVE)
-                .findFirst()
-                .orElse(null);
-
-        if (session == null) {
-            // Priority 2: most recent Bihar 2001 loss (any turn)
-            session = allSessions.stream()
-                    .filter(s -> TARGET_SCENARIO.equals(s.getScenarioKey()))
-                    .filter(s -> s.getStatus() == com.politicalsim.game.GameStatus.DEFEAT
-                              || s.getStatus() == com.politicalsim.game.GameStatus.GAME_OVER
-                              || s.getStatus() == com.politicalsim.game.GameStatus.FORFEITED)
-                    .findFirst()
-                    .orElse(null);
-            if (session != null) {
-                System.out.println("⚠️  No turn-1 Bihar 2001 session found — showing most recent Bihar 2001 loss (turn " + session.getTurnNumber() + ").");
-            }
-        }
-
-        if (session == null) {
-            // Fallback: any Bihar 2001 session regardless of status
-            session = allSessions.stream()
-                    .filter(s -> TARGET_SCENARIO.equals(s.getScenarioKey()))
-                    .findFirst()
-                    .orElse(null);
-            if (session == null) {
-                System.out.println("❌ No Bihar 2001 game session found at all!");
-                System.out.println("Available scenario keys:");
-                allSessions.stream()
-                        .map(GameSession::getScenarioKey)
-                        .filter(java.util.Objects::nonNull)
-                        .distinct().sorted()
-                        .forEach(k -> System.out.println("   - " + k));
-                return;
-            }
-            System.out.println("⚠️  No lost Bihar 2001 session found — showing most recent Bihar 2001 session instead.");
-        }
+        GameSession session = allSessions.get(0);
+        System.out.println("📋 Loaded most recent session: ID=" + session.getId() + " Scenario=" + session.getScenarioKey());
 
         // ── Session header ──────────────────────────────────────────────
         System.out.println("\n📋 SESSION DETAILS");
@@ -145,6 +107,11 @@ class DiagnosticDbTest {
                     p.getStats().getCoins(), p.getStats().getPartyMorale(),
                     p.getStats().getCorruptionScore(), p.getStats().getMediaImage(),
                     p.getStats().getPublicSupport(), deltaStr);
+            if (p.getFactions() != null) {
+                System.out.println("     Factions: " + p.getFactions().stream()
+                        .map(f -> f.getKey() + ": L=" + f.getLoyalty() + "% P=" + f.getInfluence() + "%")
+                        .collect(Collectors.joining(" | ")));
+            }
         }
 
         // ── Identify the human player ────────────────────────────────────

@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AiDecisionService {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AiDecisionService.class);
+
     private final LegislativeBillDefinitionRepository billRepository;
 
     public AiDecisionService() {
@@ -34,6 +36,10 @@ public class AiDecisionService {
 
     public AiDecisionService(LegislativeBillDefinitionRepository billRepository) {
         this.billRepository = billRepository;
+    }
+
+    public LegislativeBillDefinitionRepository getBillRepository() {
+        return billRepository;
     }
 
     public AiDecision chooseCard(GameSession session, PartyState party, PartyState opponent, List<CardDefinition> cards) {
@@ -1178,24 +1184,76 @@ public class AiDecisionService {
 
             return receivedUtility >= 1.05 * givenUtility;
         } else if (offer.getType() == CooperationOffer.OfferType.LOBBYING) {
-            double receivedUtility = calculateExchangeUtility(recipient, offer.getOfferedCoins(), offer.getOfferedMorale(), 0, offer.getOfferedBuildingKeys(), session, true);
-            receivedUtility += offer.getOfferedMedia() * 20.0;
-            receivedUtility += offer.getDurationTurns() * 5.0;
-
-            double givenUtility = calculateExchangeUtility(recipient, 25, 0, 0, null, session, false);
-
-            Map<String, Map<String, Integer>> grudges = session.getGrudges();
-            int grudgeVal = 0;
-            if (grudges != null && grudges.containsKey(recipient.getId())) {
-                grudgeVal = grudges.get(recipient.getId()).getOrDefault(offer.getSenderPartyId(), 0);
-            }
-            double hateFactor = 1.0 + (grudgeVal / 50.0);
-
-            if (recipient.getStats().getCoins() < 25) {
-                return false;
+            // Retrieve the bill definition to evaluate benefits / costs
+            com.politicalsim.content.LegislativeBillDefinition billDef = null;
+            if (billRepository != null) {
+                billDef = com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, session.getScenarioKey()).stream()
+                        .filter(b -> b.getBillKey().equals(offer.getLobbyBillKey()))
+                        .findFirst()
+                        .orElseGet(() -> com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, "default").stream()
+                                .filter(b -> b.getBillKey().equals(offer.getLobbyBillKey()))
+                                .findFirst()
+                                .orElse(null));
             }
 
-            return receivedUtility >= givenUtility * hateFactor * 1.1;
+            double billBenefitInCash = 0.0;
+            if (billDef != null && billDef.getEffectsPassed() != null) {
+                Map<String, Object> passedEffects = billDef.getEffectsPassed();
+                int supportEffect = 0;
+                int mediaEffect = 0;
+                int corruptionEffect = 0;
+                int moraleEffect = 0;
+                int coinEffect = 0;
+
+                if (passedEffects.containsKey("publicSupport")) supportEffect = ((Number) passedEffects.get("publicSupport")).intValue();
+                if (passedEffects.containsKey("mediaImage")) mediaEffect = ((Number) passedEffects.get("mediaImage")).intValue();
+                if (passedEffects.containsKey("corruptionScore")) corruptionEffect = ((Number) passedEffects.get("corruptionScore")).intValue();
+                if (passedEffects.containsKey("partyMorale")) moraleEffect = ((Number) passedEffects.get("partyMorale")).intValue();
+                if (passedEffects.containsKey("coins")) coinEffect = ((Number) passedEffects.get("coins")).intValue();
+
+                // Conversion to Cash:
+                // 1% publicSupport = 50 Coins
+                // 1 unit of partyMorale = 20 Coins
+                // 1 unit of mediaImage = 20 Coins
+                // 1% corruptionScore = -20 Coins
+                billBenefitInCash = (supportEffect * 50.0) + (moraleEffect * 20.0) + (mediaEffect * 20.0) - (corruptionEffect * 20.0) + (coinEffect * 1.0);
+            }
+
+            // Calculate cash value of incentives given
+            double cashGiven = offer.getOfferedCoins();
+            if (offer.getOfferedMorale() > 0) {
+                cashGiven += offer.getOfferedMorale() * 20.0;
+            }
+            if (offer.getOfferedMedia() > 0) {
+                cashGiven += offer.getOfferedMedia() * 20.0;
+            }
+            if (offer.getOfferedBuildingKeys() != null && !offer.getOfferedBuildingKeys().isEmpty()) {
+                for (String bKey : offer.getOfferedBuildingKeys()) {
+                    try {
+                        com.politicalsim.party.BuildingProject def = com.politicalsim.party.BuildingProject.valueOf(bKey);
+                        cashGiven += def.getCostCoins();
+                    } catch (Exception ignored) {}
+                }
+            }
+
+            boolean accepted = false;
+            if (billBenefitInCash >= 0.0) {
+                accepted = true; // Bill is beneficial or neutral, accept easily
+            } else {
+                // Harmful bill, accept only if offered assets (cashGiven) >= 30% of the absolute loss
+                double loss = Math.abs(billBenefitInCash);
+                double threshold = loss * 0.30;
+                accepted = (cashGiven >= threshold);
+            }
+
+            String logMsg = String.format("[Lobbying Evaluation] Recipient: %s, Bill: %s, Bill Benefit Cash Equiv: %.1f, Cash/Assets Offered: %.1f, Decision: %s",
+                    recipient.getName(), offer.getLobbyBillKey(), billBenefitInCash, cashGiven, accepted ? "ACCEPT" : "REJECT");
+            log.info(logMsg);
+            if (session.getLastRoundCommentary() != null) {
+                session.getLastRoundCommentary().add("🗳️ " + logMsg);
+            }
+
+            return accepted;
         }
         return false;
     }
@@ -1345,13 +1403,12 @@ public class AiDecisionService {
         return "C";
     }
 
-    public void makeFactionAllocations(GameSession session, PartyState party, RoundSubmission submission) {
+    public void makeFactionAllocations(GameSession session, PartyState party, RoundSubmission submission, int availablePatronage, List<String> availablePostKeys) {
         List<com.politicalsim.party.FactionState> factions = party.getFactions();
         if (factions == null || factions.isEmpty()) {
             return;
         }
 
-        int availablePatronage = 1;
         List<String> unassignedProjectKeys = new ArrayList<>();
         if (party.getProjects() != null) {
             for (ProjectState p : party.getProjects()) {
@@ -1368,9 +1425,9 @@ public class AiDecisionService {
             }
         }
         List<String> availablePosts = new ArrayList<>();
-        for (PostsConfig.PostDefinition def : PostsConfig.ALL_POSTS) {
-            if (!assignedPosts.contains(def.key())) {
-                availablePosts.add(def.key());
+        for (String key : availablePostKeys) {
+            if (!assignedPosts.contains(key)) {
+                availablePosts.add(key);
             }
         }
 
@@ -1389,8 +1446,16 @@ public class AiDecisionService {
 
         List<SimFaction> simFactions = new ArrayList<>();
         for (com.politicalsim.party.FactionState f : activeFactions) {
-            simFactions.add(new SimFaction(f));
+            simFactions.add(new SimFaction(f, party));
         }
+
+        // Sort simFactions: distress factions (frozen assets or loyalty < 60) prioritized first
+        simFactions.sort((f1, f2) -> {
+            if (f1.frozenCount != f2.frozenCount) {
+                return Integer.compare(f2.frozenCount, f1.frozenCount); // desc
+            }
+            return Integer.compare(f1.loyalty, f2.loyalty); // asc
+        });
 
         int factionIndex = 0;
         int numFactions = simFactions.size();
@@ -1531,14 +1596,32 @@ public class AiDecisionService {
         List<String> post;
         int patronage;
         int projectCount = 0;
+        int frozenCount = 0;
 
-        SimFaction(com.politicalsim.party.FactionState f) {
+        SimFaction(com.politicalsim.party.FactionState f, PartyState party) {
             this.key = f.getKey();
             this.name = f.getName();
             this.loyalty = Math.max(0, f.getLoyalty() - 2);
             this.influence = f.getInfluence();
             this.post = f.getPost() == null ? new ArrayList<>() : new ArrayList<>(f.getPost());
             this.patronage = f.getPatronage();
+            this.frozenCount = 0;
+
+            if (f.getFrozenPosts() != null) {
+                for (int turns : f.getFrozenPosts().values()) {
+                    if (turns > 0) this.frozenCount++;
+                }
+            }
+            if (f.getFrozenPatronageTurns() != null) {
+                this.frozenCount += f.getFrozenPatronageTurns().size();
+            }
+            if (party.getProjects() != null) {
+                for (ProjectState ps : party.getProjects()) {
+                    if (f.getKey().equals(ps.getManagingFactionKey()) && ps.getFrozenTurnsRemaining() > 0) {
+                        this.frozenCount++;
+                    }
+                }
+            }
         }
     }
 }

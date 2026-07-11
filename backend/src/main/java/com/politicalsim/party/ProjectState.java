@@ -153,6 +153,7 @@ public class ProjectState {
 
     private int completionTurn;
     private String managingFactionKey = "None";
+    private int frozenTurnsRemaining = 0;
 
     public int getCompletionTurn() {
         return completionTurn;
@@ -168,6 +169,14 @@ public class ProjectState {
 
     public void setManagingFactionKey(String managingFactionKey) {
         this.managingFactionKey = managingFactionKey != null ? managingFactionKey : "None";
+    }
+
+    public int getFrozenTurnsRemaining() {
+        return frozenTurnsRemaining;
+    }
+
+    public void setFrozenTurnsRemaining(int frozenTurnsRemaining) {
+        this.frozenTurnsRemaining = frozenTurnsRemaining;
     }
 }
 

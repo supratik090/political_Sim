@@ -11,8 +11,13 @@ public class FactionState {
     private int influence = 30;
     private List<String> post ; // "Secretary Post", "Fund Manager Post", etc.
     private int patronage = 0; // patronage points assigned
+    private int frozenTurnsRemaining = 0;
+    private java.util.Map<String, Integer> frozenPosts = new java.util.HashMap<>();
+    private java.util.List<Integer> frozenPatronageTurns = new java.util.ArrayList<>();
 
     public FactionState() {
+        this.frozenPosts = new java.util.HashMap<>();
+        this.frozenPatronageTurns = new java.util.ArrayList<>();
     }
 
     public FactionState(String key, String name, int loyalty, int influence) {
@@ -23,6 +28,9 @@ public class FactionState {
         this.active = true;
         this.post = new ArrayList<>();
         this.patronage = 0;
+        this.frozenTurnsRemaining = 0;
+        this.frozenPosts = new java.util.HashMap<>();
+        this.frozenPatronageTurns = new java.util.ArrayList<>();
     }
 
     public String getKey() {
@@ -79,5 +87,31 @@ public class FactionState {
 
     public void setPatronage(int patronage) {
         this.patronage = Math.max(0, patronage);
+    }
+
+    public int getFrozenTurnsRemaining() {
+        return frozenTurnsRemaining;
+    }
+
+    public void setFrozenTurnsRemaining(int frozenTurnsRemaining) {
+        this.frozenTurnsRemaining = frozenTurnsRemaining;
+    }
+
+    public java.util.Map<String, Integer> getFrozenPosts() {
+        if (frozenPosts == null) frozenPosts = new java.util.HashMap<>();
+        return frozenPosts;
+    }
+
+    public void setFrozenPosts(java.util.Map<String, Integer> frozenPosts) {
+        this.frozenPosts = frozenPosts;
+    }
+
+    public java.util.List<Integer> getFrozenPatronageTurns() {
+        if (frozenPatronageTurns == null) frozenPatronageTurns = new java.util.ArrayList<>();
+        return frozenPatronageTurns;
+    }
+
+    public void setFrozenPatronageTurns(java.util.List<Integer> frozenPatronageTurns) {
+        this.frozenPatronageTurns = frozenPatronageTurns;
     }
 }

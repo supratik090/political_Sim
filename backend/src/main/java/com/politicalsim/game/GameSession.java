@@ -694,4 +694,17 @@ public class GameSession {
     public void setLastBillPartyVotes(Map<String, String> lastBillPartyVotes) {
         this.lastBillPartyVotes = lastBillPartyVotes;
     }
+
+    private Map<String, Integer> billLobbyFailCounts = new java.util.HashMap<>();
+
+    public Map<String, Integer> getBillLobbyFailCounts() {
+        if (billLobbyFailCounts == null) {
+            billLobbyFailCounts = new java.util.HashMap<>();
+        }
+        return billLobbyFailCounts;
+    }
+
+    public void setBillLobbyFailCounts(Map<String, Integer> billLobbyFailCounts) {
+        this.billLobbyFailCounts = billLobbyFailCounts;
+    }
 }

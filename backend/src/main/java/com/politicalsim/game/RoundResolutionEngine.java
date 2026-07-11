@@ -2199,13 +2199,21 @@ public class RoundResolutionEngine {
                     lowest.setPatronage(lowest.getPatronage() + 1);
                     lowest.setLoyalty(lowest.getLoyalty() + 8);
 
-                    lowest.getPost().add("SECRETARY");
-                    lowest.setLoyalty(lowest.getLoyalty() + 15);
+                    boolean secretaryAssigned = party.getFactions().stream()
+                            .anyMatch(f -> f.getPost() != null && f.getPost().contains("SECRETARY"));
+                    if (!secretaryAssigned) {
+                        lowest.getPost().add("SECRETARY");
+                        lowest.setLoyalty(lowest.getLoyalty() + 15);
+                    }
 
                     if (activeFs.size() > 1) {
                         com.politicalsim.party.FactionState secondLowest = activeFs.get(1);
-                        secondLowest.getPost().add("FUND_MANAGER");
-                        secondLowest.setLoyalty(secondLowest.getLoyalty() + 15);
+                        boolean fundManagerAssigned = party.getFactions().stream()
+                                .anyMatch(f -> f.getPost() != null && f.getPost().contains("FUND_MANAGER"));
+                        if (!fundManagerAssigned) {
+                            secondLowest.getPost().add("FUND_MANAGER");
+                            secondLowest.setLoyalty(secondLowest.getLoyalty() + 15);
+                        }
                     }
                 }
 
@@ -2228,10 +2236,13 @@ public class RoundResolutionEngine {
                 else if (loyalty >= 30) mult = 0.5;
                 else mult = 0.0;
 
-                int patronageCoins = fs.getPatronage() * 2;
-                int patronageMorale = fs.getPatronage() * 1;
-                int patronageCorruption = fs.getPatronage() * -1;
-                int patronageMedia = fs.getPatronage() * 1;
+                int frozenPatronageCount = fs.getFrozenPatronageTurns() != null ? fs.getFrozenPatronageTurns().size() : 0;
+                int activePatronage = Math.max(0, fs.getPatronage() - frozenPatronageCount);
+
+                int patronageCoins = activePatronage * 2;
+                int patronageMorale = activePatronage * 1;
+                int patronageCorruption = activePatronage * -1;
+                int patronageMedia = activePatronage * 1;
 
                 int postCoins = 0;
                 int postMorale = 0;
@@ -2239,6 +2250,9 @@ public class RoundResolutionEngine {
                 if (fs.getPost() != null) {
                     for (String pKey : fs.getPost()) {
                         if (pKey == null || pKey.equals("None") || pKey.isBlank()) continue;
+                        if (fs.getFrozenPosts() != null && fs.getFrozenPosts().containsKey(pKey) && fs.getFrozenPosts().get(pKey) > 0) {
+                            continue;
+                        }
                         PostsConfig.PostDefinition pDef = PostsConfig.findByKey(pKey);
                         if (pDef == null) {
                             pDef = PostsConfig.findByName(pKey);
@@ -2259,6 +2273,9 @@ public class RoundResolutionEngine {
                 if (party.getProjects() != null) {
                     for (ProjectState ps : party.getProjects()) {
                         if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
+                            if (ps.getFrozenTurnsRemaining() > 0) {
+                                continue;
+                            }
                             try {
                                 BuildingProject bp = BuildingProject.valueOf(ps.getProjectKey());
                                 BuildingProject.ProjectConfig pConfig = BuildingProject.getConfigs().get(bp);
@@ -2356,10 +2373,13 @@ public class RoundResolutionEngine {
                 else if (loyalty >= 30) mult = 0.5;
                 else mult = 0.0;
 
-                int patronageCoins = fs.getPatronage() * 2;
-                int patronageMorale = fs.getPatronage() * 1;
-                int patronageCorruption = fs.getPatronage() * -1;
-                int patronageMedia = fs.getPatronage() * 1;
+                int frozenPatronageCount = fs.getFrozenPatronageTurns() != null ? fs.getFrozenPatronageTurns().size() : 0;
+                int activePatronage = Math.max(0, fs.getPatronage() - frozenPatronageCount);
+
+                int patronageCoins = activePatronage * 2;
+                int patronageMorale = activePatronage * 1;
+                int patronageCorruption = activePatronage * -1;
+                int patronageMedia = activePatronage * 1;
 
                 int postCoins = 0;
                 int postMorale = 0;
@@ -2367,6 +2387,9 @@ public class RoundResolutionEngine {
                 if (fs.getPost() != null) {
                     for (String pKey : fs.getPost()) {
                         if (pKey == null || pKey.equals("None") || pKey.isBlank()) continue;
+                        if (fs.getFrozenPosts() != null && fs.getFrozenPosts().containsKey(pKey) && fs.getFrozenPosts().get(pKey) > 0) {
+                            continue;
+                        }
                         PostsConfig.PostDefinition pDef = PostsConfig.findByKey(pKey);
                         if (pDef == null) {
                             pDef = PostsConfig.findByName(pKey);
@@ -2387,6 +2410,9 @@ public class RoundResolutionEngine {
                 if (party.getProjects() != null) {
                     for (ProjectState ps : party.getProjects()) {
                         if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
+                            if (ps.getFrozenTurnsRemaining() > 0) {
+                                continue;
+                            }
                             try {
                                 BuildingProject bp = BuildingProject.valueOf(ps.getProjectKey());
                                 BuildingProject.ProjectConfig pConfig = BuildingProject.getConfigs().get(bp);
@@ -2409,6 +2435,57 @@ public class RoundResolutionEngine {
                 int baseCorruption = patronageCorruption + projectCorruption;
                 int baseMedia = patronageMedia + postMedia + projectMedia;
                 double baseSupport = (fs.getLoyalty() >= 50 ? (fs.getInfluence() * 0.01) : -(fs.getInfluence() * 0.01)) + projectSupport;
+
+                // Decrement frozen turns for posts
+                if (fs.getFrozenPosts() != null && !fs.getFrozenPosts().isEmpty()) {
+                    java.util.List<String> postsToClear = new java.util.ArrayList<>();
+                    for (java.util.Map.Entry<String, Integer> entry : fs.getFrozenPosts().entrySet()) {
+                        int remaining = entry.getValue();
+                        if (remaining > 1) {
+                            entry.setValue(remaining - 1);
+                            commentary.add(String.format("❄️ %s's %s post remains FROZEN. (%d turns remaining)", fs.getName(), entry.getKey(), remaining - 1));
+                        } else {
+                            postsToClear.add(entry.getKey());
+                            commentary.add(String.format("🔥 %s's %s post has THAWED!", fs.getName(), entry.getKey()));
+                        }
+                    }
+                    for (String key : postsToClear) {
+                        fs.getFrozenPosts().remove(key);
+                    }
+                }
+
+                // Decrement frozen turns for patronage
+                if (fs.getFrozenPatronageTurns() != null && !fs.getFrozenPatronageTurns().isEmpty()) {
+                    java.util.List<Integer> updatedTurns = new java.util.ArrayList<>();
+                    int thawedCount = 0;
+                    for (int turns : fs.getFrozenPatronageTurns()) {
+                        if (turns > 1) {
+                            updatedTurns.add(turns - 1);
+                        } else {
+                            thawedCount++;
+                        }
+                    }
+                    fs.setFrozenPatronageTurns(updatedTurns);
+                    if (thawedCount > 0) {
+                        commentary.add(String.format("🔥 %s's %d patronage cards have THAWED!", fs.getName(), thawedCount));
+                    }
+                }
+
+                // Decrement frozen turns for projects managed by this faction
+                if (party.getProjects() != null) {
+                    for (ProjectState ps : party.getProjects()) {
+                        if (fs.getKey().equals(ps.getManagingFactionKey()) && ps.getFrozenTurnsRemaining() > 0) {
+                            int remaining = ps.getFrozenTurnsRemaining();
+                            if (remaining > 1) {
+                                ps.setFrozenTurnsRemaining(remaining - 1);
+                                commentary.add(String.format("❄️ %s's project '%s' remains FROZEN. (%d turns remaining)", fs.getName(), ps.getName(), remaining - 1));
+                            } else {
+                                ps.setFrozenTurnsRemaining(0);
+                                commentary.add(String.format("🔥 %s's project '%s' has THAWED!", fs.getName(), ps.getName()));
+                            }
+                        }
+                    }
+                }
 
                 totalCoins += Math.round(baseCoins * mult);
                 totalSupport += baseSupport * mult;

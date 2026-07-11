@@ -950,71 +950,184 @@ public class GameService {
                 continue;
             }
 
-            // AI Faction Bribe Behavior
-            if (party.getStats().getCoins() > 150 && new java.util.Random().nextDouble() < 0.25) {
+            // 1. Proactive Faction Bribe (Counter-Attack / Distressed recovery)
+            boolean ownFactionUnderAttack = false;
+            for (com.politicalsim.party.FactionState ownFs : party.getFactions()) {
+                if (ownFs.isActive()) {
+                    int frozenPostsCount = ownFs.getFrozenPosts() != null ? ownFs.getFrozenPosts().size() : 0;
+                    int frozenPatronage = ownFs.getFrozenPatronageTurns() != null ? ownFs.getFrozenPatronageTurns().size() : 0;
+                    if (ownFs.getLoyalty() < 60 || frozenPostsCount > 0 || frozenPatronage > 0) {
+                        ownFactionUnderAttack = true;
+                        break;
+                    }
+                }
+            }
+
+            double bribeChance = ownFactionUnderAttack ? 0.85 : 0.25;
+            if (party.getStats().getCoins() >= 120 && new java.util.Random().nextDouble() < bribeChance) {
                 com.politicalsim.party.FactionState bestTargetFs = null;
                 PartyState bestTargetParty = null;
-                int lowestLoyalty = 101;
-                
+                int highestInfluence = -1;
+
+                // Pick the opponent faction with the highest influence to target
                 for (PartyState opp : session.getParties()) {
                     if (opp.getId().equals(party.getId()) || opp.getRole() == com.politicalsim.party.PartyRole.DEFEATED || !opp.isActive()) {
                         continue;
                     }
                     for (com.politicalsim.party.FactionState fs : opp.getFactions()) {
-                        if (fs.isActive() && fs.getLoyalty() < lowestLoyalty) {
-                            lowestLoyalty = fs.getLoyalty();
+                        if (fs.isActive() && fs.getInfluence() > highestInfluence) {
+                            highestInfluence = fs.getInfluence();
                             bestTargetFs = fs;
                             bestTargetParty = opp;
                         }
                     }
                 }
-                
-                if (bestTargetFs != null && bestTargetParty != null && party.getStats().getCoins() >= 20) {
-                    party.getStats().setCoins(party.getStats().getCoins() - 20);
-                    
-                    int patronageCoins = bestTargetFs.getPatronage() * 2;
-                    int postCoins = 0;
-                    if (bestTargetFs.getPost() != null) {
-                        for (String pKey : bestTargetFs.getPost()) {
-                            PostsConfig.PostDefinition def = PostsConfig.findByKey(pKey);
-                            if (def == null) def = PostsConfig.findByName(pKey);
-                            if (def != null) postCoins += def.coinYieldBonus();
+
+                if (bestTargetFs != null && bestTargetParty != null) {
+                    int bribeCoins = ownFactionUnderAttack 
+                            ? Math.min(200, party.getStats().getCoins() - 50)
+                            : 80 + new java.util.Random().nextInt(61);
+
+                    // Execute Bribe
+                    party.getStats().setCoins(party.getStats().getCoins() - bribeCoins);
+
+                    // Count currently frozen assets of the target faction
+                    int targetFrozenCount = 0;
+                    if (bestTargetFs.getFrozenPosts() != null) {
+                        for (int turns : bestTargetFs.getFrozenPosts().values()) {
+                            if (turns > 0) targetFrozenCount++;
                         }
                     }
-                    int baseCoins = patronageCoins + postCoins;
+                    if (bestTargetFs.getFrozenPatronageTurns() != null) {
+                        targetFrozenCount += bestTargetFs.getFrozenPatronageTurns().size();
+                    }
                     for (ProjectState ps : bestTargetParty.getProjects()) {
-                        if (ps.getProgressPercent() == 100 && bestTargetFs.getKey().equals(ps.getManagingFactionKey())) {
-                            try {
-                                BuildingProject bProj = BuildingProject.valueOf(ps.getProjectKey());
-                                baseCoins += bProj.getBenefitCoins();
-                            } catch (Exception e) {
-                                // ignore invalid enum
-                            }
+                        if (bestTargetFs.getKey().equals(ps.getManagingFactionKey()) && ps.getFrozenTurnsRemaining() > 0) {
+                            targetFrozenCount++;
                         }
                     }
-                    
-                    double bribeAppeal = 20.0 / (10.0 + baseCoins);
-                    double successProb = (1.0 - (bestTargetFs.getLoyalty() / 100.0)) + bribeAppeal * 0.20;
-                    successProb = Math.max(0.05, Math.min(0.95, successProb));
-                    
+
+                    double baseProb = 0.20;
+                    double turnFactor = (double) session.getTurnNumber() / 100.0;
+                    if (turnFactor > 0.40) turnFactor = 0.40;
+                    double targetPartyCoins = bestTargetParty.getStats().getCoins();
+                    double successProb = baseProb + turnFactor + ((double) bribeCoins / (200.0 + (targetPartyCoins * 0.3) + (targetFrozenCount * 30.0)));
+                    successProb = Math.max(0.10, Math.min(0.90, successProb));
+
                     double roll = new java.util.Random().nextDouble();
                     if (roll < successProb) {
-                        double deltaLoyalty = 5.0 * bribeAppeal * (1.5 - (bestTargetFs.getLoyalty() / 100.0));
-                        int loyaltyLoss = (int) Math.round(deltaLoyalty);
-                        if (loyaltyLoss < 1) loyaltyLoss = 1;
+                        // Success
+                        int loyaltyLoss = 15 + new java.util.Random().nextInt(16);
                         bestTargetFs.setLoyalty(Math.max(0, bestTargetFs.getLoyalty() - loyaltyLoss));
-                        
-                        String msg = "🚨 AI Sabotage: " + party.getName() + " successfully bribed " + bestTargetParty.getName() + "'s " + bestTargetFs.getName() + "! Loyalty fell by -" + loyaltyLoss + "% (Current: " + bestTargetFs.getLoyalty() + "%).";
+
+                        int numToFreeze = Math.max(1, bribeCoins / 30);
+                        java.util.List<String> postCandidates = new ArrayList<>();
+                        if (bestTargetFs.getPost() != null) {
+                            for (String pKey : bestTargetFs.getPost()) {
+                                if (pKey != null && !pKey.equals("None") && !pKey.isBlank()) {
+                                    if (bestTargetFs.getFrozenPosts() == null || !bestTargetFs.getFrozenPosts().containsKey(pKey)) {
+                                        postCandidates.add(pKey);
+                                    }
+                                }
+                            }
+                        }
+
+                        java.util.List<ProjectState> projectCandidates = new ArrayList<>();
+                        for (ProjectState ps : bestTargetParty.getProjects()) {
+                            if (ps.getProgressPercent() == 100 && bestTargetFs.getKey().equals(ps.getManagingFactionKey()) && ps.getFrozenTurnsRemaining() <= 0) {
+                                projectCandidates.add(ps);
+                            }
+                        }
+
+                        int currentFrozenPatCount = bestTargetFs.getFrozenPatronageTurns() != null ? bestTargetFs.getFrozenPatronageTurns().size() : 0;
+                        int activePatronage = bestTargetFs.getPatronage() - currentFrozenPatCount;
+
+                        java.util.List<String> pool = new ArrayList<>();
+                        for (String pc : postCandidates) pool.add("POST:" + pc);
+                        for (ProjectState prc : projectCandidates) pool.add("PROJECT:" + prc.getId());
+                        for (int i = 0; i < activePatronage; i++) pool.add("PATRONAGE");
+
+                        java.util.Collections.shuffle(pool);
+                        java.util.List<String> frozenLabels = new ArrayList<>();
+
+                        for (int i = 0; i < Math.min(numToFreeze, pool.size()); i++) {
+                            String act = pool.get(i);
+                            if (act.startsWith("POST:")) {
+                                String pk = act.substring(5);
+                                if (bestTargetFs.getFrozenPosts() == null) bestTargetFs.setFrozenPosts(new java.util.HashMap<>());
+                                bestTargetFs.getFrozenPosts().put(pk, 10);
+                                frozenLabels.add(pk + " Post");
+                            } else if (act.startsWith("PROJECT:")) {
+                                String pid = act.substring(8);
+                                for (ProjectState ps : bestTargetParty.getProjects()) {
+                                    if (ps.getId().equals(pid)) {
+                                        ps.setFrozenTurnsRemaining(10);
+                                        frozenLabels.add((ps.getName() != null ? ps.getName() : ps.getProjectKey()) + " Project");
+                                        break;
+                                    }
+                                }
+                            } else if ("PATRONAGE".equals(act)) {
+                                if (bestTargetFs.getFrozenPatronageTurns() == null) bestTargetFs.setFrozenPatronageTurns(new ArrayList<>());
+                                bestTargetFs.getFrozenPatronageTurns().add(10);
+                                frozenLabels.add("Patronage Point");
+                            }
+                        }
+
+                        String frozenList = frozenLabels.isEmpty() ? "No active cards found to freeze" : String.join(", ", frozenLabels);
+                        String msg = String.format("🚨 AI Sabotage: %s successfully bribed %s's %s faction! Loyalty fell by -%d%%. FROZEN: %s.",
+                                party.getName(), bestTargetParty.getName(), bestTargetFs.getName(), loyaltyLoss, frozenList);
                         session.getLastRoundCommentary().add(msg);
                         session.getLastResults().add("🚨 AI " + party.getName() + " successfully bribed opponent faction " + bestTargetFs.getName());
                     } else {
-                        party.getStats().setMediaImage(Math.max(0, party.getStats().getMediaImage() - 10));
-                        bestTargetParty.getStats().setPartyMorale(Math.min(100, bestTargetParty.getStats().getPartyMorale() + 5));
-                        
-                        String msg = "🚨 AI Sabotage Exposed: " + party.getName() + " attempted to bribe " + bestTargetParty.getName() + "'s " + bestTargetFs.getName() + " but was EXPOSED! " + party.getName() + " loses -10 Media Image and " + bestTargetParty.getName() + " gains +5 Morale.";
+                        // Fail
+                        int mediaLoss = Math.max(5, (int) Math.round(party.getStats().getMediaImage() * 0.10));
+                        int moraleLoss = Math.max(3, (int) Math.round(party.getStats().getPartyMorale() * 0.05));
+                        party.getStats().setMediaImage(Math.max(0, party.getStats().getMediaImage() - mediaLoss));
+                        party.getStats().setPartyMorale(Math.max(0, party.getStats().getPartyMorale() - moraleLoss));
+
+                        String msg = String.format("🚨 AI Sabotage Exposed: %s tried to bribe %s's %s but was exposed! %s loses -%d Media Image and -%d Morale.",
+                                party.getName(), bestTargetParty.getName(), bestTargetFs.getName(), party.getName(), mediaLoss, moraleLoss);
                         session.getLastRoundCommentary().add(msg);
                         session.getLastResults().add("🚨 AI " + party.getName() + " bribe attempt on " + bestTargetFs.getName() + " exposed!");
                     }
+                }
+            }
+
+            // 2. Proactive AI Non-Aggression Pact Proposing
+            if (party.getStats().getCoins() >= 60 && (party.getStats().getPartyMorale() < 40 || new java.util.Random().nextDouble() < 0.15)) {
+                PartyState pactTarget = choosePactTarget(session, party);
+                if (pactTarget != null) {
+                    CooperationOffer pactOffer = new CooperationOffer();
+                    pactOffer.setId(java.util.UUID.randomUUID().toString());
+                    pactOffer.setTurnCreated(session.getTurnNumber());
+                    pactOffer.setStatus(CooperationOffer.OfferStatus.PENDING);
+                    pactOffer.setType(CooperationOffer.OfferType.NON_AGGRESSION);
+                    pactOffer.setSenderPartyId(party.getId());
+                    pactOffer.setSenderPartyName(party.getName());
+                    pactOffer.setRecipientPartyId(pactTarget.getId());
+                    pactOffer.setRecipientPartyName(pactTarget.getName());
+                    pactOffer.setDurationTurns(10);
+                    pactOffer.setSenderPaysPact(true);
+                    pactOffer.setPactPaymentResource("COINS");
+                    pactOffer.setPactPaymentValue(20);
+
+                    if (session.getCooperationOffers() == null) {
+                        session.setCooperationOffers(new java.util.ArrayList<>());
+                    }
+
+                    if (pactTarget.getControllerType() == ControllerType.COMPUTER) {
+                        boolean accepted = aiDecisionService.evaluateCooperationOffer(session, pactTarget, pactOffer);
+                        if (accepted) {
+                            cooperationResolver.executeCooperationTrade(session, pactOffer);
+                            pactOffer.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
+                            session.getLastRoundCommentary().add("🕊️ Pact Accepted: AI " + party.getName() + " entered a Non-Aggression Pact with AI " + pactTarget.getName() + ".");
+                        } else {
+                            pactOffer.setStatus(CooperationOffer.OfferStatus.REJECTED);
+                        }
+                    } else {
+                        session.getLastRoundCommentary().add("🕊️ Pact Proposed: AI " + party.getName() + " proposed a Non-Aggression Pact to you.");
+                    }
+                    session.getCooperationOffers().add(pactOffer);
                 }
             }
 
@@ -1031,8 +1144,34 @@ public class GameService {
             RoundSubmission submission = toSubmission(party, targetParty, decision.card(), reactions, null, null);
             submission.setAiIntent(decision.intent().name());
 
-            // AI Legislative Proposing and Lobbying
-            String proposedBillKey = aiDecisionService.chooseBillToPropose(session, party);
+            // AI Legislative Proposing and Lobbying (Danger zone prioritization + Fail limit + 20% coin limit)
+            boolean isDangerCoins = party.getStats().getCoins() < 50;
+            boolean isDangerMorale = party.getStats().getPartyMorale() < 30;
+
+            List<LegislativeBillDefinition> allBills = com.politicalsim.content.DefinitionCache.getBillsForScenario(aiDecisionService.getBillRepository(), session.getScenarioKey());
+            List<LegislativeBillState> currentSessionBills = session.getBills();
+            List<String> eligibleBillKeys = currentSessionBills.stream()
+                    .filter(b -> "NOT_PROPOSED".equals(b.getStatus()))
+                    .map(LegislativeBillState::getBillKey)
+                    .toList();
+
+            String myRoleStr = party.getRole() == com.politicalsim.party.PartyRole.GOVERNMENT ? "GOVERNMENT" : "OPPOSITION";
+            List<LegislativeBillDefinition> proposePool = allBills.stream()
+                    .filter(b -> eligibleBillKeys.contains(b.getBillKey()))
+                    .filter(b -> myRoleStr.equalsIgnoreCase(b.getProposingRole()))
+                    .filter(b -> session.getBillLobbyFailCounts().getOrDefault(b.getBillKey(), 0) < 3)
+                    .toList();
+
+            List<LegislativeBillDefinition> sortedBills = new ArrayList<>(proposePool);
+            sortedBills.sort((b1, b2) -> {
+                double s1 = scoreBillForPriority(b1, isDangerCoins, isDangerMorale);
+                double s2 = scoreBillForPriority(b2, isDangerCoins, isDangerMorale);
+                return Double.compare(s2, s1); // descending
+            });
+
+            LegislativeBillDefinition bestBill = sortedBills.isEmpty() ? null : sortedBills.get(0);
+            String proposedBillKey = (bestBill != null) ? bestBill.getBillKey() : null;
+
             if (proposedBillKey != null) {
                 int totalYesVotes = 0;
                 int totalParties = 0;
@@ -1054,44 +1193,55 @@ public class GameService {
                     }
                 }
                 boolean hasMajority = totalYesVotes > (totalParties / 2);
-                if (!hasMajority && !potentialLobbyTargets.isEmpty() && party.getStats().getCoins() >= 35) {
-                    PartyState lobbyTarget = potentialLobbyTargets.get(new java.util.Random().nextInt(potentialLobbyTargets.size()));
-                    
-                    CooperationOffer lobbyOffer = new CooperationOffer();
-                    lobbyOffer.setId(java.util.UUID.randomUUID().toString());
-                    lobbyOffer.setTurnCreated(session.getTurnNumber());
-                    lobbyOffer.setStatus(CooperationOffer.OfferStatus.PENDING);
-                    lobbyOffer.setType(CooperationOffer.OfferType.LOBBYING);
-                    lobbyOffer.setSenderPartyId(party.getId());
-                    lobbyOffer.setSenderPartyName(party.getName());
-                    lobbyOffer.setRecipientPartyId(lobbyTarget.getId());
-                    lobbyOffer.setRecipientPartyName(lobbyTarget.getName());
-                    lobbyOffer.setLobbyBillKey(proposedBillKey);
-                    
-                    lobbyOffer.setOfferedCoins(15);
-                    if (party.getStats().getPartyMorale() > 30) {
-                        lobbyOffer.setOfferedMorale(5);
-                    }
-                    
-                    if (session.getCooperationOffers() == null) {
-                        session.setCooperationOffers(new java.util.ArrayList<>());
-                    }
-                    
-                    if (lobbyTarget.getControllerType() == com.politicalsim.party.ControllerType.COMPUTER) {
-                        boolean accepted = aiDecisionService.evaluateCooperationOffer(session, lobbyTarget, lobbyOffer);
-                        if (accepted) {
-                            cooperationResolver.executeCooperationTrade(session, lobbyOffer);
-                            lobbyOffer.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
-                            session.getLobbyPledges().add(new com.politicalsim.game.LobbyPledge(
-                                lobbyTarget.getId(),
-                                proposedBillKey
-                            ));
-                            session.getLastRoundCommentary().add("🤝 Lobbying Success: AI " + party.getName() + " convinced AI " + lobbyTarget.getName() + " to pledge YES on Bill " + proposedBillKey + ".");
-                        } else {
-                            lobbyOffer.setStatus(CooperationOffer.OfferStatus.REJECTED);
+                if (!hasMajority && !potentialLobbyTargets.isEmpty()) {
+                    Map<String, Object> passedEffects = bestBill.getEffectsPassed();
+                    int coinsEffect = ((Number) passedEffects.getOrDefault("coins", 0)).intValue();
+                    int moraleEffect = ((Number) passedEffects.getOrDefault("partyMorale", 0)).intValue();
+                    int supportEffect = ((Number) passedEffects.getOrDefault("publicSupport", 0)).intValue();
+                    int corruptionEffect = ((Number) passedEffects.getOrDefault("corruptionScore", 0)).intValue();
+                    int mediaEffect = ((Number) passedEffects.getOrDefault("mediaImage", 0)).intValue();
+
+                    double billBenefitInCash = (supportEffect * 50.0) + (moraleEffect * 20.0) + (mediaEffect * 20.0) - (corruptionEffect * 20.0) + (coinsEffect * 1.0);
+                    int maxLobbyCoins = (int) Math.round(billBenefitInCash * 0.20);
+                    if (maxLobbyCoins >= 10 && party.getStats().getCoins() >= maxLobbyCoins) {
+                        PartyState lobbyTarget = potentialLobbyTargets.get(new java.util.Random().nextInt(potentialLobbyTargets.size()));
+                        
+                        CooperationOffer lobbyOffer = new CooperationOffer();
+                        lobbyOffer.setId(java.util.UUID.randomUUID().toString());
+                        lobbyOffer.setTurnCreated(session.getTurnNumber());
+                        lobbyOffer.setStatus(CooperationOffer.OfferStatus.PENDING);
+                        lobbyOffer.setType(CooperationOffer.OfferType.LOBBYING);
+                        lobbyOffer.setSenderPartyId(party.getId());
+                        lobbyOffer.setSenderPartyName(party.getName());
+                        lobbyOffer.setRecipientPartyId(lobbyTarget.getId());
+                        lobbyOffer.setRecipientPartyName(lobbyTarget.getName());
+                        lobbyOffer.setLobbyBillKey(proposedBillKey);
+                        lobbyOffer.setOfferedCoins(maxLobbyCoins);
+
+                        if (session.getCooperationOffers() == null) {
+                            session.setCooperationOffers(new java.util.ArrayList<>());
                         }
+
+                        if (lobbyTarget.getControllerType() == com.politicalsim.party.ControllerType.COMPUTER) {
+                            boolean accepted = aiDecisionService.evaluateCooperationOffer(session, lobbyTarget, lobbyOffer);
+                            if (accepted) {
+                                cooperationResolver.executeCooperationTrade(session, lobbyOffer);
+                                lobbyOffer.setStatus(CooperationOffer.OfferStatus.ACCEPTED);
+                                session.getLobbyPledges().add(new com.politicalsim.game.LobbyPledge(
+                                    lobbyTarget.getId(),
+                                    proposedBillKey
+                                ));
+                                session.getLastRoundCommentary().add("🤝 Lobbying Success: AI " + party.getName() + " convinced AI " + lobbyTarget.getName() + " to pledge YES on Bill " + proposedBillKey + ".");
+                            } else {
+                                lobbyOffer.setStatus(CooperationOffer.OfferStatus.REJECTED);
+                                session.getBillLobbyFailCounts().put(proposedBillKey, session.getBillLobbyFailCounts().getOrDefault(proposedBillKey, 0) + 1);
+                                session.getLastRoundCommentary().add("❌ Lobbying Rejected: AI " + party.getName() + " failed to lobby AI " + lobbyTarget.getName() + " for Bill " + proposedBillKey + ".");
+                            }
+                        } else {
+                            session.getLastRoundCommentary().add("🗳️ Lobbying Proposed: AI " + party.getName() + " proposed to lobby you for Bill " + proposedBillKey + ".");
+                        }
+                        session.getCooperationOffers().add(lobbyOffer);
                     }
-                    session.getCooperationOffers().add(lobbyOffer);
                 }
                 submission.setProposedBillKey(proposedBillKey);
             }
@@ -1103,7 +1253,19 @@ public class GameService {
             }
 
             // AI Faction allocations
-            aiDecisionService.makeFactionAllocations(session, party, submission);
+            com.politicalsim.party.PartyManagementState pms = partyManagementRepository
+                    .findByGameIdAndPartyId(session.getId(), party.getId())
+                    .orElse(null);
+            int availablePatronage = (pms != null) ? pms.getUnallocatedPatronagePoints() : 1;
+            List<String> availablePostKeys = new ArrayList<>();
+            if (pms != null && pms.getPosts() != null) {
+                for (com.politicalsim.party.ScheduledPost sp : pms.getPosts()) {
+                    if (sp.getStatus() == com.politicalsim.party.ScheduledPost.Status.AVAILABLE) {
+                        availablePostKeys.add(sp.getPostKey());
+                    }
+                }
+            }
+            aiDecisionService.makeFactionAllocations(session, party, submission, availablePatronage, availablePostKeys);
 
             // AI Legislative Vote Selection
             String activeBillKey = session.getProposedBillKeyThisTurn();
@@ -2578,36 +2740,173 @@ public class GameService {
             }
         }
 
-        // 2. Bribe Appeal
-        double bribeAppeal = (double) coins / (10.0 + baseCoins);
+        // 2. Success Probability based on offered coins, target party coins, game turn, and random chance
+        double baseProb = 0.20;
+        double turnFactor = (double) session.getTurnNumber() / 100.0;
+        if (turnFactor > 0.40) {
+            turnFactor = 0.40; // cap turn influence at +40%
+        }
 
-        // 3. Success Probability
-        double successProb = (1.0 - (fs.getLoyalty() / 100.0)) + bribeAppeal * 0.20;
-        successProb = Math.max(0.05, Math.min(0.95, successProb));
+        // Count currently frozen assets for successive bribe scaling
+        int frozenCount = 0;
+        if (fs.getFrozenPosts() != null) {
+            for (int turns : fs.getFrozenPosts().values()) {
+                if (turns > 0) frozenCount++;
+            }
+        }
+        if (fs.getFrozenPatronageTurns() != null) {
+            frozenCount += fs.getFrozenPatronageTurns().size();
+        }
+        if (targetParty.getProjects() != null) {
+            for (ProjectState ps : targetParty.getProjects()) {
+                if (fs.getKey().equals(ps.getManagingFactionKey()) && ps.getFrozenTurnsRemaining() > 0) {
+                    frozenCount++;
+                }
+            }
+        }
+
+        double targetPartyCoins = targetParty.getStats().getCoins();
+        // Recalibrated formula: Toned down successive scaling to +30 and adjusted baseline target influence
+        double cashFactor = (double) coins / (200.0 + (targetPartyCoins * 0.3) + (frozenCount * 30.0));
+
+        double successProb = baseProb + turnFactor + cashFactor;
+        successProb = Math.max(0.10, Math.min(0.90, successProb));
 
         double roll = new java.util.Random().nextDouble();
         if (roll < successProb) {
             // Success! Loyalty Loss
-            double deltaLoyalty = 5.0 * bribeAppeal * (1.5 - (fs.getLoyalty() / 100.0));
-            int loyaltyLoss = (int) Math.round(deltaLoyalty);
-            if (loyaltyLoss < 1) loyaltyLoss = 1;
-            
+            int loyaltyLoss = 15 + new java.util.Random().nextInt(16); // 15 to 30 loyalty loss
             fs.setLoyalty(Math.max(0, fs.getLoyalty() - loyaltyLoss));
 
-            String msg = "🚨 Bribe Successful: " + sender.getName() + " bribed " + targetParty.getName() + "'s " + fs.getName() + "! Loyalty fell by -" + loyaltyLoss + "% (Current: " + fs.getLoyalty() + "%).";
-            session.getLastRoundCommentary().add(msg);
-            session.getLastResults().add("🚨 " + sender.getName() + " successfully bribed opponent faction " + fs.getName());
-        } else {
-            // Failed: Exposure Scandal
-            sender.getStats().setMediaImage(Math.max(0, sender.getStats().getMediaImage() - 10));
-            targetParty.getStats().setPartyMorale(Math.min(100, targetParty.getStats().getPartyMorale() + 5));
+            // Select specific candidate assets to freeze (1 asset per 30 coins offered)
+            int numToFreeze = Math.max(1, coins / 30);
+            
+            class AssetCandidate {
+                String type; // "POST", "PROJECT", "PATRONAGE"
+                String identifier; // postKey, projectInstanceId, or empty
+                String label; // human-readable label
+            }
 
-            String msg = "🚨 Bribe Scandal Exposed: " + sender.getName() + " attempted to bribe " + targetParty.getName() + "'s " + fs.getName() + " but was EXPOSED! " + sender.getName() + " loses -10 Media Image and " + targetParty.getName() + " gains +5 Morale.";
+            java.util.List<AssetCandidate> candidates = new java.util.ArrayList<>();
+
+            // 1. Posts Candidates
+            if (fs.getPost() != null) {
+                for (String pKey : fs.getPost()) {
+                    if (pKey == null || pKey.equals("None") || pKey.isBlank()) continue;
+                    if (fs.getFrozenPosts() == null || !fs.getFrozenPosts().containsKey(pKey) || fs.getFrozenPosts().get(pKey) <= 0) {
+                        AssetCandidate ac = new AssetCandidate();
+                        ac.type = "POST";
+                        ac.identifier = pKey;
+                        ac.label = pKey + " Post";
+                        candidates.add(ac);
+                    }
+                }
+            }
+
+            // 2. Projects Candidates
+            if (targetParty.getProjects() != null) {
+                for (ProjectState ps : targetParty.getProjects()) {
+                    if (ps.getProgressPercent() == 100 && fs.getKey().equals(ps.getManagingFactionKey())) {
+                        if (ps.getFrozenTurnsRemaining() <= 0) {
+                            AssetCandidate ac = new AssetCandidate();
+                            ac.type = "PROJECT";
+                            ac.identifier = ps.getId();
+                            ac.label = (ps.getName() != null ? ps.getName() : ps.getProjectKey()) + " Project";
+                            candidates.add(ac);
+                        }
+                    }
+                }
+            }
+
+            // 3. Patronage Candidates (can freeze remaining active patronage)
+            int currentlyFrozenPatronage = fs.getFrozenPatronageTurns() != null ? fs.getFrozenPatronageTurns().size() : 0;
+            int activePatronageCount = fs.getPatronage() - currentlyFrozenPatronage;
+            for (int i = 0; i < activePatronageCount; i++) {
+                AssetCandidate ac = new AssetCandidate();
+                ac.type = "PATRONAGE";
+                ac.label = "Patronage Point";
+                candidates.add(ac);
+            }
+
+            java.util.Collections.shuffle(candidates);
+            java.util.List<String> frozenLabels = new java.util.ArrayList<>();
+
+            for (int i = 0; i < Math.min(numToFreeze, candidates.size()); i++) {
+                AssetCandidate selected = candidates.get(i);
+                if ("POST".equals(selected.type)) {
+                    if (fs.getFrozenPosts() == null) {
+                        fs.setFrozenPosts(new java.util.HashMap<>());
+                    }
+                    fs.getFrozenPosts().put(selected.identifier, 10);
+                } else if ("PROJECT".equals(selected.type)) {
+                    for (ProjectState ps : targetParty.getProjects()) {
+                        if (ps.getId().equals(selected.identifier)) {
+                            ps.setFrozenTurnsRemaining(10);
+                            break;
+                        }
+                    }
+                } else if ("PATRONAGE".equals(selected.type)) {
+                    if (fs.getFrozenPatronageTurns() == null) {
+                        fs.setFrozenPatronageTurns(new java.util.ArrayList<>());
+                    }
+                    fs.getFrozenPatronageTurns().add(10);
+                }
+                frozenLabels.add(selected.label);
+            }
+
+            String frozenListStr = frozenLabels.isEmpty() ? "No active cards/assets found to freeze" : String.join(", ", frozenLabels);
+            String msg = String.format("🚨 Sabotage Successful: %s bribed %s's %s faction! Loyalty fell by -%d%% (Current: %d%%). The following specific assets are FROZEN for 10 rounds: %s.",
+                    sender.getName(), targetParty.getName(), fs.getName(), loyaltyLoss, fs.getLoyalty(), frozenListStr);
+            session.getLastRoundCommentary().add(msg);
+            session.getLastResults().add("🚨 " + sender.getName() + " successfully bribed and froze opponent faction " + fs.getName());
+        } else {
+            // Failed: Refused and Exposed
+            int mediaLoss = Math.max(5, (int) Math.round(sender.getStats().getMediaImage() * 0.10));
+            int moraleLoss = Math.max(3, (int) Math.round(sender.getStats().getPartyMorale() * 0.05));
+
+            sender.getStats().setMediaImage(Math.max(0, sender.getStats().getMediaImage() - mediaLoss));
+            sender.getStats().setPartyMorale(Math.max(0, sender.getStats().getPartyMorale() - moraleLoss));
+
+            String msg = String.format("🚨 Bribe Refused & Exposed: %s attempted to bribe %s's %s but was refused! %s loses -%d Media Image (-10%%) and -%d Party Morale (-5%%).",
+                    sender.getName(), targetParty.getName(), fs.getName(), sender.getName(), mediaLoss, moraleLoss);
             session.getLastRoundCommentary().add(msg);
             session.getLastResults().add("🚨 " + sender.getName() + " bribe attempt on " + fs.getName() + " exposed!");
         }
 
         gameSessionService.save(session);
         return getTurnView(gameId);
+    }
+
+    private PartyState choosePactTarget(GameSession session, PartyState party) {
+        return session.getParties().stream()
+                .filter(p -> !p.getId().equals(party.getId()) && p.isActive() && p.getRole() != com.politicalsim.party.PartyRole.DEFEATED)
+                .filter(p -> {
+                    if (session.getCooperationOffers() == null) return true;
+                    return session.getCooperationOffers().stream()
+                            .noneMatch(o -> o.getType() == CooperationOffer.OfferType.NON_AGGRESSION 
+                                    && o.getStatus() == CooperationOffer.OfferStatus.ACCEPTED
+                                    && ((o.getSenderPartyId().equals(party.getId()) && o.getRecipientPartyId().equals(p.getId()))
+                                     || (o.getSenderPartyId().equals(p.getId()) && o.getRecipientPartyId().equals(party.getId()))));
+                })
+                .findAny()
+                .orElse(null);
+    }
+
+    private double scoreBillForPriority(com.politicalsim.content.LegislativeBillDefinition bill, boolean isDangerCoins, boolean isDangerMorale) {
+        Map<String, Object> passedEffects = bill.getEffectsPassed();
+        if (passedEffects == null) return 0.0;
+        int coins = ((Number) passedEffects.getOrDefault("coins", 0)).intValue();
+        int morale = ((Number) passedEffects.getOrDefault("partyMorale", 0)).intValue();
+        int support = ((Number) passedEffects.getOrDefault("publicSupport", 0)).intValue();
+        int corruption = ((Number) passedEffects.getOrDefault("corruptionScore", 0)).intValue();
+        int media = ((Number) passedEffects.getOrDefault("mediaImage", 0)).intValue();
+
+        if (isDangerCoins) {
+            return coins * 50.0 + morale * 1.5 + support * 2.5 + media * 1.5 - corruption * 2.0;
+        } else if (isDangerMorale) {
+            return morale * 50.0 + coins * 0.1 + support * 2.5 + media * 1.5 - corruption * 2.0;
+        } else {
+            return support * 2.5 + morale * 1.5 + media * 1.5 - corruption * 2.0 + coins * 0.1;
+        }
     }
 }
