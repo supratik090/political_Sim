@@ -209,7 +209,7 @@ export default function LandingPage({ onPlayNow }) {
             maxWidth: '750px',
             margin: '0 auto 40px'
           }}>
-            Step into the boots of a campaign manager. Run election campaigns in any Indian state across historical scenarios from the years 2001 to 2021. Play strategy cards, govern regional news, assign posts, manage faction loyalties, and negotiate diplomatic pacts to lead your party to power.
+            Navigate the complex landscape of election cycles, react to regional crises, build campaign infrastructure, and lead your political party to victory on election day. Run election campaigns in any Indian state across historical scenarios from the years 2001 to 2021. Play strategy cards, govern regional news, assign posts, manage faction loyalties, and negotiate diplomatic pacts to lead your party to power.
           </p>
           <button 
             onClick={onPlayNow}

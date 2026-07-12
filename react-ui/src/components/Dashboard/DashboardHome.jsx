@@ -763,6 +763,49 @@ export default function DashboardHome() {
                 {scenario.description}
               </p>
 
+              {scenario.status === 'LOCKED' && (
+                <div style={{
+                  fontSize: '12.5px',
+                  color: '#ea580c',
+                  background: 'rgba(234, 88, 12, 0.08)',
+                  border: '1px dashed rgba(234, 88, 12, 0.3)',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  marginBottom: '15px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    🔒 To unlock win {scenario.stateName} ({scenario.startYear - 5})
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedStateName(scenario.stateName);
+                      setSelectedYear(scenario.startYear - 5);
+                    }}
+                    style={{
+                      alignSelf: 'flex-start',
+                      background: '#ea580c',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 4px rgba(234,88,12,0.2)',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.background = '#d97706'}
+                    onMouseOut={(e) => e.currentTarget.style.background = '#ea580c'}
+                  >
+                    🎯 Go to {scenario.stateName} ({scenario.startYear - 5})
+                  </button>
+                </div>
+              )}
+
               {scenario.status === 'WON' && (() => {
                 const sGames = games.filter(g => g.scenarioKey === scenario.scenarioKey);
                 const completed = sGames.filter(g => g.status === 'VICTORY' || g.status === 'DEFEAT' || g.status === 'GAME_OVER');
@@ -869,7 +912,7 @@ export default function DashboardHome() {
     <div>
       <div style={{
         background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-        padding: '40px 30px',
+        padding: '30px',
         borderRadius: '16px',
         border: '1px solid rgba(255,255,255,0.08)',
         marginBottom: '25px',
@@ -888,44 +931,12 @@ export default function DashboardHome() {
           background: 'radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%)',
           borderRadius: '50%'
         }} />
-        <h1 style={{ fontSize: '32px', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: '#ffffff', textTransform: 'uppercase' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: '#ffffff', textTransform: 'uppercase' }}>
           🏛️ Political Sim Dashboard
         </h1>
-        <p style={{ fontSize: '15px', marginTop: '10px', color: '#cbd5e1', maxWidth: '750px', margin: '10px auto 25px auto', lineHeight: 1.6 }}>
-          Navigate the complex landscape of election cycles, react to regional crises, build campaign infrastructure, and lead your political party to victory on election day.
+        <p style={{ fontSize: '14px', marginTop: '6px', color: '#cbd5e1', margin: '6px 0 0 0' }}>
+          Select or rejoin a campaign scenario to begin.
         </p>
-
-        {/* Feature Highlights Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '12px',
-          maxWidth: '850px',
-          margin: '0 auto',
-          position: 'relative',
-          zIndex: 2
-        }}>
-          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
-            <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>⚖️</span>
-            <strong style={{ fontSize: '13px', display: 'block', color: '#38bdf8' }}>Legislation & Lobbying</strong>
-            <span style={{ fontSize: '11px', color: '#94a3b8' }}>Vote on bills & lobby rivals</span>
-          </div>
-          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
-            <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>🕊️</span>
-            <strong style={{ fontSize: '13px', display: 'block', color: '#38bdf8' }}>Diplomacy</strong>
-            <span style={{ fontSize: '11px', color: '#94a3b8' }}>Form Pacts & trade assets</span>
-          </div>
-          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
-            <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>👥</span>
-            <strong style={{ fontSize: '13px', display: 'block', color: '#38bdf8' }}>Faction Management</strong>
-            <span style={{ fontSize: '11px', color: '#94a3b8' }}>Manage loyalty & posts</span>
-          </div>
-          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
-            <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>🏗️</span>
-            <strong style={{ fontSize: '13px', display: 'block', color: '#38bdf8' }}>Infrastructure</strong>
-            <span style={{ fontSize: '11px', color: '#94a3b8' }}>Fund rallies & campaigns</span>
-          </div>
-        </div>
       </div>
 
       {loading && scenarios.length === 0 ? (
