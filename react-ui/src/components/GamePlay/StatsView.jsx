@@ -741,7 +741,10 @@ export default function StatsView({
 
                           return (
                             <div key={f.key} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', alignItems: 'center' }}>
-                              <span style={{ fontWeight: '500', color: 'var(--card-text)' }}>{label}</span>
+                              <span style={{ fontWeight: '500', color: 'var(--card-text)', display: 'inline-flex', alignItems: 'center' }}>
+                                {label}
+                                {f.frozenTurnsRemaining > 0 && <span style={{ color: '#ea580c', fontSize: '9px', fontWeight: 'bold', marginLeft: '6px', backgroundColor: '#fff7ed', border: '1px solid #ffedd5', padding: '1px 4px', borderRadius: '3px' }}>❄️ FROZEN ({f.frozenTurnsRemaining}t)</span>}
+                              </span>
                               <span style={{ fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                                 ✊ <strong style={{ color: f.loyalty >= 80 ? '#16a34a' : (f.loyalty >= 50 ? '#ca8a04' : '#dc2626') }}>{f.loyalty}%</strong>
                                 {(() => {
@@ -1104,9 +1107,14 @@ export default function StatsView({
 
                   {pendingBills.map(b => {
                     const def = scenarioBills.find(x => x.billKey === b.billKey);
+                    const proposerParty = turnData.parties?.find(p => p.id === b.proposedByPartyId);
+                    const proposerName = proposerParty ? proposerParty.name : 'Government';
                     return (
                       <div key={b.billKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '12px', background: '#fff' }}>
-                        <span style={{ fontWeight: '600' }}>📋 {def?.name || b.billKey}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <span style={{ fontWeight: '600' }}>📋 {def?.name || b.billKey}</span>
+                          <span style={{ fontSize: '11px', color: '#64748b' }}>Proposed by: <strong>{proposerName}</strong></span>
+                        </div>
                         <span style={{ background: '#3b82f6', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>PENDING VOTE (Turn {b.turnProposed})</span>
                       </div>
                     );
@@ -1114,9 +1122,14 @@ export default function StatsView({
 
                   {passedBills.map(b => {
                     const def = scenarioBills.find(x => x.billKey === b.billKey);
+                    const proposerParty = turnData.parties?.find(p => p.id === b.proposedByPartyId);
+                    const proposerName = proposerParty ? proposerParty.name : 'Government';
                     return (
                       <div key={b.billKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid #bbf7d0', borderRadius: '6px', fontSize: '12px', background: '#f0fdf4' }}>
-                        <span style={{ fontWeight: '600', color: '#166534' }}>✅ {def?.name || b.billKey}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <span style={{ fontWeight: '600', color: '#166534' }}>✅ {def?.name || b.billKey}</span>
+                          <span style={{ fontSize: '11px', color: '#166534', opacity: 0.8 }}>Proposed by: <strong>{proposerName}</strong></span>
+                        </div>
                         <span style={{ background: '#22c55e', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>PASSED (Turn {b.turnResolved})</span>
                       </div>
                     );
@@ -1124,9 +1137,14 @@ export default function StatsView({
 
                   {failedBills.map(b => {
                     const def = scenarioBills.find(x => x.billKey === b.billKey);
+                    const proposerParty = turnData.parties?.find(p => p.id === b.proposedByPartyId);
+                    const proposerName = proposerParty ? proposerParty.name : 'Government';
                     return (
                       <div key={b.billKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '12px', background: '#fef2f2' }}>
-                        <span style={{ fontWeight: '600', color: '#9f1239' }}>❌ {def?.name || b.billKey}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <span style={{ fontWeight: '600', color: '#9f1239' }}>❌ {def?.name || b.billKey}</span>
+                          <span style={{ fontSize: '11px', color: '#9f1239', opacity: 0.8 }}>Proposed by: <strong>{proposerName}</strong></span>
+                        </div>
                         <span style={{ background: '#ef4444', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>FAILED (Turn {b.turnResolved})</span>
                       </div>
                     );
@@ -1275,7 +1293,7 @@ export default function StatsView({
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '14px' }}>🛡️</span>
             <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.05em', color: 'var(--primary-dark)', fontWeight: 'bold' }}>
-              Party info
+              Inner Party Factions
             </h4>
           </div>
           <span style={{ fontSize: '12.5px', fontWeight: 'bold', color: 'var(--primary-dark)', opacity: 0.8 }}>
@@ -1392,9 +1410,32 @@ export default function StatsView({
                               </div>
 
                               {/* Collapsible details content */}
-                              {expandedFactions[`${p.id}_${f.key || f.id}`] && (
-                                <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                  {/* Allocation details */}
+                              {expandedFactions[`${p.id}_${f.key || f.id}`] && (() => {
+                                const frozenPostsCount = f.frozenPosts ? Object.values(f.frozenPosts).filter(t => t > 0).length : 0;
+                                const frozenPatronageCount = f.frozenPatronageTurns ? f.frozenPatronageTurns.filter(t => t > 0).length : 0;
+                                const frozenProjectsCount = projects.filter(proj => proj.frozenTurnsRemaining > 0).length;
+                                const totalFrozenAssets = frozenPostsCount + frozenPatronageCount + frozenProjectsCount;
+
+                                return (
+                                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {f.frozenTurnsRemaining > 0 && (
+                                      <div style={{
+                                        fontSize: '11px',
+                                        color: '#c2410c',
+                                        backgroundColor: '#fff7ed',
+                                        border: '1.5px dashed #ffedd5',
+                                        padding: '6px 10px',
+                                        borderRadius: '6px',
+                                        fontWeight: '800',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        marginBottom: '4px'
+                                      }}>
+                                        ❄️ SABOTAGE ALERT: Faction is frozen! {totalFrozenAssets} card/asset{totalFrozenAssets !== 1 ? 's' : ''} disabled for {f.frozenTurnsRemaining} turn{f.frozenTurnsRemaining !== 1 ? 's' : ''}.
+                                      </div>
+                                    )}
+                                    {/* Allocation details */}
                                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', fontSize: '11px', color: '#475569', marginBottom: '8px' }}>
                                     <div>
                                       💼 <b>Posts:</b> {(() => {
@@ -1426,7 +1467,8 @@ export default function StatsView({
                                     <span style={{ color: '#ec4899' }}>Media: {y.media >= 0 ? '+' : ''}{y.media} 📢</span>
                                   </div>
                                 </div>
-                              )}
+                              );
+                            })()}
                             </div>
                           );
                         })}

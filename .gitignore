@@ -15,4 +15,5 @@ backend/target/
 .idea/
 .vscode/
 
-
+# Capacitor / Android
+react-ui/android/

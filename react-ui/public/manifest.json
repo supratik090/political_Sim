@@ -1,0 +1,16 @@
+{
+  "short_name": "Bharat Rajneeti",
+  "name": "Bharat Rajneeti: Indian Politics Simulator",
+  "icons": [
+    {
+      "src": "/politics.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0a0f1d",
+  "theme_color": "#0ea5e9",
+  "display": "standalone",
+  "orientation": "portrait-primary"
+}

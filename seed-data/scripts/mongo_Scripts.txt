@@ -1,0 +1,61 @@
+  // Missing news 2001
+
+db.scenario_definitions.aggregate([
+
+  // 1. Filter only for 2001 scenarios
+
+  {
+
+    $match: {
+
+      scenarioKey: { $regex: /2001$/ }
+
+    }
+
+  },
+
+  // 2. Look up matching documents in the news collection
+
+  {
+
+    $lookup: {
+
+      from: "news_definitions",                  // Your news collection name
+
+      localField: "scenarioKey",
+
+      foreignField: "scenarioKey",
+
+      as: "associatedNews"
+
+    }
+
+  },
+
+  // 3. Filter for scenarios where the joined news array is empty
+
+  {
+
+    $match: {
+
+      associatedNews: { $size: 0 }
+
+    }
+
+  },
+
+  // 4. Clean up the output to just show the scenario keys
+
+  {
+
+    $project: {
+
+      _id: 0,
+
+      scenarioKey: 1
+
+    }
+
+  }
+
+]);

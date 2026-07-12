@@ -335,6 +335,16 @@ public class RoundResolutionEngine {
             commentary.add("  - " + party.getName() + " next round priorities: " + priorities + ".");
         }
 
+        // Append pending sabotage / bribery results from the turn
+        if (session.getPendingSabotageCommentary() != null && !session.getPendingSabotageCommentary().isEmpty()) {
+            commentary.addAll(session.getPendingSabotageCommentary());
+            session.getPendingSabotageCommentary().clear();
+        }
+        if (session.getPendingSabotageResults() != null && !session.getPendingSabotageResults().isEmpty()) {
+            resultLines.addAll(session.getPendingSabotageResults());
+            session.getPendingSabotageResults().clear();
+        }
+
         session.setLastRoundSubmissions(new ArrayList<>(session.getCurrentRoundSubmissions()));
         session.setLastMetricDeltas(deltas);
         session.setLastRoundCommentary(commentary);
@@ -360,6 +370,18 @@ public class RoundResolutionEngine {
             session.setProposedBillKeyThisTurn(null);
             selectNextProposedBill(session, commentary, resultLines);
             return;
+        }
+
+        LegislativeBillState billStateTemp = session.getBills().stream()
+                .filter(b -> b.getBillKey().equals(activeBillKey))
+                .findFirst()
+                .orElse(null);
+        PartyState proposerParty = null;
+        if (billStateTemp != null && billStateTemp.getProposedByPartyId() != null) {
+            proposerParty = session.getParties().stream()
+                    .filter(p -> p.getId().equals(billStateTemp.getProposedByPartyId()))
+                    .findFirst()
+                    .orElse(null);
         }
 
         double yesWeight = 0;
@@ -480,7 +502,7 @@ public class RoundResolutionEngine {
         }
 
         commentary.addAll(splitCommentaries);
-        commentary.add("🗳️ Legislative Vote Tally on '" + billDef.getName() + "':");
+        commentary.add("🗳️ Legislative Vote Tally on '" + billDef.getName() + "' (Proposed by: " + (proposerParty != null ? proposerParty.getName() : "Government") + "):");
         commentary.add("  - YES (" + String.format("%.1f", yesWeight) + "% total share): " + (yesParties.isEmpty() ? "None" : String.join(", ", yesParties)));
         commentary.add("  - NO (" + String.format("%.1f", noWeight) + "% total share): " + (noParties.isEmpty() ? "None" : String.join(", ", noParties)));
         if (!abstainParties.isEmpty()) {
@@ -505,21 +527,9 @@ public class RoundResolutionEngine {
                 govApproval = Math.max(0.1, Math.min(0.9, govApproval));
             }
 
-            // Check if proposed by Government or Opposition/others
-            LegislativeBillState billStateTemp = session.getBills().stream()
-                    .filter(b -> b.getBillKey().equals(activeBillKey))
-                    .findFirst()
-                    .orElse(null);
-
             boolean isGovBill = true;
-            if (billStateTemp != null && billStateTemp.getProposedByPartyId() != null) {
-                PartyState proposer = session.getParties().stream()
-                        .filter(p -> p.getId().equals(billStateTemp.getProposedByPartyId()))
-                        .findFirst()
-                        .orElse(null);
-                if (proposer != null) {
-                    isGovBill = proposer.getRole() == com.politicalsim.party.PartyRole.GOVERNMENT;
-                }
+            if (proposerParty != null) {
+                isGovBill = proposerParty.getRole() == com.politicalsim.party.PartyRole.GOVERNMENT;
             }
 
             if (isGovBill) {
@@ -574,15 +584,20 @@ public class RoundResolutionEngine {
             commentary.add("✅ Bill PASSED: '" + billDef.getName() + "' passed the assembly (" + String.format("%.1f", yesWeight) + "% vs " + String.format("%.1f", noWeight) + "%).");
             resultLines.add("Bill Passed: " + billDef.getName());
 
-            PartyState proposer = session.getParties().stream()
-                    .filter(p -> p.getId().equals(finalBillState.getProposedByPartyId()))
-                    .findFirst()
-                    .orElseGet(() -> session.getGovernmentParty());
+            PartyState proposer = proposerParty != null ? proposerParty : session.getGovernmentParty();
 
             if (proposer != null) {
                 applyEffectsMap(session, proposer, billDef.getEffectsPassed());
                 proposer.getStats().setPartyMorale(Math.min(100, proposer.getStats().getPartyMorale() + billDef.getPointsPassed()));
                 commentary.add("  - Proposer " + proposer.getName() + " received effects: " + formatEffectsMap(billDef.getEffectsPassed()) + " and +" + billDef.getPointsPassed() + " Morale.");
+            }
+
+            // Apply benefits to all other active parties (opposition and partners)
+            for (PartyState party : session.getParties()) {
+                if (party.isActive() && party.getRole() != com.politicalsim.party.PartyRole.DEFEATED && (proposer == null || !party.getId().equals(proposer.getId()))) {
+                    applyEffectsMap(session, party, billDef.getEffectsPassed());
+                    commentary.add("  - Party " + party.getName() + " also received bill effects: " + formatEffectsMap(billDef.getEffectsPassed()) + ".");
+                }
             }
         } else {
             finalBillState.setStatus("FAILED");
@@ -593,10 +608,7 @@ public class RoundResolutionEngine {
             }
             resultLines.add("Bill Defeated: " + billDef.getName());
 
-            PartyState proposer = session.getParties().stream()
-                    .filter(p -> p.getId().equals(finalBillState.getProposedByPartyId()))
-                    .findFirst()
-                    .orElseGet(() -> session.getGovernmentParty());
+            PartyState proposer = proposerParty != null ? proposerParty : session.getGovernmentParty();
 
             if (proposer != null) {
                 applyEffectsMap(session, proposer, billDef.getEffectsFailed());
@@ -2476,6 +2488,9 @@ public class RoundResolutionEngine {
                             }
                         }
                     }
+                }
+                if (fs.getFrozenTurnsRemaining() > 0) {
+                    fs.setFrozenTurnsRemaining(fs.getFrozenTurnsRemaining() - 1);
                 }
 
                 totalCoins += Math.round(baseCoins * mult);

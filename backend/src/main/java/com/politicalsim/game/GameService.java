@@ -1079,11 +1079,12 @@ public class GameService {
                             }
                         }
 
+                        bestTargetFs.setFrozenTurnsRemaining(10);
                         String frozenList = frozenLabels.isEmpty() ? "No active cards found to freeze" : String.join(", ", frozenLabels);
                         String msg = String.format("🚨 AI Sabotage: %s successfully bribed %s's %s faction! Loyalty fell by -%d%%. FROZEN: %s.",
                                 party.getName(), bestTargetParty.getName(), bestTargetFs.getName(), loyaltyLoss, frozenList);
-                        session.getLastRoundCommentary().add(msg);
-                        session.getLastResults().add("🚨 AI " + party.getName() + " successfully bribed opponent faction " + bestTargetFs.getName());
+                        session.getPendingSabotageCommentary().add(msg);
+                        session.getPendingSabotageResults().add("🚨 AI " + party.getName() + " successfully bribed opponent faction " + bestTargetFs.getName());
                     } else {
                         // Fail
                         int mediaLoss = Math.max(5, (int) Math.round(party.getStats().getMediaImage() * 0.10));
@@ -1093,8 +1094,8 @@ public class GameService {
 
                         String msg = String.format("🚨 AI Sabotage Exposed: %s tried to bribe %s's %s but was exposed! %s loses -%d Media Image and -%d Morale.",
                                 party.getName(), bestTargetParty.getName(), bestTargetFs.getName(), party.getName(), mediaLoss, moraleLoss);
-                        session.getLastRoundCommentary().add(msg);
-                        session.getLastResults().add("🚨 AI " + party.getName() + " bribe attempt on " + bestTargetFs.getName() + " exposed!");
+                        session.getPendingSabotageCommentary().add(msg);
+                        session.getPendingSabotageResults().add("🚨 AI " + party.getName() + " bribe attempt on " + bestTargetFs.getName() + " exposed!");
                     }
                 }
             }
@@ -2860,11 +2861,12 @@ public class GameService {
                 frozenLabels.add(selected.label);
             }
 
+            fs.setFrozenTurnsRemaining(10);
             String frozenListStr = frozenLabels.isEmpty() ? "No active cards/assets found to freeze" : String.join(", ", frozenLabels);
             String msg = String.format("🚨 Sabotage Successful: %s bribed %s's %s faction! Loyalty fell by -%d%% (Current: %d%%). The following specific assets are FROZEN for 10 rounds: %s.",
                     sender.getName(), targetParty.getName(), fs.getName(), loyaltyLoss, fs.getLoyalty(), frozenListStr);
-            session.getLastRoundCommentary().add(msg);
-            session.getLastResults().add("🚨 " + sender.getName() + " successfully bribed and froze opponent faction " + fs.getName());
+            session.getPendingSabotageCommentary().add(msg);
+            session.getPendingSabotageResults().add("🚨 " + sender.getName() + " successfully bribed and froze opponent faction " + fs.getName());
         } else {
             // Failed: Refused and Exposed
             int mediaLoss = Math.max(5, (int) Math.round(sender.getStats().getMediaImage() * 0.10));
@@ -2875,8 +2877,8 @@ public class GameService {
 
             String msg = String.format("🚨 Bribe Refused & Exposed: %s attempted to bribe %s's %s but was refused! %s loses -%d Media Image (-10%%) and -%d Party Morale (-5%%).",
                     sender.getName(), targetParty.getName(), fs.getName(), sender.getName(), mediaLoss, moraleLoss);
-            session.getLastRoundCommentary().add(msg);
-            session.getLastResults().add("🚨 " + sender.getName() + " bribe attempt on " + fs.getName() + " exposed!");
+            session.getPendingSabotageCommentary().add(msg);
+            session.getPendingSabotageResults().add("🚨 " + sender.getName() + " bribe attempt on " + fs.getName() + " exposed!");
         }
 
         gameSessionService.save(session);

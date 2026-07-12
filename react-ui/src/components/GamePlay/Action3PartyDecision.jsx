@@ -32,7 +32,8 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
       desc: p.yieldDesc || 'Delegated project.',
       icon: p.icon || '🏗️',
       color: 'linear-gradient(135deg, #115e59 0%, #0d9488 100%)',
-      isPermanentlyAssigned: true // Lock projects from previous turns
+      isPermanentlyAssigned: true, // Lock projects from previous turns
+      frozenTurnsRemaining: p.frozenTurnsRemaining
     }));
 
     let accentColor = '#ef4444';
@@ -57,7 +58,10 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
       projects: projectsMapped,
       active: f.active,
       accentColor,
-      isPostPermanentlyAssigned: postKeys.length > 0 // Lock posts from previous turns
+      isPostPermanentlyAssigned: postKeys.length > 0, // Lock posts from previous turns
+      frozenTurnsRemaining: f.frozenTurnsRemaining,
+      frozenPosts: f.frozenPosts,
+      frozenPatronageTurns: f.frozenPatronageTurns
     };
   });
 
@@ -1218,6 +1222,31 @@ const [deck, setDeck] = useState(() => {
                     </div>
                   </div>
                 </div>
+
+                {f.frozenTurnsRemaining > 0 && (() => {
+                  const frozenPostsCount = f.frozenPosts ? Object.values(f.frozenPosts).filter(t => t > 0).length : 0;
+                  const frozenPatronageCount = f.frozenPatronageTurns ? f.frozenPatronageTurns.filter(t => t > 0).length : 0;
+                  const frozenProjectsCount = (f.projects || []).filter(p => p.frozenTurnsRemaining > 0).length;
+                  const totalFrozenAssets = frozenPostsCount + frozenPatronageCount + frozenProjectsCount;
+
+                  return (
+                    <div style={{
+                      fontSize: '11px',
+                      color: '#c2410c',
+                      backgroundColor: '#fff7ed',
+                      border: '1.5px dashed #ffedd5',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      fontWeight: '800',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      marginBottom: '10px'
+                    }}>
+                      ❄️ FROZEN: {totalFrozenAssets} card/asset{totalFrozenAssets !== 1 ? 's' : ''} locked for {f.frozenTurnsRemaining} turn{f.frozenTurnsRemaining !== 1 ? 's' : ''}!
+                    </div>
+                  );
+                })()}
 
                 {/* Mood Badge */}
                 <div style={{

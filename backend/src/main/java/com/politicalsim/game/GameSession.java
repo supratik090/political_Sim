@@ -49,6 +49,8 @@ public class GameSession {
     private List<String> lastRoundCommentary = new ArrayList<>();
     private List<String> pendingResults = new ArrayList<>();
     private List<String> lastResults = new ArrayList<>();
+    private List<String> pendingSabotageCommentary = new ArrayList<>();
+    private List<String> pendingSabotageResults = new ArrayList<>();
 
     private String currentRewardKey;
     private String currentRewardName;
@@ -337,6 +339,24 @@ public class GameSession {
 
     public void setLastResults(List<String> lastResults) {
         this.lastResults = lastResults;
+    }
+
+    public List<String> getPendingSabotageCommentary() {
+        if (pendingSabotageCommentary == null) pendingSabotageCommentary = new ArrayList<>();
+        return pendingSabotageCommentary;
+    }
+
+    public void setPendingSabotageCommentary(List<String> pendingSabotageCommentary) {
+        this.pendingSabotageCommentary = pendingSabotageCommentary;
+    }
+
+    public List<String> getPendingSabotageResults() {
+        if (pendingSabotageResults == null) pendingSabotageResults = new ArrayList<>();
+        return pendingSabotageResults;
+    }
+
+    public void setPendingSabotageResults(List<String> pendingSabotageResults) {
+        this.pendingSabotageResults = pendingSabotageResults;
     }
 
     public String getCurrentRewardKey() {
