@@ -240,10 +240,12 @@ public class GameService {
         if (partyManagementRepository == null) return;
         // Delete any stale state for this game (e.g. re-start)
         partyManagementRepository.deleteByGameId(session.getId());
-        for (String partyId : session.getPlayerPartyIds()) {
-            PartyManagementState pms = new PartyManagementState(session.getId(), partyId);
-            pms.setPosts(PostsConfig.buildScheduledPosts());
-            partyManagementRepository.save(pms);
+        for (PartyState party : session.getParties()) {
+            if (party.isActive()) {
+                PartyManagementState pms = new PartyManagementState(session.getId(), party.getId());
+                pms.setPosts(PostsConfig.buildScheduledPosts());
+                partyManagementRepository.save(pms);
+            }
         }
     }
 
@@ -825,15 +827,19 @@ public class GameService {
         }
         session.setTurnStartStats(startStats);
 
-        // Persist party management state (patronage, posts) for each player party
+        // Persist party management state (patronage, posts) for ALL active parties
         int resolvedTurnNumber = session.getTurnNumber(); // turn AFTER increment already applied
-        for (String pid : session.getPlayerPartyIds()) {
-            RoundSubmission playerSub = session.getLastRoundSubmissions() != null
+        for (PartyState party : session.getParties()) {
+            if (!party.isActive() || party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                continue;
+            }
+            String pid = party.getId();
+            RoundSubmission resolvedSub = session.getLastRoundSubmissions() != null
                     ? session.getLastRoundSubmissions().stream()
                         .filter(s -> s.getPartyId().equals(pid))
                         .findFirst().orElse(null)
                     : null;
-            java.util.Map<String, Object> allocs = playerSub != null ? playerSub.getAllocations() : null;
+            java.util.Map<String, Object> allocs = resolvedSub != null ? resolvedSub.getAllocations() : null;
             updatePartyManagementOnTurn(session, pid, allocs, resolvedTurnNumber);
         }
 

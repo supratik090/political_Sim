@@ -2,107 +2,96 @@ import React from 'react';
 
 // Core component to load transparent PNG party symbols from locally extracted assets
 export const PartySymbolImage = ({ symbolName, size = 24, style = {}, color = '' }) => {
-  const iconUrls = {
-    bjp: '/symbols/bjp.png',
-    inc: '/symbols/inc.png',
-    cpim: '/symbols/cpim.png',
-    ydp: 'https://cdn-icons-png.flaticon.com/512/2614/2614742.png',
-    tiger: 'https://cdn-icons-png.flaticon.com/512/3069/3069172.png',
-    elephant: '/symbols/bsp.png',
-    peacock: 'https://cdn-icons-png.flaticon.com/512/2620/2620581.png',
-    tdp: '/symbols/tdp.png',
-    sp: '/symbols/sp.png',
-    arrow: '/symbols/jdu.png',
-    lantern: '/symbols/rjd.png',
-    flower: '/symbols/tmc.png',
-    bow: '/symbols/shivsena.png',
-    fan: 'https://cdn-icons-png.flaticon.com/512/924/924619.png',
-    leaves: '/symbols/aiadmk.png',
-    sun: '/symbols/dmk.png',
-    flag: 'https://cdn-icons-png.flaticon.com/512/206/206124.png',
-    star: 'https://cdn-icons-png.flaticon.com/512/1828/1828884.png'
-  };
-
   const name = (symbolName || '').toLowerCase().trim();
-  let key = 'flag';
-  if (name.includes('lotus') || name === 'bjp') key = 'bjp';
-  else if (name.includes('hand') || name === 'inc' || name === 'congress') key = 'inc';
-  else if (name.includes('hammer') || name.includes('sickle') || name === 'cpi' || name === 'ldf' || name.includes('left')) key = 'cpim';
-  else if (name.includes('fist') || name === 'ydp' || name.includes('youth')) key = 'ydp';
-  else if (name.includes('tiger') || name.includes('front')) key = 'tiger';
-  else if (name.includes('elephant') || name === 'bsp') key = 'elephant';
-  else if (name.includes('peacock')) key = 'peacock';
-  else if (name.includes('bicycle') || name === 'tdp' || name === 'sp') {
-    key = (name.includes('sp') || name.includes('samajwadi')) ? 'sp' : 'tdp';
-  }
-  else if (name.includes('arrow') || name === 'jdu' || name.includes('jd-u')) key = 'arrow';
-  else if (name.includes('lantern') || name.includes('lamp') || name === 'rjd') key = 'lantern';
-  else if (name.includes('flower') || name === 'tmc' || name.includes('twin')) key = 'flower';
-  else if (name.includes('bow') || name.includes('shiv') || name === 'sena') key = 'bow';
-  else if (name.includes('fan') || name.includes('ysr')) key = 'fan';
-  else if (name.includes('leaf') || name.includes('leaves') || name === 'aiadmk') key = 'leaves';
-  else if (name.includes('sun') || name === 'dmk') key = 'sun';
-  else if (name.includes('star')) key = 'star';
-
-  const src = iconUrls[key];
+  let initials = 'PTY';
+  
+  if (name === 'bjp' || name.includes('lotus')) initials = 'BJP';
+  else if (name === 'inc' || name.includes('hand') || name === 'congress') initials = 'INC';
+  else if (name === 'cpim' || name === 'cpi' || name.includes('hammer') || name.includes('sickle') || name === 'ldf' || name.includes('left')) initials = 'CPM';
+  else if (name === 'ydp' || name.includes('fist') || name.includes('youth')) initials = 'YDP';
+  else if (name === 'tf' || name.includes('tiger') || name.includes('front')) initials = 'TF';
+  else if (name === 'agp') initials = 'AGP';
+  else if (name === 'bsp' || name.includes('elephant')) initials = 'BSP';
+  else if (name === 'pp' || name.includes('peacock')) initials = 'PP';
+  else if (name === 'sp' || (name.includes('bicycle') && name.includes('sp')) || (name.includes('bicycle') && name.includes('samajwadi'))) initials = 'SP';
+  else if (name === 'tdp' || name.includes('bicycle')) initials = 'TDP';
+  else if (name === 'jdu' || name.includes('arrow')) initials = 'JDU';
+  else if (name === 'rjd' || name.includes('lantern')) initials = 'RJD';
+  else if (name === 'tmc' || name.includes('flower') || name.includes('twin')) initials = 'TMC';
+  else if (name === 'jmm') initials = 'JMM';
+  else if (name === 'ss' || name.includes('bow') || name.includes('shiv') || name === 'sena') initials = 'SS';
+  else if (name === 'ycp' || name.includes('fan') || name.includes('ysr') || name === 'ysrcp') initials = 'YCP';
+  else if (name === 'admk' || name.includes('leaf') || name.includes('leaves') || name === 'aiadmk') initials = 'ADMK';
+  else if (name === 'dmk' || name.includes('sun')) initials = 'DMK';
+  else if (name === 'star' || name === 'mnf') initials = 'MNF';
+  else if (name === 'flag') initials = 'FLG';
+  else if (name === 'ashoka' || name.includes('chakra')) initials = 'IND';
+  else if (name === 'broom' || name === 'aap') initials = 'AAP';
+  else if (name === 'conch' || name === 'bjd') initials = 'BJD';
+  else if (name === 'spectacles' || name === 'inld') initials = 'INLD';
+  else if (name === 'lady farmer' || name === 'jds') initials = 'JDS';
+  else if (name === 'plough' || name === 'nc') initials = 'NC';
+  else if (name === 'globe' || name === 'ndpp') initials = 'NDP';
+  else if (name === 'cock' || name === 'npf') initials = 'NPF';
+  else if (name === 'book' || name === 'npp') initials = 'NPP';
+  else if (name === 'maize' || name === 'ppa') initials = 'PPA';
+  else if (name === 'umbrella' || name === 'sdf') initials = 'SDF';
+  else if (name === 'table lamp' || name.includes('lamp') || name === 'skm') initials = 'SKM';
+  else if (name === 'drum' || name === 'udp') initials = 'UDP';
+  else if (name === 'kettle' || name === 'zpm') initials = 'ZPM';
+  else if (name === 'car' || name === 'trs' || name === 'brs') initials = 'TRS';
+  else if (name === 'scales' || name === 'sad') initials = 'SAD';
+  else if (name.length <= 4) initials = name.toUpperCase();
 
   return (
-    <img 
-      src={src} 
-      alt={symbolName} 
-      width={size} 
-      height={size} 
-      style={{ 
-        objectFit: 'contain',
-        display: 'inline-block',
-        verticalAlign: 'middle',
-        ...style 
-      }} 
-    />
+    <div style={{
+      width: `${size}px`,
+      height: `${size}px`,
+      borderRadius: '50%',
+      backgroundColor: color || 'var(--party-primary-color, var(--primary-dark))',
+      color: '#ffffff',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: `${Math.max(7, size * 0.38)}px`,
+      fontWeight: '900',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      letterSpacing: '-0.02em',
+      verticalAlign: 'middle',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+      border: '1.5px solid rgba(255,255,255,0.25)',
+      textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+      ...style
+    }}>
+      {initials}
+    </div>
   );
 };
 
-// Mathematically perfect Ashoka Chakra inline SVG component
+// Mathematically perfect Ashoka Chakra inline SVG component replaced with Initials Badge
 export const AshokaChakraIcon = ({ color = '#000080', size = 24, style = {} }) => {
-  // Generate 24 spokes at 15-degree intervals (360 / 24 = 15)
-  const spokes = [];
-  for (let i = 0; i < 24; i++) {
-    const angle = i * 15;
-    spokes.push(
-      <line
-        key={i}
-        x1="50"
-        y1="50"
-        x2={50 + 38 * Math.cos((angle * Math.PI) / 180)}
-        y2={50 + 38 * Math.sin((angle * Math.PI) / 180)}
-        stroke={color}
-        strokeWidth="2"
-      />
-    );
-  }
-
   return (
-    <svg viewBox="0 0 100 100" width={size} height={size} style={style}>
-      {/* Outer Ring */}
-      <circle cx="50" cy="50" r="40" stroke={color} strokeWidth="4.5" fill="none" />
-      {/* Inner Hub */}
-      <circle cx="50" cy="50" r="7" fill={color} />
-      {/* 24 Spokes */}
-      {spokes}
-      {/* Outer spoke connection points (24 tiny decorative dots) */}
-      {Array.from({ length: 24 }).map((_, i) => {
-        const angle = i * 15 + 7.5; // Offset by 7.5 degrees to place between spokes
-        return (
-          <circle
-            key={i}
-            cx={50 + 40 * Math.cos((angle * Math.PI) / 180)}
-            cy={50 + 40 * Math.sin((angle * Math.PI) / 180)}
-            r="1.5"
-            fill={color}
-          />
-        );
-      })}
-    </svg>
+    <div style={{
+      width: `${size}px`,
+      height: `${size}px`,
+      borderRadius: '50%',
+      backgroundColor: color,
+      color: '#ffffff',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: `${Math.max(7, size * 0.38)}px`,
+      fontWeight: '900',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      letterSpacing: '-0.02em',
+      verticalAlign: 'middle',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+      border: '1.5px solid rgba(255,255,255,0.25)',
+      textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+      ...style
+    }}>
+      IND
+    </div>
   );
 };
 
@@ -124,6 +113,7 @@ export const TwoLeavesIcon = (props) => <PartySymbolImage {...props} symbolName=
 export const RisingSunIcon = (props) => <PartySymbolImage {...props} symbolName="Rising Sun" />;
 export const FlagIcon = (props) => <PartySymbolImage {...props} symbolName="Flag" />;
 export const StarIcon = (props) => <PartySymbolImage {...props} symbolName="Star" />;
+export const YdpIcon = (props) => <PartySymbolImage {...props} symbolName="YDP" />;
 
 // Helper function to resolve symbol SVG component by name
 export const getSymbolIconComponent = (symbolName) => {
@@ -132,7 +122,7 @@ export const getSymbolIconComponent = (symbolName) => {
   if (normalized.includes('hand') || normalized === 'inc' || normalized === 'congress') return HandIcon;
   if (normalized.includes('hammer') || normalized.includes('sickle') || normalized === 'cpi' || normalized === 'ldf' || normalized.includes('left')) return HammerIcon;
   if (normalized.includes('fist')) return ClosedFistIcon;
-  if (normalized === 'ydp' || normalized.includes('youth')) return AshokaChakraIcon;
+  if (normalized === 'ydp' || normalized.includes('youth') || normalized.includes('ashoka') || normalized.includes('chakra')) return YdpIcon;
   if (normalized.includes('tiger') || normalized.includes('front')) return TigerIcon;
   if (normalized.includes('elephant') || normalized === 'bsp') return ElephantIcon;
   if (normalized.includes('peacock')) return PeacockIcon;
@@ -254,9 +244,9 @@ export const getPartyThemeByName = (partyName) => {
     return {
       color: '#1E824C',
       rgb: '30, 130, 76',
-      symbolName: 'Bicycle',
-      SymbolIcon: BicycleIcon,
-      WatermarkIcon: (props) => <BicycleIcon {...props} style={{ opacity: 0.1, filter: 'grayscale(100%)' }} />
+      symbolName: 'SP',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="SP" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="SP" style={{ opacity: 0.1, filter: 'grayscale(100%)' }} />
     };
   }
 
@@ -276,9 +266,9 @@ export const getPartyThemeByName = (partyName) => {
     return {
       color: '#D8B4FE',
       rgb: '216, 180, 254',
-      symbolName: 'Ashoka Chakra',
-      SymbolIcon: AshokaChakraIcon,
-      WatermarkIcon: (props) => <AshokaChakraIcon {...props} style={{ opacity: 0.1 }} />
+      symbolName: 'YDP',
+      SymbolIcon: YdpIcon,
+      WatermarkIcon: (props) => <YdpIcon {...props} style={{ opacity: 0.1 }} />
     };
   }
 
@@ -323,6 +313,204 @@ export const getPartyThemeByName = (partyName) => {
       symbolName: 'Rising Sun',
       SymbolIcon: RisingSunIcon,
       WatermarkIcon: (props) => <RisingSunIcon {...props} style={{ opacity: 0.1, filter: 'grayscale(100%)' }} />
+    };
+  }
+
+  // 16. AAP (Aam Aadmi Party)
+  if (name.includes('aap') || name.includes('broom')) {
+    return {
+      color: '#0054A6',
+      rgb: '0, 84, 166',
+      symbolName: 'Broom',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Broom" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Broom" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 17. BJD (Biju Janata Dal)
+  if (name.includes('bjd') || name.includes('conch')) {
+    return {
+      color: '#006400',
+      rgb: '0, 100, 0',
+      symbolName: 'Conch',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Conch" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Conch" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 18. JMM (Jharkhand Mukti Morcha)
+  if (name.includes('jmm')) {
+    return {
+      color: '#006400',
+      rgb: '0, 100, 0',
+      symbolName: 'Bow & Arrow',
+      SymbolIcon: BowArrowIcon,
+      WatermarkIcon: (props) => <BowArrowIcon {...props} style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 19. TRS (Telangana Rashtra Samithi) / BRS / Car
+  if (name.includes('trs') || name.includes('brs') || name.includes('car')) {
+    return {
+      color: '#FF69B4',
+      rgb: '255, 105, 180',
+      symbolName: 'Car',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Car" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Car" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 20. SAD (Shiromani Akali Dal)
+  if (name.includes('sad') || name.includes('akali') || name.includes('scales')) {
+    return {
+      color: '#0F4C81',
+      rgb: '15, 76, 129',
+      symbolName: 'Scales',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Scales" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Scales" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 21. NC (National Conference)
+  if (name.includes('nc') || name.includes('conference') || name.includes('plough')) {
+    return {
+      color: '#D21F3C',
+      rgb: '210, 31, 60',
+      symbolName: 'Plough',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Plough" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Plough" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 22. MNF (Mizo National Front)
+  if (name.includes('mnf')) {
+    return {
+      color: '#0038A8',
+      rgb: '0, 56, 168',
+      symbolName: 'Star',
+      SymbolIcon: StarIcon,
+      WatermarkIcon: (props) => <StarIcon {...props} style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 23. AGP (Asom Gana Parishad)
+  if (name.includes('agp')) {
+    return {
+      color: '#008000',
+      rgb: '0, 128, 0',
+      symbolName: 'Elephant',
+      SymbolIcon: ElephantIcon,
+      WatermarkIcon: (props) => <ElephantIcon {...props} style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 24. INLD (Indian National Lok Dal)
+  if (name.includes('inld') || name.includes('spectacles')) {
+    return {
+      color: '#2E8B57',
+      rgb: '46, 139, 87',
+      symbolName: 'Spectacles',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Spectacles" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Spectacles" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 25. JD(S)
+  if (name.includes('jd(s)') || name.includes('jds')) {
+    return {
+      color: '#228B22',
+      rgb: '34, 139, 34',
+      symbolName: 'Lady Farmer',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Lady Farmer" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Lady Farmer" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 26. NDPP
+  if (name.includes('ndpp') || name.includes('globe')) {
+    return {
+      color: '#E61A22',
+      rgb: '230, 26, 34',
+      symbolName: 'Globe',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Globe" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Globe" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 27. NPF
+  if (name.includes('npf') || name.includes('cock')) {
+    return {
+      color: '#0000FF',
+      rgb: '0, 0, 255',
+      symbolName: 'Cock',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Cock" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Cock" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 28. NPP
+  if (name.includes('npp') || name.includes('book')) {
+    return {
+      color: '#000080',
+      rgb: '0, 0, 128',
+      symbolName: 'Book',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Book" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Book" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 29. PPA
+  if (name.includes('ppa') || name.includes('maize')) {
+    return {
+      color: '#FFCC00',
+      rgb: '255, 204, 0',
+      symbolName: 'Maize',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Maize" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Maize" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 30. SDF
+  if (name.includes('sdf') || name.includes('umbrella')) {
+    return {
+      color: '#008000',
+      rgb: '0, 128, 0',
+      symbolName: 'Umbrella',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Umbrella" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Umbrella" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 31. SKM
+  if (name.includes('skm') || name.includes('lamp')) {
+    return {
+      color: '#FF3333',
+      rgb: '255, 51, 51',
+      symbolName: 'Table Lamp',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Table Lamp" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Table Lamp" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 32. UDP
+  if (name.includes('udp') || name.includes('drum')) {
+    return {
+      color: '#FFCC00',
+      rgb: '255, 204, 0',
+      symbolName: 'Drum',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Drum" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Drum" style={{ opacity: 0.1 }} />
+    };
+  }
+
+  // 33. ZPM
+  if (name.includes('zpm') || name.includes('kettle')) {
+    return {
+      color: '#1E824C',
+      rgb: '30, 130, 76',
+      symbolName: 'Kettle',
+      SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Kettle" />,
+      WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Kettle" style={{ opacity: 0.1 }} />
     };
   }
 

@@ -2479,9 +2479,17 @@ public class RoundResolutionEngine {
                 }
 
                 totalCoins += Math.round(baseCoins * mult);
-                totalSupport += baseSupport * mult;
+                
+                double roundedSupport = Math.round(baseSupport * mult * 10.0) / 10.0;
+                totalSupport += roundedSupport;
+                
                 totalMorale += Math.round(baseMorale * mult);
-                totalCorruption += Math.round(baseCorruption * (2 - mult));
+                
+                int roundedCorruption = (baseCorruption < 0) 
+                        ? (int) Math.round(baseCorruption * mult) 
+                        : (int) Math.round(baseCorruption * (2.0 - mult));
+                totalCorruption += roundedCorruption;
+                
                 totalMedia += Math.round(baseMedia * mult);
             }
 

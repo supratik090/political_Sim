@@ -437,10 +437,10 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
         </div>
       )}
 
-      {/* 4. Treaty & Exchange Workshop Section */}
+      {/* 4. Diplomacy Section */}
       <div style={{ border: '1px solid var(--primary-border)', borderRadius: '12px', padding: '20px', background: '#ffffff', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
         <h4 style={{ margin: '0 0 15px 0', fontSize: '16px', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold' }}>
-          🏛️ Treaty & Exchange Workshop
+          🏛️ Diplomacy
         </h4>
 
         {/* Step A: Choose Partner */}
@@ -485,106 +485,91 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
             {/* Step B: Type Selection Tabs */}
             <div>
               <span style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '8px', color: '#475569' }}>Proposal Category:</span>
-              {isMobile ? (
-                <select
-                  value={offerType}
-                  onChange={(e) => setOfferType(e.target.value)}
+              <div style={isMobile ? {
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '8px'
+              } : {
+                display: 'flex',
+                gap: '8px'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setOfferType('EXCHANGE')}
                   style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    fontSize: '14px',
-                    fontWeight: '600',
+                    flex: isMobile ? 'none' : 1,
+                    padding: '10px 12px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
                     borderRadius: '8px',
-                    border: '1.5px solid var(--primary-border)',
-                    background: '#ffffff',
-                    color: '#0f172a',
+                    border: `1.5px solid ${offerType === 'EXCHANGE' ? 'var(--primary-dark)' : 'var(--primary-border)'}`,
+                    background: offerType === 'EXCHANGE' ? 'rgba(33,60,81,0.08)' : '#ffffff',
+                    color: offerType === 'EXCHANGE' ? 'var(--primary-dark)' : '#475569',
                     cursor: 'pointer',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                    outline: 'none',
-                    transition: 'all 0.15s'
+                    transition: 'all 0.15s',
+                    textAlign: 'center'
                   }}
                 >
-                  <option value="EXCHANGE">💱 Assets Exchange</option>
-                  <option value="LOBBYING">🗳️ Bill Lobbying</option>
-                  <option value="NON_AGGRESSION">🕊️ Non-Aggression Pact</option>
-                  <option value="SABOTAGE">⚡ Sabotage Faction</option>
-                </select>
-              ) : (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setOfferType('EXCHANGE')}
-                    style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      borderRadius: '8px',
-                      border: `1.5px solid ${offerType === 'EXCHANGE' ? 'var(--primary-dark)' : 'var(--primary-border)'}`,
-                      background: offerType === 'EXCHANGE' ? 'rgba(33,60,81,0.08)' : '#ffffff',
-                      color: offerType === 'EXCHANGE' ? 'var(--primary-dark)' : '#475569',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s'
-                    }}
-                  >
-                    💱 Assets Exchange
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setOfferType('LOBBYING')}
-                    style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      borderRadius: '8px',
-                      border: `1.5px solid ${offerType === 'LOBBYING' ? 'var(--primary-dark)' : 'var(--primary-border)'}`,
-                      background: offerType === 'LOBBYING' ? 'rgba(33,60,81,0.08)' : '#ffffff',
-                      color: offerType === 'LOBBYING' ? 'var(--primary-dark)' : '#475569',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s'
-                    }}
-                  >
-                    🗳️ Bill Lobbying
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setOfferType('NON_AGGRESSION')}
-                    style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      borderRadius: '8px',
-                      border: `1.5px solid ${offerType === 'NON_AGGRESSION' ? 'var(--primary-dark)' : 'var(--primary-border)'}`,
-                      background: offerType === 'NON_AGGRESSION' ? 'rgba(33,60,81,0.08)' : '#ffffff',
-                      color: offerType === 'NON_AGGRESSION' ? 'var(--primary-dark)' : '#475569',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s'
-                    }}
-                  >
-                    🕊️ Non-Aggression Pact
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setOfferType('SABOTAGE')}
-                    style={{
-                      flex: 1,
-                      padding: '10px 14px',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      borderRadius: '8px',
-                      border: `1.5px solid ${offerType === 'SABOTAGE' ? 'var(--primary-dark)' : 'var(--primary-border)'}`,
-                      background: offerType === 'SABOTAGE' ? 'rgba(33,60,81,0.08)' : '#ffffff',
-                      color: offerType === 'SABOTAGE' ? 'var(--primary-dark)' : '#475569',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s'
-                    }}
-                  >
-                    ⚡ Sabotage Faction
-                  </button>
-                </div>
-              )}
+                  💱 Assets Exchange
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOfferType('LOBBYING')}
+                  style={{
+                    flex: isMobile ? 'none' : 1,
+                    padding: '10px 12px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    borderRadius: '8px',
+                    border: `1.5px solid ${offerType === 'LOBBYING' ? 'var(--primary-dark)' : 'var(--primary-border)'}`,
+                    background: offerType === 'LOBBYING' ? 'rgba(33,60,81,0.08)' : '#ffffff',
+                    color: offerType === 'LOBBYING' ? 'var(--primary-dark)' : '#475569',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                    textAlign: 'center'
+                  }}
+                >
+                  🗳️ Bill Lobbying
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOfferType('NON_AGGRESSION')}
+                  style={{
+                    flex: isMobile ? 'none' : 1,
+                    padding: '10px 12px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    borderRadius: '8px',
+                    border: `1.5px solid ${offerType === 'NON_AGGRESSION' ? 'var(--primary-dark)' : 'var(--primary-border)'}`,
+                    background: offerType === 'NON_AGGRESSION' ? 'rgba(33,60,81,0.08)' : '#ffffff',
+                    color: offerType === 'NON_AGGRESSION' ? 'var(--primary-dark)' : '#475569',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                    textAlign: 'center'
+                  }}
+                >
+                  🕊️ Non-Aggression
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOfferType('SABOTAGE')}
+                  style={{
+                    flex: isMobile ? 'none' : 1,
+                    padding: '10px 12px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    borderRadius: '8px',
+                    border: `1.5px solid ${offerType === 'SABOTAGE' ? 'var(--primary-dark)' : 'var(--primary-border)'}`,
+                    background: offerType === 'SABOTAGE' ? 'rgba(33,60,81,0.08)' : '#ffffff',
+                    color: offerType === 'SABOTAGE' ? 'var(--primary-dark)' : '#475569',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                    textAlign: 'center'
+                  }}
+                >
+                  ⚡ Sabotage Faction
+                </button>
+              </div>
             </div>
 
             {/* Split layout Workshop Board */}

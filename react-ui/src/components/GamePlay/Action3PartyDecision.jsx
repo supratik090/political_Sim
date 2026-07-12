@@ -1355,11 +1355,11 @@ const [deck, setDeck] = useState(() => {
                 borderRadius: '6px'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold' }}>
-                  <span style={{ color: '#15803d' }}>💰 +{y.coins}</span>
-                  <span style={{ color: '#1d4ed8' }}>📈 +{y.support}%</span>
-                  <span style={{ color: '#a21caf' }}>✊ +{y.morale}</span>
-                  <span style={{ color: '#b91c1c' }}>⚖️ +{y.corruption}</span>
-                  <span style={{ color: '#ec4899' }}>📢 +{y.media}</span>
+                  <span style={{ color: '#15803d' }}>💰 {y.coins >= 0 ? '+' : ''}{y.coins}</span>
+                  <span style={{ color: '#1d4ed8' }}>📈 {y.support >= 0 ? '+' : ''}{y.support}%</span>
+                  <span style={{ color: '#a21caf' }}>✊ {y.morale >= 0 ? '+' : ''}{y.morale}</span>
+                  <span style={{ color: '#b91c1c' }}>⚖️ {y.corruption >= 0 ? '+' : ''}{y.corruption}</span>
+                  <span style={{ color: '#ec4899' }}>📢 {y.media >= 0 ? '+' : ''}{y.media}</span>
                 </div>
               </div>
             </div>

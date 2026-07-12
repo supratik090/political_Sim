@@ -868,21 +868,64 @@ export default function DashboardHome() {
   return (
     <div>
       <div style={{
-        background: 'var(--primary-border)',
-        padding: '30px',
+        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+        padding: '40px 30px',
         borderRadius: '16px',
-        border: '2px solid var(--primary-dark)',
+        border: '1px solid rgba(255,255,255,0.08)',
         marginBottom: '25px',
         textAlign: 'center',
         color: '#ffffff',
-        boxShadow: '0 10px 30px rgba(33,60,81,0.1)'
+        boxShadow: '0 12px 30px -10px rgba(15,23,42,0.3)',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        <h1 style={{ fontSize: '36px', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: '#ffffff' }}>
-          Dashboard
+        <div style={{
+          position: 'absolute',
+          top: '-50%',
+          left: '-20%',
+          width: '300px',
+          height: '300px',
+          background: 'radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%)',
+          borderRadius: '50%'
+        }} />
+        <h1 style={{ fontSize: '32px', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: '#ffffff', textTransform: 'uppercase' }}>
+          🏛️ Political Sim Dashboard
         </h1>
-        <p style={{ fontSize: '15px', marginTop: '8px', opacity: 0.95, color: '#ffffff' }}>
-          Select a campaign to manage or start a new political journey.
+        <p style={{ fontSize: '15px', marginTop: '10px', color: '#cbd5e1', maxWidth: '750px', margin: '10px auto 25px auto', lineHeight: 1.6 }}>
+          Navigate the complex landscape of election cycles, react to regional crises, build campaign infrastructure, and lead your political party to victory on election day.
         </p>
+
+        {/* Feature Highlights Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '12px',
+          maxWidth: '850px',
+          margin: '0 auto',
+          position: 'relative',
+          zIndex: 2
+        }}>
+          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
+            <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>⚖️</span>
+            <strong style={{ fontSize: '13px', display: 'block', color: '#38bdf8' }}>Legislation & Lobbying</strong>
+            <span style={{ fontSize: '11px', color: '#94a3b8' }}>Vote on bills & lobby rivals</span>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
+            <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>🕊️</span>
+            <strong style={{ fontSize: '13px', display: 'block', color: '#38bdf8' }}>Diplomacy</strong>
+            <span style={{ fontSize: '11px', color: '#94a3b8' }}>Form Pacts & trade assets</span>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
+            <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>👥</span>
+            <strong style={{ fontSize: '13px', display: 'block', color: '#38bdf8' }}>Faction Management</strong>
+            <span style={{ fontSize: '11px', color: '#94a3b8' }}>Manage loyalty & posts</span>
+          </div>
+          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
+            <span style={{ fontSize: '20px', display: 'block', marginBottom: '4px' }}>🏗️</span>
+            <strong style={{ fontSize: '13px', display: 'block', color: '#38bdf8' }}>Infrastructure</strong>
+            <span style={{ fontSize: '11px', color: '#94a3b8' }}>Fund rallies & campaigns</span>
+          </div>
+        </div>
       </div>
 
       {loading && scenarios.length === 0 ? (

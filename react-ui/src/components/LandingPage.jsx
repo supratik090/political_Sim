@@ -1,46 +1,114 @@
 import React, { useState } from 'react';
 
 export default function LandingPage({ onPlayNow }) {
-  const [activeSlide, setActiveSlide] = useState(0);
+  const [districts, setDistricts] = useState([
+    { name: 'Northeast Assembly (District A)', player: 42, rival: 45, status: '⚠️ Swing District', color: '#ea580c' },
+    { name: 'Central Valley (District B)', player: 51, rival: 38, status: '✅ Safe Zone', color: '#16a34a' },
+    { name: 'Southern Metropolis (District C)', player: 35, rival: 55, status: '🚨 Stronghold Opp', color: '#dc2626' }
+  ]);
+  const [partyCoins, setPartyCoins] = useState(300);
+  const [selectedStrategy, setSelectedStrategy] = useState('SMEAR');
+  const [selectedDistrict, setSelectedDistrict] = useState(0);
+  const [campaignReport, setCampaignReport] = useState('Welcome, Campaign Manager. Select a strategy and target district below, then deploy your order.');
 
-  const screenshots = [
-    {
-      url: '/stats_initial.png',
-      title: 'Campaign Command Center',
-      desc: 'Analyze live state maps, track your core metrics (Coins, Morale, Support), and manage long-term infrastructure building projects like Mega Rallies and IT Cells.'
-    },
-    {
-      url: '/actions_tab.png',
-      title: 'Action Strategy & News',
-      desc: 'React to monthly state-wide news events and regional crises. Select your stance wisely—every choice shapes public opinion and risks surprise backlashes.'
-    },
-    {
-      url: '/actions_expanded.png',
-      title: 'Bilateral Diplomacy Hub & Bids',
-      desc: 'Form coalition alliances, negotiate Non-Aggression Pacts, and trade assets (Coins, Morale, Support, or buildings) with other human or computer-controlled parties.'
+  const handleSimulatePlay = () => {
+    let cost = 50;
+    if (selectedStrategy === 'SMEAR') cost = 60;
+    else if (selectedStrategy === 'COALITION_BRIBE') cost = 100;
+    else if (selectedStrategy === 'GRASSROOTS') cost = 70;
+
+    if (partyCoins < cost) {
+      setCampaignReport(`❌ Bankruptcy Warning: Deploying this strategy costs ${cost} Coins. Your reserves only have ${partyCoins} Coins!`);
+      return;
     }
-  ];
+
+    const updated = districts.map((d, idx) => {
+      if (idx !== parseInt(selectedDistrict)) return d;
+      let p = d.player;
+      let r = d.rival;
+
+      if (selectedStrategy === 'SMEAR') {
+        const drop = Math.min(r, 8);
+        r -= drop;
+        p += Math.round(drop * 0.5);
+      } else if (selectedStrategy === 'COALITION_BRIBE') {
+        r = Math.max(0, r - 12);
+        p += 8;
+      } else if (selectedStrategy === 'GRASSROOTS') {
+        p = Math.min(100, p + 10);
+        r = Math.max(0, 100 - p - 10);
+      }
+
+      // bound checks
+      if (p + r > 100) {
+        const diff = (p + r) - 100;
+        r = Math.max(0, r - diff);
+      }
+
+      let status = '⚠️ Swing District';
+      let color = '#ea580c';
+      if (p > r + 5) {
+        status = '✅ Safe Zone';
+        color = '#16a34a';
+      } else if (p > r) {
+        status = '💛 Leaning Player';
+        color = '#eab308';
+      } else if (r > p + 5) {
+        status = '🚨 Stronghold Opp';
+        color = '#dc2626';
+      }
+
+      return { ...d, player: p, rival: r, status, color };
+    });
+
+    let strategyLabel = selectedStrategy === 'SMEAR' ? 'Smear Campaign' : selectedStrategy === 'COALITION_BRIBE' ? 'Faction Bribe' : 'IT Cell Outreach';
+    let targetName = districts[selectedDistrict].name.split(' ')[0];
+
+    setDistricts(updated);
+    setPartyCoins(partyCoins - cost);
+    setCampaignReport(`📰 News Ticker: Deployed ${strategyLabel} in ${targetName}. Cost: ${cost} Coins. Faction shifts resolved! Player support now at ${updated[selectedDistrict].player}%.`);
+  };
+
+  const handleResetSim = () => {
+    setDistricts([
+      { name: 'Northeast Assembly (District A)', player: 42, rival: 45, status: '⚠️ Swing District', color: '#ea580c' },
+      { name: 'Central Valley (District B)', player: 51, rival: 38, status: '✅ Safe Zone', color: '#16a34a' },
+      { name: 'Southern Metropolis (District C)', player: 35, rival: 55, status: '🚨 Stronghold Opp', color: '#dc2626' }
+    ]);
+    setPartyCoins(300);
+    setCampaignReport('Campaign playbook reset. Ready to run orders.');
+  };
 
   const features = [
     {
+      icon: '🗺️',
+      title: 'Pan-Indian States (2001 - 2021)',
+      desc: 'Take command of assembly campaigns in any Indian state (Kerala, Bihar, etc.) across crucial election scenarios spanning from the historical 2001 era to the modern 2021 cycle.'
+    },
+    {
+      icon: '👥',
+      title: 'Party Factions & Cabinet Allocations',
+      desc: 'Assign critical leadership posts like Fund Manager and Party Secretary, allocate patronage points to satisfy faction loyalty metrics, and avoid severe party split crises.'
+    },
+    {
+      icon: '🤝',
+      title: 'Cooperative Diplomacy',
+      desc: 'Form bilateral Non-Aggression Pacts, negotiate asset transfers (Coins, Morale, Support), or conduct strategic faction sabotages with rival coalitions.'
+    },
+    {
       icon: '⚡',
       title: 'Dynamic Turn Resolution',
-      desc: 'An advance turn resolution cycle that applies strategic cards, evaluates project yields, normalizes voter shares, and reports tactical strategic commentaries.'
+      desc: 'An advanced turn resolution cycle that resolves strategy card actions, computes complex project yields, handles faction power shares, and posts detailed logs.'
     },
     {
       icon: '🛡️',
-      title: 'Smart AI Competitors',
-      desc: 'Play against responsive computer-controlled parties driven by unique strategic profiles (like Aggressive Populists) that hold grudges and retaliate dynamically.'
+      title: 'Vindictive AI Competitors',
+      desc: 'Compete against adaptive AI opponents built with distinct playstyles (Aggressive Attacker, Late Striker) that dynamically retaliate when attacked.'
     },
     {
       icon: '📈',
-      title: 'Incremental Infrastructure',
-      desc: 'Fund long-term projects step-by-step. Achieve 100% completion to unlock persistent per-turn resource yields that pay back initial capital expenses.'
-    },
-    {
-      icon: '⚖️',
-      title: 'Bidding and Resource Bids',
-      desc: 'Submit blind bids using your party\'s reserves to win high-impact 5-turn cycle rewards, while managing safety limits to avoid bankruptcy.'
+      title: 'Infrastructure Projects',
+      desc: 'Fund and construct regional infrastructure (e.g. Mega Rally, IT Cell). Once completed, they reward your party with persistent turn-by-turn yield boosts.'
     }
   ];
 
@@ -133,15 +201,15 @@ export default function LandingPage({ onPlayNow }) {
           }}>
             Experience the High-Stakes World of Indian Elections
           </h1>
-          <p style={{
+           <p style={{
             fontSize: '18px',
             color: '#94a3b8',
             lineHeight: 1.6,
             marginBottom: '40px',
-            maxWidth: '650px',
+            maxWidth: '750px',
             margin: '0 auto 40px'
           }}>
-            Step into the boots of a campaign manager. Play strategy cards, govern news events, invest in mega-rallies, and sign diplomatic pacts to lead your party to power.
+            Step into the boots of a campaign manager. Run election campaigns in any Indian state across historical scenarios from the years 2001 to 2021. Play strategy cards, govern regional news, assign posts, manage faction loyalties, and negotiate diplomatic pacts to lead your party to power.
           </p>
           <button 
             onClick={onPlayNow}
@@ -171,112 +239,7 @@ export default function LandingPage({ onPlayNow }) {
         </div>
       </section>
 
-      {/* Showcase / Screenshot Carousel Section */}
-      <section style={{
-        padding: '20px 20px 80px',
-        maxWidth: '1100px',
-        margin: '0 auto',
-        width: '100%'
-      }}>
-        <h2 style={{
-          textAlign: 'center',
-          fontSize: '32px',
-          fontWeight: 800,
-          marginBottom: '40px',
-          letterSpacing: '-0.02em'
-        }}>
-          Interactive Gameplay Walkthrough
-        </h2>
 
-        <div style={{
-          background: 'rgba(30, 41, 59, 0.4)',
-          border: '1px solid rgba(101, 148, 177, 0.2)',
-          borderRadius: '24px',
-          padding: '24px',
-          backdropFilter: 'blur(20px)',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px'
-        }}>
-          {/* Main Slide Image */}
-          <div style={{
-            position: 'relative',
-            borderRadius: '16px',
-            overflow: 'hidden',
-            aspectRatio: '16/10',
-            backgroundColor: '#070a13',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
-          }}>
-            <img 
-              src={screenshots[activeSlide].url} 
-              alt={screenshots[activeSlide].title} 
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'contain',
-                transition: 'opacity 0.3s ease-in-out'
-              }} 
-            />
-          </div>
-
-          {/* Slide Navigation Tabs */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gap: '16px'
-          }}>
-            {screenshots.map((shot, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveSlide(idx)}
-                style={{
-                  background: activeSlide === idx ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-                  border: '1px solid ' + (activeSlide === idx ? 'rgba(99, 102, 241, 0.4)' : 'rgba(255,255,255,0.05)'),
-                  borderRadius: '12px',
-                  padding: '16px',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px',
-                  boxShadow: 'none'
-                }}
-                onMouseOver={(e) => {
-                  if (activeSlide !== idx) {
-                    e.currentTarget.style.border = '1px solid rgba(255, 255, 255, 0.15)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (activeSlide !== idx) {
-                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.05)';
-                    e.currentTarget.style.background = 'transparent';
-                  }
-                }}
-              >
-                <span style={{
-                  fontSize: '15px',
-                  fontWeight: 700,
-                  color: activeSlide === idx ? '#38bdf8' : '#ffffff'
-                }}>
-                  {shot.title}
-                </span>
-                <span style={{
-                  fontSize: '12px',
-                  color: '#94a3b8',
-                  lineHeight: 1.4,
-                  fontWeight: 400
-                }}>
-                  {shot.desc}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Features Grid */}
       <section style={{
@@ -399,13 +362,13 @@ export default function LandingPage({ onPlayNow }) {
               1
             </div>
             <div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 6px' }}>Select strategy cards</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 6px' }}>Draft Strategy & Play Cards</h3>
               <p style={{ color: '#94a3b8', margin: 0, fontSize: '15px', lineHeight: 1.5 }}>
-                Choose a role-based political card to play. Spend coins to launch smears, media campaigns, or legal challenges against target rival parties.
+                Choose a role-based political strategy card to play. Spend coins or morale to deploy campaign campaigns, smearing attacks, or voter outreach.
               </p>
             </div>
           </div>
-
+ 
           {/* Step 2 */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
             <div style={{
@@ -425,13 +388,13 @@ export default function LandingPage({ onPlayNow }) {
               2
             </div>
             <div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 6px' }}>React to state news</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 6px' }}>Govern State-wide News Reactions</h3>
               <p style={{ color: '#94a3b8', margin: 0, fontSize: '15px', lineHeight: 1.5 }}>
-                Read the monthly newspaper and make structural choices. Call audits, offer drought relief packages, or propose grassland reserves to boost support.
+                Read the monthly region chronicle and select your policy response. Navigate risks to align public support while avoiding backlashes.
               </p>
             </div>
           </div>
-
+ 
           {/* Step 3 */}
           <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
             <div style={{
@@ -451,9 +414,61 @@ export default function LandingPage({ onPlayNow }) {
               3
             </div>
             <div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 6px' }}>Negotiate pacts & Bids</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 6px' }}>Manage Faction Loyalties</h3>
               <p style={{ color: '#94a3b8', margin: 0, fontSize: '15px', lineHeight: 1.5 }}>
-                Submit blind bids for cycle rewards. Propose non-aggression treaties or request asset trades with rival parties before advancing the turn.
+                Keep your core party factions satisfied. Assign leadership roles (e.g. Fund Manager, Party Secretary) and distribute patronage points to maximize resource yields.
+              </p>
+            </div>
+          </div>
+
+          {/* Step 4 */}
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)',
+              color: '#ffffff',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: '16px',
+              flexShrink: 0,
+              boxShadow: '0 4px 10px rgba(99, 102, 241, 0.3)'
+            }}>
+              4
+            </div>
+            <div>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 6px' }}>Bid in Bidding Cycles</h3>
+              <p style={{ color: '#94a3b8', margin: 0, fontSize: '15px', lineHeight: 1.5 }}>
+                Submit secret bids using coins, morale, or support to secure powerful inventory reward cards that boost campaigns.
+              </p>
+            </div>
+          </div>
+
+          {/* Step 5 */}
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)',
+              color: '#ffffff',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: '16px',
+              flexShrink: 0,
+              boxShadow: '0 4px 10px rgba(99, 102, 241, 0.3)'
+            }}>
+              5
+            </div>
+            <div>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 6px' }}>Deploy Infrastructure & Diplomacy</h3>
+              <p style={{ color: '#94a3b8', margin: 0, fontSize: '15px', lineHeight: 1.5 }}>
+                Build projects like Mega Rallies or state offices, and negotiate pacts or trade assets under the Bilateral Diplomacy workspace.
               </p>
             </div>
           </div>

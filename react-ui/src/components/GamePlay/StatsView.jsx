@@ -1297,37 +1297,31 @@ export default function StatsView({
                   const completedProjects = (p.projects || [])
                     .filter(proj => proj.progressPercent === 100)
                     .sort((a, b) => (a.completionTurn || 0) - (b.completionTurn || 0));
-                  
-                  // Compute Net Yield
+
+                  const activeFactions = (p.factions || []).filter(f => f.active);
+                  const factionYields = activeFactions.map(f => {
+                    const y = calculateFactionYield(f, p, projectDefs);
+                    const completedProjectsForFaction = (p.projects || []).filter(proj => proj.progressPercent === 100 && proj.managingFactionKey === f.key);
+                    return { faction: f, yields: y, projects: completedProjectsForFaction };
+                  });
+
                   let netCoins = 0;
+                  let rawSupport = 0;
                   let netMorale = 0;
                   let netCorruption = 0;
                   let netMedia = 0;
-                  let netSupport = 0;
 
-                  completedProjects.forEach(proj => {
-                    const rawKey = proj.projectKey;
-                    const def = projectDefs[rawKey];
-                    if (def) {
-                      const f = (p.factions || []).find(fac => fac.key === proj.managingFactionKey);
-                      let mult = 1.0;
-                      let powerShare = 1.0;
-                      if (f && f.active) {
-                        powerShare = f.influence / 100.0;
-                        if (f.loyalty >= 90) mult = 2.0;
-                        else if (f.loyalty >= 80) mult = 1.5;
-                        else if (f.loyalty >= 50) mult = 1.0;
-                        else if (f.loyalty >= 30) mult = 0.5;
-                        else mult = 0.0;
-                      }
-                      
-                      netCoins += Math.round((def.benefitCoins || 0) * powerShare * mult);
-                      netMorale += Math.round((def.benefitMorale || 0) * powerShare * mult);
-                      netCorruption += Math.round((def.benefitCorruption || 0) * powerShare * (2.0 - mult));
-                      netMedia += Math.round((def.benefitMedia || 0) * powerShare * mult);
-                      netSupport += Math.round((def.benefitSupport || 0) * powerShare * mult);
-                    }
+                  factionYields.forEach(fy => {
+                    netCoins += fy.yields.coins;
+                    rawSupport += fy.yields.support;
+                    netMorale += fy.yields.morale;
+                    netCorruption += fy.yields.corruption;
+                    netMedia += fy.yields.media;
                   });
+
+                  const netSupport = Math.ceil(rawSupport);
+                  const finalMorale = netMorale >= 0 ? netMorale : Math.max(-5, netMorale);
+                  const finalCorruption = netCorruption <= 0 ? Math.max(-5, netCorruption) : Math.min(5, netCorruption);
 
                   return (
                     <div key={p.id} style={{ borderBottom: '1px solid rgba(101, 148, 177, 0.15)', paddingBottom: '20px' }}>
@@ -1340,114 +1334,105 @@ export default function StatsView({
 
                       {/* Party Factions Details Grid */}
                       <div style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '15px' }}>
-                        {(() => {
-                          const activeFactions = (p.factions || []).filter(f => f.active);
-                          const factionYields = activeFactions.map(f => {
-                            const y = calculateFactionYield(f, p, projectDefs);
-                            const completedProjects = (p.projects || []).filter(proj => proj.progressPercent === 100 && proj.managingFactionKey === f.key);
-                            return { faction: f, yields: y, projects: completedProjects };
-                          });
+                        {factionYields.map(fy => {
+                          const { faction: f, yields: y, projects } = fy;
+                          const getMoodText = (loy) => {
+                            if (loy >= 80) return 'Good 😊';
+                            if (loy >= 50) return 'Neutral 😐';
+                            if (loy >= 30) return 'Bad 😡';
+                            return 'Rebel 💀';
+                          };
+                          const getMoodColor = (loy) => {
+                            if (loy >= 80) return '#22c55e';
+                            if (loy >= 50) return '#64748b';
+                            if (loy >= 30) return '#f97316';
+                            return '#ef4444';
+                          };
+                          
+                          return (
+                            <div key={f.key || f.id} style={{
+                              background: '#ffffff',
+                              border: `1.5px solid ${getMoodColor(f.loyalty)}`,
+                              borderRadius: '8px',
+                              padding: '12px 16px',
+                              boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
+                            }}>
+                              {/* Header row: Faction Name, Power, Loyalty */}
+                              <div 
+                                onClick={() => toggleFactionExpand(`${p.id}_${f.key || f.id}`)}
+                                style={{ 
+                                  display: 'flex', 
+                                  justifyContent: 'space-between', 
+                                  alignItems: 'center', 
+                                  marginBottom: expandedFactions[`${p.id}_${f.key || f.id}`] ? '8px' : '0', 
+                                  borderBottom: expandedFactions[`${p.id}_${f.key || f.id}`] ? '1px solid var(--primary-border)' : 'none', 
+                                  paddingBottom: expandedFactions[`${p.id}_${f.key || f.id}`] ? '6px' : '0',
+                                  cursor: 'pointer',
+                                  userSelect: 'none'
+                                }}
+                              >
+                                <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <span>{expandedFactions[`${p.id}_${f.key || f.id}`] ? '▼' : '►'}</span>
+                                  <span>{f.key === 'loyalist' || f.key === 'veteran' || (f.name || '').toLowerCase().includes('veteran') ? 'Loyalists' : f.name}</span>
+                                </span>
+                                <span style={{ fontSize: '11px', color: 'var(--card-text)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                  ⚡ <b>{f.influence}%</b> | ✊ <b style={{ color: getMoodColor(f.loyalty) }}>{f.loyalty}% ({getMoodText(f.loyalty)})</b>
+                                  {(() => {
+                                    const historyKey = `faction_loyalty_history_${turnData?.gameId || 'default'}`;
+                                    let prevLoyalty = null;
+                                    try {
+                                      const historyData = JSON.parse(localStorage.getItem(historyKey) || '{}');
+                                      prevLoyalty = historyData[turnData.turnNumber - 1]?.[f.key];
+                                    } catch (e) {}
+                                    if (prevLoyalty !== null && prevLoyalty !== undefined) {
+                                      const diff = f.loyalty - prevLoyalty;
+                                      if (diff > 0) return <span style={{ color: '#22c55e', fontSize: '9px', fontWeight: 'bold', marginLeft: '1px' }}>▲</span>;
+                                      if (diff < 0) return <span style={{ color: '#ef4444', fontSize: '9px', fontWeight: 'bold', marginLeft: '1px' }}>▼</span>;
+                                    }
+                                    return null;
+                                  })()}
+                                </span>
+                              </div>
 
-                          return factionYields.map(fy => {
-                            const { faction: f, yields: y, projects } = fy;
-                            const getMoodText = (loy) => {
-                              if (loy >= 80) return 'Good 😊';
-                              if (loy >= 50) return 'Neutral 😐';
-                              if (loy >= 30) return 'Bad 😡';
-                              return 'Rebel 💀';
-                            };
-                            const getMoodColor = (loy) => {
-                              if (loy >= 80) return '#22c55e';
-                              if (loy >= 50) return '#64748b';
-                              if (loy >= 30) return '#f97316';
-                              return '#ef4444';
-                            };
-                            
-                            return (
-                              <div key={f.key || f.id} style={{
-                                background: '#ffffff',
-                                border: `1.5px solid ${getMoodColor(f.loyalty)}`,
-                                borderRadius: '8px',
-                                padding: '12px 16px',
-                                boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
-                              }}>
-                                {/* Header row: Faction Name, Power, Loyalty */}
-                                <div 
-                                  onClick={() => toggleFactionExpand(`${p.id}_${f.key || f.id}`)}
-                                  style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
-                                    alignItems: 'center', 
-                                    marginBottom: expandedFactions[`${p.id}_${f.key || f.id}`] ? '8px' : '0', 
-                                    borderBottom: expandedFactions[`${p.id}_${f.key || f.id}`] ? '1px solid var(--primary-border)' : 'none', 
-                                    paddingBottom: expandedFactions[`${p.id}_${f.key || f.id}`] ? '6px' : '0',
-                                    cursor: 'pointer',
-                                    userSelect: 'none'
-                                  }}
-                                >
-                                  <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <span>{expandedFactions[`${p.id}_${f.key || f.id}`] ? '▼' : '►'}</span>
-                                    <span>{f.key === 'loyalist' || f.key === 'veteran' || (f.name || '').toLowerCase().includes('veteran') ? 'Loyalists' : f.name}</span>
-                                  </span>
-                                  <span style={{ fontSize: '11px', color: 'var(--card-text)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                                    ⚡ <b>{f.influence}%</b> | ✊ <b style={{ color: getMoodColor(f.loyalty) }}>{f.loyalty}% ({getMoodText(f.loyalty)})</b>
-                                    {(() => {
-                                      const historyKey = `faction_loyalty_history_${turnData?.gameId || 'default'}`;
-                                      let prevLoyalty = null;
-                                      try {
-                                        const historyData = JSON.parse(localStorage.getItem(historyKey) || '{}');
-                                        prevLoyalty = historyData[turnData.turnNumber - 1]?.[f.key];
-                                      } catch (e) {}
-                                      if (prevLoyalty !== null && prevLoyalty !== undefined) {
-                                        const diff = f.loyalty - prevLoyalty;
-                                        if (diff > 0) return <span style={{ color: '#22c55e', fontSize: '9px', fontWeight: 'bold', marginLeft: '1px' }}>▲</span>;
-                                        if (diff < 0) return <span style={{ color: '#ef4444', fontSize: '9px', fontWeight: 'bold', marginLeft: '1px' }}>▼</span>;
-                                      }
-                                      return null;
-                                    })()}
-                                  </span>
-                                </div>
-
-                                {/* Collapsible details content */}
-                                {expandedFactions[`${p.id}_${f.key || f.id}`] && (
-                                  <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    {/* Allocation details */}
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', fontSize: '11px', color: '#475569', marginBottom: '8px' }}>
-                                      <div>
-                                        💼 <b>Posts:</b> {(() => {
-                                          const posts = Array.isArray(f.post) ? f.post : (f.post && f.post !== 'None' ? [f.post] : []);
-                                          if (posts.length === 0) return 'None';
-                                          return posts.map(pKey => {
-                                            const def = getPostByKey(pKey) || getPostByName(pKey);
-                                            return def ? def.name : pKey;
-                                          }).join(', ');
-                                        })()}
-                                      </div>
-                                      <div>
-                                        🛡️ <b>Patronage:</b> {f.patronage > 0 ? `${f.patronage} Point${f.patronage > 1 ? 's' : ''}` : 'None'}
-                                      </div>
-                                      <div>
-                                        🏗️ <b>Projects:</b> {projects.length === 0 ? 'None' : projects.map(proj => {
-                                          const def = projectDefs[proj.projectKey];
-                                          return def ? def.name : proj.projectKey;
-                                        }).join(', ')}
-                                      </div>
+                              {/* Collapsible details content */}
+                              {expandedFactions[`${p.id}_${f.key || f.id}`] && (
+                                <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                  {/* Allocation details */}
+                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', fontSize: '11px', color: '#475569', marginBottom: '8px' }}>
+                                    <div>
+                                      💼 <b>Posts:</b> {(() => {
+                                        const posts = Array.isArray(f.post) ? f.post : (f.post && f.post !== 'None' ? [f.post] : []);
+                                        if (posts.length === 0) return 'None';
+                                        return posts.map(pKey => {
+                                          const def = getPostByKey(pKey) || getPostByName(pKey);
+                                          return def ? def.name : pKey;
+                                        }).join(', ');
+                                      })()}
                                     </div>
-
-                                    {/* Faction Yields row */}
-                                    <div style={{ display: 'flex', gap: '15px', fontSize: '11px', fontWeight: 'bold', borderTop: '1px dotted var(--primary-border)', paddingTop: '6px' }}>
-                                      <span style={{ color: '#15803d' }}>Coins: {y.coins >= 0 ? '+' : ''}{y.coins} 💰</span>
-                                      <span style={{ color: '#1d4ed8' }}>Support: {y.support >= 0 ? '+' : ''}{y.support}% 📈</span>
-                                      <span style={{ color: '#a21caf' }}>Morale: {y.morale >= 0 ? '+' : ''}{y.morale} ✊</span>
-                                      <span style={{ color: y.corruption > 0 ? '#b91c1c' : '#15803d' }}>Corruption: {y.corruption >= 0 ? '+' : ''}{y.corruption} ⚖️</span>
-                                      <span style={{ color: '#ec4899' }}>Media: {y.media >= 0 ? '+' : ''}{y.media} 📢</span>
+                                    <div>
+                                      🛡️ <b>Patronage:</b> {f.patronage > 0 ? `${f.patronage} Point${f.patronage > 1 ? 's' : ''}` : 'None'}
+                                    </div>
+                                    <div>
+                                      🏗️ <b>Projects:</b> {projects.length === 0 ? 'None' : projects.map(proj => {
+                                        const def = projectDefs[proj.projectKey];
+                                        return def ? def.name : proj.projectKey;
+                                      }).join(', ')}
                                     </div>
                                   </div>
-                                )}
-                              </div>
-                            );
-                          });
-                        })()}
+
+                                  {/* Faction Yields row */}
+                                  <div style={{ display: 'flex', gap: '15px', fontSize: '11px', fontWeight: 'bold', borderTop: '1px dotted var(--primary-border)', paddingTop: '6px' }}>
+                                    <span style={{ color: '#15803d' }}>Coins: {y.coins >= 0 ? '+' : ''}{y.coins} 💰</span>
+                                    <span style={{ color: '#1d4ed8' }}>Support: {y.support >= 0 ? '+' : ''}{y.support}% 📈</span>
+                                    <span style={{ color: '#a21caf' }}>Morale: {y.morale >= 0 ? '+' : ''}{y.morale} ✊</span>
+                                    <span style={{ color: y.corruption > 0 ? '#b91c1c' : '#15803d' }}>Corruption: {y.corruption >= 0 ? '+' : ''}{y.corruption} ⚖️</span>
+                                    <span style={{ color: '#ec4899' }}>Media: {y.media >= 0 ? '+' : ''}{y.media} 📢</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
 
                       {/* Net Yield Row */}
@@ -1467,8 +1452,8 @@ export default function StatsView({
                           <span>Combined Yield Sum:</span>
                           <span>💰 {netCoins >= 0 ? '+' : ''}{netCoins} Coins</span>
                           <span>📈 {netSupport >= 0 ? '+' : ''}{netSupport}% Support</span>
-                          <span>✊ {netMorale >= 0 ? '+' : ''}{netMorale} Morale</span>
-                          <span>⚖️ {netCorruption >= 0 ? '+' : ''}{netCorruption} Corruption</span>
+                          <span>✊ {finalMorale >= 0 ? '+' : ''}{finalMorale} Morale</span>
+                          <span>⚖️ {finalCorruption >= 0 ? '+' : ''}{finalCorruption} Corruption</span>
                           <span>📢 {netMedia >= 0 ? '+' : ''}{netMedia} Media</span>
                         </div>
                       </div>
