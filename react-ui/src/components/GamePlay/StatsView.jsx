@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { getPartyColor, checkDefeatWarnings, renderStatDelta } from './gameUtils';
+import { getPartyColor, checkDefeatWarnings, renderStatDelta, getFactionDisplayName } from './gameUtils';
 import { getPartyThemeByName } from '../../constants/partyThemes';
 import { getPostByKey, getPostByName } from './postsConfig';
 
@@ -728,10 +728,7 @@ export default function StatsView({
                       </span>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                         {party.factions.map(f => {
-                          let label = f.name;
-                          if (f.key === 'loyalist' || f.key === 'veteran') label = 'Loyalists';
-                          if (f.key === 'youth') label = 'Youth Wing';
-                          if (f.key === 'trade') label = 'Trade Unions';
+                          let label = getFactionDisplayName(party.name, f.key);
 
                           if (!f.active) {
                             return (
@@ -1373,7 +1370,7 @@ export default function StatsView({
                               >
                                 <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                   <span>{expandedFactions[`${p.id}_${f.key || f.id}`] ? '▼' : '►'}</span>
-                                  <span>{f.key === 'loyalist' || f.key === 'veteran' || (f.name || '').toLowerCase().includes('veteran') ? 'Loyalists' : f.name}</span>
+                                  <span>{getFactionDisplayName(p.name, f.key)}</span>
                                 </span>
                                 <span style={{ fontSize: '11px', color: 'var(--card-text)', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                                   ⚡ <b>{f.influence}%</b> | ✊ <b style={{ color: getMoodColor(f.loyalty) }}>{f.loyalty}% ({getMoodText(f.loyalty)})</b>

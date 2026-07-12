@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { getFactionDisplayName } from './gameUtils';
 import { getPostByKey, getPostByName, POSTS_CONFIG } from './postsConfig';
 import { lockPartyManagement } from '../../api/apiClient';
 
@@ -47,7 +48,7 @@ const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnN
 
     return {
       id: f.key,
-      name: (f.key === 'loyalist' || f.key === 'veteran' || (f.name || '').toLowerCase().includes('veteran')) ? 'Loyalists' : f.name,
+      name: getFactionDisplayName(activeParty?.name, f.key),
       baseLoyalty: decayedLoyalty,
       loyalty: decayedLoyalty,
       influence: f.influence,

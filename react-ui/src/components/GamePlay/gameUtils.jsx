@@ -88,3 +88,215 @@ export const renderStatDelta = (value, isPercentage = false, inverse = false) =>
     </span>
   );
 };
+
+export const getFactionDisplayName = (partyName, factionKey) => {
+  const pName = (partyName || '').toLowerCase().trim();
+  const fKey = (factionKey || '').toLowerCase().trim();
+
+  // YDP
+  if (pName.includes('ydp') || pName.includes('youth development')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Progressives';
+    if (fKey === 'youth') return 'Insta Gang';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'Labour Wing';
+  }
+
+  // 1. BJP
+  if (pName.includes('bjp') || pName.includes('nda')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Sangh Parivar';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'BMS (Mazdoor Sangh)';
+    if (fKey === 'youth') return 'BJYM (Youth Wing)';
+  }
+  // 2. INC
+  if (pName.includes('inc') || pName.includes('congress') || pName.includes('udf')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Working Committee';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'INTUC (Trade Union)';
+    if (fKey === 'youth') return 'IYC (Youth Congress)';
+  }
+  // 3. CPM / CPI-M / Left Front / LDF
+  if (pName.includes('cpi') || pName.includes('cpim') || pName.includes('ldf') || pName.includes('left')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Politburo Core';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'CITU (Trade Union)';
+    if (fKey === 'youth') return 'SFI / DYFI (Youth)';
+  }
+  // 4. TMC
+  if (pName.includes('tmc') || pName.includes('trinamool')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Trinamool Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'INTTUC (Labour Wing)';
+    if (fKey === 'youth') return 'TMCP (Youth Front)';
+  }
+  // 5. DMK
+  if (pName.includes('dmk') && !pName.includes('aiadmk')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Dravidian Ideologues';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'LPF (Labour Federation)';
+    if (fKey === 'youth') return 'DMK Youth Wing';
+  }
+  // 6. AIADMK
+  if (pName.includes('aiadmk')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Amma Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'ATP (Anna Sangam)';
+    if (fKey === 'youth') return 'Youth Ani';
+  }
+  // 7. SP
+  if (pName.includes('sp') || pName.includes('samajwadi')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Socialist Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'Samajwadi Shramik Sabha';
+    if (fKey === 'youth') return 'Yuvjan Sabha';
+  }
+  // 8. BSP
+  if (pName.includes('bsp')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Bahujan Cadres';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'BAMCEF Union';
+    if (fKey === 'youth') return 'BSP Youth Wing';
+  }
+  // 9. TDP
+  if (pName.includes('tdp') || pName.includes('telugu')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'NTR Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'TNTUC (Trade Union)';
+    if (fKey === 'youth') return 'TNSF (Youth)';
+  }
+  // 10. RJD
+  if (pName.includes('rjd')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'MY Alliance Core';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'RJD Shramik Sabha';
+    if (fKey === 'youth') return 'Yuva RJD';
+  }
+  // 11. AAP
+  if (pName.includes('aap')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Founding Volunteers';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'Shramik Sangathan';
+    if (fKey === 'youth') return 'CYSS (Youth Wing)';
+  }
+  // 12. Shiv Sena
+  if (pName.includes('shiv') || pName.includes('sena')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Balasaheb Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'Kamgar Sena';
+    if (fKey === 'youth') return 'Yuva Sena';
+  }
+  // 13. JD(U) / JDU
+  if (pName.includes('jd-u') || pName.includes('jdu') || pName.includes('jd(u)')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Janata Core Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'JD-U Shramik Cell';
+    if (fKey === 'youth') return 'Chhatra JD-U';
+  }
+  // 14. JMM
+  if (pName.includes('jmm')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Soren Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'Jharkhand Mazdoor Morcha';
+    if (fKey === 'youth') return 'JMM Chhatra Morcha';
+  }
+  // 15. YSRCP / YSR
+  if (pName.includes('ysr') || pName.includes('ysrcp')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'YSR Family Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'YSR Trade Union Congress';
+    if (fKey === 'youth') return 'YSRCP Youth Wing';
+  }
+  // 16. SAD (Akali Dal)
+  if (pName.includes('sad') || pName.includes('akali')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Akali Panthic Advisory';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'Akali Mazdoor Wing';
+    if (fKey === 'youth') return 'SOI (Youth Wing)';
+  }
+  // 17. NC (National Conference)
+  if (pName.includes('nc') || pName.includes('conference')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Abdullah Core Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'JKN Labour Cell';
+    if (fKey === 'youth') return 'JKN Youth Front';
+  }
+  // 18. MNF
+  if (pName.includes('mnf')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Mizo Nationalist Core';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'Mizo Labour Union';
+    if (fKey === 'youth') return 'MNF Youth Front';
+  }
+  // 19. AGP
+  if (pName.includes('agp')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Assam Movement Veterans';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'Asom Shramik Parishad';
+    if (fKey === 'youth') return 'Asom Chhatra Parishad';
+  }
+  // 20. INLD
+  if (pName.includes('inld')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Chautala Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'INLD Kamgar Wing';
+    if (fKey === 'youth') return 'INSO (Youth Wing)';
+  }
+  // 21. JD(S)
+  if (pName.includes('jd(s)') || pName.includes('jds')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Deve Gowda Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'JD(S) Labour Cell';
+    if (fKey === 'youth') return 'JD(S) Youth Wing';
+  }
+  // 22. NDPP
+  if (pName.includes('ndpp')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Rio Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'NDPP Labour Wing';
+    if (fKey === 'youth') return 'NDPP Youth Front';
+  }
+  // 23. NPF
+  if (pName.includes('npf')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Naga Peoples Advisory';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'NPF Trade Union';
+    if (fKey === 'youth') return 'NPF Youth Association';
+  }
+  // 24. NPP
+  if (pName.includes('npp')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Sangma Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'NPP Labour Front';
+    if (fKey === 'youth') return 'NYF (Youth Front)';
+  }
+  // 25. PPA
+  if (pName.includes('ppa')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Arunachal Tribal Core';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'PPA Shramik Union';
+    if (fKey === 'youth') return 'PPA Youth Wing';
+  }
+  // 26. SDF
+  if (pName.includes('sdf')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Chamling Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'Sikkim Shramik Union';
+    if (fKey === 'youth') return 'SDF Youth Front';
+  }
+  // 27. SKM
+  if (pName.includes('skm')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Golay Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'SKM Shramik Wing';
+    if (fKey === 'youth') return 'SKM Youth Front';
+  }
+  // 28. UDP
+  if (pName.includes('udp')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Khasi-Jaintia Advisory';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'UDP Labour Wing';
+    if (fKey === 'youth') return 'UDP Youth Front';
+  }
+  // 29. ZPM
+  if (pName.includes('zpm')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Zoram Reforms Council';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'ZPM Labour Front';
+    if (fKey === 'youth') return 'ZPM Youth Front';
+  }
+  // 30. BJD
+  if (pName.includes('bjd')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Patnaik Loyalists';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'Biju Shramik Samukhya';
+    if (fKey === 'youth') return 'Biju Chhatra Janata Dal';
+  }
+  // 31. TRS / BRS
+  if (pName.includes('trs') || pName.includes('brs')) {
+    if (fKey === 'loyalist' || fKey === 'veteran') return 'Telangana Ideologues';
+    if (fKey === 'trade_union' || fKey === 'trade') return 'TRS Labour Wing';
+    if (fKey === 'youth') return 'TRSV (Youth Wing)';
+  }
+
+  // Fallbacks
+  if (fKey === 'loyalist' || fKey === 'veteran') return 'Party Loyalists';
+  if (fKey === 'trade_union' || fKey === 'trade') return 'Trade Unions';
+  if (fKey === 'youth') return 'Youth Wing';
+
+  // Fallbacks
+  if (fKey === 'loyalist' || fKey === 'veteran') return 'Party Loyalists';
+  if (fKey === 'trade_union' || fKey === 'trade') return 'Trade Unions';
+  if (fKey === 'youth') return 'Youth Wing';
+
+  // Capitalize word otherwise
+  return factionKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+};
