@@ -55,19 +55,22 @@ def replace_collection(api_base_url, resource_path, scenario_key, items):
 
 def main():
     parser = argparse.ArgumentParser(description="Import reviewed cards/news into MongoDB via the Spring backend.")
+    parser.add_argument("scenario_key", help="The scenario key (e.g. haryana_2001)")
     parser.add_argument("--api-base-url", default=DEFAULT_API_BASE_URL)
-    parser.add_argument("--scenario-key", default="uttaranchal_2001")
-    parser.add_argument("--news-file", default="../review/uttaranchal_2001_news.json")
+    parser.add_argument("--news-file", default=None)
     args = parser.parse_args()
 
+    scenario_key = args.scenario_key
+    news_file = args.news_file if args.news_file else f"../review/{scenario_key}_news.json"
+
     base_dir = Path(__file__).resolve().parent
-    news_data = json.loads((base_dir / args.news_file).read_text())
+    news_data = json.loads((base_dir / news_file).read_text())
 
 
     deleted_news, created_news = replace_collection(
         args.api_base_url,
         "/api/admin/news",
-        args.scenario_key,
+        scenario_key,
         news_data["newsItems"],
     )
 
