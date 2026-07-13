@@ -19,10 +19,10 @@ export default function DashboardLayout({ children }) {
           <img src="/politics.svg" alt="Political Sim Logo" style={{ width: '42px', height: '42px', borderRadius: '8px' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '18px', fontWeight: 900, color: 'var(--primary-dark)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-              Political Sim
+              Power Play
             </span>
             <span style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
-              Grand Campaign Simulation
+              Ballot & Betrayal
             </span>
           </div>
         </div>

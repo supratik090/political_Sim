@@ -136,9 +136,9 @@ export default function LandingPage({ onPlayNow }) {
         backgroundColor: 'rgba(10, 15, 29, 0.9)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/politics.svg" alt="Bharat Rajneeti Logo" style={{ width: '40px', height: '40px', borderRadius: '8px' }} />
-          <span style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.02em', background: 'linear-gradient(90deg, #38bdf8, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            BHARAT RAJNEETI
+          <img src="/politics.svg" alt="Power Play Logo" style={{ width: '40px', height: '40px', borderRadius: '8px' }} />
+          <span style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '-0.02em', background: 'linear-gradient(90deg, #38bdf8, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            POWER PLAY
           </span>
         </div>
         <button 
@@ -187,10 +187,10 @@ export default function LandingPage({ onPlayNow }) {
             padding: '6px 16px',
             borderRadius: '9999px'
           }}>
-            Grand Strategy Election Simulator
+            Battle for the Assembly
           </span>
           <h1 style={{
-            fontSize: '56px',
+            fontSize: '64px',
             fontWeight: 900,
             lineHeight: 1.1,
             letterSpacing: '-0.03em',
@@ -199,9 +199,21 @@ export default function LandingPage({ onPlayNow }) {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
           }}>
-            Experience the High-Stakes World of Indian Elections
+            POWER PLAY
           </h1>
-           <p style={{
+          <h2 style={{
+            fontSize: '28px',
+            fontWeight: 800,
+            letterSpacing: '0.08em',
+            margin: '-12px 0 28px',
+            background: 'linear-gradient(90deg, #38bdf8, #818cf8)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            textTransform: 'uppercase'
+          }}>
+            Ballot & Betrayal
+          </h2>
+          <p style={{
             fontSize: '18px',
             color: '#94a3b8',
             lineHeight: 1.6,
@@ -236,6 +248,38 @@ export default function LandingPage({ onPlayNow }) {
           >
             Enter Campaign Board
           </button>
+        </div>
+      </section>
+
+      {/* Gameplay Actions Mockup Showcase */}
+      <section style={{
+        padding: '0 20px 80px',
+        textAlign: 'center',
+        position: 'relative',
+        display: 'flex',
+        justifyContent: 'center',
+        zIndex: 10
+      }}>
+        <div style={{
+          maxWidth: '850px',
+          width: '100%',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          boxShadow: '0 20px 50px rgba(99, 102, 241, 0.25)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          background: 'rgba(30, 41, 59, 0.2)',
+          padding: '8px'
+        }}>
+          <img 
+            src="/gameplay_actions.png" 
+            alt="Power Play Gameplay Actions Mockup" 
+            style={{ 
+              width: '100%', 
+              height: 'auto', 
+              borderRadius: '12px',
+              display: 'block' 
+            }} 
+          />
         </div>
       </section>
 
@@ -504,7 +548,7 @@ export default function LandingPage({ onPlayNow }) {
             Start Playing
           </button>
           <div style={{ marginTop: '40px', fontSize: '13px', color: '#475569' }}>
-            © 2026 Bharat Rajneeti. Built using premium responsive Web Technologies.
+            © 2026 Power Play. Built using premium responsive Web Technologies.
           </div>
         </div>
       </footer>

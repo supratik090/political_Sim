@@ -1,19 +1,76 @@
 import React from 'react';
 import { getPartyThemeByName } from '../../constants/partyThemes';
+import { useGameStore } from '../../store/gameStore';
 
-export const getPartyColor = (party) => {
+export const getPartyColor = (party, allParties = null) => {
   if (!party) return '#6594B1';
-  const theme = getPartyThemeByName(party.name || '');
-  if (theme && theme.symbolName !== 'Flag') {
-    return theme.color;
+
+  // 1. Resolve allParties: if not passed, try to fetch it from the store
+  let partiesList = allParties;
+  if (!partiesList) {
+    const storeState = useGameStore.getState();
+    partiesList = storeState.turnData?.parties || null;
   }
-  if (party.color && party.color !== '#ffffff' && party.color !== '#fff' && party.color !== '') {
-    return party.color;
+
+  // 2. Define a list of distinct fallback colors to assign in case of a clash
+  const distinctColors = [
+    '#E15554', // Coral Red
+    '#3F88C5', // Steel Blue
+    '#17B890', // Mint Green
+    '#FF9933', // Saffron/Orange
+    '#8B5CF6', // Purple
+    '#EC4899', // Pink
+    '#EAB308'  // Gold/Yellow
+  ];
+
+  // Helper function to resolve the base color for any party
+  const getBaseColor = (p) => {
+    if (!p) return '#6594B1';
+    const theme = getPartyThemeByName(p.name || '');
+    if (theme && theme.symbolName !== 'Ashoka Chakra' && theme.color !== '#000080') {
+      return theme.color;
+    }
+    if (p.color && p.color !== '#ffffff' && p.color !== '#fff' && p.color !== '') {
+      return p.color;
+    }
+    const role = p.role || p.startingRole || '';
+    if (role === 'GOVERNMENT') return '#E15554';
+    if (role === 'OPPOSITION') return '#3F88C5';
+    return '#17B890';
+  };
+
+  const myBaseColor = getBaseColor(party);
+
+  // If there are no other parties to compare with, return the base color directly
+  if (!partiesList || partiesList.length <= 1) {
+    return myBaseColor;
   }
-  const role = party.role || '';
-  if (role === 'GOVERNMENT') return '#E15554'; // Coral Red
-  if (role === 'OPPOSITION') return '#3F88C5'; // Steel Blue
-  return '#17B890'; // Mint Green (Third Party)
+
+  // Find my index in the current session's party list
+  const myIndex = partiesList.findIndex(p => p.id === party.id || p.name === party.name || p.partyKey === party.partyKey);
+  if (myIndex === -1) {
+    return myBaseColor;
+  }
+
+  // Gather colors claimed by parties appearing *before* me in the list
+  const claimedColors = [];
+  for (let i = 0; i < myIndex; i++) {
+    claimedColors.push(getBaseColor(partiesList[i]));
+  }
+
+  // If my base color conflicts with any previously claimed colors, assign an alternative
+  if (claimedColors.includes(myBaseColor)) {
+    // Find the first distinct fallback color that isn't claimed by *any* party in the game
+    const allClaimedColors = partiesList.map(p => getBaseColor(p));
+    const uniqueFallback = distinctColors.find(c => !allClaimedColors.includes(c) && !claimedColors.includes(c));
+    if (uniqueFallback) {
+      return uniqueFallback;
+    }
+    // Deep fallback: pick a distinct color based on index
+    return distinctColors[myIndex % distinctColors.length];
+  }
+
+  return myBaseColor;
 };
 
 export const cardRequiresTarget = (card) => {

@@ -187,8 +187,8 @@ export const getPartyThemeByName = (partyName) => {
   // 4. Shiv Sena
   if (name.includes('shiv') || name.includes('sena') || name.includes('bow')) {
     return {
-      color: '#FF9933',
-      rgb: '255, 153, 51',
+      color: '#E65100',
+      rgb: '230, 81, 0',
       symbolName: 'Bow & Arrow',
       SymbolIcon: BowArrowIcon,
       WatermarkIcon: (props) => <BowArrowIcon {...props} style={{ opacity: 0.1, filter: 'grayscale(100%)' }} />
@@ -242,8 +242,8 @@ export const getPartyThemeByName = (partyName) => {
   // 9. Samajwadi Party (SP)
   if (name.includes('sp') || name.includes('samajwadi')) {
     return {
-      color: '#1E824C',
-      rgb: '30, 130, 76',
+      color: '#4CAF50',
+      rgb: '76, 175, 80',
       symbolName: 'SP',
       SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="SP" />,
       WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="SP" style={{ opacity: 0.1, filter: 'grayscale(100%)' }} />
@@ -341,8 +341,8 @@ export const getPartyThemeByName = (partyName) => {
   // 18. JMM (Jharkhand Mukti Morcha)
   if (name.includes('jmm')) {
     return {
-      color: '#006400',
-      rgb: '0, 100, 0',
+      color: '#556B2F',
+      rgb: '85, 107, 47',
       symbolName: 'Bow & Arrow',
       SymbolIcon: BowArrowIcon,
       WatermarkIcon: (props) => <BowArrowIcon {...props} style={{ opacity: 0.1 }} />
@@ -396,8 +396,8 @@ export const getPartyThemeByName = (partyName) => {
   // 23. AGP (Asom Gana Parishad)
   if (name.includes('agp')) {
     return {
-      color: '#008000',
-      rgb: '0, 128, 0',
+      color: '#84CC16',
+      rgb: '132, 204, 22',
       symbolName: 'Elephant',
       SymbolIcon: ElephantIcon,
       WatermarkIcon: (props) => <ElephantIcon {...props} style={{ opacity: 0.1 }} />
@@ -473,8 +473,8 @@ export const getPartyThemeByName = (partyName) => {
   // 30. SDF
   if (name.includes('sdf') || name.includes('umbrella')) {
     return {
-      color: '#008000',
-      rgb: '0, 128, 0',
+      color: '#0ea5e9',
+      rgb: '14, 165, 233',
       symbolName: 'Umbrella',
       SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Umbrella" />,
       WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Umbrella" style={{ opacity: 0.1 }} />
@@ -506,8 +506,8 @@ export const getPartyThemeByName = (partyName) => {
   // 33. ZPM
   if (name.includes('zpm') || name.includes('kettle')) {
     return {
-      color: '#1E824C',
-      rgb: '30, 130, 76',
+      color: '#004D40',
+      rgb: '0, 77, 64',
       symbolName: 'Kettle',
       SymbolIcon: (props) => <PartySymbolImage {...props} symbolName="Kettle" />,
       WatermarkIcon: (props) => <PartySymbolImage {...props} symbolName="Kettle" style={{ opacity: 0.1 }} />

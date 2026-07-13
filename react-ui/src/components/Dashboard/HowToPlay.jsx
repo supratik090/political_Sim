@@ -81,11 +81,11 @@ export default function HowToPlay() {
       }}>
         <span style={{ fontSize: '40px', display: 'block', marginBottom: '10px' }}>📖</span>
         <h1 style={{ marginTop: 0, fontSize: '32px', fontWeight: '900', letterSpacing: '-0.025em', color: '#ffffff' }}>
-          How to Play Guide
+          Rules of Statecraft Guide
         </h1>
         <p style={{ color: '#cbd5e1', fontSize: '16px', lineHeight: 1.6, maxWidth: '750px', margin: '15px auto 0 auto' }}>
-          Welcome to the Political Sim! Navigate a 60-turn campaign representing a dynamic election cycle. 
-          Manage your core metrics—<strong>Coins</strong>, <strong>Morale</strong>, <strong>Corruption</strong>, and <strong>Media Image</strong>—to win the majority of <strong>Public Support</strong>.
+          Welcome to Power Play! Navigate a 60-turn campaign representing a dynamic election cycle. 
+          Manage your core metrics—<strong>Coins</strong>, <strong>Morale</strong>, <strong>Corruption</strong>, and <strong>Media Image</strong>—to win the battle for the assembly.
         </p>
       </div>
 

@@ -64,15 +64,15 @@ export default function AuthScreen() {
         flexDirection: 'column',
         alignItems: 'center'
       }}>
-        <img src="/politics.svg" alt="Political Sim Logo" style={{ width: '80px', height: '80px', marginBottom: '20px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }} />
+        <img src="/politics.svg" alt="Power Play Logo" style={{ width: '80px', height: '80px', marginBottom: '20px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }} />
         <span style={{ fontSize: '14px', color: '#ffffff', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.15em', display: 'block', marginBottom: '10px', opacity: 0.9 }}>
-          GRAND ELECTION STRATEGY
+          RULES OF STATECRAFT
         </span>
         <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#ffffff', margin: 0, letterSpacing: '-0.02em' }}>
-          Indian Politics Simulation
+          Power Play: Ballot & Betrayal
         </h1>
         <p style={{ fontSize: '15px', color: '#ffffff', opacity: 0.95, marginTop: '12px', marginBottom: 0, lineHeight: 1.5 }}>
-          Sign in or register to govern state campaigns, design coalition policies, and maintain election sessions.
+          Sign in or register to govern state campaigns, design coalition policies, and survive the battle for the assembly.
         </p>
       </div>
 

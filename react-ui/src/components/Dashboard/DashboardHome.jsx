@@ -932,7 +932,7 @@ export default function DashboardHome() {
           borderRadius: '50%'
         }} />
         <h1 style={{ fontSize: '28px', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: '#ffffff', textTransform: 'uppercase' }}>
-          🏛️ Political Sim Dashboard
+          🏛️ Power Play Dashboard
         </h1>
         <p style={{ fontSize: '14px', marginTop: '6px', color: '#cbd5e1', margin: '6px 0 0 0' }}>
           Select or rejoin a campaign scenario to begin.

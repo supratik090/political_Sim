@@ -1,4 +1,4 @@
-# Indian Politics Strategy Simulation
+# Power Play: Ballot & Betrayal
 
 A premium, card-based political strategy simulation inspired by state-level campaign dynamics in India. Manage resources, draft campaign tactics, respond to news cycles, fund projects, and survive political crises to win government office.
 
