@@ -314,10 +314,32 @@ const [deck, setDeck] = useState(() => {
     }
   }, [activeParty, factionCrisisChoice]);
 
-  // 1. Lock the turn immediately when the component mounts
+  // Sync completed projects into the draw deck and unlock if there are unassigned projects
   useEffect(() => {
-    setIsLocked(false);
-  }, []); // Empty array ensures this only runs once on mount
+    const assignedProjectKeys = factions.flatMap(f => (f.projects || []).map(p => p.projectKey));
+    const deckProjectKeys = deck.filter(c => c.type === 'project').map(c => c.projectKey);
+    const completedProjects = (activeParty?.projects || []).filter(p => p.progressPercent === 100);
+    
+    const newUnassignedProjects = completedProjects.filter(
+      p => !assignedProjectKeys.includes(p.projectKey) && !deckProjectKeys.includes(p.projectKey)
+    );
+
+    if (newUnassignedProjects.length > 0) {
+      setIsLocked(false);
+      
+      const newCards = newUnassignedProjects.map(p => ({
+        id: p.id || p.projectKey,
+        projectKey: p.projectKey,
+        type: 'project',
+        name: p.name || p.projectKey,
+        desc: p.yieldDesc || 'Completed project.',
+        icon: p.icon || '🏗️',
+        color: 'linear-gradient(135deg, #115e59 0%, #0d9488 100%)'
+      }));
+
+      setDeck(prev => [...newCards, ...prev]);
+    }
+  }, [activeParty?.projects, factions, deck]);
 
   // Moves page status to ready ONLY after locked is hit (isLocked is true)
   useEffect(() => {
@@ -604,14 +626,51 @@ const [deck, setDeck] = useState(() => {
     };
   }, { coins: 0, support: 0, morale: 0, corruption: 0, media: 0 });
 
+  // Check active faction perks matching backend requirements
+  let veteranPerkActive = false;
+  let youthPerkActive = false;
+  let tradePerkActive = false;
+
+  factions.forEach(f => {
+    if (!f.active) return;
+    if (f.id === 'loyalist' && f.loyalty >= 80 && f.influence >= 50) {
+      veteranPerkActive = true;
+    } else if (f.id === 'youth' && f.loyalty >= 80 && f.influence >= 40) {
+      youthPerkActive = true;
+    } else if (f.id === 'trade' && f.loyalty >= 80 && f.influence >= 40) {
+      tradePerkActive = true;
+    }
+  });
+
+  let perkCoins = 0;
+  let perkSupport = 0;
+  let perkMorale = 0;
+  let perkCorruption = 0;
+  let perkMedia = 0;
+
+  if (veteranPerkActive) {
+    perkCoins += 25;
+    perkSupport += 3.0;
+  }
+  if (youthPerkActive) {
+    perkMorale += 5;
+    perkSupport += 3.0;
+    perkMedia += 5;
+  }
+  if (tradePerkActive) {
+    perkCorruption -= 5;
+  }
+
   // Apply caps to negative yields only! Positive yields are completely uncapped.
-  const finalCoins = totalYields.coins;
-  const finalSupport = Math.ceil(totalYields.support);
-  const finalMedia = totalYields.media;
-  // Morale negative yields capped to -5
-  const finalMorale = totalYields.morale >= 0 ? totalYields.morale : Math.max(-5, totalYields.morale);
-  // Corruption negative yields (which is positive corruption addition) capped to +5
-  const finalCorruption = totalYields.corruption <= 0 ? Math.max(-5, totalYields.corruption) : Math.min(5, totalYields.corruption);
+  const finalCoins = totalYields.coins + perkCoins;
+  const finalSupport = Math.ceil(totalYields.support + perkSupport);
+  const finalMedia = totalYields.media + perkMedia;
+  
+  const rawMorale = totalYields.morale + perkMorale;
+  const finalMorale = rawMorale >= 0 ? rawMorale : Math.max(-5, rawMorale);
+  
+  const rawCorruption = totalYields.corruption + perkCorruption;
+  const finalCorruption = rawCorruption <= 0 ? Math.max(-5, rawCorruption) : Math.min(5, rawCorruption);
 
   const topCard = deck[0];
   const activeFactionsList = factions.filter(f => f.active);
