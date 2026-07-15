@@ -97,6 +97,12 @@ export const bribeFaction = (gameId, targetPartyId, factionKey, coins) =>
 export const lockPartyManagement = (gameId, partyId, payload) =>
   apiPost(`/api/games/${gameId}/party-management/lock?partyId=${partyId}`, payload);
 
+export const takeLoan = (gameId, partyId) =>
+  apiPost(`/api/games/${gameId}/parties/${partyId}/take-loan`);
+
+export const buyRecoveryPack = (gameId, partyId) =>
+  apiPost(`/api/games/${gameId}/parties/${partyId}/buy-recovery-pack`);
+
 export const fetchBillsForGameplay = (scenarioKey) => apiGet(`/api/games/bills/scenario/${scenarioKey}`);
 
 // Admin API bindings

@@ -65,7 +65,24 @@ public class SpecialRewardsService {
             case "special_gain_party_post" -> {
                 gainPartyPost(session, target, commentary);
             }
+            case "special_faction_loyalty_self" -> {
+                applyFactionLoyaltyBoost(target, +20, commentary,
+                        "🤝 Faction Rally: All factions of " + target.getName() + " gained +20 loyalty!");
+            }
+            case "special_faction_loyalty_opponent" -> {
+                applyFactionLoyaltyBoost(target, -20, commentary,
+                        "💥 Faction Destabilisation: All factions of " + target.getName() + " lost -20 loyalty!");
+            }
         }
+    }
+
+    private void applyFactionLoyaltyBoost(PartyState target, int delta, List<String> commentary, String msg) {
+        for (FactionState fs : target.getFactions()) {
+            if (fs.isActive()) {
+                fs.setLoyalty(Math.max(0, Math.min(100, fs.getLoyalty() + delta)));
+            }
+        }
+        commentary.add(msg);
     }
 
     private void resetOpponentPosts(GameSession session, PartyState target, List<String> commentary) {

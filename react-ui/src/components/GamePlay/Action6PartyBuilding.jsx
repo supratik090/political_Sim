@@ -37,13 +37,18 @@ export default function Action6PartyBuilding({
   
   const availableProjects = Object.entries(PROJECT_DEFS).map(([key, def]) => {
     const existing = activeProjects.find(p => p.projectKey === key && p.progressPercent < 100);
+    const buildsThisCycle = activeParty.projectBuildsThisCycle || {};
+    const limit = (def.costCoins || 0) > 100 ? 1 : 2;
+    const builds = buildsThisCycle[key] || 0;
+    const remaining = Math.max(0, limit - builds);
     return {
       key,
       ...def,
       progress: existing ? existing.progressPercent : 0,
-      id: existing ? existing.id : null
+      id: existing ? existing.id : null,
+      remainingBuilds: remaining
     };
-  }).filter(p => p.progress === 0 && !fundedThisTurn.includes(p.key));
+  }).filter(p => p.progress === 0 && !fundedThisTurn.includes(p.key) && p.remainingBuilds > 0);
 
   const filteredAvail = availableProjects.filter(p => {
     if (projectCategoryFilter === 'BUILD') return !p.offensive;
@@ -54,6 +59,23 @@ export default function Action6PartyBuilding({
 
   return (
     <div>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        background: 'rgba(59, 130, 246, 0.04)', 
+        border: '1.5px solid rgba(59, 130, 246, 0.15)',
+        padding: '8px 12px', 
+        borderRadius: '8px', 
+        fontSize: '12px', 
+        color: '#1e40af', 
+        marginBottom: '15px',
+        fontWeight: '500'
+      }}>
+        <span>📅 Project Limit Cycle: <b>20 turns</b></span>
+        <span>🔄 Limits refresh in: <b style={{ color: '#b45309' }}>{activeParty.turnsUntilProjectLimitRefresh} turns</b></span>
+      </div>
+
       {turnData.turnNumber <= 2 && (
         <p style={{ margin: '0 0 15px 0', fontSize: '13px', color: 'var(--card-text)' }}>
           Fund long-term construction projects for passive campaign yields or offensive targets.
@@ -346,6 +368,28 @@ export default function Action6PartyBuilding({
                     overflow: 'hidden'
                   }}
                 >
+                  {avail.remainingBuilds === 2 && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '8px',
+                      right: '8px',
+                      background: 'var(--party-primary-color, #3b82f6)',
+                      color: '#ffffff',
+                      borderRadius: '50%',
+                      width: '20px',
+                      height: '20px',
+                      fontSize: '11px',
+                      fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                      zIndex: 10
+                    }} title="2 builds available in this cycle">
+                      2
+                    </div>
+                  )}
+
                   {/* Faint Background Watermark */}
                   <div className="themed-card-watermark">
                     <SymbolIcon size={64} color="#cbd5e1" />

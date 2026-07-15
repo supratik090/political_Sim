@@ -63,6 +63,7 @@ public record TurnView(
         List<CooperationOffer> cooperationOffers,
         List<NonAggressionPact> activePacts,
         boolean tripleImpactActive,
+        boolean lastRoundProjectLimitsRefreshed,
         String lastRoundSecretMetric,
         boolean isMultiplayer,
         String joinCode,

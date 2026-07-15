@@ -630,6 +630,7 @@ public class GameService {
                 session.getCooperationOffers(),
                 session.getActivePacts(),
                 session.getTripleImpactTurn() == session.getTurnNumber(),
+                session.isLastRoundProjectLimitsRefreshed(),
                 session.getLastRoundSecretMetric(),
                 session.isMultiplayer(),
                 session.getJoinCode(),
@@ -2191,11 +2192,33 @@ public class GameService {
             throw new IllegalArgumentException("Project building is currently paused due to Project Freeze!");
         }
 
+        String projectKey = projectIdOrKey;
+        if (projectIdOrKey.length() == 36 && projectIdOrKey.contains("-")) {
+            ProjectState ps = party.getProjects().stream().filter(p -> p.getId().equals(projectIdOrKey)).findFirst().orElse(null);
+            if (ps != null) {
+                projectKey = ps.getProjectKey();
+            }
+        }
+
         ProjectState project = party.getProjects().stream()
                 .filter(p -> (p.getId() != null && p.getId().equals(projectIdOrKey)) || p.getProjectKey().equals(projectIdOrKey))
                 .filter(p -> p.getProgressPercent() < 100)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Incomplete project not found: " + projectIdOrKey));
+                .orElse(null);
+
+        if (project == null) {
+            if (party.getProjectBuildsRemaining(projectKey) <= 0) {
+                throw new IllegalArgumentException("You have reached the build limit (max " + party.getProjectBuildLimit(projectKey) + ") for project '" + projectKey + "' in this 20-turn cycle!");
+            }
+            project = new ProjectState(projectKey);
+            party.getProjects().add(project);
+            party.getProjectBuildsThisCycle().merge(projectKey, 1, Integer::sum);
+        } else if (project.getProgressPercent() == 0) {
+            if (party.getProjectBuildsRemaining(projectKey) <= 0) {
+                throw new IllegalArgumentException("You have reached the build limit (max " + party.getProjectBuildLimit(projectKey) + ") for project '" + projectKey + "' in this 20-turn cycle!");
+            }
+            party.getProjectBuildsThisCycle().merge(projectKey, 1, Integer::sum);
+        }
 
         BuildingProject projectDef = BuildingProject.valueOf(project.getProjectKey());
         int remaining = 100 - project.getProgressPercent();
@@ -2240,10 +2263,11 @@ public class GameService {
         }
 
         if (project.getProgressPercent() >= 100) {
+            final String fk = projectKey;
             boolean hasIncomplete = party.getProjects().stream()
-                    .anyMatch(p -> p.getProjectKey().equals(project.getProjectKey()) && p.getProgressPercent() < 100);
+                    .anyMatch(p -> p.getProjectKey().equals(fk) && p.getProgressPercent() < 100);
             if (!hasIncomplete) {
-                party.getProjects().add(new ProjectState(project.getProjectKey()));
+                party.getProjects().add(new ProjectState(fk));
             }
         }
 
@@ -3056,5 +3080,59 @@ public class GameService {
         } else {
             return support * 2.5 + morale * 1.5 + media * 1.5 - corruption * 2.0 + coins * 0.1;
         }
+    }
+
+    public TurnView takeLoan(String gameId, String partyId) {
+        GameSession session = getGame(gameId);
+        if (session.getStatus() != GameStatus.ACTIVE) {
+            throw new IllegalArgumentException("The game has already ended (Status: " + session.getStatus() + ").");
+        }
+        PartyState party = session.getParties().stream()
+                .filter(p -> p.getId().equals(partyId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Party not found: " + partyId));
+
+        if (!party.hasDefeatHazard()) {
+            throw new IllegalArgumentException("You must be facing a defeat hazard to take a loan.");
+        }
+        if (party.isLoanTaken()) {
+            throw new IllegalArgumentException("Loan has already been taken in this campaign.");
+        }
+
+        party.getStats().setCoins(party.getStats().getCoins() + 150);
+        party.setLoanTaken(true);
+        party.setLoanRepaymentTurnsLeft(10);
+
+        gameSessionService.save(session);
+        return getTurnView(gameId);
+    }
+
+    public TurnView buyRecoveryPack(String gameId, String partyId) {
+        GameSession session = getGame(gameId);
+        if (session.getStatus() != GameStatus.ACTIVE) {
+            throw new IllegalArgumentException("The game has already ended (Status: " + session.getStatus() + ").");
+        }
+        PartyState party = session.getParties().stream()
+                .filter(p -> p.getId().equals(partyId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Party not found: " + partyId));
+
+        if (!party.hasDefeatHazard()) {
+            throw new IllegalArgumentException("Recovery pack is only available during a defeat hazard.");
+        }
+        if (party.getStats().getCoins() < 80) {
+            throw new IllegalArgumentException("Insufficient coins. Needs 80 Coins.");
+        }
+
+        party.getStats().setCoins(party.getStats().getCoins() - 80);
+        party.getStats().setPartyMorale(Math.min(100, party.getStats().getPartyMorale() + 20));
+        party.getStats().setCorruptionScore(Math.max(0, party.getStats().getCorruptionScore() - 20));
+        party.getStats().setPublicSupport(party.getStats().getPublicSupport() + 5);
+        party.getStats().setMediaImage(Math.min(100, party.getStats().getMediaImage() + 20));
+
+        roundResolutionEngine.normalizePublicSupport(session);
+
+        gameSessionService.save(session);
+        return getTurnView(gameId);
     }
 }

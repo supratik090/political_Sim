@@ -1,3876 +1,4339 @@
-[ {
-  "id" : "6a29c4b473b5c140ee0c07bd",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_launch_welfare_scheme",
-  "name" : "Launch Welfare Scheme",
-  "category" : "governance",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 18,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -18,
-      "partyMorale" : 2,
-      "corruptionScore" : -3,
-      "mediaImage" : 3,
-      "publicSupport" : 3
+[
+  {
+    "id": "6a29c4b473b5c140ee0c07bd",
+    "scenarioKey": "default",
+    "cardKey": "gov_launch_welfare_scheme",
+    "name": "Launch Welfare Scheme",
+    "category": "governance",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 13,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
     },
-    "opponentParty" : {
-      "partyMorale" : -1,
-      "mediaImage" : -1,
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "welfareDelivery" : 4,
-      "welfareExpectation" : 2,
-      "antiIncumbency" : -1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 20,
-    "badOutcome" : "Scheme is seen as fiscally weak or selectively distributed.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 3,
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "WELFARE_POPULIST" ],
-    "weakFit" : [ "DEVELOPMENT_FIRST" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 1.2,
-    "aiPriorityWeight" : 1.1,
-    "publicImpactWeight" : 1.3,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b473b5c140ee0c07be",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_announce_infrastructure_project",
-  "name" : "Announce Infrastructure Project",
-  "category" : "governance",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 22,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -22,
-      "partyMorale" : 1,
-      "corruptionScore" : 2,
-      "mediaImage" : 4,
-      "publicSupport" : 2
-    },
-    "opponentParty" : {
-      "mediaImage" : -1,
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "developmentCredibility" : 4,
-      "corruptionSuspicionGovernment" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 25,
-    "badOutcome" : "Contract allocation raises questions.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 4,
-        "mediaImage" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ "ANTI_CORRUPTION" ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 1.2,
-    "publicImpactWeight" : 1.2,
-    "riskWeight" : 0.8
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b473b5c140ee0c07bf",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_law_and_order_drive",
-  "name" : "Law And Order Drive",
-  "category" : "governance",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 12,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -12,
-      "partyMorale" : 2,
-      "corruptionScore" : -2,
-      "mediaImage" : 3,
-      "publicSupport" : 2
-    },
-    "opponentParty" : {
-      "partyMorale" : -1,
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "lawOrderTrust" : 3,
-      "statePowerConcern" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 22,
-    "badOutcome" : "Drive is criticized as heavy-handed.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -3,
-        "publicSupport" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "IDENTITY_POLITICS" ],
-    "weakFit" : [ "UNITY_PLATFORM" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 1,
-    "publicImpactWeight" : 1,
-    "riskWeight" : 0.7
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b473b5c140ee0c07c0",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_farmer_loan_relief",
-  "name" : "Farmer Loan Relief",
-  "category" : "governance",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 24,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -24,
-      "partyMorale" : 2,
-      "corruptionScore" : 1,
-      "mediaImage" : 2,
-      "publicSupport" : 4
-    },
-    "opponentParty" : {
-      "publicSupport" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "ruralLoyalty" : 5,
-      "fiscalStress" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Relief list is accused of favoritism.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 4,
-        "mediaImage" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "WELFARE_POPULIST", "REGIONAL_PRIDE" ],
-    "weakFit" : [ "DEVELOPMENT_FIRST" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 4
-  },
-  "weights" : {
-    "basePlayWeight" : 1.1,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 1.4,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b473b5c140ee0c07c1",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_youth_employment_mission",
-  "name" : "Youth Employment Mission",
-  "category" : "governance",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 20,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -20,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 3
-    },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "youthHope" : 4,
-      "jobsIssueOwnershipGovernment" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 24,
-    "badOutcome" : "Youth call it an announcement without jobs.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -3,
-        "publicSupport" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "WELFARE_POPULIST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 1.1,
-    "aiPriorityWeight" : 1.1,
-    "publicImpactWeight" : 1.3,
-    "riskWeight" : 0.8
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07c2",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_women_safety_campaign",
-  "name" : "Women Safety Campaign",
-  "category" : "governance",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 14,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -14,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 2
-    },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "socialGovernance" : 3,
-      "trustGovernment" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 15,
-    "badOutcome" : "A local crime headline weakens the message.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "WELFARE_POPULIST", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 1.0,
-    "riskWeight" : 0.4
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07c3",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_subsidy_announcement",
-  "name" : "Subsidy Announcement",
-  "category" : "governance",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 18,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -18,
-      "partyMorale" : 2,
-      "corruptionScore" : 1,
-      "mediaImage" : 2,
-      "publicSupport" : 3
-    },
-    "opponentParty" : {
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "welfareExpectation" : 4,
-      "fiscalStress" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 20,
-    "badOutcome" : "Voters suspect election-season freebies.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "WELFARE_POPULIST" ],
-    "weakFit" : [ "ANTI_CORRUPTION" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 1.2,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07c4",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_education_reform_bill",
-  "name" : "Education Reform Bill",
-  "category" : "governance",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 16,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -16,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 2
-    },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "educationTrust" : 4,
-      "youthHope" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Teacher unions object to implementation.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -1,
-        "mediaImage" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "WELFARE_POPULIST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 1.1,
-    "riskWeight" : 0.5
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07c5",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_disaster_relief_package",
-  "name" : "Disaster Relief Package",
-  "category" : "governance",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 22,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -22,
-      "partyMorale" : 2,
-      "corruptionScore" : 1,
-      "mediaImage" : 4,
-      "publicSupport" : 3
-    },
-    "opponentParty" : {
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "crisisHandling" : 5,
-      "trustGovernment" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 22,
-    "badOutcome" : "Relief distribution is accused of favoritism.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 4,
-        "mediaImage" : -3
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "WELFARE_POPULIST", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 1.2,
-    "aiPriorityWeight" : 1.2,
-    "publicImpactWeight" : 1.4,
-    "riskWeight" : 0.7
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07c6",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_cleanliness_mission",
-  "name" : "Cleanliness Mission",
-  "category" : "positive_service",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 1
-    },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "civicService" : 3,
-      "urbanTrust" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 10,
-    "badOutcome" : "Seen as a symbolic photo-op.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.6,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.2
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07c7",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_unity_march",
-  "name" : "Unity March",
-  "category" : "positive_service",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 1
-    },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "unityMemory" : 4,
-      "polarization" : -2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 14,
-    "badOutcome" : "Opponents call it opportunistic.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "UNITY_PLATFORM" ],
-    "weakFit" : [ "IDENTITY_POLITICS" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 4
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.9,
-    "riskWeight" : 0.4
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07c8",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_public_grievance_camp",
-  "name" : "Public Grievance Camp",
-  "category" : "positive_service",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 9,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -9,
-      "partyMorale" : 1,
-      "corruptionScore" : -1,
-      "mediaImage" : 2,
-      "publicSupport" : 2
-    },
-    "opponentParty" : {
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "responsiveness" : 4,
-      "trustGovernment" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 12,
-    "badOutcome" : "Complaints expose deeper delivery failures.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "UNITY_PLATFORM", "WELFARE_POPULIST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 1.0,
-    "riskWeight" : 0.4
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07c9",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_media_blitz",
-  "name" : "Media Blitz",
-  "category" : "media_narrative",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 12,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -12,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 5,
-      "publicSupport" : 1
-    },
-    "opponentParty" : {
-      "mediaImage" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "narrativeControlGovernment" : 4,
-      "mediaFatigue" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 22,
-    "badOutcome" : "Public gets tired of overexposure.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "IDENTITY_POLITICS" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 1
-  },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 1.1,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.7
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07ca",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_attack_opposition_manifesto",
-  "name" : "Attack Opposition Manifesto",
-  "category" : "media_narrative",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 1
-    },
-    "opponentParty" : {
-      "mediaImage" : -3,
-      "publicSupport" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "oppositionUnrealisticFrame" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 20,
-    "badOutcome" : "Opposition promise is popular with voters.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -13,
+        "partyMorale": 3,
+        "corruptionScore": -5,
+        "mediaImage": 5,
+        "publicSupport": 3
       },
-      "opponentParty" : {
-        "publicSupport" : 1
+      "opponentParty": {
+        "partyMorale": -2,
+        "mediaImage": -2,
+        "publicSupport": -1
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.5
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07cb",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_cabinet_reshuffle",
-  "name" : "Cabinet Reshuffle",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 6,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -6,
-      "partyMorale" : 3,
-      "corruptionScore" : -1,
-      "mediaImage" : 2,
-      "publicSupport" : 1
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "resetSignal" : 3,
-      "factionalTension" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Dropped leaders create internal resentment.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -3,
-        "mediaImage" : -1
+    "hiddenEffects": {
+      "publicMemory": {
+        "welfareDelivery": 4,
+        "welfareExpectation": 2,
+        "antiIncumbency": -1
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.7,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07cc",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_promote_popular_leader",
-  "name" : "Promote Popular Leader",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 4,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 2
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "leaderConnectionGovernment" : 4,
-      "factionalTension" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 16,
-    "badOutcome" : "Internal rivals feel sidelined.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -2
+    "riskRoll": {
+      "chance": 20,
+      "badOutcome": "Scheme is seen as fiscally weak or selectively distributed.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 5,
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "REGIONAL_PRIDE", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.9,
-    "riskWeight" : 0.5
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07cd",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_cadre_training_camp",
-  "name" : "Cadre Training Camp",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : false
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 5,
-      "corruptionScore" : 0,
-      "mediaImage" : 0,
-      "publicSupport" : 0
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "partyMemory" : {
-      "boothStrength" : 5,
-      "cadreDiscipline" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 10,
-    "badOutcome" : "Local factions compete for control.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -2,
-        "mediaImage" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "REGIONAL_PRIDE", "IDENTITY_POLITICS" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 4
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.7,
-    "publicImpactWeight" : 0.3,
-    "riskWeight" : 0.3
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07ce",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_strengthen_party_base",
-  "name" : "Strengthen Party Base",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 5,
-      "corruptionScore" : 0,
-      "mediaImage" : 1,
-      "publicSupport" : 1
+    "ideologyTags": {
+      "strongFit": [
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": [
+        "DEVELOPMENT_FIRST"
+      ]
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "partyMemory" : {
-      "boothStrength" : 5,
-      "cadreLoyalty" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 10,
-    "badOutcome" : "Local factions fight over control.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -3,
-        "mediaImage" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "REGIONAL_PRIDE", "WELFARE_POPULIST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 0.6,
-    "riskWeight" : 0.3
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07cf",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_organize_fundraiser",
-  "name" : "Organize Fundraiser",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 2,
-  "maxUsesPerCycle" : 5,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : 50,
-      "partyMorale" : 4,
-      "corruptionScore" : -2,
-      "mediaImage" : 0,
-      "publicSupport" : 0
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "moneyPowerSuspicionGovernment" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 24,
-    "badOutcome" : "Donor influence questions surface.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 4,
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ "ANTI_CORRUPTION" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 0.3,
-    "riskWeight" : 0.8
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07d0",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_regional_pride_campaign",
-  "name" : "Regional Pride Campaign",
-  "category" : "ideology_identity",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 2,
-      "corruptionScore" : -4,
-      "mediaImage" : 2,
-      "publicSupport" : 2
+    "weights": {
+      "basePlayWeight": 1.2,
+      "aiPriorityWeight": 1.1,
+      "publicImpactWeight": 1.3,
+      "riskWeight": 0.6
     },
-    "opponentParty" : {
-      "publicSupport" : -1
-    }
+    "active": true
   },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "regionalOwnershipGovernment" : 4,
-      "polarization" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Non-core blocs feel excluded.",
-    "effects" : {
-      "selfParty" : {
-        "publicSupport" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "REGIONAL_PRIDE" ],
-    "weakFit" : [ "UNITY_PLATFORM" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 4
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 1,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07d1",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_community_leader_outreach",
-  "name" : "Community Leader Outreach",
-  "category" : "ideology_identity",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 9,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -9,
-      "partyMorale" : 1,
-      "corruptionScore" : 1,
-      "mediaImage" : 1,
-      "publicSupport" : 2
+  {
+    "id": "6a29c4b473b5c140ee0c07be",
+    "scenarioKey": "default",
+    "cardKey": "gov_announce_infrastructure_project",
+    "name": "Announce Infrastructure Project",
+    "category": "governance",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 14,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
     },
-    "opponentParty" : {
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "blocLoyaltyGovernment" : 4,
-      "favoritismSuspicion" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Rival blocs feel ignored.",
-    "effects" : {
-      "selfParty" : {
-        "publicSupport" : -1,
-        "mediaImage" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "IDENTITY_POLITICS", "REGIONAL_PRIDE" ],
-    "weakFit" : [ "UNITY_PLATFORM" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.9,
-    "riskWeight" : 0.5
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07d2",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_anti_corruption_raid_on_opposition",
-  "name" : "Anti-Corruption Raid On Opposition",
-  "category" : "scandal_accusation",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 12,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -12,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 1
-    },
-    "opponentParty" : {
-      "partyMorale" : -2,
-      "corruptionScore" : 4,
-      "mediaImage" : -3,
-      "publicSupport" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "corruptionSuspicionOpposition" : 4,
-      "stateMisuseConcern" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 28,
-    "badOutcome" : "Raid appears politically motivated.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -4,
-        "publicSupport" : -2
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -14,
+        "partyMorale": 2,
+        "corruptionScore": 3,
+        "mediaImage": 6,
+        "publicSupport": 2
       },
-      "opponentParty" : {
-        "publicSupport" : 1
+      "opponentParty": {
+        "mediaImage": -2,
+        "publicSupport": -1
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 1.1,
-    "riskWeight" : 1.0
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07d3",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_investigate_opposition_funding",
-  "name" : "Investigate Opposition Funding",
-  "category" : "scandal_accusation",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 1,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "corruptionScore" : 5,
-      "mediaImage" : -3,
-      "publicSupport" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "moneyPowerSuspicionOpposition" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 26,
-    "badOutcome" : "Evidence looks thin.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -3,
-        "publicSupport" : -1
+    "hiddenEffects": {
+      "publicMemory": {
+        "developmentCredibility": 4,
+        "corruptionSuspicionGovernment": 1
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 1.0,
-    "riskWeight" : 0.9
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07d4",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_expose_opposition_infighting",
-  "name" : "Expose Opposition Infighting",
-  "category" : "scandal_accusation",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "partyMorale" : -4,
-      "mediaImage" : -3,
-      "publicSupport" : -2
-    }
+    "riskRoll": {
+      "chance": 25,
+      "badOutcome": "Contract allocation raises questions.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 6,
+          "mediaImage": -3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": [
+        "ANTI_CORRUPTION"
+      ]
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 1.2,
+      "publicImpactWeight": 1.2,
+      "riskWeight": 0.8
+    },
+    "active": true
   },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "oppositionInstability" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 20,
-    "badOutcome" : "Story looks planted.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2
+  {
+    "id": "6a29c4b473b5c140ee0c07bf",
+    "scenarioKey": "default",
+    "cardKey": "gov_law_and_order_drive",
+    "name": "Law And Order Drive",
+    "category": "governance",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 10,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -10,
+        "partyMorale": 3,
+        "corruptionScore": -3,
+        "mediaImage": 5,
+        "publicSupport": 2
       },
-      "opponentParty" : {
-        "partyMorale" : 1
+      "opponentParty": {
+        "partyMorale": -2,
+        "mediaImage": -2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "IDENTITY_POLITICS" ],
-    "weakFit" : [ "UNITY_PLATFORM" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.9,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07d5",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_order_independent_inquiry",
-  "name" : "Order Independent Inquiry",
-  "category" : "defensive_counter",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 0,
-      "corruptionScore" : -2,
-      "mediaImage" : 3,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "accountabilitySignalGovernment" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 25,
-    "badOutcome" : "Inquiry finds uncomfortable facts.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 4,
-        "mediaImage" : -3,
-        "publicSupport" : -2
+    "hiddenEffects": {
+      "publicMemory": {
+        "lawOrderTrust": 3,
+        "statePowerConcern": 1
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 4
-  },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 1.2,
-    "publicImpactWeight" : 1.0,
-    "riskWeight" : 0.8
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07d6",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_release_documents",
-  "name" : "Release Documents",
-  "category" : "defensive_counter",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 6,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -6,
-      "partyMorale" : 1,
-      "corruptionScore" : -2,
-      "mediaImage" : 3,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "mediaImage" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "transparency" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Documents look incomplete.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
+    "riskRoll": {
+      "chance": 22,
+      "badOutcome": "Drive is criticized as heavy-handed.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -5,
+          "publicSupport": -2
+        }
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION", "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.5
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07d7",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_sacrifice_minister",
-  "name" : "Sacrifice Minister",
-  "category" : "defensive_counter",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 4,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -4,
-      "partyMorale" : -4,
-      "corruptionScore" : -5,
-      "mediaImage" : 3,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "accountabilitySignalGovernment" : 5,
-      "factionalTension" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 20,
-    "badOutcome" : "Resignation is read as admission of deeper rot.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 2,
-        "publicSupport" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION" ],
-    "weakFit" : [ "IDENTITY_POLITICS" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.7,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 1.0,
-    "riskWeight" : 0.8
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07d8",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_media_defense_campaign",
-  "name" : "Media Defense Campaign",
-  "category" : "defensive_counter",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 4,
-      "publicSupport" : 1
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "IDENTITY_POLITICS"
+      ],
+      "weakFit": [
+        "UNITY_PLATFORM"
+      ]
     },
-    "opponentParty" : {
-      "mediaImage" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "mediaFatigue" : 2,
-      "narrativeControlGovernment" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 22,
-    "badOutcome" : "Public sees spin instead of answers.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "IDENTITY_POLITICS" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 1
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.7
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07d9",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_legal_notice",
-  "name" : "Legal Notice",
-  "category" : "defensive_counter",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 7,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -7,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 1,
-      "publicSupport" : 0
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
     },
-    "opponentParty" : {
-      "partyMorale" : -2,
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "statePowerConcern" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 24,
-    "badOutcome" : "Looks intimidating against criticism.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "IDENTITY_POLITICS" ],
-    "weakFit" : [ "UNITY_PLATFORM" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.6,
-    "aiPriorityWeight" : 0.7,
-    "publicImpactWeight" : 0.5,
-    "riskWeight" : 0.8
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07da",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_suppress_protest",
-  "name" : "Suppress Protest",
-  "category" : "agitation_movement",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 1,
-      "publicSupport" : -1
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 1,
+      "publicImpactWeight": 1,
+      "riskWeight": 0.7
     },
-    "opponentParty" : {
-      "partyMorale" : -3,
-      "mediaImage" : -1,
-      "publicSupport" : -1
-    }
+    "active": true
   },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "statePowerConcern" : 4,
-      "protestSuppressionMemory" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 30,
-    "badOutcome" : "Crackdown images anger voters.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -4,
-        "publicSupport" : -3
+  {
+    "id": "6a29c4b473b5c140ee0c07c0",
+    "scenarioKey": "default",
+    "cardKey": "gov_farmer_loan_relief",
+    "name": "Farmer Loan Relief",
+    "category": "governance",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 15,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -15,
+        "partyMorale": 3,
+        "corruptionScore": 2,
+        "mediaImage": 3,
+        "publicSupport": 3
       },
-      "opponentParty" : {
-        "publicSupport" : 2
+      "opponentParty": {
+        "publicSupport": -2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "IDENTITY_POLITICS" ],
-    "weakFit" : [ "UNITY_PLATFORM" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.6,
-    "aiPriorityWeight" : 0.7,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 1.1
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07db",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_anti_corruption_march",
-  "name" : "Anti-Corruption March",
-  "category" : "agitation_movement",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 3,
-      "corruptionScore" : -2,
-      "mediaImage" : 2,
-      "publicSupport" : 2
     },
-    "opponentParty" : {
-      "corruptionScore" : 2,
-      "mediaImage" : -2,
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "antiCorruptionOwnershipOpposition" : 4,
-      "scandalFatigue" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 22,
-    "badOutcome" : "Claims feel repetitive without evidence.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
+    "hiddenEffects": {
+      "publicMemory": {
+        "ruralLoyalty": 6,
+        "fiscalStress": 2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 1.1,
-    "aiPriorityWeight" : 1,
-    "publicImpactWeight" : 1.2,
-    "riskWeight" : 0.7
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07dc",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_farmer_agitation",
-  "name" : "Farmer Agitation",
-  "category" : "agitation_movement",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 12,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -12,
-      "partyMorale" : 3,
-      "corruptionScore" : -3,
-      "mediaImage" : 1,
-      "publicSupport" : 5
     },
-    "opponentParty" : {
-      "mediaImage" : -2,
-      "publicSupport" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "ruralAnger" : 4,
-      "protestFatigue" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 24,
-    "badOutcome" : "Disruption annoys neutral voters.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Relief list is accused of favoritism.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 6,
+          "mediaImage": -3
+        }
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "WELFARE_POPULIST", "REGIONAL_PRIDE" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 4
-  },
-  "weights" : {
-    "basePlayWeight" : 1.1,
-    "aiPriorityWeight" : 1.1,
-    "publicImpactWeight" : 1.3,
-    "riskWeight" : 0.8
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07dd",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_student_movement",
-  "name" : "Student Movement",
-  "category" : "agitation_movement",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 3,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 2
     },
-    "opponentParty" : {
-      "mediaImage" : -2,
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "youthMovement" : 4,
-      "studentIssueSalience" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 26,
-    "badOutcome" : "Violence during protest hurts credibility.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -4,
-        "publicSupport" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION", "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 4
-  },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 1.1,
-    "riskWeight" : 0.9
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07de",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_price_rise_protest",
-  "name" : "Price Rise Protest",
-  "category" : "agitation_movement",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 9,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -9,
-      "partyMorale" : 2,
-      "corruptionScore" : -2,
-      "mediaImage" : 2,
-      "publicSupport" : 2
+    "ideologyTags": {
+      "strongFit": [
+        "WELFARE_POPULIST",
+        "REGIONAL_PRIDE"
+      ],
+      "weakFit": [
+        "DEVELOPMENT_FIRST"
+      ]
     },
-    "opponentParty" : {
-      "mediaImage" : -2,
-      "publicSupport" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "inflationIssueOwnershipOpposition" : 4,
-      "economicAnger" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Issue cools down before momentum builds.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "WELFARE_POPULIST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 1,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 1.1,
-    "riskWeight" : 0.5
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07df",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_public_yatra",
-  "name" : "Public Yatra",
-  "category" : "agitation_movement",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 16,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -16,
-      "partyMorale" : 4,
-      "corruptionScore" : -4,
-      "mediaImage" : 2,
-      "publicSupport" : 3
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 4
     },
-    "opponentParty" : {
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "leaderConnectionOpposition" : 5,
-      "grassrootsConnect" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Crowds are thinner than expected.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -2,
-        "mediaImage" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "REGIONAL_PRIDE", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 1.1,
-    "aiPriorityWeight" : 1,
-    "publicImpactWeight" : 1.4,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07e0",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_cleanliness_drive",
-  "name" : "Cleanliness Drive",
-  "category" : "positive_service",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 1
+    "weights": {
+      "basePlayWeight": 1.1,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 1.4,
+      "riskWeight": 0.6
     },
-    "opponentParty" : { }
+    "active": true
   },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "civicServiceOpposition" : 4,
-      "trustOpposition" : 2,
-      "protestFatigue" : -1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 15,
-    "badOutcome" : "Seen as a photo-op.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "WELFARE_POPULIST" ],
-    "weakFit" : [ "IDENTITY_POLITICS" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.7,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.3
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07e1",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_blood_donation_camp",
-  "name" : "Blood Donation Camp",
-  "category" : "positive_service",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 6,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -6,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 1,
-      "publicSupport" : 1
+  {
+    "id": "6a29c4b473b5c140ee0c07c1",
+    "scenarioKey": "default",
+    "cardKey": "gov_youth_employment_mission",
+    "name": "Youth Employment Mission",
+    "category": "governance",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 13,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "compassionMemoryOpposition" : 3,
-      "civicServiceOpposition" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 8,
-    "badOutcome" : "Low turnout limits impact.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "UNITY_PLATFORM", "WELFARE_POPULIST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.6,
-    "publicImpactWeight" : 0.7,
-    "riskWeight" : 0.2
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07e2",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_unity_march",
-  "name" : "Unity March",
-  "category" : "positive_service",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 2
-    },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "unityMemoryOpposition" : 4,
-      "polarization" : -2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 16,
-    "badOutcome" : "Public sees it as opportunistic after attacks.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "UNITY_PLATFORM" ],
-    "weakFit" : [ "IDENTITY_POLITICS" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 4
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.7,
-    "publicImpactWeight" : 0.9,
-    "riskWeight" : 0.4
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07e3",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_relief_work_during_crisis",
-  "name" : "Relief Work During Crisis",
-  "category" : "positive_service",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 12,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -12,
-      "partyMorale" : 3,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 3
-    },
-    "opponentParty" : {
-      "mediaImage" : -1,
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "crisisServiceOpposition" : 5,
-      "trustOpposition" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 16,
-    "badOutcome" : "Government accuses politicization of relief.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -1
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -13,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 3
       },
-      "opponentParty" : {
-        "mediaImage" : 1
+      "opponentParty": {
+        "mediaImage": -2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "WELFARE_POPULIST", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 1.1,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 1.3,
-    "riskWeight" : 0.5
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07e4",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_public_listening_sabha",
-  "name" : "Public Listening Sabha",
-  "category" : "positive_service",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 7,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -7,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 1,
-      "publicSupport" : 2
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "responsivenessOpposition" : 4,
-      "grassrootsConnect" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 10,
-    "badOutcome" : "Low attendance weakens morale.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -1,
-        "mediaImage" : -1
+    "hiddenEffects": {
+      "publicMemory": {
+        "youthHope": 4,
+        "jobsIssueOwnershipGovernment": 3
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "UNITY_PLATFORM", "WELFARE_POPULIST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.7,
-    "publicImpactWeight" : 0.9,
-    "riskWeight" : 0.3
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07e5",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_media_debate_challenge",
-  "name" : "Media Debate Challenge",
-  "category" : "media_narrative",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 4,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "mediaImage" : -2
-    }
+    "riskRoll": {
+      "chance": 24,
+      "badOutcome": "Youth call it an announcement without jobs.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -5,
+          "publicSupport": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 1.1,
+      "aiPriorityWeight": 1.1,
+      "publicImpactWeight": 1.3,
+      "riskWeight": 0.8
+    },
+    "active": true
   },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "preparednessOpposition" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 22,
-    "badOutcome" : "Government spokesperson performs better.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -3
+  {
+    "id": "6a29c4b573b5c140ee0c07c2",
+    "scenarioKey": "default",
+    "cardKey": "gov_women_safety_campaign",
+    "name": "Women Safety Campaign",
+    "category": "governance",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 11,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -11,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 2
       },
-      "opponentParty" : {
-        "mediaImage" : 2
+      "opponentParty": {
+        "mediaImage": -2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 1
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.7
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07e6",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_social_media_campaign",
-  "name" : "Social Media Campaign",
-  "category" : "media_narrative",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "narrativeReachOpposition" : 3,
-      "mediaFatigue" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 20,
-    "badOutcome" : "Rumor accusation hurts credibility.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 1,
-        "mediaImage" : -3
+    "hiddenEffects": {
+      "publicMemory": {
+        "socialGovernance": 3,
+        "trustGovernment": 2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION", "IDENTITY_POLITICS" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.7
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07e7",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_release_shadow_budget",
-  "name" : "Release Shadow Budget",
-  "category" : "media_narrative",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 2
     },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "governmentReadinessOpposition" : 4,
-      "fiscalCredibilityOpposition" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Numbers are attacked as unrealistic.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
+    "riskRoll": {
+      "chance": 15,
+      "badOutcome": "A local crime headline weakens the message.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "WELFARE_POPULIST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 1.0,
-    "riskWeight" : 0.5
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07e8",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_build_booth_network",
-  "name" : "Build Booth Network",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 12,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : false
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -12,
-      "partyMorale" : 4,
-      "corruptionScore" : 0,
-      "mediaImage" : 0,
-      "publicSupport" : 0
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "partyMemory" : {
-      "boothStrength" : 5,
-      "electionMachinery" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 10,
-    "badOutcome" : "Local faction disputes slow the work.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "REGIONAL_PRIDE" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 0.4,
-    "riskWeight" : 0.3
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07e9",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_strengthen_party_base",
-  "name" : "Strengthen Party Base",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 5,
-      "corruptionScore" : 0,
-      "mediaImage" : 1,
-      "publicSupport" : 1
+    "ideologyTags": {
+      "strongFit": [
+        "WELFARE_POPULIST",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "partyMemory" : {
-      "boothStrength" : 5,
-      "cadreLoyalty" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 10,
-    "badOutcome" : "Local factions fight over control.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -3,
-        "mediaImage" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "REGIONAL_PRIDE", "WELFARE_POPULIST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 0.6,
-    "riskWeight" : 0.3
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07ea",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_organize_fundraiser",
-  "name" : "Organize Fundraiser",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 2,
-  "maxUsesPerCycle" : 5,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : 50,
-      "partyMorale" : 1,
-      "corruptionScore" : -2,
-      "mediaImage" : 0,
-      "publicSupport" : 0
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "moneyPowerSuspicionOpposition" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 20,
-    "badOutcome" : "Donor influence questions surface.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 4,
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "REGIONAL_PRIDE" ],
-    "weakFit" : [ "ANTI_CORRUPTION" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.3,
-    "riskWeight" : 0.8
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07eb",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_regional_pride_rally",
-  "name" : "Regional Pride Rally",
-  "category" : "ideology_identity",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 2
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 1.0,
+      "riskWeight": 0.4
     },
-    "opponentParty" : {
-      "publicSupport" : -1
-    }
+    "active": true
   },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "regionalOwnershipOpposition" : 4,
-      "polarization" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Non-core blocs feel excluded.",
-    "effects" : {
-      "selfParty" : {
-        "publicSupport" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "REGIONAL_PRIDE" ],
-    "weakFit" : [ "UNITY_PLATFORM" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 4
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 1.0,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07ec",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_expose_teacher_admission_scam",
-  "name" : "Expose Teacher Admission Scam",
-  "category" : "scandal_accusation",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 14,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -14,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 1
+  {
+    "id": "6a29c4b573b5c140ee0c07c3",
+    "scenarioKey": "default",
+    "cardKey": "gov_subsidy_announcement",
+    "name": "Subsidy Announcement",
+    "category": "governance",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 13,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
     },
-    "opponentParty" : {
-      "partyMorale" : -1,
-      "corruptionScore" : 4,
-      "mediaImage" : -3,
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "corruptionSuspicionGovernment" : 4,
-      "scandalFatigue" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 25,
-    "badOutcome" : "Documents fail to prove the allegation.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -4,
-        "mediaImage" : -5,
-        "publicSupport" : -4
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -13,
+        "partyMorale": 3,
+        "corruptionScore": 2,
+        "mediaImage": 3,
+        "publicSupport": 3
       },
-      "opponentParty" : {
-        "mediaImage" : 3,
-        "publicSupport" : 2
+      "opponentParty": {
+        "publicSupport": -1
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 1.1,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 1.3,
-    "riskWeight" : 1.1
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07ed",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_expose_local_corruption",
-  "name" : "Expose Local Corruption",
-  "category" : "scandal_accusation",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 12,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -12,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "corruptionScore" : 4,
-      "mediaImage" : -3,
-      "publicSupport" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "localCorruptionMemory" : 4,
-      "corruptionSuspicionGovernment" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 23,
-    "badOutcome" : "Accused local leader is cleared.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -3,
-        "publicSupport" : -2
+    "hiddenEffects": {
+      "publicMemory": {
+        "welfareExpectation": 4,
+        "fiscalStress": 2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 1.2,
-    "riskWeight" : 1.0
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07ee",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_demand_judicial_inquiry",
-  "name" : "Demand Judicial Inquiry",
-  "category" : "scandal_accusation",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "corruptionScore" : 3,
-      "mediaImage" : -2,
-      "publicSupport" : -1
-    }
+    "riskRoll": {
+      "chance": 20,
+      "badOutcome": "Voters suspect election-season freebies.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": [
+        "ANTI_CORRUPTION"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 1.2,
+      "riskWeight": 0.6
+    },
+    "active": true
   },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "accountabilityPressure" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 24,
-    "badOutcome" : "Inquiry clears the government narrative.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -3,
-        "publicSupport" : -2
+  {
+    "id": "6a29c4b573b5c140ee0c07c4",
+    "scenarioKey": "default",
+    "cardKey": "gov_education_reform_bill",
+    "name": "Education Reform Bill",
+    "category": "governance",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 12,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -12,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 2
       },
-      "opponentParty" : {
-        "publicSupport" : 1
+      "opponentParty": {
+        "mediaImage": -2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 1.1,
-    "riskWeight" : 1.0
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07ef",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_expose_policy_failure",
-  "name" : "Expose Policy Failure",
-  "category" : "scandal_accusation",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 9,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -9,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 2
     },
-    "opponentParty" : {
-      "mediaImage" : -3,
-      "publicSupport" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "governanceFailureMemory" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Evidence is too technical for public attention.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -1
+    "hiddenEffects": {
+      "publicMemory": {
+        "educationTrust": 4,
+        "youthHope": 2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 4
-  },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 1.1,
-    "riskWeight" : 0.7
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07f0",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_attack_chief_minister_directly",
-  "name" : "Attack Chief Minister Directly",
-  "category" : "scandal_accusation",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "partyMorale" : -2,
-      "mediaImage" : -3,
-      "publicSupport" : -2
-    }
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Teacher unions object to implementation.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -2,
+          "mediaImage": -3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 1.1,
+      "riskWeight": 0.5
+    },
+    "active": true
   },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "personalAntiIncumbency" : 4
-    }
-  },
-  "riskRoll" : {
-    "chance" : 26,
-    "badOutcome" : "CM remains personally popular.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -3,
-        "publicSupport" : -2
+  {
+    "id": "6a29c4b573b5c140ee0c07c5",
+    "scenarioKey": "default",
+    "cardKey": "gov_disaster_relief_package",
+    "name": "Disaster Relief Package",
+    "category": "governance",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 14,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -14,
+        "partyMorale": 3,
+        "corruptionScore": 2,
+        "mediaImage": 6,
+        "publicSupport": 3
       },
-      "opponentParty" : {
-        "publicSupport" : 1
+      "opponentParty": {
+        "publicSupport": -1
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "IDENTITY_POLITICS", "ANTI_CORRUPTION" ],
-    "weakFit" : [ "UNITY_PLATFORM" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 1.0,
-    "riskWeight" : 1.0
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07f1",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_expose_administration_bias",
-  "name" : "Expose Administration Bias",
-  "category" : "scandal_accusation",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 11,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -11,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 2
     },
-    "opponentParty" : {
-      "corruptionScore" : 3,
-      "mediaImage" : -3,
-      "publicSupport" : -2
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "cadreDominanceConcern" : 4,
-      "stateNeutralityConcern" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 22,
-    "badOutcome" : "Officials deny charge with records.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
+    "hiddenEffects": {
+      "publicMemory": {
+        "crisisHandling": 5,
+        "trustGovernment": 3
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 1.2,
-    "riskWeight" : 0.9
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07f2",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_expose_relief_list_favoritism",
-  "name" : "Expose Relief List Favoritism",
-  "category" : "scandal_accusation",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 10,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -10,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 2,
-      "publicSupport" : 2
     },
-    "opponentParty" : {
-      "corruptionScore" : 4,
-      "mediaImage" : -3,
-      "publicSupport" : -2
-    }
+    "riskRoll": {
+      "chance": 22,
+      "badOutcome": "Relief distribution is accused of favoritism.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 6,
+          "mediaImage": -5
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "WELFARE_POPULIST",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 1.2,
+      "aiPriorityWeight": 1.2,
+      "publicImpactWeight": 1.4,
+      "riskWeight": 0.7
+    },
+    "active": true
   },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "welfareFavoritismMemory" : 4,
-      "poorVoterAnger" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 24,
-    "badOutcome" : "List errors are corrected quickly.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2
+  {
+    "id": "6a29c4b573b5c140ee0c07c6",
+    "scenarioKey": "default",
+    "cardKey": "gov_cleanliness_mission",
+    "name": "Cleanliness Mission",
+    "category": "positive_service",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 1
       },
-      "opponentParty" : {
-        "mediaImage" : 1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "WELFARE_POPULIST", "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 2,
-    "maxTurns" : 5
-  },
-  "weights" : {
-    "basePlayWeight" : 1.1,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 1.2,
-    "riskWeight" : 0.9
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b573b5c140ee0c07f3",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_fact_check_government_claim",
-  "name" : "Fact-Check Government Claim",
-  "category" : "defensive_counter",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 7,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -7,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 1
+      "opponentParty": {}
     },
-    "opponentParty" : {
-      "mediaImage" : -2,
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "credibilityOpposition" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 12,
-    "badOutcome" : "Issue is too technical to cut through.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -1
+    "hiddenEffects": {
+      "publicMemory": {
+        "civicService": 3,
+        "urbanTrust": 1
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION", "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 1
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.3
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b673b5c140ee0c07f4",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_counter_propaganda_campaign",
-  "name" : "Counter-Propaganda Campaign",
-  "category" : "defensive_counter",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 9,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -9,
-      "partyMorale" : 1,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "mediaImage" : -3
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "resistanceToGovtNarrative" : 3,
-      "mediaFatigue" : 1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 20,
-    "badOutcome" : "Message sounds too negative.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
+    "riskRoll": {
+      "chance": 10,
+      "badOutcome": "Seen as a symbolic photo-op.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -2
+        }
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION", "IDENTITY_POLITICS" ],
-    "weakFit" : [ "UNITY_PLATFORM" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b673b5c140ee0c07f5",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_legal_response_team",
-  "name" : "Legal Response Team",
-  "category" : "defensive_counter",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 1,
-      "corruptionScore" : -1,
-      "mediaImage" : 2,
-      "publicSupport" : 1
     },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "legalPreparednessOpposition" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 14,
-    "badOutcome" : "Legal move looks defensive.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 0.8,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.7,
-    "riskWeight" : 0.4
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b673b5c140ee0c07f6",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_apology_and_correction",
-  "name" : "Apology And Correction",
-  "category" : "defensive_counter",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 4,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -4,
-      "partyMorale" : -1,
-      "corruptionScore" : -1,
-      "mediaImage" : 2,
-      "publicSupport" : 1
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
     },
-    "opponentParty" : { }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "maturityOpposition" : 3,
-      "attackPattern" : -1
-    }
-  },
-  "riskRoll" : {
-    "chance" : 15,
-    "badOutcome" : "Cadre sees apology as weakness.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -2
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "UNITY_PLATFORM", "ANTI_CORRUPTION" ],
-    "weakFit" : [ "IDENTITY_POLITICS" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 1
-  },
-  "weights" : {
-    "basePlayWeight" : 0.6,
-    "aiPriorityWeight" : 0.6,
-    "publicImpactWeight" : 0.7,
-    "riskWeight" : 0.4
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b673b5c140ee0c07f7",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_change_the_narrative",
-  "name" : "Change The Narrative",
-  "category" : "defensive_counter",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -8,
-      "partyMorale" : 1,
-      "corruptionScore" : -4,
-      "mediaImage" : 2,
-      "publicSupport" : 1
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
     },
-    "opponentParty" : {
-      "mediaImage" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "narrativeResetOpposition" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 20,
-    "badOutcome" : "Public notices evasion.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "publicSupport" : -1
-      }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.7,
-    "aiPriorityWeight" : 0.6,
-    "publicImpactWeight" : 0.7,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29c4b673b5c140ee0c07f8",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_no_confidence_motion",
-  "name" : "No-Confidence Motion",
-  "category" : "constitutional_power_move",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 12,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : true,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : -12,
-      "partyMorale" : 3,
-      "corruptionScore" : 0,
-      "mediaImage" : 3,
-      "publicSupport" : 1
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.6,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.2
     },
-    "opponentParty" : {
-      "partyMorale" : -4,
-      "mediaImage" : -2,
-      "publicSupport" : -2
-    }
+    "active": true
   },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "governmentInstability" : 5,
-      "electionReadiness" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 35,
-    "badOutcome" : "Motion fails and looks opportunistic.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -5,
-        "mediaImage" : -4,
-        "publicSupport" : -3
+  {
+    "id": "6a29c4b573b5c140ee0c07c7",
+    "scenarioKey": "default",
+    "cardKey": "gov_unity_march",
+    "name": "Unity March",
+    "category": "positive_service",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 1
       },
-      "opponentParty" : {
-        "partyMorale" : 3,
-        "publicSupport" : 2
+      "opponentParty": {
+        "mediaImage": -2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.5,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 1.4,
-    "riskWeight" : 1.3
-  },
-  "active" : true
-}, {
-  "id" : "6a29cfd773b5c140ee0c08ad",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_public_bond_drive",
-  "name" : "Public Development Bond Drive",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 0,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : 28,
-      "partyMorale" : 1,
-      "corruptionScore" : 1,
-      "mediaImage" : 1,
-      "publicSupport" : 0
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "fiscalPressure" : 2,
-      "developmentFunding" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 20,
-    "badOutcome" : "Bond drive is mocked as fiscal desperation.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -3,
-        "publicSupport" : -1
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "unityMemory": 4,
+        "polarization": -2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ "WELFARE_POPULIST" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 0.3,
-    "riskWeight" : 0.5
-  },
-  "active" : true
-}, {
-  "id" : "6a29cfd773b5c140ee0c08ae",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_corporate_investor_summit",
-  "name" : "Corporate Investor Summit",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 8,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : 34,
-      "partyMorale" : 2,
-      "corruptionScore" : 2,
-      "mediaImage" : 3,
-      "publicSupport" : 1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "industryAccess" : 4,
-      "eliteProximity" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 24,
-    "badOutcome" : "Opposition frames the summit as crony politics.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 3,
-        "mediaImage" : -3,
-        "publicSupport" : -1
+    },
+    "riskRoll": {
+      "chance": 14,
+      "badOutcome": "Opponents call it opportunistic.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3
+        }
       }
-    }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": [
+        "IDENTITY_POLITICS"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 4
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.9,
+      "riskWeight": 0.4
+    },
+    "active": true
   },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ "ANTI_CORRUPTION" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.6,
-    "riskWeight" : 0.7
-  },
-  "active" : true
-}, {
-  "id" : "6a29cfd773b5c140ee0c08af",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_licensing_fee_revision",
-  "name" : "Revise Licensing Fees",
-  "category" : "governance",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 0,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : 22,
-      "partyMorale" : 0,
-      "corruptionScore" : 0,
-      "mediaImage" : -1,
-      "publicSupport" : -1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "taxFatigue" : 3,
-      "fiscalDiscipline" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Small traders protest fee hikes.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -3,
-        "publicSupport" : -2
+  {
+    "id": "6a29c4b573b5c140ee0c07c8",
+    "scenarioKey": "default",
+    "cardKey": "gov_public_grievance_camp",
+    "name": "Public Grievance Camp",
+    "category": "positive_service",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 2,
+        "corruptionScore": -2,
+        "mediaImage": 3,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "publicSupport": -1
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ "WELFARE_POPULIST" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.7,
-    "aiPriorityWeight" : 0.6,
-    "publicImpactWeight" : 0.2,
-    "riskWeight" : 0.6
-  },
-  "active" : true
-}, {
-  "id" : "6a29cfd773b5c140ee0c08b0",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "gov_cultural_festival_sponsorship",
-  "name" : "Cultural Festival Sponsorship Drive",
-  "category" : "positive_service",
-  "roleAllowed" : [ "GOVERNMENT" ],
-  "cost" : 5,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : 18,
-      "partyMorale" : 2,
-      "corruptionScore" : 1,
-      "mediaImage" : 3,
-      "publicSupport" : 1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "culturalConnect" : 3,
-      "sponsorObligation" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 16,
-    "badOutcome" : "Sponsors complain of pressure tactics.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 2,
-        "mediaImage" : -2
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "responsiveness": 4,
+        "trustGovernment": 2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "REGIONAL_PRIDE", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.7,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.4
-  },
-  "active" : true
-}, {
-  "id" : "6a29cfd773b5c140ee0c08b1",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_small_donor_membership_drive",
-  "name" : "Small Donor Membership Drive",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 2,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : 20,
-      "partyMorale" : 3,
-      "corruptionScore" : -1,
-      "mediaImage" : 2,
-      "publicSupport" : 1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "grassrootsFunding" : 4,
-      "cleanImage" : 2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 12,
-    "badOutcome" : "Membership numbers are lower than claimed.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2,
-        "partyMorale" : -1
+    },
+    "riskRoll": {
+      "chance": 12,
+      "badOutcome": "Complaints expose deeper delivery failures.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
       }
-    }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "UNITY_PLATFORM",
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 1.0,
+      "riskWeight": 0.4
+    },
+    "active": true
   },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION", "UNITY_PLATFORM" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
-  },
-  "weights" : {
-    "basePlayWeight" : 1.1,
-    "aiPriorityWeight" : 1.0,
-    "publicImpactWeight" : 0.8,
-    "riskWeight" : 0.3
-  },
-  "active" : true
-}, {
-  "id" : "6a29cfd773b5c140ee0c08b2",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_sympathy_coupon_campaign",
-  "name" : "Sympathy Coupon Campaign",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 0,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : 16,
-      "partyMorale" : 2,
-      "corruptionScore" : 0,
-      "mediaImage" : 1,
-      "publicSupport" : 0
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "movementFunding" : 3,
-      "cadreOwnership" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 14,
-    "badOutcome" : "Ruling party mocks the coupons as desperation.",
-    "effects" : {
-      "selfParty" : {
-        "mediaImage" : -2
+  {
+    "id": "6a29c4b573b5c140ee0c07c9",
+    "scenarioKey": "default",
+    "cardKey": "gov_media_blitz",
+    "name": "Media Blitz",
+    "category": "media_narrative",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 8,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -8,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 8,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -3
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "ANTI_CORRUPTION", "WELFARE_POPULIST" ],
-    "weakFit" : [ ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.8,
-    "publicImpactWeight" : 0.4,
-    "riskWeight" : 0.3
-  },
-  "active" : true
-}, {
-  "id" : "6a29cfd773b5c140ee0c08b3",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_donor_dinner",
-  "name" : "Private Donor Dinner",
-  "category" : "organization_resource",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 6,
-  "maxUsesPerCycle" : 5,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : false
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : 60,
-      "partyMorale" : 1,
-      "corruptionScore" : -1,
-      "mediaImage" : -1,
-      "publicSupport" : 0
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "eliteFunding" : 4,
-      "cleanImage" : -2
-    }
-  },
-  "riskRoll" : {
-    "chance" : 26,
-    "badOutcome" : "Photos with controversial donors leak.",
-    "effects" : {
-      "selfParty" : {
-        "corruptionScore" : 3,
-        "mediaImage" : -4,
-        "publicSupport" : -1
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "narrativeControlGovernment": 4,
+        "mediaFatigue": 2
       }
-    }
-  },
-  "ideologyTags" : {
-    "strongFit" : [ "DEVELOPMENT_FIRST" ],
-    "weakFit" : [ "ANTI_CORRUPTION" ]
-  },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 2
-  },
-  "weights" : {
-    "basePlayWeight" : 0.9,
-    "aiPriorityWeight" : 0.7,
-    "publicImpactWeight" : 0.2,
-    "riskWeight" : 0.8
-  },
-  "active" : true
-}, {
-  "id" : "6a29cfd773b5c140ee0c08b4",
-  "scenarioKey" : "west_bengal_2000",
-  "cardKey" : "opp_crowdfunded_yatra",
-  "name" : "Crowdfunded District Yatra",
-  "category" : "positive_service",
-  "roleAllowed" : [ "OPPOSITION", "THIRD_PARTY" ],
-  "cost" : 4,
-  "maxUsesPerCycle" : 2,
-  "target" : {
-    "selfParty" : true,
-    "opponentParty" : false,
-    "public" : true
-  },
-  "visibleEffects" : {
-    "selfParty" : {
-      "coins" : 14,
-      "partyMorale" : 3,
-      "corruptionScore" : -1,
-      "mediaImage" : 3,
-      "publicSupport" : 1
-    }
-  },
-  "hiddenEffects" : {
-    "publicMemory" : {
-      "grassrootsConnect" : 4,
-      "movementCredibility" : 3
-    }
-  },
-  "riskRoll" : {
-    "chance" : 18,
-    "badOutcome" : "Low turnout makes the yatra look staged.",
-    "effects" : {
-      "selfParty" : {
-        "partyMorale" : -2,
-        "mediaImage" : -2
+    },
+    "riskRoll": {
+      "chance": 22,
+      "badOutcome": "Public gets tired of overexposure.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
       }
-    }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "IDENTITY_POLITICS"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 1
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 1.1,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.7
+    },
+    "active": true
   },
-  "ideologyTags" : {
-    "strongFit" : [ "UNITY_PLATFORM", "REGIONAL_PRIDE" ],
-    "weakFit" : [ ]
+  {
+    "id": "6a29c4b573b5c140ee0c07ca",
+    "scenarioKey": "default",
+    "cardKey": "gov_attack_opposition_manifesto",
+    "name": "Attack Opposition Manifesto",
+    "category": "media_narrative",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -5,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "oppositionUnrealisticFrame": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 20,
+      "badOutcome": "Opposition promise is popular with voters.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3
+        },
+        "opponentParty": {
+          "publicSupport": 1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.5
+    },
+    "active": true
   },
-  "timing" : {
-    "minTurns" : 1,
-    "maxTurns" : 3
+  {
+    "id": "6a29c4b573b5c140ee0c07cb",
+    "scenarioKey": "default",
+    "cardKey": "gov_cabinet_reshuffle",
+    "name": "Cabinet Reshuffle",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 4,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -4,
+        "partyMorale": 5,
+        "corruptionScore": -2,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "resetSignal": 3,
+        "factionalTension": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Dropped leaders create internal resentment.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -5,
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.7,
+      "riskWeight": 0.6
+    },
+    "active": true
   },
-  "weights" : {
-    "basePlayWeight" : 1.0,
-    "aiPriorityWeight" : 0.9,
-    "publicImpactWeight" : 1.0,
-    "riskWeight" : 0.4
+  {
+    "id": "6a29c4b573b5c140ee0c07cc",
+    "scenarioKey": "default",
+    "cardKey": "gov_promote_popular_leader",
+    "name": "Promote Popular Leader",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 6,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 2
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "leaderConnectionGovernment": 4,
+        "factionalTension": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 16,
+      "badOutcome": "Internal rivals feel sidelined.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "REGIONAL_PRIDE",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.9,
+      "riskWeight": 0.5
+    },
+    "active": true
   },
-  "active" : true
-} ]
+  {
+    "id": "6a29c4b573b5c140ee0c07cd",
+    "scenarioKey": "default",
+    "cardKey": "gov_cadre_training_camp",
+    "name": "Cadre Training Camp",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": false
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 8,
+        "corruptionScore": 0,
+        "mediaImage": 0,
+        "publicSupport": 0
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "partyMemory": {
+        "boothStrength": 5,
+        "cadreDiscipline": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 10,
+      "badOutcome": "Local factions compete for control.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -3,
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "REGIONAL_PRIDE",
+        "IDENTITY_POLITICS"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 4
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.7,
+      "publicImpactWeight": 0.3,
+      "riskWeight": 0.3
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07ce",
+    "scenarioKey": "default",
+    "cardKey": "gov_strengthen_party_base",
+    "name": "Strengthen Party Base",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 8,
+        "corruptionScore": 0,
+        "mediaImage": 2,
+        "publicSupport": 1
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "partyMemory": {
+        "boothStrength": 5,
+        "cadreLoyalty": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 10,
+      "badOutcome": "Local factions fight over control.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -5,
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "REGIONAL_PRIDE",
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 0.6,
+      "riskWeight": 0.3
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07cf",
+    "scenarioKey": "default",
+    "cardKey": "gov_organize_fundraiser",
+    "name": "Organize Fundraiser",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 2,
+    "maxUsesPerCycle": 5,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": 100,
+        "partyMorale": 6,
+        "corruptionScore": -3,
+        "mediaImage": 0,
+        "publicSupport": 0
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "moneyPowerSuspicionGovernment": 2
+      }
+    },
+    "riskRoll": {
+      "chance": 24,
+      "badOutcome": "Donor influence questions surface.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 6,
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": [
+        "ANTI_CORRUPTION"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 0.3,
+      "riskWeight": 0.8
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07d0",
+    "scenarioKey": "default",
+    "cardKey": "gov_regional_pride_campaign",
+    "name": "Regional Pride Campaign",
+    "category": "ideology_identity",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 3,
+        "corruptionScore": -6,
+        "mediaImage": 3,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "regionalOwnershipGovernment": 4,
+        "polarization": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Non-core blocs feel excluded.",
+      "effects": {
+        "selfParty": {
+          "publicSupport": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "REGIONAL_PRIDE"
+      ],
+      "weakFit": [
+        "UNITY_PLATFORM"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 4
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 1,
+      "riskWeight": 0.6
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07d1",
+    "scenarioKey": "default",
+    "cardKey": "gov_community_leader_outreach",
+    "name": "Community Leader Outreach",
+    "category": "ideology_identity",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 2,
+        "corruptionScore": 2,
+        "mediaImage": 2,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "blocLoyaltyGovernment": 4,
+        "favoritismSuspicion": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Rival blocs feel ignored.",
+      "effects": {
+        "selfParty": {
+          "publicSupport": -1,
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "IDENTITY_POLITICS",
+        "REGIONAL_PRIDE"
+      ],
+      "weakFit": [
+        "UNITY_PLATFORM"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.9,
+      "riskWeight": 0.5
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07d2",
+    "scenarioKey": "default",
+    "cardKey": "gov_anti_corruption_raid_on_opposition",
+    "name": "Anti-Corruption Raid On Opposition",
+    "category": "scandal_accusation",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 8,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -8,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "partyMorale": -3,
+        "corruptionScore": 6,
+        "mediaImage": -5,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "corruptionSuspicionOpposition": 4,
+        "stateMisuseConcern": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 28,
+      "badOutcome": "Raid appears politically motivated.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -6,
+          "publicSupport": -2
+        },
+        "opponentParty": {
+          "publicSupport": 1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 1.1,
+      "riskWeight": 1.0
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07d3",
+    "scenarioKey": "default",
+    "cardKey": "gov_investigate_opposition_funding",
+    "name": "Investigate Opposition Funding",
+    "category": "scandal_accusation",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 2,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "corruptionScore": 8,
+        "mediaImage": -5,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "moneyPowerSuspicionOpposition": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 26,
+      "badOutcome": "Evidence looks thin.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -5,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 1.0,
+      "riskWeight": 0.9
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07d4",
+    "scenarioKey": "default",
+    "cardKey": "gov_expose_opposition_infighting",
+    "name": "Expose Opposition Infighting",
+    "category": "scandal_accusation",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "partyMorale": -6,
+        "mediaImage": -5,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "oppositionInstability": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 20,
+      "badOutcome": "Story looks planted.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3
+        },
+        "opponentParty": {
+          "partyMorale": 2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "IDENTITY_POLITICS"
+      ],
+      "weakFit": [
+        "UNITY_PLATFORM"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.9,
+      "riskWeight": 0.6
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07d5",
+    "scenarioKey": "default",
+    "cardKey": "gov_order_independent_inquiry",
+    "name": "Order Independent Inquiry",
+    "category": "defensive_counter",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 0,
+        "corruptionScore": -3,
+        "mediaImage": 5,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "accountabilitySignalGovernment": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 25,
+      "badOutcome": "Inquiry finds uncomfortable facts.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 6,
+          "mediaImage": -5,
+          "publicSupport": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 4
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 1.2,
+      "publicImpactWeight": 1.0,
+      "riskWeight": 0.8
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07d6",
+    "scenarioKey": "default",
+    "cardKey": "gov_release_documents",
+    "name": "Release Documents",
+    "category": "defensive_counter",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 4,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -4,
+        "partyMorale": 2,
+        "corruptionScore": -3,
+        "mediaImage": 5,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -3
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "transparency": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Documents look incomplete.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION",
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.5
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07d7",
+    "scenarioKey": "default",
+    "cardKey": "gov_sacrifice_minister",
+    "name": "Sacrifice Minister",
+    "category": "defensive_counter",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 3,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -3,
+        "partyMorale": -6,
+        "corruptionScore": -8,
+        "mediaImage": 5,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "accountabilitySignalGovernment": 5,
+        "factionalTension": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 20,
+      "badOutcome": "Resignation is read as admission of deeper rot.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 3,
+          "publicSupport": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": [
+        "IDENTITY_POLITICS"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.7,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 1.0,
+      "riskWeight": 0.8
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07d8",
+    "scenarioKey": "default",
+    "cardKey": "gov_media_defense_campaign",
+    "name": "Media Defense Campaign",
+    "category": "defensive_counter",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 6,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -3
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "mediaFatigue": 2,
+        "narrativeControlGovernment": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 22,
+      "badOutcome": "Public sees spin instead of answers.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "IDENTITY_POLITICS"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 1
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.7
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07d9",
+    "scenarioKey": "default",
+    "cardKey": "gov_legal_notice",
+    "name": "Legal Notice",
+    "category": "defensive_counter",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 4,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -4,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 2,
+        "publicSupport": 0
+      },
+      "opponentParty": {
+        "partyMorale": -3,
+        "mediaImage": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "statePowerConcern": 2
+      }
+    },
+    "riskRoll": {
+      "chance": 24,
+      "badOutcome": "Looks intimidating against criticism.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "IDENTITY_POLITICS"
+      ],
+      "weakFit": [
+        "UNITY_PLATFORM"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.6,
+      "aiPriorityWeight": 0.7,
+      "publicImpactWeight": 0.5,
+      "riskWeight": 0.8
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07da",
+    "scenarioKey": "default",
+    "cardKey": "gov_suppress_protest",
+    "name": "Suppress Protest",
+    "category": "agitation_movement",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 2,
+        "publicSupport": -1
+      },
+      "opponentParty": {
+        "partyMorale": -5,
+        "mediaImage": -2,
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "statePowerConcern": 4,
+        "protestSuppressionMemory": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 30,
+      "badOutcome": "Crackdown images anger voters.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -6,
+          "publicSupport": -3
+        },
+        "opponentParty": {
+          "publicSupport": 2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "IDENTITY_POLITICS"
+      ],
+      "weakFit": [
+        "UNITY_PLATFORM"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.6,
+      "aiPriorityWeight": 0.7,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 1.1
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07db",
+    "scenarioKey": "default",
+    "cardKey": "opp_anti_corruption_march",
+    "name": "Anti-Corruption March",
+    "category": "agitation_movement",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 5,
+        "corruptionScore": -3,
+        "mediaImage": 3,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "corruptionScore": 3,
+        "mediaImage": -3,
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "antiCorruptionOwnershipOpposition": 4,
+        "scandalFatigue": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 22,
+      "badOutcome": "Claims feel repetitive without evidence.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 1.1,
+      "aiPriorityWeight": 1,
+      "publicImpactWeight": 1.2,
+      "riskWeight": 0.7
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07dc",
+    "scenarioKey": "default",
+    "cardKey": "opp_farmer_agitation",
+    "name": "Farmer Agitation",
+    "category": "agitation_movement",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 8,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -8,
+        "partyMorale": 5,
+        "corruptionScore": -5,
+        "mediaImage": 2,
+        "publicSupport": 3
+      },
+      "opponentParty": {
+        "mediaImage": -3,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "ruralAnger": 6,
+        "protestFatigue": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 24,
+      "badOutcome": "Disruption annoys neutral voters.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "WELFARE_POPULIST",
+        "REGIONAL_PRIDE"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 4
+    },
+    "weights": {
+      "basePlayWeight": 1.1,
+      "aiPriorityWeight": 1.1,
+      "publicImpactWeight": 1.3,
+      "riskWeight": 0.8
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07dd",
+    "scenarioKey": "default",
+    "cardKey": "opp_student_movement",
+    "name": "Student Movement",
+    "category": "agitation_movement",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 5,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "mediaImage": -3,
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "youthMovement": 4,
+        "studentIssueSalience": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 26,
+      "badOutcome": "Violence during protest hurts credibility.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -6,
+          "publicSupport": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION",
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 4
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 1.1,
+      "riskWeight": 0.9
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07de",
+    "scenarioKey": "default",
+    "cardKey": "opp_price_rise_protest",
+    "name": "Price Rise Protest",
+    "category": "agitation_movement",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 3,
+        "corruptionScore": -3,
+        "mediaImage": 3,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "mediaImage": -3,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "inflationIssueOwnershipOpposition": 4,
+        "economicAnger": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Issue cools down before momentum builds.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 1,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 1.1,
+      "riskWeight": 0.5
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07df",
+    "scenarioKey": "default",
+    "cardKey": "opp_public_yatra",
+    "name": "Public Yatra",
+    "category": "agitation_movement",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 10,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -10,
+        "partyMorale": 6,
+        "corruptionScore": -6,
+        "mediaImage": 3,
+        "publicSupport": 3
+      },
+      "opponentParty": {
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "leaderConnectionOpposition": 5,
+        "grassrootsConnect": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Crowds are thinner than expected.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -3,
+          "mediaImage": -3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "REGIONAL_PRIDE",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 1.1,
+      "aiPriorityWeight": 1,
+      "publicImpactWeight": 1.4,
+      "riskWeight": 0.6
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07e0",
+    "scenarioKey": "default",
+    "cardKey": "opp_cleanliness_drive",
+    "name": "Cleanliness Drive",
+    "category": "positive_service",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "civicServiceOpposition": 4,
+        "trustOpposition": 2,
+        "protestFatigue": -1
+      }
+    },
+    "riskRoll": {
+      "chance": 15,
+      "badOutcome": "Seen as a photo-op.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": [
+        "IDENTITY_POLITICS"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.7,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.3
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07e1",
+    "scenarioKey": "default",
+    "cardKey": "opp_blood_donation_camp",
+    "name": "Blood Donation Camp",
+    "category": "positive_service",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 4,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -4,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 2,
+        "publicSupport": 1
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "compassionMemoryOpposition": 3,
+        "civicServiceOpposition": 2
+      }
+    },
+    "riskRoll": {
+      "chance": 8,
+      "badOutcome": "Low turnout limits impact.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "UNITY_PLATFORM",
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.6,
+      "publicImpactWeight": 0.7,
+      "riskWeight": 0.2
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07e2",
+    "scenarioKey": "default",
+    "cardKey": "opp_unity_march",
+    "name": "Unity March",
+    "category": "positive_service",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "mediaImage": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "unityMemoryOpposition": 4,
+        "polarization": -2
+      }
+    },
+    "riskRoll": {
+      "chance": 16,
+      "badOutcome": "Public sees it as opportunistic after attacks.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": [
+        "IDENTITY_POLITICS"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 4
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.7,
+      "publicImpactWeight": 0.9,
+      "riskWeight": 0.4
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07e3",
+    "scenarioKey": "default",
+    "cardKey": "opp_relief_work_during_crisis",
+    "name": "Relief Work During Crisis",
+    "category": "positive_service",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 8,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -8,
+        "partyMorale": 5,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 3
+      },
+      "opponentParty": {
+        "mediaImage": -2,
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "crisisServiceOpposition": 5,
+        "trustOpposition": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 16,
+      "badOutcome": "Government accuses politicization of relief.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -2
+        },
+        "opponentParty": {
+          "mediaImage": 2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "WELFARE_POPULIST",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 1.1,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 1.3,
+      "riskWeight": 0.5
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07e4",
+    "scenarioKey": "default",
+    "cardKey": "opp_public_listening_sabha",
+    "name": "Public Listening Sabha",
+    "category": "positive_service",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 4,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -4,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 2,
+        "publicSupport": 2
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "responsivenessOpposition": 4,
+        "grassrootsConnect": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 10,
+      "badOutcome": "Low attendance weakens morale.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -2,
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "UNITY_PLATFORM",
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.7,
+      "publicImpactWeight": 0.9,
+      "riskWeight": 0.3
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07e5",
+    "scenarioKey": "default",
+    "cardKey": "opp_media_debate_challenge",
+    "name": "Media Debate Challenge",
+    "category": "media_narrative",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 6,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -3
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "preparednessOpposition": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 22,
+      "badOutcome": "Government spokesperson performs better.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -5
+        },
+        "opponentParty": {
+          "mediaImage": 3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 1
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.7
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07e6",
+    "scenarioKey": "default",
+    "cardKey": "opp_social_media_campaign",
+    "name": "Social Media Campaign",
+    "category": "media_narrative",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "narrativeReachOpposition": 3,
+        "mediaFatigue": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 20,
+      "badOutcome": "Rumor accusation hurts credibility.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 2,
+          "mediaImage": -5
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION",
+        "IDENTITY_POLITICS"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.7
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07e7",
+    "scenarioKey": "default",
+    "cardKey": "opp_release_shadow_budget",
+    "name": "Release Shadow Budget",
+    "category": "media_narrative",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "mediaImage": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "governmentReadinessOpposition": 4,
+        "fiscalCredibilityOpposition": 2
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Numbers are attacked as unrealistic.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 1.0,
+      "riskWeight": 0.5
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07e8",
+    "scenarioKey": "default",
+    "cardKey": "opp_build_booth_network",
+    "name": "Build Booth Network",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 8,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": false
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -8,
+        "partyMorale": 6,
+        "corruptionScore": 0,
+        "mediaImage": 0,
+        "publicSupport": 0
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "partyMemory": {
+        "boothStrength": 5,
+        "electionMachinery": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 10,
+      "badOutcome": "Local faction disputes slow the work.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "REGIONAL_PRIDE"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 0.4,
+      "riskWeight": 0.3
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07e9",
+    "scenarioKey": "default",
+    "cardKey": "opp_strengthen_party_base",
+    "name": "Strengthen Party Base",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 8,
+        "corruptionScore": 0,
+        "mediaImage": 2,
+        "publicSupport": 1
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "partyMemory": {
+        "boothStrength": 5,
+        "cadreLoyalty": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 10,
+      "badOutcome": "Local factions fight over control.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -5,
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "REGIONAL_PRIDE",
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 0.6,
+      "riskWeight": 0.3
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07ea",
+    "scenarioKey": "default",
+    "cardKey": "opp_organize_fundraiser",
+    "name": "Organize Fundraiser",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 2,
+    "maxUsesPerCycle": 5,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": 100,
+        "partyMorale": 2,
+        "corruptionScore": -3,
+        "mediaImage": 0,
+        "publicSupport": 0
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "moneyPowerSuspicionOpposition": 2
+      }
+    },
+    "riskRoll": {
+      "chance": 20,
+      "badOutcome": "Donor influence questions surface.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 6,
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "REGIONAL_PRIDE"
+      ],
+      "weakFit": [
+        "ANTI_CORRUPTION"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.3,
+      "riskWeight": 0.8
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07eb",
+    "scenarioKey": "default",
+    "cardKey": "opp_regional_pride_rally",
+    "name": "Regional Pride Rally",
+    "category": "ideology_identity",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "regionalOwnershipOpposition": 4,
+        "polarization": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Non-core blocs feel excluded.",
+      "effects": {
+        "selfParty": {
+          "publicSupport": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "REGIONAL_PRIDE"
+      ],
+      "weakFit": [
+        "UNITY_PLATFORM"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 4
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 1.0,
+      "riskWeight": 0.6
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07ec",
+    "scenarioKey": "default",
+    "cardKey": "opp_expose_teacher_admission_scam",
+    "name": "Expose Teacher Admission Scam",
+    "category": "scandal_accusation",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 9,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -9,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "partyMorale": -2,
+        "corruptionScore": 6,
+        "mediaImage": -5,
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "corruptionSuspicionGovernment": 3,
+        "scandalFatigue": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 25,
+      "badOutcome": "Documents fail to prove the allegation.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -6,
+          "mediaImage": -8,
+          "publicSupport": -3
+        },
+        "opponentParty": {
+          "mediaImage": 5,
+          "publicSupport": 2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 1.1,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 1.3,
+      "riskWeight": 1.1
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07ed",
+    "scenarioKey": "default",
+    "cardKey": "opp_expose_local_corruption",
+    "name": "Expose Local Corruption",
+    "category": "scandal_accusation",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 8,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -8,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "corruptionScore": 6,
+        "mediaImage": -5,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "localCorruptionMemory": 4,
+        "corruptionSuspicionGovernment": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 23,
+      "badOutcome": "Accused local leader is cleared.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -5,
+          "publicSupport": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 1.2,
+      "riskWeight": 1.0
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07ee",
+    "scenarioKey": "default",
+    "cardKey": "opp_demand_judicial_inquiry",
+    "name": "Demand Judicial Inquiry",
+    "category": "scandal_accusation",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "corruptionScore": 5,
+        "mediaImage": -3,
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "accountabilityPressure": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 24,
+      "badOutcome": "Inquiry clears the government narrative.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -5,
+          "publicSupport": -2
+        },
+        "opponentParty": {
+          "publicSupport": 1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 1.1,
+      "riskWeight": 1.0
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07ef",
+    "scenarioKey": "default",
+    "cardKey": "opp_expose_policy_failure",
+    "name": "Expose Policy Failure",
+    "category": "scandal_accusation",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "mediaImage": -5,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "governanceFailureMemory": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Evidence is too technical for public attention.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 4
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 1.1,
+      "riskWeight": 0.7
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07f0",
+    "scenarioKey": "default",
+    "cardKey": "opp_attack_chief_minister_directly",
+    "name": "Attack Chief Minister Directly",
+    "category": "scandal_accusation",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "partyMorale": -3,
+        "mediaImage": -5,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "personalAntiIncumbency": 4
+      }
+    },
+    "riskRoll": {
+      "chance": 26,
+      "badOutcome": "CM remains personally popular.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -5,
+          "publicSupport": -2
+        },
+        "opponentParty": {
+          "publicSupport": 1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "IDENTITY_POLITICS",
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": [
+        "UNITY_PLATFORM"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 1.0,
+      "riskWeight": 1.0
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07f1",
+    "scenarioKey": "default",
+    "cardKey": "opp_expose_administration_bias",
+    "name": "Expose Administration Bias",
+    "category": "scandal_accusation",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 7,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -7,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "corruptionScore": 5,
+        "mediaImage": -5,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "cadreDominanceConcern": 4,
+        "stateNeutralityConcern": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 22,
+      "badOutcome": "Officials deny charge with records.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 1.2,
+      "riskWeight": 0.9
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07f2",
+    "scenarioKey": "default",
+    "cardKey": "opp_expose_relief_list_favoritism",
+    "name": "Expose Relief List Favoritism",
+    "category": "scandal_accusation",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 3,
+        "publicSupport": 2
+      },
+      "opponentParty": {
+        "corruptionScore": 6,
+        "mediaImage": -5,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "welfareFavoritismMemory": 4,
+        "poorVoterAnger": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 24,
+      "badOutcome": "List errors are corrected quickly.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3
+        },
+        "opponentParty": {
+          "mediaImage": 2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "WELFARE_POPULIST",
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 2,
+      "maxTurns": 5
+    },
+    "weights": {
+      "basePlayWeight": 1.1,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 1.2,
+      "riskWeight": 0.9
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b573b5c140ee0c07f3",
+    "scenarioKey": "default",
+    "cardKey": "opp_fact_check_government_claim",
+    "name": "Fact-Check Government Claim",
+    "category": "defensive_counter",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 4,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -4,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -3,
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "credibilityOpposition": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 12,
+      "badOutcome": "Issue is too technical to cut through.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION",
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 1
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.3
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b673b5c140ee0c07f4",
+    "scenarioKey": "default",
+    "cardKey": "opp_counter_propaganda_campaign",
+    "name": "Counter-Propaganda Campaign",
+    "category": "defensive_counter",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -6,
+        "partyMorale": 2,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -5
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "resistanceToGovtNarrative": 3,
+        "mediaFatigue": 1
+      }
+    },
+    "riskRoll": {
+      "chance": 20,
+      "badOutcome": "Message sounds too negative.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION",
+        "IDENTITY_POLITICS"
+      ],
+      "weakFit": [
+        "UNITY_PLATFORM"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.6
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b673b5c140ee0c07f5",
+    "scenarioKey": "default",
+    "cardKey": "opp_legal_response_team",
+    "name": "Legal Response Team",
+    "category": "defensive_counter",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 2,
+        "corruptionScore": -2,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "legalPreparednessOpposition": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 14,
+      "badOutcome": "Legal move looks defensive.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 0.8,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.7,
+      "riskWeight": 0.4
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b673b5c140ee0c07f6",
+    "scenarioKey": "default",
+    "cardKey": "opp_apology_and_correction",
+    "name": "Apology And Correction",
+    "category": "defensive_counter",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 3,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -3,
+        "partyMorale": -2,
+        "corruptionScore": -2,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {}
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "maturityOpposition": 3,
+        "attackPattern": -1
+      }
+    },
+    "riskRoll": {
+      "chance": 15,
+      "badOutcome": "Cadre sees apology as weakness.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "UNITY_PLATFORM",
+        "ANTI_CORRUPTION"
+      ],
+      "weakFit": [
+        "IDENTITY_POLITICS"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 1
+    },
+    "weights": {
+      "basePlayWeight": 0.6,
+      "aiPriorityWeight": 0.6,
+      "publicImpactWeight": 0.7,
+      "riskWeight": 0.4
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b673b5c140ee0c07f7",
+    "scenarioKey": "default",
+    "cardKey": "opp_change_the_narrative",
+    "name": "Change The Narrative",
+    "category": "defensive_counter",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -5,
+        "partyMorale": 2,
+        "corruptionScore": -6,
+        "mediaImage": 3,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "mediaImage": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "narrativeResetOpposition": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 20,
+      "badOutcome": "Public notices evasion.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.7,
+      "aiPriorityWeight": 0.6,
+      "publicImpactWeight": 0.7,
+      "riskWeight": 0.6
+    },
+    "active": true
+  },
+  {
+    "id": "6a29c4b673b5c140ee0c07f8",
+    "scenarioKey": "default",
+    "cardKey": "opp_no_confidence_motion",
+    "name": "No-Confidence Motion",
+    "category": "constitutional_power_move",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 8,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": true,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": -8,
+        "partyMorale": 5,
+        "corruptionScore": 0,
+        "mediaImage": 5,
+        "publicSupport": 1
+      },
+      "opponentParty": {
+        "partyMorale": -6,
+        "mediaImage": -3,
+        "publicSupport": -2
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "governmentInstability": 5,
+        "electionReadiness": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 35,
+      "badOutcome": "Motion fails and looks opportunistic.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -8,
+          "mediaImage": -6,
+          "publicSupport": -3
+        },
+        "opponentParty": {
+          "partyMorale": 5,
+          "publicSupport": 2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.5,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 1.4,
+      "riskWeight": 1.3
+    },
+    "active": true
+  },
+  {
+    "id": "6a29cfd773b5c140ee0c08ad",
+    "scenarioKey": "default",
+    "cardKey": "gov_public_bond_drive",
+    "name": "Public Development Bond Drive",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 0,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": 56,
+        "partyMorale": 2,
+        "corruptionScore": 2,
+        "mediaImage": 2,
+        "publicSupport": 0
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "fiscalPressure": 2,
+        "developmentFunding": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 20,
+      "badOutcome": "Bond drive is mocked as fiscal desperation.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -5,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": [
+        "WELFARE_POPULIST"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 0.3,
+      "riskWeight": 0.5
+    },
+    "active": true
+  },
+  {
+    "id": "6a29cfd773b5c140ee0c08ae",
+    "scenarioKey": "default",
+    "cardKey": "gov_corporate_investor_summit",
+    "name": "Corporate Investor Summit",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 8,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": 68,
+        "partyMorale": 3,
+        "corruptionScore": 3,
+        "mediaImage": 5,
+        "publicSupport": 1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "industryAccess": 4,
+        "eliteProximity": 2
+      }
+    },
+    "riskRoll": {
+      "chance": 24,
+      "badOutcome": "Opposition frames the summit as crony politics.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 5,
+          "mediaImage": -5,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": [
+        "ANTI_CORRUPTION"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.6,
+      "riskWeight": 0.7
+    },
+    "active": true
+  },
+  {
+    "id": "6a29cfd773b5c140ee0c08af",
+    "scenarioKey": "default",
+    "cardKey": "gov_licensing_fee_revision",
+    "name": "Revise Licensing Fees",
+    "category": "governance",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 0,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": 44,
+        "partyMorale": 0,
+        "corruptionScore": 0,
+        "mediaImage": -2,
+        "publicSupport": -1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "taxFatigue": 3,
+        "fiscalDiscipline": 2
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Small traders protest fee hikes.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -5,
+          "publicSupport": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": [
+        "WELFARE_POPULIST"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.7,
+      "aiPriorityWeight": 0.6,
+      "publicImpactWeight": 0.2,
+      "riskWeight": 0.6
+    },
+    "active": true
+  },
+  {
+    "id": "6a29cfd773b5c140ee0c08b0",
+    "scenarioKey": "default",
+    "cardKey": "gov_cultural_festival_sponsorship",
+    "name": "Cultural Festival Sponsorship Drive",
+    "category": "positive_service",
+    "roleAllowed": [
+      "GOVERNMENT"
+    ],
+    "cost": 5,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": 36,
+        "partyMorale": 3,
+        "corruptionScore": 2,
+        "mediaImage": 5,
+        "publicSupport": 1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "culturalConnect": 3,
+        "sponsorObligation": 2
+      }
+    },
+    "riskRoll": {
+      "chance": 16,
+      "badOutcome": "Sponsors complain of pressure tactics.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 3,
+          "mediaImage": -3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "REGIONAL_PRIDE",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.7,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.4
+    },
+    "active": true
+  },
+  {
+    "id": "6a29cfd773b5c140ee0c08b1",
+    "scenarioKey": "default",
+    "cardKey": "opp_small_donor_membership_drive",
+    "name": "Small Donor Membership Drive",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 2,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": 40,
+        "partyMorale": 5,
+        "corruptionScore": -2,
+        "mediaImage": 3,
+        "publicSupport": 1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "grassrootsFunding": 4,
+        "cleanImage": 2
+      }
+    },
+    "riskRoll": {
+      "chance": 12,
+      "badOutcome": "Membership numbers are lower than claimed.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3,
+          "partyMorale": -2
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION",
+        "UNITY_PLATFORM"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 1.1,
+      "aiPriorityWeight": 1.0,
+      "publicImpactWeight": 0.8,
+      "riskWeight": 0.3
+    },
+    "active": true
+  },
+  {
+    "id": "6a29cfd773b5c140ee0c08b2",
+    "scenarioKey": "default",
+    "cardKey": "opp_sympathy_coupon_campaign",
+    "name": "Sympathy Coupon Campaign",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 0,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": 32,
+        "partyMorale": 3,
+        "corruptionScore": 0,
+        "mediaImage": 2,
+        "publicSupport": 0
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "movementFunding": 3,
+        "cadreOwnership": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 14,
+      "badOutcome": "Ruling party mocks the coupons as desperation.",
+      "effects": {
+        "selfParty": {
+          "mediaImage": -3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "ANTI_CORRUPTION",
+        "WELFARE_POPULIST"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.8,
+      "publicImpactWeight": 0.4,
+      "riskWeight": 0.3
+    },
+    "active": true
+  },
+  {
+    "id": "6a29cfd773b5c140ee0c08b3",
+    "scenarioKey": "default",
+    "cardKey": "opp_donor_dinner",
+    "name": "Private Donor Dinner",
+    "category": "organization_resource",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 6,
+    "maxUsesPerCycle": 5,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": false
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": 120,
+        "partyMorale": 2,
+        "corruptionScore": -2,
+        "mediaImage": -2,
+        "publicSupport": 0
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "eliteFunding": 4,
+        "cleanImage": -2
+      }
+    },
+    "riskRoll": {
+      "chance": 26,
+      "badOutcome": "Photos with controversial donors leak.",
+      "effects": {
+        "selfParty": {
+          "corruptionScore": 5,
+          "mediaImage": -6,
+          "publicSupport": -1
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "DEVELOPMENT_FIRST"
+      ],
+      "weakFit": [
+        "ANTI_CORRUPTION"
+      ]
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 2
+    },
+    "weights": {
+      "basePlayWeight": 0.9,
+      "aiPriorityWeight": 0.7,
+      "publicImpactWeight": 0.2,
+      "riskWeight": 0.8
+    },
+    "active": true
+  },
+  {
+    "id": "6a29cfd773b5c140ee0c08b4",
+    "scenarioKey": "default",
+    "cardKey": "opp_crowdfunded_yatra",
+    "name": "Crowdfunded District Yatra",
+    "category": "positive_service",
+    "roleAllowed": [
+      "OPPOSITION",
+      "THIRD_PARTY"
+    ],
+    "cost": 4,
+    "maxUsesPerCycle": 2,
+    "target": {
+      "selfParty": true,
+      "opponentParty": false,
+      "public": true
+    },
+    "visibleEffects": {
+      "selfParty": {
+        "coins": 28,
+        "partyMorale": 5,
+        "corruptionScore": -2,
+        "mediaImage": 5,
+        "publicSupport": 1
+      }
+    },
+    "hiddenEffects": {
+      "publicMemory": {
+        "grassrootsConnect": 4,
+        "movementCredibility": 3
+      }
+    },
+    "riskRoll": {
+      "chance": 18,
+      "badOutcome": "Low turnout makes the yatra look staged.",
+      "effects": {
+        "selfParty": {
+          "partyMorale": -3,
+          "mediaImage": -3
+        }
+      }
+    },
+    "ideologyTags": {
+      "strongFit": [
+        "UNITY_PLATFORM",
+        "REGIONAL_PRIDE"
+      ],
+      "weakFit": []
+    },
+    "timing": {
+      "minTurns": 1,
+      "maxTurns": 3
+    },
+    "weights": {
+      "basePlayWeight": 1.0,
+      "aiPriorityWeight": 0.9,
+      "publicImpactWeight": 1.0,
+      "riskWeight": 0.4
+    },
+    "active": true
+  }
+]

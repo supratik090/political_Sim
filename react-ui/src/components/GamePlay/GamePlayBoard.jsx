@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { fetchTurnView, advanceTurn, fundProject, destroyProject, setProjectTarget, fetchBuildingProjects, fetchPostDefinitions } from '../../api/apiClient';
+import { fetchTurnView, advanceTurn, fundProject, destroyProject, setProjectTarget, fetchBuildingProjects, fetchPostDefinitions, takeLoan, buyRecoveryPack } from '../../api/apiClient';
 import { getPartyColor, cardRequiresTarget } from './gameUtils';
 import StatsView from './StatsView';
 import ActionsView from './ActionsView';
@@ -8,6 +8,7 @@ import { getPartyThemeByName } from '../../constants/partyThemes';
 import { PROJECT_DEFS } from './constants';
 import RoundResolutionModal from './RoundResolutionModal';
 import SkipTurnConfirmationModal from './SkipTurnConfirmationModal';
+import DefeatHazardModal from './DefeatHazardModal';
 import GameTutorial from './GameTutorial';
 import { useMultiplayer } from '../../hooks/useMultiplayer';
 import ChatDrawer from '../../components/Chat/ChatDrawer';
@@ -169,12 +170,18 @@ export default function GamePlayBoard() {
   const [commentaryExpanded, setCommentaryExpanded] = useState(false);
   const [commentaryFilter, setCommentaryFilter] = useState('ALL');
   const [showDroppedRewardModal, setShowDroppedRewardModal] = useState(false);
+  const [showProjectRefreshModal, setShowProjectRefreshModal] = useState(false);
 
   useEffect(() => {
     if (turnData?.lastRoundDroppedReward) {
       setShowDroppedRewardModal(true);
     }
+    if (turnData?.lastRoundProjectLimitsRefreshed) {
+      setShowProjectRefreshModal(true);
+    }
   }, [turnData]);
+
+
 
   // Real 6 actions states
   const [selectedCard, setSelectedCard] = useState(null);
@@ -195,6 +202,7 @@ export default function GamePlayBoard() {
   const [cardCategoryFilter, setCardCategoryFilter] = useState('agitation_movement');
   const [showResolutionReport, setShowResolutionReport] = useState(false);
   const [showSkipModal, setShowSkipModal] = useState(false);
+  const [showDefeatHazardModal, setShowDefeatHazardModal] = useState(false);
 
   // Project building draft states
   const [projectCategoryFilter, setProjectCategoryFilter] = useState('BUILD');
@@ -217,6 +225,17 @@ export default function GamePlayBoard() {
   const playerPartyColor = (isDefaultFallback && hasCustomColor) ? customColor : partyTheme.color;
   const playerPartyColorRgb = (isDefaultFallback && hasCustomColor) ? hexToRgbStr(customColor) : partyTheme.rgb;
   const SymbolIcon = partyTheme.SymbolIcon;
+
+  // Auto-open the Defeat Hazard Modal when the player's party enters crisis
+  const prevHasDefeatHazardRef = useRef(false);
+  useEffect(() => {
+    const myP = turnData?.parties?.find(p => p.id === myPartyId);
+    const nowInHazard = !!(myP?.hasDefeatHazard);
+    if (nowInHazard && !prevHasDefeatHazardRef.current) {
+      setShowDefeatHazardModal(true);
+    }
+    prevHasDefeatHazardRef.current = nowInHazard;
+  }, [turnData, myPartyId]);
 
   const resetLocalStates = () => {
     setSelectedCard(null);
@@ -738,6 +757,20 @@ useEffect(() => {
         >
           🃏 Actions &amp; Cards
         </button>
+        {myParty?.hasDefeatHazard && (
+          <button
+            className="view-toggle-button"
+            onClick={() => setShowDefeatHazardModal(true)}
+            style={{ 
+              background: 'rgba(220, 38, 38, 0.1)', 
+              color: '#f87171', 
+              border: '1px solid rgba(220, 38, 38, 0.4)',
+              marginLeft: 'auto' 
+            }}
+          >
+            🚨 CRISIS: SOS
+          </button>
+        )}
       </div>
 
       {/* View Content inside Curved Layout Wrapper */}
@@ -934,6 +967,22 @@ useEffect(() => {
         </div>
       )}
 
+      {/* Defeat Hazard Emergency Modal */}
+      <DefeatHazardModal
+        isOpen={showDefeatHazardModal}
+        onClose={() => setShowDefeatHazardModal(false)}
+        party={myParty}
+        partyColor={playerPartyColor}
+        onTakeLoan={async () => {
+          const data = await takeLoan(activeGameId, myPartyId);
+          setTurnData(data);
+        }}
+        onBuyRecoveryPack={async () => {
+          const data = await buyRecoveryPack(activeGameId, myPartyId);
+          setTurnData(data);
+        }}
+      />
+
       {/* Round Resolution Summary Modal */}
       <RoundResolutionModal
         isOpen={showResolutionReport}
@@ -1067,6 +1116,98 @@ useEffect(() => {
             >
               Acknowledge
             </button>
+          </div>
+        </div>
+      )}
+
+      {showProjectRefreshModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(15, 23, 42, 0.85)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000,
+          backdropFilter: 'blur(8px)',
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            border: '2px solid #3b82f6',
+            borderRadius: '24px',
+            padding: '40px',
+            maxWidth: '550px',
+            width: '90%',
+            textAlign: 'center',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(59, 130, 246, 0.25)',
+            color: '#ffffff',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #3b82f6, #60a5fa)' }} />
+            
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+              <div style={{
+                width: '70px',
+                height: '70px',
+                borderRadius: '50%',
+                background: 'rgba(59, 130, 246, 0.1)',
+                border: '2px solid #3b82f6',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '32px',
+                boxShadow: '0 0 20px rgba(59, 130, 246, 0.2)',
+                animation: 'pulse 2s infinite'
+              }}>
+                🔄
+              </div>
+              
+              <h2 style={{ fontSize: '24px', fontWeight: 900, margin: 0, background: 'linear-gradient(90deg, #60a5fa, #93c5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                PROJECT BUILD LIMITS RESET
+              </h2>
+              
+              <p style={{ fontSize: '14px', lineHeight: '1.6', opacity: 0.9, margin: '10px 0 20px 0' }}>
+                All party project build quotas have been refreshed! You can now start new construction projects. 
+                <br /><br />
+                Remember:
+                <br />
+                • Cost &gt; 100 💰: <b>1 build per 20 turns</b>
+                <br />
+                • Cost &lt; 100 💰: <b>2 builds per 20 turns</b>
+              </p>
+
+              <button
+                onClick={() => setShowProjectRefreshModal(false)}
+                style={{
+                  background: 'linear-gradient(90deg, #3b82f6, #2563eb)',
+                  color: '#ffffff',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  padding: '12px 35px',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(37, 99, 235, 0.4)',
+                  transition: 'all 0.2s ease',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(37, 99, 235, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(37, 99, 235, 0.4)';
+                }}
+              >
+                Let's Build
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -13,6 +13,10 @@ public class CardPlayResolver {
     }
 
     public boolean resolveCardPlays(GameSession session, Map<String, Integer> supportPressure, List<String> commentary, List<String> resultLines) {
+        return resolveCardPlays(session, supportPressure, null, commentary, resultLines);
+    }
+
+    public boolean resolveCardPlays(GameSession session, Map<String, Integer> supportPressure, Map<String, Integer> directSupportChanges, List<String> commentary, List<String> resultLines) {
         boolean noConfidencePlayed = false;
         for (RoundSubmission submission : session.getCurrentRoundSubmissions()) {
             PartyState actor = engine.findParty(session, submission.getPartyId());
@@ -25,7 +29,7 @@ public class CardPlayResolver {
                 noConfidencePlayed = true;
             }
             engine.incrementCardUsage(session, actor, card);
-            engine.applyCard(session, actor, opponent, card, supportPressure, commentary);
+            engine.applyCard(session, actor, opponent, card, supportPressure, directSupportChanges, commentary);
             engine.scheduleCardDelayedEffects(session, actor, opponent, card, commentary);
             
             String cardEffects = "Effects: self(" + engine.formatEffectsObject(card.getVisibleEffects(), "selfParty") + ")";
@@ -45,7 +49,7 @@ public class CardPlayResolver {
             }
             resultLines.add(actor.getName() + " played card: " + card.getName());
 
-            int coinAward = engine.resolveNewsReactions(session, actor, submission.getNewsReactions(), supportPressure, commentary);
+            int coinAward = engine.resolveNewsReactions(session, actor, submission.getNewsReactions(), supportPressure, directSupportChanges, commentary);
             commentary.add("💰 News Reward: " + actor.getName() + " gained +" + coinAward + " coins from news handling (Reserves: " + actor.getStats().getCoins() + ").");
         }
         return noConfidencePlayed;

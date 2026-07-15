@@ -261,4 +261,73 @@ public class PartyState {
 
     public int getGainedPostsCount() { return gainedPostsCount; }
     public void setGainedPostsCount(int val) { this.gainedPostsCount = Math.max(0, val); }
+
+    // Project Build Limits (1 in 20 turns for >100 cost, 2 for <=100 cost)
+    private int turnsUntilProjectLimitRefresh = 20;
+    private java.util.Map<String, Integer> projectBuildsThisCycle = new java.util.HashMap<>();
+
+    public int getTurnsUntilProjectLimitRefresh() {
+        return turnsUntilProjectLimitRefresh;
+    }
+
+    public void setTurnsUntilProjectLimitRefresh(int turnsUntilProjectLimitRefresh) {
+        this.turnsUntilProjectLimitRefresh = turnsUntilProjectLimitRefresh;
+    }
+
+    public java.util.Map<String, Integer> getProjectBuildsThisCycle() {
+        if (projectBuildsThisCycle == null) {
+            projectBuildsThisCycle = new java.util.HashMap<>();
+        }
+        return projectBuildsThisCycle;
+    }
+
+    public void setProjectBuildsThisCycle(java.util.Map<String, Integer> projectBuildsThisCycle) {
+        this.projectBuildsThisCycle = projectBuildsThisCycle;
+    }
+
+    public int getProjectBuildLimit(String projectKey) {
+        try {
+            BuildingProject bp = BuildingProject.valueOf(projectKey);
+            BuildingProject.ProjectConfig config = BuildingProject.getConfigs().get(bp);
+            if (config != null && config.costCoins > 100) {
+                return 1;
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
+        return 2;
+    }
+
+    public int getProjectBuildsRemaining(String projectKey) {
+        int limit = getProjectBuildLimit(projectKey);
+        int builds = getProjectBuildsThisCycle().getOrDefault(projectKey, 0);
+        return Math.max(0, limit - builds);
+    }
+
+    private boolean loanTaken = false;
+    private int loanRepaymentTurnsLeft = 0;
+
+    public boolean isLoanTaken() {
+        return loanTaken;
+    }
+
+    public void setLoanTaken(boolean loanTaken) {
+        this.loanTaken = loanTaken;
+    }
+
+    public int getLoanRepaymentTurnsLeft() {
+        return loanRepaymentTurnsLeft;
+    }
+
+    public void setLoanRepaymentTurnsLeft(int loanRepaymentTurnsLeft) {
+        this.loanRepaymentTurnsLeft = loanRepaymentTurnsLeft;
+    }
+
+    public boolean hasDefeatHazard() {
+        if (stats == null) return false;
+        return stats.getCoins() <= 30
+                || stats.getPartyMorale() <= 20
+                || stats.getPublicSupport() <= 10
+                || stats.getCorruptionScore() >= 75;
+    }
 }

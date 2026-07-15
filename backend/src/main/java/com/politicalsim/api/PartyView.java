@@ -24,7 +24,12 @@ public record PartyView(
         List<com.politicalsim.party.ProjectState> projects,
         int assemblySeatShare,
         List<FactionState> factions,
-        String activeFactionCrisisKey
+        String activeFactionCrisisKey,
+        int turnsUntilProjectLimitRefresh,
+        java.util.Map<String, Integer> projectBuildsThisCycle,
+        boolean loanTaken,
+        int loanRepaymentTurnsLeft,
+        boolean hasDefeatHazard
 ) {
     public static PartyView from(PartyState party, String playerPartyId) {
         return from(party, List.of(playerPartyId));
@@ -46,7 +51,12 @@ public record PartyView(
                 party.getProjects(),
                 party.getAssemblySeatShare(),
                 party.getFactions(),
-                party.getActiveFactionCrisisKey()
+                party.getActiveFactionCrisisKey(),
+                party.getTurnsUntilProjectLimitRefresh(),
+                party.getProjectBuildsThisCycle(),
+                party.isLoanTaken(),
+                party.getLoanRepaymentTurnsLeft(),
+                party.hasDefeatHazard()
         );
     }
 }

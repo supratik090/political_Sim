@@ -95,6 +95,7 @@ public class RoundResolutionEngine {
         session.setLastElectionHeld(false);
         session.setLastElectionWinner(null);
         session.setLastElectionVoteShares(new java.util.LinkedHashMap<>());
+        session.setLastRoundProjectLimitsRefreshed(false);
 
         Map<String, PartyStats> beforeStats = new LinkedHashMap<>();
         Map<String, PartyStats> defeatedStartingStats = new LinkedHashMap<>();
@@ -135,7 +136,8 @@ public class RoundResolutionEngine {
         }
 
         Map<String, Integer> supportPressure = initialSupportPressure(session);
-        resolveDueDelayedEffects(session, supportPressure, commentary);
+        Map<String, Integer> directSupportChanges = new LinkedHashMap<>();
+        resolveDueDelayedEffects(session, supportPressure, directSupportChanges, commentary);
         
         // Log bids first (do NOT deduct yet)
         String biddingMetric = getBiddingMetricForTurn(session.getTurnNumber());
@@ -173,7 +175,7 @@ public class RoundResolutionEngine {
                     if (rTarget != actor && (rewardDef.coinsEffect() < 0 || rewardDef.moraleEffect() < 0 || rewardDef.corruptionEffect() > 0 || rewardDef.mediaEffect() < 0 || rewardDef.publicSupportEffect() < 0)) {
                         checkAndProcessPactViolation(session, actor, rTarget, "reward '" + rewardDef.name() + "'", commentary);
                     }
-                    applyRewardEffect(session, rTarget, rewardDef, commentary);
+                    applyRewardEffect(session, rTarget, rewardDef, directSupportChanges, commentary);
                     String rewardEffects = formatRewardEffects(rewardDef);
                     commentary.add("🏆 Reward played: " + actor.getName() + " played reward '" + rewardDef.name() + "' on target " + rTarget.getName() + ". Effects: " + rewardEffects);
                     resultLines.add(actor.getName() + " played reward: " + rewardDef.name() + (rewardDef.requiresTarget() ? " on " + rTarget.getName() : ""));
@@ -181,7 +183,7 @@ public class RoundResolutionEngine {
             }
         }
 
-        boolean noConfidencePlayed = cardPlayResolver.resolveCardPlays(session, supportPressure, commentary, resultLines);
+        boolean noConfidencePlayed = cardPlayResolver.resolveCardPlays(session, supportPressure, directSupportChanges, commentary, resultLines);
         biddingResolver.resolveBidding(session, biddingMetric, commentary);
 
         // Resolve active legislative bill if tabled
@@ -195,8 +197,24 @@ public class RoundResolutionEngine {
         projectResolver.resolveBuildingProjects(session, supportPressure, commentary);
         resolveFactions(session, commentary);
         resolvePublicSupport(session, supportPressure, commentary);
+        applyDirectSupportChanges(session, directSupportChanges, commentary);
         applyMonthlyStatDrift(session, commentary);
         applyHiddenMetricRules(session, commentary);
+
+        // Loan Repayment: deduct 20 coins/turn for active loans
+        for (PartyState party : session.getParties()) {
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED || !party.isActive()) continue;
+            if (party.getLoanRepaymentTurnsLeft() > 0) {
+                int deduction = Math.min(20, party.getStats().getCoins());
+                party.getStats().setCoins(party.getStats().getCoins() - deduction);
+                party.setLoanRepaymentTurnsLeft(party.getLoanRepaymentTurnsLeft() - 1);
+                int remaining = party.getLoanRepaymentTurnsLeft();
+                commentary.add("💳 Loan Repayment: " + party.getName() + " repaid 20 coins (Turns remaining: " + remaining + ").");
+                if (remaining == 0) {
+                    commentary.add("✅ Loan fully repaid by " + party.getName() + "!");
+                }
+            }
+        }
 
         // Restore stats for already defeated parties, and enforce support = 0
         for (PartyState party : session.getParties()) {
@@ -368,6 +386,25 @@ public class RoundResolutionEngine {
 
         // Tick durations of special rewards active states
         specialRewardsService.tickDurations(session, commentary);
+
+        // Tick project build limit refresh
+        boolean refreshedAny = false;
+        for (PartyState party : session.getParties()) {
+            if (party.getRole() == com.politicalsim.party.PartyRole.DEFEATED || !party.isActive()) {
+                continue;
+            }
+            int turnsLeft = party.getTurnsUntilProjectLimitRefresh();
+            turnsLeft--;
+            if (turnsLeft <= 0) {
+                party.setTurnsUntilProjectLimitRefresh(20);
+                party.getProjectBuildsThisCycle().clear();
+                refreshedAny = true;
+                commentary.add("🔄 Project Build Limits Refreshed: " + party.getName() + " can now build projects again (limits reset)!");
+            } else {
+                party.setTurnsUntilProjectLimitRefresh(turnsLeft);
+            }
+        }
+        session.setLastRoundProjectLimitsRefreshed(refreshedAny);
 
         // Check if 10-round drop should trigger
         if (session.getTurnNumber() > 0 && session.getTurnNumber() % 10 == 0) {
@@ -857,6 +894,10 @@ public class RoundResolutionEngine {
     }
 
     void applyRewardEffect(GameSession session, PartyState target, RewardDefinition reward, List<String> commentary) {
+        applyRewardEffect(session, target, reward, null, commentary);
+    }
+
+    void applyRewardEffect(GameSession session, PartyState target, RewardDefinition reward, Map<String, Integer> directSupportChanges, List<String> commentary) {
         if (specialRewardsService.isSpecialReward(reward.key())) {
             specialRewardsService.applySpecialReward(session, target, reward.key(), commentary);
             return;
@@ -870,51 +911,56 @@ public class RoundResolutionEngine {
         int supportEffect = reward.publicSupportEffect();
         int actualSupportChange = 0;
         if (supportEffect != 0) {
-            if (supportEffect > 0) {
-                // Proportional deduction from others
-                int totalOtherSupport = 0;
-                for (PartyState p : session.getParties()) {
-                    if (!p.getId().equals(target.getId())) {
-                        totalOtherSupport += p.getStats().getPublicSupport();
-                    }
-                }
-                
-                if (totalOtherSupport > 0) {
-                    int distributedDeduction = 0;
-                    List<PartyState> otherParties = new ArrayList<>();
+            if (directSupportChanges != null) {
+                directSupportChanges.merge(target.getId(), supportEffect, Integer::sum);
+                actualSupportChange = supportEffect;
+            } else {
+                if (supportEffect > 0) {
+                    // Proportional deduction from others
+                    int totalOtherSupport = 0;
                     for (PartyState p : session.getParties()) {
                         if (!p.getId().equals(target.getId())) {
-                            otherParties.add(p);
+                            totalOtherSupport += p.getStats().getPublicSupport();
                         }
                     }
                     
-                    // Sort other parties by support descending to handle rounding correctly
-                    otherParties.sort(Comparator.comparingInt((PartyState p) -> p.getStats().getPublicSupport()).reversed());
-                    
-                    for (int i = 0; i < otherParties.size(); i++) {
-                        PartyState p = otherParties.get(i);
-                        int currentSupport = p.getStats().getPublicSupport();
-                        int deduct;
-                        if (i == otherParties.size() - 1) {
-                            deduct = supportEffect - distributedDeduction;
-                        } else {
-                            deduct = (int) Math.round((double) currentSupport * supportEffect / totalOtherSupport);
+                    if (totalOtherSupport > 0) {
+                        int distributedDeduction = 0;
+                        List<PartyState> otherParties = new ArrayList<>();
+                        for (PartyState p : session.getParties()) {
+                            if (!p.getId().equals(target.getId())) {
+                                otherParties.add(p);
+                            }
                         }
-                        deduct = Math.min(currentSupport, Math.max(0, deduct));
-                        p.getStats().setPublicSupport(currentSupport - deduct);
-                        distributedDeduction += deduct;
+                        
+                        // Sort other parties by support descending to handle rounding correctly
+                        otherParties.sort(Comparator.comparingInt((PartyState p) -> p.getStats().getPublicSupport()).reversed());
+                        
+                        for (int i = 0; i < otherParties.size(); i++) {
+                            PartyState p = otherParties.get(i);
+                            int currentSupport = p.getStats().getPublicSupport();
+                            int deduct;
+                            if (i == otherParties.size() - 1) {
+                                deduct = supportEffect - distributedDeduction;
+                            } else {
+                                deduct = (int) Math.round((double) currentSupport * supportEffect / totalOtherSupport);
+                            }
+                            deduct = Math.min(currentSupport, Math.max(0, deduct));
+                            p.getStats().setPublicSupport(currentSupport - deduct);
+                            distributedDeduction += deduct;
+                        }
+                        stats.setPublicSupport(stats.getPublicSupport() + distributedDeduction);
+                        actualSupportChange = distributedDeduction;
+                    } else {
+                        stats.setPublicSupport(stats.getPublicSupport() + supportEffect);
+                        actualSupportChange = supportEffect;
                     }
-                    stats.setPublicSupport(stats.getPublicSupport() + distributedDeduction);
-                    actualSupportChange = distributedDeduction;
                 } else {
-                    stats.setPublicSupport(stats.getPublicSupport() + supportEffect);
-                    actualSupportChange = supportEffect;
+                    // Negative support effect, subtract from target directly
+                    int originalSupport = stats.getPublicSupport();
+                    stats.setPublicSupport(Math.max(0, originalSupport + supportEffect));
+                    actualSupportChange = stats.getPublicSupport() - originalSupport;
                 }
-            } else {
-                // Negative support effect, subtract from target directly
-                int originalSupport = stats.getPublicSupport();
-                stats.setPublicSupport(Math.max(0, originalSupport + supportEffect));
-                actualSupportChange = stats.getPublicSupport() - originalSupport;
             }
         }
         
@@ -930,6 +976,11 @@ public class RoundResolutionEngine {
 
     void applyCard(GameSession session, PartyState actor, PartyState opponent, CardDefinition card,
                    Map<String, Integer> supportPressure, List<String> commentary) {
+        applyCard(session, actor, opponent, card, supportPressure, null, commentary);
+    }
+
+    void applyCard(GameSession session, PartyState actor, PartyState opponent, CardDefinition card,
+                   Map<String, Integer> supportPressure, Map<String, Integer> directSupportChanges, List<String> commentary) {
         int cost = card.getCost();
         if (session.getActiveCrisisKey() != null) {
             if ("drought_crisis".equals(session.getActiveCrisisKey())) {
@@ -1002,7 +1053,7 @@ public class RoundResolutionEngine {
             }
         }
 
-        applyEffects(session, actor, selfEffects, supportPressure);
+        applyEffects(session, actor, selfEffects, supportPressure, directSupportChanges, false);
         if (opponent != null) {
             Map<String, Object> oppEffects = partyEffect(card.getVisibleEffects(), "opponentParty");
             if (oppEffects != null && !oppEffects.isEmpty()) {
@@ -1017,7 +1068,7 @@ public class RoundResolutionEngine {
                 if (c < 0 || m < 0 || s < 0 || med < 0 || corr > 0) {
                     checkAndProcessPactViolation(session, actor, opponent, "card '" + card.getName() + "'", commentary);
                 }
-                applyEffects(session, opponent, oppEffects, supportPressure);
+                applyEffects(session, opponent, oppEffects, supportPressure, directSupportChanges, shouldTriple);
             }
             
             // Record grudge: opponent holds a grudge against actor
@@ -1025,7 +1076,7 @@ public class RoundResolutionEngine {
             Map<String, Integer> opponentGrudges = grudges.computeIfAbsent(opponent.getId(), k -> new LinkedHashMap<>());
             opponentGrudges.put(actor.getId(), opponentGrudges.getOrDefault(actor.getId(), 0) + 1);
         }
-        applyRiskRoll(session, actor, opponent, card, supportPressure, commentary);
+        applyRiskRoll(session, actor, opponent, card, supportPressure, directSupportChanges, commentary);
     }
 
     private Map<String, Object> tripleCardEffects(Map<String, Object> effects, boolean isOpponent) {
@@ -1082,6 +1133,11 @@ public class RoundResolutionEngine {
 
     int resolveNewsReactions(GameSession session, PartyState actor, Map<String, String> selectedReactions,
                              Map<String, Integer> supportPressure, List<String> commentary) {
+        return resolveNewsReactions(session, actor, selectedReactions, supportPressure, null, commentary);
+    }
+
+    int resolveNewsReactions(GameSession session, PartyState actor, Map<String, String> selectedReactions,
+                             Map<String, Integer> supportPressure, Map<String, Integer> directSupportChanges, List<String> commentary) {
         int coinAward = 0;
         List<NewsDefinition> newsItems = getCurrentNews(session);
         boolean isTriple = session.getTripleImpactTurn() == session.getTurnNumber();
@@ -1092,8 +1148,8 @@ public class RoundResolutionEngine {
                 coinAward += 1;
                 continue;
             }
-            applyEffects(session, actor, partyEffect(reaction.getEffects(), "playerParty"), supportPressure, isTriple);
-            applyReactionRisk(session, actor, reaction, supportPressure, commentary, isTriple);
+            applyEffects(session, actor, partyEffect(reaction.getEffects(), "playerParty"), supportPressure, directSupportChanges, isTriple);
+            applyReactionRisk(session, actor, reaction, supportPressure, directSupportChanges, commentary, isTriple);
 
             // Adjust active crisis duration based on Government reactions
             if (session.getActiveCrisisKey() != null && news != null && news.getCrisisTriggerKey() != null) {
@@ -1143,6 +1199,10 @@ public class RoundResolutionEngine {
 
 
     private void resolveDueDelayedEffects(GameSession session, Map<String, Integer> supportPressure, List<String> commentary) {
+        resolveDueDelayedEffects(session, supportPressure, null, commentary);
+    }
+
+    private void resolveDueDelayedEffects(GameSession session, Map<String, Integer> supportPressure, Map<String, Integer> directSupportChanges, List<String> commentary) {
         if (session.getDelayedEffects() == null || session.getDelayedEffects().isEmpty()) {
             return;
         }
@@ -1164,7 +1224,7 @@ public class RoundResolutionEngine {
                 commentary.add("Delayed result did not materialize: " + delayedEffect.getSourceName() + " for " + target.getName() + ".");
                 continue;
             }
-            applyEffects(session, target, delayedEffect.getEffects(), supportPressure);
+            applyEffects(session, target, delayedEffect.getEffects(), supportPressure, directSupportChanges, false);
             commentary.add("⏰ Delayed result: " + (delayedEffect.getCommentary() == null
                     ? delayedEffect.getSourceName() + " affected " + target.getName()
                     : delayedEffect.getCommentary()) + " Effects: " + formatEffectsMap(delayedEffect.getEffects()));
@@ -1271,10 +1331,14 @@ public class RoundResolutionEngine {
     }
 
     private void applyEffects(GameSession session, PartyState party, Map<String, Object> effects, Map<String, Integer> supportPressure) {
-        applyEffects(session, party, effects, supportPressure, false);
+        applyEffects(session, party, effects, supportPressure, null, false);
     }
 
     private void applyEffects(GameSession session, PartyState party, Map<String, Object> effects, Map<String, Integer> supportPressure, boolean triple) {
+        applyEffects(session, party, effects, supportPressure, null, triple);
+    }
+
+    private void applyEffects(GameSession session, PartyState party, Map<String, Object> effects, Map<String, Integer> supportPressure, Map<String, Integer> directSupportChanges, boolean triple) {
         Map<String, Object> finalEffects = effects;
         if (triple && effects != null) {
             finalEffects = new java.util.LinkedHashMap<>();
@@ -1288,7 +1352,36 @@ public class RoundResolutionEngine {
         }
         final Map<String, Object> lambdaEffects = finalEffects;
         applyPartyEffectsWithoutSupport(session, party.getStats(), lambdaEffects);
-        supportPressure.computeIfPresent(party.getId(), (id, value) -> value + intValue(lambdaEffects.get("publicSupport")));
+        if (lambdaEffects != null && lambdaEffects.containsKey("publicSupport")) {
+            int supportVal = intValue(lambdaEffects.get("publicSupport"));
+            if (directSupportChanges != null) {
+                directSupportChanges.merge(party.getId(), supportVal, Integer::sum);
+            } else {
+                supportPressure.computeIfPresent(party.getId(), (id, value) -> value + supportVal);
+            }
+        }
+    }
+
+    private void applyDirectSupportChanges(GameSession session, Map<String, Integer> directSupportChanges, List<String> commentary) {
+        if (directSupportChanges == null || directSupportChanges.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, Integer> entry : directSupportChanges.entrySet()) {
+            String partyId = entry.getKey();
+            int change = entry.getValue();
+            if (change == 0) continue;
+            PartyState party = findParty(session, partyId);
+            if (party == null || !party.isActive() || party.getRole() == com.politicalsim.party.PartyRole.DEFEATED) {
+                continue;
+            }
+            int originalSupport = party.getStats().getPublicSupport();
+            party.getStats().setPublicSupport(Math.max(0, originalSupport + change));
+            int actualChange = party.getStats().getPublicSupport() - originalSupport;
+            if (actualChange != 0) {
+                commentary.add("📢 Direct Card Effect: " + party.getName() + "'s support changed directly by " + (actualChange > 0 ? "+" : "") + actualChange + "% (New: " + party.getStats().getPublicSupport() + "%).");
+            }
+        }
+        normalizePublicSupport(session);
     }
 
     private void applyPartyEffectsWithoutSupport(GameSession session, PartyStats stats, Map<String, Object> effects) {
@@ -1313,13 +1406,18 @@ public class RoundResolutionEngine {
 
     private void applyRiskRoll(GameSession session, PartyState actor, PartyState opponent, CardDefinition card,
                                Map<String, Integer> supportPressure, List<String> commentary) {
+        applyRiskRoll(session, actor, opponent, card, supportPressure, null, commentary);
+    }
+
+    private void applyRiskRoll(GameSession session, PartyState actor, PartyState opponent, CardDefinition card,
+                               Map<String, Integer> supportPressure, Map<String, Integer> directSupportChanges, List<String> commentary) {
         int chance = intValue(card.getRiskRoll().get("chance"));
         if (chance <= 0 || !riskHit(session, "card:" + actor.getId() + ":" + card.getCardKey(), chance)) {
             return;
         }
-        applyEffects(session, actor, riskEffect(card.getRiskRoll(), "selfParty"), supportPressure);
+        applyEffects(session, actor, riskEffect(card.getRiskRoll(), "selfParty"), supportPressure, directSupportChanges, false);
         if (opponent != null) {
-            applyEffects(session, opponent, riskEffect(card.getRiskRoll(), "opponentParty"), supportPressure);
+            applyEffects(session, opponent, riskEffect(card.getRiskRoll(), "opponentParty"), supportPressure, directSupportChanges, false);
         }
         Object badOutcome = card.getRiskRoll().get("badOutcome");
         commentary.add("Surprise: " + actor.getName() + "'s " + card.getName() + " had a backlash"
@@ -1328,11 +1426,16 @@ public class RoundResolutionEngine {
 
     private void applyReactionRisk(GameSession session, PartyState actor, NewsReactionDefinition reaction,
                                    Map<String, Integer> supportPressure, List<String> commentary, boolean triple) {
+        applyReactionRisk(session, actor, reaction, supportPressure, null, commentary, triple);
+    }
+
+    private void applyReactionRisk(GameSession session, PartyState actor, NewsReactionDefinition reaction,
+                                   Map<String, Integer> supportPressure, Map<String, Integer> directSupportChanges, List<String> commentary, boolean triple) {
         int chance = intValue(reaction.getRisk().get("chance"));
         if (chance <= 0 || !riskHit(session, "news:" + actor.getId() + ":" + reaction.getReactionKey(), chance)) {
             return;
         }
-        applyEffects(session, actor, riskEffect(reaction.getRisk(), "playerParty"), supportPressure, triple);
+        applyEffects(session, actor, riskEffect(reaction.getRisk(), "playerParty"), supportPressure, directSupportChanges, triple);
         Object badOutcome = reaction.getRisk().get("badOutcome");
         commentary.add("Surprise: " + actor.getName() + "'s news response backfired"
                 + (badOutcome == null ? "." : ": " + badOutcome + "."));
@@ -1340,7 +1443,7 @@ public class RoundResolutionEngine {
 
     private void applyReactionRisk(GameSession session, PartyState actor, NewsReactionDefinition reaction,
                                    Map<String, Integer> supportPressure, List<String> commentary) {
-        applyReactionRisk(session, actor, reaction, supportPressure, commentary, false);
+        applyReactionRisk(session, actor, reaction, supportPressure, null, commentary, false);
     }
 
     private boolean riskHit(GameSession session, String key, int chance) {

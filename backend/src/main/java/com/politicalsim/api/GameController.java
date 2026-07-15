@@ -191,6 +191,20 @@ public class GameController {
         return gameService.lockPartyManagement(gameId, partyId, request);
     }
 
+    @PostMapping("/{gameId}/parties/{partyId}/take-loan")
+    public TurnView takeLoan(
+            @PathVariable String gameId,
+            @PathVariable String partyId) {
+        return gameService.takeLoan(gameId, partyId);
+    }
+
+    @PostMapping("/{gameId}/parties/{partyId}/buy-recovery-pack")
+    public TurnView buyRecoveryPack(
+            @PathVariable String gameId,
+            @PathVariable String partyId) {
+        return gameService.buyRecoveryPack(gameId, partyId);
+    }
+
     @ExceptionHandler(GameNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleGameNotFound(GameNotFoundException exception) {

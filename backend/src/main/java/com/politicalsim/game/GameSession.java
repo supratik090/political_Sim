@@ -91,6 +91,7 @@ public class GameSession {
     private Map<String, String> lastBillPartyVotes = new LinkedHashMap<>();
 
     private Map<String, Object> lastRoundDroppedReward = null;
+    private boolean lastRoundProjectLimitsRefreshed = false;
 
     public Map<String, Object> getLastRoundDroppedReward() {
         return lastRoundDroppedReward;
@@ -98,6 +99,14 @@ public class GameSession {
 
     public void setLastRoundDroppedReward(Map<String, Object> lastRoundDroppedReward) {
         this.lastRoundDroppedReward = lastRoundDroppedReward;
+    }
+
+    public boolean isLastRoundProjectLimitsRefreshed() {
+        return lastRoundProjectLimitsRefreshed;
+    }
+
+    public void setLastRoundProjectLimitsRefreshed(boolean lastRoundProjectLimitsRefreshed) {
+        this.lastRoundProjectLimitsRefreshed = lastRoundProjectLimitsRefreshed;
     }
 
     public String getId() {

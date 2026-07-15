@@ -334,5 +334,29 @@
     "corruptionEffect": 0,
     "mediaEffect": 0,
     "publicSupportEffect": 0
+  },
+  {
+    "key": "special_faction_loyalty_self",
+    "name": "Faction Rally",
+    "description": "Increase loyalty of ALL your own active factions by +20.",
+    "requiresTarget": false,
+    "allowedTargets": "self",
+    "coinsEffect": 0,
+    "moraleEffect": 0,
+    "corruptionEffect": 0,
+    "mediaEffect": 0,
+    "publicSupportEffect": 0
+  },
+  {
+    "key": "special_faction_loyalty_opponent",
+    "name": "Faction Destabilisation",
+    "description": "Decrease loyalty of ALL active factions of a target opponent party by -20.",
+    "requiresTarget": true,
+    "allowedTargets": "opponent",
+    "coinsEffect": 0,
+    "moraleEffect": 0,
+    "corruptionEffect": 0,
+    "mediaEffect": 0,
+    "publicSupportEffect": 0
   }
 ]
