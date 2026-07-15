@@ -17,6 +17,7 @@ import com.politicalsim.party.PostsConfig;
 import com.politicalsim.publicmood.PublicState;
 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
@@ -49,6 +50,7 @@ public class RoundResolutionEngine {
     private final CardDefinitionRepository cardRepository;
     private final NewsDefinitionRepository newsRepository;
     private final LegislativeBillDefinitionRepository billRepository;
+    private final SpecialRewardsService specialRewardsService;
  
     private final CardPlayResolver cardPlayResolver;
     private final BiddingResolver biddingResolver;
@@ -60,13 +62,28 @@ public class RoundResolutionEngine {
             NewsDefinitionRepository newsRepository,
             LegislativeBillDefinitionRepository billRepository
     ) {
+        this(cardRepository, newsRepository, billRepository, null);
+    }
+
+    @Autowired
+    public RoundResolutionEngine(
+            CardDefinitionRepository cardRepository,
+            NewsDefinitionRepository newsRepository,
+            LegislativeBillDefinitionRepository billRepository,
+            SpecialRewardsService specialRewardsService
+    ) {
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
         this.billRepository = billRepository;
+        this.specialRewardsService = specialRewardsService != null ? specialRewardsService : new SpecialRewardsService(null);
         this.cardPlayResolver = new CardPlayResolver(this);
         this.biddingResolver = new BiddingResolver(this);
         this.projectResolver = new ProjectResolver(this);
         this.electionResolver = new ElectionResolver(this);
+    }
+
+    public SpecialRewardsService getSpecialRewardsService() {
+        return specialRewardsService;
     }
 
     public LegislativeBillDefinitionRepository getBillRepository() {
@@ -74,6 +91,7 @@ public class RoundResolutionEngine {
     }
 
     public boolean resolveRound(GameSession session) {
+        session.setLastRoundDroppedReward(null);
         session.setLastElectionHeld(false);
         session.setLastElectionWinner(null);
         session.setLastElectionVoteShares(new java.util.LinkedHashMap<>());
@@ -347,6 +365,15 @@ public class RoundResolutionEngine {
 
         session.setLastRoundSubmissions(new ArrayList<>(session.getCurrentRoundSubmissions()));
         session.setLastMetricDeltas(deltas);
+
+        // Tick durations of special rewards active states
+        specialRewardsService.tickDurations(session, commentary);
+
+        // Check if 10-round drop should trigger
+        if (session.getTurnNumber() > 0 && session.getTurnNumber() % 10 == 0) {
+            specialRewardsService.triggerTenRoundRewardDrop(session, commentary);
+        }
+
         session.setLastRoundCommentary(commentary);
         session.setLastResults(resultLines);
         return noConfidencePlayed;
@@ -641,6 +668,10 @@ public class RoundResolutionEngine {
         // Process the groups in their dynamically rotated order
         for (List<PartyState> group : priorityGroups) {
             for (PartyState party : group) {
+                if (specialRewardsService.isLegislationStopped(party)) {
+                    commentary.add("🏛️ Halted: " + party.getName() + "'s proposal was blocked by Legislative Blockade.");
+                    continue;
+                }
                 String proposedKey = findProposedBillInSubmissions(session, party.getId());
                 if (proposedKey != null) {
                     nextBillKey = proposedKey;
@@ -797,7 +828,23 @@ public class RoundResolutionEngine {
         if (available.isEmpty()) {
             available = REWARD_POOL;
         }
-        RewardDefinition chosen = available.get(new Random().nextInt(available.size()));
+
+        boolean needSpecial = (used.size() + 1) % 3 == 0;
+        List<RewardDefinition> filtered = new ArrayList<>();
+        for (RewardDefinition r : available) {
+            boolean isSpec = r.key().startsWith("special_");
+            if (needSpecial && isSpec) {
+                filtered.add(r);
+            } else if (!needSpecial && !isSpec) {
+                filtered.add(r);
+            }
+        }
+
+        if (filtered.isEmpty()) {
+            filtered = available;
+        }
+
+        RewardDefinition chosen = filtered.get(new Random().nextInt(filtered.size()));
         used.add(chosen.key());
         session.setUsedRewardKeys(used);
         return chosen;
@@ -810,6 +857,10 @@ public class RoundResolutionEngine {
     }
 
     void applyRewardEffect(GameSession session, PartyState target, RewardDefinition reward, List<String> commentary) {
+        if (specialRewardsService.isSpecialReward(reward.key())) {
+            specialRewardsService.applySpecialReward(session, target, reward.key(), commentary);
+            return;
+        }
         PartyStats stats = target.getStats();
         stats.setCoins(stats.getCoins() + reward.coinsEffect());
         stats.setPartyMorale(stats.getPartyMorale() + reward.moraleEffect());
@@ -1368,11 +1419,15 @@ public class RoundResolutionEngine {
             if (floatingVoters <= 0) {
                 continue;
             }
-            int gain = Math.min(floatingVoters, dampenSupportGain(pressure));
+            int baseGain = dampenSupportGain(pressure);
+            if (specialRewardsService.isPopulistSurgeActive(party)) {
+                baseGain = (int) Math.round(baseGain * 1.5);
+            }
+            int gain = Math.min(floatingVoters, baseGain);
             if (gain > 0) {
                 party.getStats().setPublicSupport(party.getStats().getPublicSupport() + gain);
                 floatingVoters -= gain;
-                commentary.add(party.getName() + " gained " + gain + "% support from shifting voters.");
+                commentary.add(party.getName() + " gained " + gain + "% support from shifting voters" + (specialRewardsService.isPopulistSurgeActive(party) ? " (1.5x Populist Surge!)" : "") + ".");
             }
         }
 
@@ -1957,6 +2012,14 @@ public class RoundResolutionEngine {
                         continue;
                     }
 
+                    if (specialRewardsService.isImmuneShieldActive(target)) {
+                        if (logCommentary) {
+                            commentary.add("  🛡️ Halted: Hostile project '" + def.getName() + "' targeting " + target.getName() + " was blocked by their Immune Shield!");
+                        }
+                        project.setJustCompleted(false);
+                        continue;
+                    }
+
                     // Check if project is hostile and violates a non-aggression pact
                     boolean projectHostile = def.getBenefitCoins() < 0 
                                           || def.getBenefitMorale() < 0 
@@ -2010,38 +2073,55 @@ public class RoundResolutionEngine {
                         }
                     }
                 } else {
-                    if (def.getBenefitCoins() != 0) {
-                        party.getStats().setCoins(party.getStats().getCoins() + def.getBenefitCoins());
+                    int benefitCoins = def.getBenefitCoins();
+                    int benefitMorale = def.getBenefitMorale();
+                    int benefitMedia = def.getBenefitMedia();
+                    int benefitCorruption = def.getBenefitCorruption();
+                    int benefitSupport = def.getBenefitSupport();
+
+                    boolean doubled = false;
+                    if (specialRewardsService.isDoubleYieldsActive(party)) {
+                        benefitCoins *= 2;
+                        benefitMorale *= 2;
+                        benefitMedia *= 2;
+                        benefitCorruption *= 2;
+                        benefitSupport *= 2;
+                        party.setDoubleProjectYieldsCount(party.getDoubleProjectYieldsCount() + 1);
+                        doubled = true;
+                    }
+
+                    if (benefitCoins != 0) {
+                        party.getStats().setCoins(party.getStats().getCoins() + benefitCoins);
                         if (logCommentary) {
-                            commentary.add("  💰 Received +" + def.getBenefitCoins() + " Coins.");
+                            commentary.add("  💰 Received +" + benefitCoins + " Coins" + (doubled ? " (Doubled!)" : "") + ".");
                         }
                     }
-                    if (def.getBenefitMorale() != 0) {
-                        party.getStats().setPartyMorale(Math.min(100, party.getStats().getPartyMorale() + def.getBenefitMorale()));
+                    if (benefitMorale != 0) {
+                        party.getStats().setPartyMorale(Math.min(100, party.getStats().getPartyMorale() + benefitMorale));
                         if (logCommentary) {
-                            commentary.add("  ⚡ Received +" + def.getBenefitMorale() + " Morale.");
+                            commentary.add("  ⚡ Received +" + benefitMorale + " Morale" + (doubled ? " (Doubled!)" : "") + ".");
                         }
                     }
-                    if (def.getBenefitMedia() != 0) {
-                        party.getStats().setMediaImage(Math.min(100, party.getStats().getMediaImage() + def.getBenefitMedia()));
+                    if (benefitMedia != 0) {
+                        party.getStats().setMediaImage(Math.min(100, party.getStats().getMediaImage() + benefitMedia));
                         if (logCommentary) {
-                            commentary.add("  📢 Received +" + def.getBenefitMedia() + " Media Image.");
+                            commentary.add("  📢 Received +" + benefitMedia + " Media Image" + (doubled ? " (Doubled!)" : "") + ".");
                         }
                     }
-                    if (def.getBenefitCorruption() != 0) {
-                        party.getStats().setCorruptionScore(Math.max(0, party.getStats().getCorruptionScore() + def.getBenefitCorruption()));
+                    if (benefitCorruption != 0) {
+                        party.getStats().setCorruptionScore(Math.max(0, party.getStats().getCorruptionScore() + benefitCorruption));
                         if (logCommentary) {
-                            commentary.add("  🛡️ Reduced Corruption by " + Math.abs(def.getBenefitCorruption()) + ".");
+                            commentary.add("  🛡️ Reduced Corruption by " + Math.abs(benefitCorruption) + (doubled ? " (Doubled!)" : "") + ".");
                         }
                     }
-                    if (def.getBenefitSupport() != 0) {
+                    if (benefitSupport != 0) {
                         int undecided = session.getPublicState().getUndecidedSupport();
-                        int supportGain = Math.min(undecided, def.getBenefitSupport());
+                        int supportGain = Math.min(undecided, benefitSupport);
                         if (supportGain > 0) {
                             party.getStats().setPublicSupport(party.getStats().getPublicSupport() + supportGain);
                             session.getPublicState().setUndecidedSupport(undecided - supportGain);
                             if (logCommentary) {
-                                commentary.add("  📈 Gained +" + supportGain + "% Public Support from Undecided voters.");
+                                commentary.add("  📈 Gained +" + supportGain + "% Public Support from Undecided voters" + (doubled ? " (Doubled!)" : "") + ".");
                             }
                         } else {
                             if (logCommentary) {

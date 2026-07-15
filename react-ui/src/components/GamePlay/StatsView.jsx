@@ -1502,9 +1502,70 @@ export default function StatsView({
               </div>
             );
           })()}
-        </div>
-      )}
+          </div>
+        )}
       </div>
-    </div>
-  );
-}
+
+      {(() => {
+        const getPartyColor = (p) => {
+          if (p.id === turnData.governmentParty?.id) return '#10b981'; // Government - Emerald
+          if (p.id === turnData.oppositionParty?.id) return '#ef4444'; // Opposition - Red
+          return '#3b82f6'; // Third Party - Blue
+        };
+
+        const partiesWithEffects = (turnData.parties || []).map(p => {
+          const effects = [];
+          if (p.projectBuildingPausedTurns > 0) {
+            effects.push(`⏳ Project Freeze (${p.projectBuildingPausedTurns} turns remaining)`);
+          }
+          if (p.doubleProjectYieldsTurns > 0) {
+            effects.push(`💰 Yield Doubler (${p.doubleProjectYieldsTurns} turns remaining, ${p.doubleProjectYieldsCount || 0}/10 projects completed)`);
+          }
+          if (p.stopLegislationTurns > 0) {
+            effects.push(`🏛️ Legislative Blockade (${p.stopLegislationTurns} turns remaining)`);
+          }
+          if (p.blockCardsTurns > 0) {
+            effects.push(`❄️ Card Lockout (${p.blockCardsTurns} turns remaining)`);
+          }
+          if (p.immuneShieldTurns > 0) {
+            effects.push(`🛡️ Immune Shield (${p.immuneShieldTurns} turns remaining)`);
+          }
+          if (p.populistSurgeTurns > 0) {
+            effects.push(`📈 Populist Surge (${p.populistSurgeTurns} turns remaining)`);
+          }
+          return { party: p, effects };
+        }).filter(item => item.effects.length > 0);
+
+        if (partiesWithEffects.length === 0) return null;
+
+        return (
+          <div className="unified-card" style={{ marginTop: '20px', background: 'linear-gradient(135deg, #ffffff 0%, rgba(245, 158, 11, 0.03) 100%)', border: '1.5px solid rgba(245, 158, 11, 0.25)', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.05)' }}>
+            <div style={{ padding: '15px 20px', borderBottom: '1px solid rgba(245, 158, 11, 0.15)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '15px' }}>✨</span>
+              <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.05em', color: '#b45309', fontWeight: 'bold' }}>
+                Active Special Effects
+              </h4>
+            </div>
+            <div style={{ padding: '15px 20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              {partiesWithEffects.map(item => (
+                <div key={item.party.id} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: getPartyColor(item.party), border: '1px solid rgba(0,0,0,0.1)' }} />
+                    {item.party.name} {item.party.id === turnData.activeHumanPartyId && '(You)'}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px' }}>
+                    {item.effects.map((eff, idx) => (
+                      <div key={idx} style={{ fontSize: '12px', color: '#475569', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        • <span>{eff}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+      </div>
+    );
+  }

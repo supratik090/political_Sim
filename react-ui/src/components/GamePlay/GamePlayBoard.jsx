@@ -168,6 +168,13 @@ export default function GamePlayBoard() {
 
   const [commentaryExpanded, setCommentaryExpanded] = useState(false);
   const [commentaryFilter, setCommentaryFilter] = useState('ALL');
+  const [showDroppedRewardModal, setShowDroppedRewardModal] = useState(false);
+
+  useEffect(() => {
+    if (turnData?.lastRoundDroppedReward) {
+      setShowDroppedRewardModal(true);
+    }
+  }, [turnData]);
 
   // Real 6 actions states
   const [selectedCard, setSelectedCard] = useState(null);
@@ -944,6 +951,125 @@ useEffect(() => {
         onCancel={() => setShowSkipModal(false)}
         partyColor={playerPartyColor}
       />
+
+      {showDroppedRewardModal && turnData?.lastRoundDroppedReward && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(15, 23, 42, 0.85)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000,
+          backdropFilter: 'blur(8px)',
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1e1b4b 0%, #311042 100%)',
+            border: '2px solid #eab308',
+            borderRadius: '24px',
+            padding: '40px',
+            maxWidth: '550px',
+            width: '90%',
+            textAlign: 'center',
+            boxShadow: '0 25px 50px -12px rgba(234, 179, 8, 0.3)',
+            color: '#ffffff',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '-50%',
+              left: '-50%',
+              width: '200%',
+              height: '200%',
+              background: 'radial-gradient(circle, rgba(234, 179, 8, 0.1) 0%, transparent 60%)',
+              pointerEvents: 'none'
+            }} />
+
+            <span style={{ fontSize: '72px', display: 'block', marginBottom: '15px', filter: 'drop-shadow(0 10px 15px rgba(234, 179, 8, 0.4))' }}>
+              🎁
+            </span>
+            
+            <h2 style={{
+              fontSize: '28px',
+              fontWeight: 900,
+              margin: '0 0 10px 0',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              color: '#fef08a',
+              textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+            }}>
+              10-Round Reward Drop!
+            </h2>
+            
+            <p style={{ fontSize: '15px', opacity: 0.9, lineHeight: 1.6, margin: '0 auto 25px auto', maxWidth: '400px' }}>
+              Every 10 rounds, one randomly selected party receives a free random reward.
+            </p>
+
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1.5px solid rgba(234, 179, 8, 0.3)',
+              borderRadius: '16px',
+              padding: '20px',
+              marginBottom: '30px',
+              backdropFilter: 'blur(4px)'
+            }}>
+              <div style={{ fontSize: '13px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Recipient Party</div>
+              <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#ffffff', margin: '4px 0 12px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <span style={{
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  backgroundColor: getPartyColor(turnData.parties?.find(p => p.id === turnData.lastRoundDroppedReward.partyId) || {}),
+                  border: '1px solid rgba(255,255,255,0.2)'
+                }} />
+                {turnData.lastRoundDroppedReward.partyName}
+              </div>
+              
+              <div style={{ width: '100%', height: '1px', background: 'rgba(234, 179, 8, 0.2)', margin: '12px 0' }} />
+
+              <div style={{ fontSize: '13px', opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Reward Unlocked</div>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#facc15', margin: '4px 0' }}>
+                ⭐ {turnData.lastRoundDroppedReward.rewardName}
+              </div>
+              <div style={{ fontSize: '12px', opacity: 0.9, fontStyle: 'italic' }}>
+                {turnData.lastRoundDroppedReward.rewardDescription}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowDroppedRewardModal(false)}
+              style={{
+                background: 'linear-gradient(90deg, #f59e0b, #d97706)',
+                color: '#ffffff',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                padding: '12px 35px',
+                border: 'none',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 15px rgba(217, 119, 6, 0.4)',
+                transition: 'all 0.2s ease',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(217, 119, 6, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 15px rgba(217, 119, 6, 0.4)';
+              }}
+            >
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

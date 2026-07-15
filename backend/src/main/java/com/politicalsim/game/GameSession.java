@@ -90,7 +90,15 @@ public class GameSession {
     private double lastBillAbstainVotes;
     private Map<String, String> lastBillPartyVotes = new LinkedHashMap<>();
 
+    private Map<String, Object> lastRoundDroppedReward = null;
 
+    public Map<String, Object> getLastRoundDroppedReward() {
+        return lastRoundDroppedReward;
+    }
+
+    public void setLastRoundDroppedReward(Map<String, Object> lastRoundDroppedReward) {
+        this.lastRoundDroppedReward = lastRoundDroppedReward;
+    }
 
     public String getId() {
         return id;

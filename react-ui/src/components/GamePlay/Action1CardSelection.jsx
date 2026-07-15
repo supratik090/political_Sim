@@ -60,12 +60,22 @@ export default function Action1CardSelection({
         })}
       </div>
 
+      {activeParty?.blockCardsTurns > 0 && (
+        <div style={{ background: '#fef2f2', border: '1.5px solid #ef4444', color: '#991b1b', padding: '12px 15px', borderRadius: '8px', marginBottom: '15px', fontSize: '13px', fontWeight: 'bold' }}>
+          ⚠️ FREEZE IN EFFECT: Card play is blocked for {activeParty.blockCardsTurns} more turns by opponent's special reward. Only "No Card" (Pass Turn) is allowed.
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px', marginBottom: '15px' }}>
         {(() => {
-          const filtered = (turnData.availableCards || []).filter(card => {
+          let filtered = (turnData.availableCards || []).filter(card => {
             if (cardCategoryFilter === 'ALL') return true;
             return card.category?.toLowerCase() === cardCategoryFilter?.toLowerCase();
           });
+
+          if (activeParty?.blockCardsTurns > 0) {
+            filtered = (turnData.availableCards || []).filter(card => card.cardKey === 'no_card');
+          }
 
           if (filtered.length === 0) {
             return (

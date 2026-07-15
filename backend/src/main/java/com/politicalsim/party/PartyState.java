@@ -227,4 +227,38 @@ public class PartyState {
     public void setFactions(java.util.List<FactionState> factions) {
         this.factions = factions;
     }
+
+    // Special Reward Effect States
+    private int projectBuildingPausedTurns = 0;
+    private int doubleProjectYieldsTurns = 0;
+    private int doubleProjectYieldsCount = 0;
+    private int stopLegislationTurns = 0;
+    private int blockCardsTurns = 0;
+    private int immuneShieldTurns = 0;
+    private int populistSurgeTurns = 0;
+    private int gainedPostsCount = 0;
+
+    public int getProjectBuildingPausedTurns() { return projectBuildingPausedTurns; }
+    public void setProjectBuildingPausedTurns(int val) { this.projectBuildingPausedTurns = Math.max(0, val); }
+
+    public int getDoubleProjectYieldsTurns() { return doubleProjectYieldsTurns; }
+    public void setDoubleProjectYieldsTurns(int val) { this.doubleProjectYieldsTurns = Math.max(0, val); }
+
+    public int getDoubleProjectYieldsCount() { return doubleProjectYieldsCount; }
+    public void setDoubleProjectYieldsCount(int val) { this.doubleProjectYieldsCount = Math.max(0, val); }
+
+    public int getStopLegislationTurns() { return stopLegislationTurns; }
+    public void setStopLegislationTurns(int val) { this.stopLegislationTurns = Math.max(0, val); }
+
+    public int getBlockCardsTurns() { return blockCardsTurns; }
+    public void setBlockCardsTurns(int val) { this.blockCardsTurns = Math.max(0, val); }
+
+    public int getImmuneShieldTurns() { return immuneShieldTurns; }
+    public void setImmuneShieldTurns(int val) { this.immuneShieldTurns = Math.max(0, val); }
+
+    public int getPopulistSurgeTurns() { return populistSurgeTurns; }
+    public void setPopulistSurgeTurns(int val) { this.populistSurgeTurns = Math.max(0, val); }
+
+    public int getGainedPostsCount() { return gainedPostsCount; }
+    public void setGainedPostsCount(int val) { this.gainedPostsCount = Math.max(0, val); }
 }

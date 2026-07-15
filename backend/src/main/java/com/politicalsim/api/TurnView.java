@@ -46,6 +46,7 @@ public record TurnView(
         List<String> lastResults,
         String currentRewardName,
         String currentRewardDescription,
+        String currentRewardKey,
         Map<String, Integer> partyRoundWins,
         Map<String, Integer> lastRoundBids,
         String lastRoundBiddingMetric,

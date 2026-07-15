@@ -47,6 +47,7 @@ public class GameService {
     private final com.politicalsim.ai.BrokeFightBackService brokeFightBackService;
     private final LegislativeAiService legislativeAiService;
     private final PartyManagementRepository partyManagementRepository;
+    private final SpecialRewardsService specialRewardsService;
 
     public GameService(
             GameSessionService gameSessionService,
@@ -57,7 +58,20 @@ public class GameService {
             AiDecisionService aiDecisionService,
             com.politicalsim.ai.BrokeFightBackService brokeFightBackService
     ) {
-        this(gameSessionService, roundResolutionEngine, cardRepository, newsRepository, scenarioRepository, aiDecisionService, brokeFightBackService, new LegislativeAiService(null), null);
+        this(gameSessionService, roundResolutionEngine, cardRepository, newsRepository, scenarioRepository, aiDecisionService, brokeFightBackService, new LegislativeAiService(null), null, null);
+    }
+
+    public GameService(
+            GameSessionService gameSessionService,
+            RoundResolutionEngine roundResolutionEngine,
+            CardDefinitionRepository cardRepository,
+            NewsDefinitionRepository newsRepository,
+            ScenarioDefinitionRepository scenarioRepository,
+            AiDecisionService aiDecisionService,
+            com.politicalsim.ai.BrokeFightBackService brokeFightBackService,
+            SpecialRewardsService specialRewardsService
+    ) {
+        this(gameSessionService, roundResolutionEngine, cardRepository, newsRepository, scenarioRepository, aiDecisionService, brokeFightBackService, new LegislativeAiService(null), null, specialRewardsService);
     }
 
     @Autowired
@@ -70,7 +84,8 @@ public class GameService {
             AiDecisionService aiDecisionService,
             com.politicalsim.ai.BrokeFightBackService brokeFightBackService,
             LegislativeAiService legislativeAiService,
-            PartyManagementRepository partyManagementRepository
+            PartyManagementRepository partyManagementRepository,
+            SpecialRewardsService specialRewardsService
     ) {
         this.gameSessionService = gameSessionService;
         this.roundResolutionEngine = roundResolutionEngine;
@@ -81,6 +96,7 @@ public class GameService {
         this.brokeFightBackService = brokeFightBackService;
         this.legislativeAiService = legislativeAiService != null ? legislativeAiService : new LegislativeAiService(null);
         this.partyManagementRepository = partyManagementRepository;
+        this.specialRewardsService = specialRewardsService != null ? specialRewardsService : new SpecialRewardsService(null);
         this.cooperationResolver = new CooperationResolver(this);
     }
 
@@ -597,6 +613,7 @@ public class GameService {
                 session.getLastResults(),
                 session.getCurrentRewardName(),
                 session.getCurrentRewardDescription(),
+                session.getCurrentRewardKey(),
                 session.getPartyRoundWins(),
                 session.getLastRoundBids(),
                 session.getLastRoundBiddingMetric(),
@@ -641,6 +658,15 @@ public class GameService {
         if (session.getStatus() != GameStatus.ACTIVE) {
             throw new IllegalArgumentException("The game has already ended (Status: " + session.getStatus() + ").");
         }
+        PartyState activeHumanParty = getActiveHumanParty(session);
+        if (activeHumanParty == null) {
+            throw new IllegalArgumentException("No active human player found.");
+        }
+
+        if (specialRewardsService.isCardPlayingBlocked(activeHumanParty)) {
+            request.setSelectedCardKey("no_card");
+        }
+
         if (request.getSelectedCardKey() == null || request.getSelectedCardKey().isBlank()) {
             throw new IllegalArgumentException("A card must be selected before advancing turn.");
         }
@@ -650,11 +676,6 @@ public class GameService {
         }
         if (request.getSelectedIssueOptionKey() == null || request.getSelectedIssueOptionKey().isBlank()) {
             throw new IllegalArgumentException("A monthly issue response must be selected before advancing turn.");
-        }
-
-        PartyState activeHumanParty = getActiveHumanParty(session);
-        if (activeHumanParty == null) {
-            throw new IllegalArgumentException("No active human player found.");
         }
 
         // Validate bid
@@ -1158,17 +1179,30 @@ public class GameService {
             }
 
             PartyState opponent = chooseOpponentExcludingPacts(session, party);
-            AiDecision decision = aiDecisionService.chooseCard(session, party, opponent, getAvailableCardsForParty(session, party));
+            CardDefinition chosenCard;
+            com.politicalsim.ai.AiDecision decision = null;
+            if (specialRewardsService.isCardPlayingBlocked(party)) {
+                chosenCard = findCard(session, "no_card", party.getRole());
+            } else {
+                decision = aiDecisionService.chooseCard(session, party, opponent, getAvailableCardsForParty(session, party));
+                chosenCard = decision.card();
+            }
+
             Map<String, String> reactions = new LinkedHashMap<>();
             for (NewsDefinition news : getCurrentNews(session)) {
-                NewsReactionDefinition reaction = aiDecisionService.chooseReaction(party, decision.intent(), news.getReactionOptions());
+                com.politicalsim.ai.AiIntent currentIntent = decision != null ? decision.intent() : com.politicalsim.ai.AiIntent.GAIN_SUPPORT;
+                NewsReactionDefinition reaction = aiDecisionService.chooseReaction(party, currentIntent, news.getReactionOptions());
                 if (reaction != null) {
                     reactions.put(news.getNewsKey(), reaction.getReactionKey());
                 }
             }
-            PartyState targetParty = chooseAiTarget(session, party, decision.card());
-            RoundSubmission submission = toSubmission(party, targetParty, decision.card(), reactions, null, null);
-            submission.setAiIntent(decision.intent().name());
+            PartyState targetParty = chosenCard.getCardKey().equals("no_card") ? null : chooseAiTarget(session, party, chosenCard);
+            RoundSubmission submission = toSubmission(party, targetParty, chosenCard, reactions, null, null);
+            if (decision != null) {
+                submission.setAiIntent(decision.intent().name());
+            } else {
+                submission.setAiIntent("PASS");
+            }
 
             // AI Legislative Proposing and Lobbying (Danger zone prioritization + Fail limit + 20% coin limit)
             boolean isDangerCoins = party.getStats().getCoins() < 50;
@@ -1457,7 +1491,7 @@ public class GameService {
                 projectBasis = "Project strategy: Decided not to fund any projects (could not afford any progress steps or no projects available).";
             }
 
-            if (discCoins > 0 && !isCoinCrisis) {
+            if (discCoins > 0 && !isCoinCrisis && !specialRewardsService.isProjectBuildingPaused(party)) {
                 List<ProjectScore> scoredProjects = new ArrayList<>();
                 for (ProjectState project : party.getProjects()) {
                     if (project.getProgressPercent() < 100) {
@@ -1907,6 +1941,28 @@ public class GameService {
             return 0;
         }
 
+        // Bid Sniping check
+        RewardDefinition reward = roundResolutionEngine.getReward(session.getCurrentRewardKey());
+        if (specialRewardsService.shouldSnipe(party, reward, metric)) {
+            int snipedBid = 0;
+            if ("COINS".equalsIgnoreCase(metric)) {
+                snipedBid = Math.max(0, currentMetricValue - 10);
+                snipedBid = Math.min(snipedBid, 45);
+            } else if ("CORRUPTION".equalsIgnoreCase(metric)) {
+                snipedBid = Math.max(0, 95 - party.getStats().getCorruptionScore());
+                snipedBid = Math.min(snipedBid, 35);
+            } else if ("PARTY_MORALE".equalsIgnoreCase(metric) || "MORALE".equalsIgnoreCase(metric)) {
+                snipedBid = Math.max(0, currentMetricValue - 10);
+                snipedBid = Math.min(snipedBid, 45);
+            } else if ("PUBLIC_SUPPORT".equalsIgnoreCase(metric) || "SUPPORT".equalsIgnoreCase(metric)) {
+                snipedBid = Math.max(0, currentMetricValue - 5);
+                snipedBid = Math.min(snipedBid, 8);
+            }
+            if (snipedBid > 0) {
+                return snipedBid;
+            }
+        }
+
         // Defeat condition checks before bidding:
         // Conserve resources if party is in a danger/warning zone on any metrics
         PartyStats stats = party.getStats();
@@ -2130,6 +2186,10 @@ public class GameService {
                 .filter(p -> p.getId().equals(partyId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Party not found: " + partyId));
+
+        if (specialRewardsService.isProjectBuildingPaused(party)) {
+            throw new IllegalArgumentException("Project building is currently paused due to Project Freeze!");
+        }
 
         ProjectState project = party.getProjects().stream()
                 .filter(p -> (p.getId() != null && p.getId().equals(projectIdOrKey)) || p.getProjectKey().equals(projectIdOrKey))

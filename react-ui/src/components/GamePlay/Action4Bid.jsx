@@ -33,13 +33,43 @@ export default function Action4Bid({
 
 
 
-            {turnData.currentRewardName && (
-              <div style={{ background: 'rgba(101,148,177,0.08)', borderLeft: '4px solid var(--selected-highlight)', padding: '10px 15px', borderRadius: '0 8px 8px 0', marginBottom: '15px' }}>
-                <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold', color: 'var(--primary-dark)', opacity: 0.8 }}>Bidding For</div>
-                <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--primary-dark)', marginTop: '2px' }}>🎯 {turnData.currentRewardName}</div>
-                <div style={{ fontSize: '11px', opacity: 0.8, fontStyle: 'italic', marginTop: '4px' }}>{turnData.currentRewardDescription}</div>
-              </div>
-            )}
+            {turnData.currentRewardName && (() => {
+              const isSpecial = turnData.currentRewardKey?.startsWith('special_');
+              return (
+                <div style={{
+                  background: isSpecial ? 'linear-gradient(135deg, rgba(250, 204, 21, 0.12) 0%, rgba(234, 179, 8, 0.05) 100%)' : 'rgba(101,148,177,0.08)',
+                  borderLeft: isSpecial ? '4px solid #eab308' : '4px solid var(--selected-highlight)',
+                  border: isSpecial ? '1px solid rgba(234, 179, 8, 0.3)' : 'none',
+                  borderLeftWidth: '4px',
+                  boxShadow: isSpecial ? '0 0 15px rgba(234, 179, 8, 0.2)' : 'none',
+                  padding: '12px 15px',
+                  borderRadius: '8px',
+                  marginBottom: '15px',
+                  position: 'relative'
+                }}>
+                  {isSpecial && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      background: 'linear-gradient(90deg, #f59e0b, #d97706)',
+                      color: '#ffffff',
+                      fontSize: '9px',
+                      fontWeight: 'bold',
+                      padding: '2px 8px',
+                      borderRadius: '0 7px 0 7px',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      letterSpacing: '0.05em'
+                    }}>
+                      ⭐ SPECIAL REWARD
+                    </div>
+                  )}
+                  <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold', color: isSpecial ? '#b45309' : 'var(--primary-dark)', opacity: 0.8 }}>Bidding For</div>
+                  <div style={{ fontSize: '15px', fontWeight: 'bold', color: isSpecial ? '#78350f' : 'var(--primary-dark)', marginTop: '2px' }}>🎯 {turnData.currentRewardName}</div>
+                  <div style={{ fontSize: '11px', opacity: 0.8, fontStyle: 'italic', marginTop: '4px', color: isSpecial ? '#78350f' : 'inherit' }}>{turnData.currentRewardDescription}</div>
+                </div>
+              );
+            })()}
 
       {/* Current Cycle Standings */}
       <div style={{ background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.04)', border: '1.5px dashed var(--party-primary-color, var(--primary-border))', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
