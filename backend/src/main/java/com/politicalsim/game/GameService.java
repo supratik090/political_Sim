@@ -956,7 +956,7 @@ public class GameService {
                 continue;
             }
 
-            // 1. Proactive Faction Bribe (Counter-Attack / Distressed recovery)
+            // 1. Proactive Faction Bribe (Counter-Attack / Distressed recovery / Aggressive pressure on weak opponents)
             boolean ownFactionUnderAttack = false;
             for (com.politicalsim.party.FactionState ownFs : party.getFactions()) {
                 if (ownFs.isActive()) {
@@ -969,7 +969,26 @@ public class GameService {
                 }
             }
 
+            // Determine if opposition player/rivals are weak
+            boolean anyOpponentIsWeak = session.getParties().stream()
+                    .filter(p -> p.isActive() && !p.getId().equals(party.getId()))
+                    .anyMatch(p -> p.getStats().getPublicSupport() < 20 
+                            || p.getStats().getPartyMorale() < 25 
+                            || p.getStats().getCoins() < 45);
+
+            // Determine if the AI itself is weak (should conserve coins)
+            boolean selfIsWeak = party.getStats().getPublicSupport() < 22 
+                    || party.getStats().getPartyMorale() < 25 
+                    || party.getStats().getCoins() < 80;
+
             double bribeChance = ownFactionUnderAttack ? 0.85 : 0.25;
+            if (anyOpponentIsWeak && !selfIsWeak) {
+                bribeChance = Math.max(bribeChance, 0.65); // Aggressively bribe/sabotage weak opponents!
+            }
+            if (selfIsWeak) {
+                bribeChance = 0.0; // Strictly conserve coins when in a weak position
+            }
+
             if (party.getStats().getCoins() >= 120 && new java.util.Random().nextDouble() < bribeChance) {
                 com.politicalsim.party.FactionState bestTargetFs = null;
                 PartyState bestTargetParty = null;
@@ -1171,8 +1190,8 @@ public class GameService {
 
             List<LegislativeBillDefinition> sortedBills = new ArrayList<>(proposePool);
             sortedBills.sort((b1, b2) -> {
-                double s1 = scoreBillForPriority(b1, isDangerCoins, isDangerMorale);
-                double s2 = scoreBillForPriority(b2, isDangerCoins, isDangerMorale);
+                double s1 = scoreBillForPriority(b1, party);
+                double s2 = scoreBillForPriority(b2, party);
                 return Double.compare(s2, s1); // descending
             });
 
@@ -1280,9 +1299,34 @@ public class GameService {
                 String aiVote = legislativeAiService.evaluateAiBillVote(session, party, activeBillKey);
                 submission.setBillVote(aiVote);
                 
+                // Get the proposer to check if they are in a very strong position
+                boolean proposerVeryStrong = false;
+                LegislativeBillState billState = session.getBills().stream()
+                        .filter(b -> b.getBillKey().equals(activeBillKey))
+                        .findFirst().orElse(null);
+                if (billState != null && billState.getProposedByPartyId() != null) {
+                    PartyState proposer = session.getParties().stream()
+                            .filter(p -> p.getId().equals(billState.getProposedByPartyId()))
+                            .findFirst().orElse(null);
+                    if (proposer != null) {
+                        int rivalMaxCoins = session.getParties().stream()
+                                .filter(p -> p.isActive() && !p.getId().equals(proposer.getId()))
+                                .mapToInt(p -> p.getStats().getCoins())
+                                .max()
+                                .orElse(0);
+                        int rivalMaxSupport = session.getParties().stream()
+                                .filter(p -> p.isActive() && !p.getId().equals(proposer.getId()))
+                                .mapToInt(p -> p.getStats().getPublicSupport())
+                                .max()
+                                .orElse(0);
+                        proposerVeryStrong = proposer.getStats().getCoins() >= 2 * rivalMaxCoins
+                                && proposer.getStats().getPublicSupport() >= rivalMaxSupport + 20;
+                    }
+                }
+
                 boolean canAffordWhip = party.getStats().getCoins() >= 25;
                 boolean isYesOrNo = "YES".equalsIgnoreCase(aiVote) || "NO".equalsIgnoreCase(aiVote);
-                boolean shouldWhip = isYesOrNo && canAffordWhip && (party.getStats().getCorruptionScore() > 30 || party.getStats().getPublicSupport() >= 20);
+                boolean shouldWhip = isYesOrNo && canAffordWhip && !proposerVeryStrong && (party.getStats().getCorruptionScore() > 30 || party.getStats().getPublicSupport() >= 20);
                 submission.setWhipIssued(shouldWhip);
             } else {
                 submission.setBillVote("ABSTAIN");
@@ -2248,6 +2292,36 @@ public class GameService {
         double score = 0.0;
         int turn = session.getTurnNumber();
         
+        // Dynamic game position based project scoring:
+        boolean anyOpponentIsWeak = session.getParties().stream()
+                .filter(p -> p.isActive() && !p.getId().equals(party.getId()))
+                .anyMatch(p -> p.getStats().getPublicSupport() < 20 
+                        || p.getStats().getPartyMorale() < 25 
+                        || p.getStats().getCoins() < 45);
+
+        boolean selfIsWeak = party.getStats().getPublicSupport() < 22 
+                || party.getStats().getPartyMorale() < 25 
+                || party.getStats().getCoins() < 80;
+
+        if (anyOpponentIsWeak) {
+            // Aggressively build offensive projects targeting opponents to eliminate them
+            if (projectDef.isRequiresTarget()) {
+                score += 50.0;
+            }
+        }
+
+        if (selfIsWeak) {
+            // Focus on building resources/morale/support and avoid spending on offensive targeting projects
+            if (!projectDef.isRequiresTarget()) {
+                score += 50.0;
+                score += projectDef.getBenefitCoins() * 15.0;
+                score += projectDef.getBenefitMorale() * 15.0;
+                score += projectDef.getBenefitSupport() * 15.0;
+            } else {
+                score -= 30.0; // Penalty on offensive projects during crisis
+            }
+        }
+
         // 1. Base Strategy Weight: Passive yields are stronger in the early/mid game.
         // Offensive yields are stronger in the late game to pull down the front runner.
         if (!projectDef.isRequiresTarget()) {
@@ -2900,7 +2974,7 @@ public class GameService {
                 .orElse(null);
     }
 
-    private double scoreBillForPriority(com.politicalsim.content.LegislativeBillDefinition bill, boolean isDangerCoins, boolean isDangerMorale) {
+    private double scoreBillForPriority(com.politicalsim.content.LegislativeBillDefinition bill, PartyState party) {
         Map<String, Object> passedEffects = bill.getEffectsPassed();
         if (passedEffects == null) return 0.0;
         int coins = ((Number) passedEffects.getOrDefault("coins", 0)).intValue();
@@ -2909,7 +2983,13 @@ public class GameService {
         int corruption = ((Number) passedEffects.getOrDefault("corruptionScore", 0)).intValue();
         int media = ((Number) passedEffects.getOrDefault("mediaImage", 0)).intValue();
 
-        if (isDangerCoins) {
+        boolean isDangerCoins = party.getStats().getCoins() < 50;
+        boolean isDangerMorale = party.getStats().getPartyMorale() < 30;
+        boolean isDangerSupport = party.getStats().getPublicSupport() < 22;
+
+        if (isDangerSupport) {
+            return support * 50.0 + coins * 0.1 + morale * 1.5 + media * 1.5 - corruption * 2.0;
+        } else if (isDangerCoins) {
             return coins * 50.0 + morale * 1.5 + support * 2.5 + media * 1.5 - corruption * 2.0;
         } else if (isDangerMorale) {
             return morale * 50.0 + coins * 0.1 + support * 2.5 + media * 1.5 - corruption * 2.0;

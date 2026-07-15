@@ -1196,6 +1196,31 @@ public class AiDecisionService {
                                 .orElse(null));
             }
 
+            // Proposer Check: Refuse if proposer is in a very strong position (100% more coins and 20% more support than rivals/opposition)
+            PartyState proposer = session.getParties().stream()
+                    .filter(p -> p.getId().equals(offer.getSenderPartyId()))
+                    .findFirst().orElse(null);
+            if (proposer != null) {
+                int rivalMaxCoins = session.getParties().stream()
+                        .filter(p -> p.isActive() && !p.getId().equals(proposer.getId()))
+                        .mapToInt(p -> p.getStats().getCoins())
+                        .max()
+                        .orElse(0);
+                int rivalMaxSupport = session.getParties().stream()
+                        .filter(p -> p.isActive() && !p.getId().equals(proposer.getId()))
+                        .mapToInt(p -> p.getStats().getPublicSupport())
+                        .max()
+                        .orElse(0);
+                
+                boolean proposerVeryStrong = proposer.getStats().getCoins() >= 2 * rivalMaxCoins
+                        && proposer.getStats().getPublicSupport() >= rivalMaxSupport + 20;
+                
+                if (proposerVeryStrong) {
+                    log.info("[Lobbying Evaluation] Rejecting lobbying offer: Proposer is in a very strong position.");
+                    return false;
+                }
+            }
+
             double billBenefitInCash = 0.0;
             if (billDef != null && billDef.getEffectsPassed() != null) {
                 Map<String, Object> passedEffects = billDef.getEffectsPassed();
@@ -1217,6 +1242,13 @@ public class AiDecisionService {
                 // 1 unit of mediaImage = 20 Coins
                 // 1% corruptionScore = -20 Coins
                 billBenefitInCash = (supportEffect * 50.0) + (moraleEffect * 20.0) + (mediaEffect * 20.0) - (corruptionEffect * 20.0) + (coinEffect * 1.0);
+                
+                // Whip cost consideration (25 coins cost)
+                boolean canAffordWhip = recipient.getStats().getCoins() >= 25;
+                boolean shouldWhip = canAffordWhip && (recipient.getStats().getCorruptionScore() > 30 || recipient.getStats().getPublicSupport() >= 20);
+                if (shouldWhip) {
+                    billBenefitInCash -= 25.0; // Subtract 25 coins equivalent cost
+                }
             }
 
             // Calculate cash value of incentives given

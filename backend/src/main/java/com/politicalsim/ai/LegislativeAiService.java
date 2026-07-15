@@ -42,6 +42,32 @@ public class LegislativeAiService {
             return "YES";
         }
 
+        PartyState proposer = session.getParties().stream()
+                .filter(p -> p.getId().equals(proposerId))
+                .findFirst().orElse(null);
+        if (proposer == null) {
+            return "ABSTAIN";
+        }
+
+        // Check if proposer is in a very strong position (100% more coins and 20% more support than rivals/opposition)
+        int rivalMaxCoins = session.getParties().stream()
+                .filter(p -> p.isActive() && !p.getId().equals(proposer.getId()))
+                .mapToInt(p -> p.getStats().getCoins())
+                .max()
+                .orElse(0);
+        int rivalMaxSupport = session.getParties().stream()
+                .filter(p -> p.isActive() && !p.getId().equals(proposer.getId()))
+                .mapToInt(p -> p.getStats().getPublicSupport())
+                .max()
+                .orElse(0);
+        
+        boolean proposerVeryStrong = proposer.getStats().getCoins() >= 2 * rivalMaxCoins
+                && proposer.getStats().getPublicSupport() >= rivalMaxSupport + 20;
+        
+        if (proposerVeryStrong) {
+            return "NO"; // Refuse any legislative action to block their progress
+        }
+
         // 3. Coalition / Alliance Check (Accepted Cooperation Offers)
         boolean isAlly = session.getCooperationOffers().stream()
                 .anyMatch(offer -> offer.getStatus() == CooperationOffer.OfferStatus.ACCEPTED &&
@@ -52,12 +78,6 @@ public class LegislativeAiService {
         }
 
         // 4. Same Government Coalition Check
-        PartyState proposer = session.getParties().stream()
-                .filter(p -> p.getId().equals(proposerId))
-                .findFirst().orElse(null);
-        if (proposer == null) {
-            return "ABSTAIN";
-        }
         if (party.getRole() == PartyRole.GOVERNMENT && proposer.getRole() == PartyRole.GOVERNMENT) {
             return "YES";
         }
