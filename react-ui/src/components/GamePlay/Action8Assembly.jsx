@@ -31,13 +31,21 @@ export default function Action8Assembly({
   const playerRole = activeParty?.role || 'THIRD_PARTY';
   const unproposedStates = (turnData.bills || []).filter(b => b.status === 'NOT_PROPOSED');
   
-  const availableBillsToPropose = unproposedStates.map(state => {
+  let availableBillsToPropose = unproposedStates.map(state => {
     const def = scenarioBills.find(b => b.billKey === state.billKey);
     return {
       state,
       def
     };
   }).filter(b => b.def);
+
+  // Robust Fallback: If turnData.bills is empty or has no unproposed bills, populate from scenarioBills directly
+  if (availableBillsToPropose.length === 0 && (!turnData.bills || turnData.bills.length === 0)) {
+    availableBillsToPropose = (scenarioBills || []).map(def => ({
+      state: { billKey: def.billKey, status: 'NOT_PROPOSED' },
+      def
+    }));
+  }
 
   // Government gets GOVERNMENT bills; Opposition and Third Parties get OPPOSITION bills
   const isGovernment = playerRole === 'GOVERNMENT';

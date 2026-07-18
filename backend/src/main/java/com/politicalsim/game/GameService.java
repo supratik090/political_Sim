@@ -100,6 +100,10 @@ public class GameService {
         this.cooperationResolver = new CooperationResolver(this);
     }
 
+    public com.politicalsim.content.LegislativeBillDefinitionRepository getBillRepository() {
+        return aiDecisionService.getBillRepository();
+    }
+
 
     public CampaignProgressResponse getCampaignProgress(String userId) {
         List<ScenarioDefinition> allActive = scenarioRepository.findAll().stream()
@@ -1125,7 +1129,7 @@ public class GameService {
                         String msg = String.format("🚨 AI Sabotage: %s successfully bribed %s's %s faction! Loyalty fell by -%d%%. FROZEN: %s.",
                                 party.getName(), bestTargetParty.getName(), bestTargetFs.getName(), loyaltyLoss, frozenList);
                         session.getPendingSabotageCommentary().add(msg);
-                        session.getPendingSabotageResults().add("🚨 AI " + party.getName() + " successfully bribed opponent faction " + bestTargetFs.getName());
+                        session.getPendingSabotageResults().add("🚨 AI " + party.getName() + " successfully bribed " + bestTargetParty.getName() + "'s " + bestTargetFs.getName() + " faction");
                     } else {
                         // Fail
                         int mediaLoss = Math.max(5, (int) Math.round(party.getStats().getMediaImage() * 0.10));
@@ -1136,7 +1140,7 @@ public class GameService {
                         String msg = String.format("🚨 AI Sabotage Exposed: %s tried to bribe %s's %s but was exposed! %s loses -%d Media Image and -%d Morale.",
                                 party.getName(), bestTargetParty.getName(), bestTargetFs.getName(), party.getName(), mediaLoss, moraleLoss);
                         session.getPendingSabotageCommentary().add(msg);
-                        session.getPendingSabotageResults().add("🚨 AI " + party.getName() + " bribe attempt on " + bestTargetFs.getName() + " exposed!");
+                        session.getPendingSabotageResults().add("🚨 AI " + party.getName() + " bribe attempt on " + bestTargetParty.getName() + "'s " + bestTargetFs.getName() + " exposed!");
                     }
                 }
             }
@@ -3024,7 +3028,7 @@ public class GameService {
             String msg = String.format("🚨 Sabotage Successful: %s bribed %s's %s faction! Loyalty fell by -%d%% (Current: %d%%). The following specific assets are FROZEN for 10 rounds: %s.",
                     sender.getName(), targetParty.getName(), fs.getName(), loyaltyLoss, fs.getLoyalty(), frozenListStr);
             session.getPendingSabotageCommentary().add(msg);
-            session.getPendingSabotageResults().add("🚨 " + sender.getName() + " successfully bribed and froze opponent faction " + fs.getName());
+            session.getPendingSabotageResults().add("🚨 " + sender.getName() + " successfully bribed and froze " + targetParty.getName() + "'s " + fs.getName() + " faction");
         } else {
             // Failed: Refused and Exposed
             int mediaLoss = Math.max(5, (int) Math.round(sender.getStats().getMediaImage() * 0.10));
@@ -3036,7 +3040,7 @@ public class GameService {
             String msg = String.format("🚨 Bribe Refused & Exposed: %s attempted to bribe %s's %s but was refused! %s loses -%d Media Image (-10%%) and -%d Party Morale (-5%%).",
                     sender.getName(), targetParty.getName(), fs.getName(), sender.getName(), mediaLoss, moraleLoss);
             session.getPendingSabotageCommentary().add(msg);
-            session.getPendingSabotageResults().add("🚨 " + sender.getName() + " bribe attempt on " + fs.getName() + " exposed!");
+            session.getPendingSabotageResults().add("🚨 " + sender.getName() + " bribe attempt on " + targetParty.getName() + "'s " + fs.getName() + " exposed!");
         }
 
         gameSessionService.save(session);

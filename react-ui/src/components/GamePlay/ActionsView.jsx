@@ -130,13 +130,7 @@ export default function ActionsView({
     prevNewsCompleted.current = isNewsCompleted;
   }, [isNewsCompleted, activeAccordion, setActiveAccordion]);
 
-  const prevSection3Completed = useRef(isSection3Completed);
-  useEffect(() => {
-    if (!prevSection3Completed.current && isSection3Completed && activeAccordion === 3) {
-      setActiveAccordion(4);
-    }
-    prevSection3Completed.current = isSection3Completed;
-  }, [isSection3Completed, activeAccordion, setActiveAccordion]);
+
 
   const isSection4Completed = isBidCompleted && isRewardCompleted;
   const prevSection4Completed = useRef(isSection4Completed);
@@ -349,7 +343,10 @@ export default function ActionsView({
           setWhipIssued={setWhipIssued}
           proposedBillKey={proposedBillKey}
           setProposedBillKey={setProposedBillKey}
+          selectedEventOptionKey={selectedEventOptionKey}
+          setSelectedEventOptionKey={setSelectedEventOptionKey}
           scenarioBills={scenarioBills}
+          scenarioEvents={scenarioEvents}
         />
       </ActionSection>
 

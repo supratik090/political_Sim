@@ -19,10 +19,16 @@ const turnNumber = turnData?.turnNumber || 0;
 
 const storageKey = `political_sim_party_management_${gameSessionId}_turn_${turnNumber}`;
 
+  const dominantFaction = (activeParty?.factions || []).find(f => f.active && f.influence > 50 && f.loyalty > 80);
+
   // Build factions list dynamically from activeParty or fallback
   const factionsList = (activeParty?.factions || []).map(f => {
-    // Loyalty decay is 2% per active faction per turn
-    const decayedLoyalty = Math.max(0, f.loyalty - 2);
+    // Loyalty decay is 2% per active faction per turn + jealousy factor
+    let decay = 2;
+    if (dominantFaction && f.key !== dominantFaction.key) {
+      decay += 2;
+    }
+    const decayedLoyalty = Math.max(0, f.loyalty - decay);
     const delegatedProjects = (activeParty?.projects || []).filter(p => p.progressPercent === 100 && p.managingFactionKey === f.key);
     const projectsMapped = delegatedProjects.map(p => ({
       id: p.id,
@@ -182,6 +188,8 @@ const getInitialFactions = (partyState, factionsList) => {
 };
 
 
+  const initialFactions = getInitialFactions(partyMgmtState, factionsList);
+
   // Load state from localStorage or fallback to defaults
   const [factions, setFactions] = useState(() => {
     const saved = localStorage.getItem(storageKey);
@@ -193,7 +201,7 @@ const getInitialFactions = (partyState, factionsList) => {
         console.error("Failed to parse factions state from localStorage", e);
       }
     }
-    return getInitialFactions(partyMgmtState, factionsList);
+    return initialFactions;
   });
 
 const [deck, setDeck] = useState(() => {

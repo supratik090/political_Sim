@@ -41,22 +41,22 @@ const PROJECT_EMOJIS = {
 function formatProjectDefinitions(backendDefs) {
   const getCostString = (proj) => {
     const parts = [];
-    if (proj.costCoins) parts.push(`${proj.costCoins} Coins`);
-    if (proj.costMorale) parts.push(`${proj.costMorale} Morale`);
-    if (proj.costCorruption) parts.push(`${proj.costCorruption} Corruption`);
-    if (proj.costMedia) parts.push(`${proj.costMedia} Media Image`);
-    if (proj.costSupport) parts.push(`${proj.costSupport}% Support`);
+    if (proj.costCoins) parts.push(`💰 ${proj.costCoins}`);
+    if (proj.costMorale) parts.push(`✊ ${proj.costMorale}`);
+    if (proj.costCorruption) parts.push(`⚖️ ${proj.costCorruption}`);
+    if (proj.costMedia) parts.push(`📢 ${proj.costMedia}`);
+    if (proj.costSupport) parts.push(`📈 ${proj.costSupport}%`);
     return parts.length > 0 ? parts.join(', ') : 'Free';
   };
 
   const getYieldString = (proj) => {
     const parts = [];
     const prefix = proj.requiresTarget ? '💥 ' : '';
-    if (proj.benefitCoins) parts.push(`💰 ${proj.benefitCoins > 0 ? '+' : ''}${proj.benefitCoins} Coins`);
-    if (proj.benefitMorale) parts.push(`${proj.requiresTarget ? '' : '✊ '}${proj.benefitMorale > 0 ? '+' : ''}${proj.benefitMorale} Morale`);
-    if (proj.benefitCorruption) parts.push(`${proj.requiresTarget ? '' : '⚖️ '}${proj.benefitCorruption > 0 ? '+' : ''}${proj.benefitCorruption} Corruption`);
-    if (proj.benefitMedia) parts.push(`${proj.requiresTarget ? '' : '📢 '}${proj.benefitMedia > 0 ? '+' : ''}${proj.benefitMedia} Media Image`);
-    if (proj.benefitSupport) parts.push(`${proj.requiresTarget ? '' : '📈 '}${proj.benefitSupport > 0 ? '+' : ''}${proj.benefitSupport}% Public Support`);
+    if (proj.benefitCoins) parts.push(`💰 ${proj.benefitCoins > 0 ? '+' : ''}${proj.benefitCoins}`);
+    if (proj.benefitMorale) parts.push(`✊ ${proj.benefitMorale > 0 ? '+' : ''}${proj.benefitMorale}`);
+    if (proj.benefitCorruption) parts.push(`⚖️ ${proj.benefitCorruption > 0 ? '+' : ''}${proj.benefitCorruption}`);
+    if (proj.benefitMedia) parts.push(`📢 ${proj.benefitMedia > 0 ? '+' : ''}${proj.benefitMedia}`);
+    if (proj.benefitSupport) parts.push(`📈 ${proj.benefitSupport > 0 ? '+' : ''}${proj.benefitSupport}%`);
     const suffix = proj.requiresTarget ? ' to Target per turn' : ' per turn';
     return prefix + (parts.length > 0 ? parts.join(', ') : 'None') + suffix;
   };
@@ -1012,7 +1012,7 @@ useEffect(() => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 2000,
+          zIndex: 10005,
           backdropFilter: 'blur(8px)',
         }}>
           <div style={{
@@ -1131,7 +1131,7 @@ useEffect(() => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 2000,
+          zIndex: 10005,
           backdropFilter: 'blur(8px)',
         }}>
           <div style={{

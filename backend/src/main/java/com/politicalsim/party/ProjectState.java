@@ -37,11 +37,11 @@ public class ProjectState {
     private static String buildYieldDesc(BuildingProject.ProjectConfig c, boolean requiresTarget) {
         if (c == null) return "Completed project.";
         java.util.List<String> parts = new java.util.ArrayList<>();
-        if (c.benefitCoins   != 0) parts.add((c.benefitCoins   > 0 ? "+" : "") + c.benefitCoins   + " Coins");
-        if (c.benefitMorale  != 0) parts.add((c.benefitMorale  > 0 ? "+" : "") + c.benefitMorale  + " Morale");
-        if (c.benefitMedia   != 0) parts.add((c.benefitMedia   > 0 ? "+" : "") + c.benefitMedia   + " Media Image");
-        if (c.benefitCorruption != 0) parts.add((c.benefitCorruption > 0 ? "+" : "") + c.benefitCorruption + " Corruption");
-        if (c.benefitSupport != 0) parts.add((c.benefitSupport > 0 ? "+" : "") + c.benefitSupport + "% Support");
+        if (c.benefitCoins   != 0) parts.add("💰 " + (c.benefitCoins   > 0 ? "+" : "") + c.benefitCoins);
+        if (c.benefitMorale  != 0) parts.add("✊ " + (c.benefitMorale  > 0 ? "+" : "") + c.benefitMorale);
+        if (c.benefitMedia   != 0) parts.add("📢 " + (c.benefitMedia   > 0 ? "+" : "") + c.benefitMedia);
+        if (c.benefitCorruption != 0) parts.add("⚖️ " + (c.benefitCorruption > 0 ? "+" : "") + c.benefitCorruption);
+        if (c.benefitSupport != 0) parts.add("📈 " + (c.benefitSupport > 0 ? "+" : "") + c.benefitSupport + "%");
         if (parts.isEmpty()) return "No direct yield.";
         String suffix = requiresTarget ? " to Target per turn" : " per turn";
         return "Yields: " + String.join(", ", parts) + suffix;

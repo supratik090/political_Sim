@@ -922,36 +922,72 @@ export default function StatsView({
             gap: '12px',
             background: 'radial-gradient(circle at center, #1e293b 0%, #0f172a 100%)'
           }}>
-            {turnData.lastResults.map((res, i) => (
-              <div key={i} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '15px',
-                background: 'rgba(15, 23, 42, 0.6)',
-                borderLeft: '5px solid #ef4444',
-                padding: '14px 18px',
-                borderRadius: '0 8px 8px 0',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                borderLeftWidth: '5px'
-              }}>
-                <div style={{ 
-                  background: '#ef4444', 
-                  color: '#ffffff', 
-                  fontSize: '9px', 
-                  padding: '2px 6px', 
-                  borderRadius: '3px', 
-                  fontWeight: '900',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
-                }}>
-                  FLASH
-                </div>
-                <div style={{ fontSize: '13.5px', lineHeight: 1.5, fontWeight: 600, color: '#f1f5f9' }}>
-                  {res}
-                </div>
-              </div>
-            ))}
+            {(() => {
+              const getNewsBadge = (text) => {
+                const t = text.toLowerCase();
+                if (t.includes('bribed') || t.includes('bribe') || t.includes('sabotage')) {
+                  return { symbol: '🕵️‍♂️', label: 'BRIBE', color: '#be123c' }; // Deep Rose
+                }
+                if (t.includes('pact') || t.includes('diplomacy') || t.includes('cooperation') || t.includes('trade') || t.includes('pact proposed') || t.includes('pact accepted') || t.includes('🕊️')) {
+                  return { symbol: '🕊️', label: 'PACT', color: '#0d9488' }; // Teal
+                }
+                if (t.includes('completed project') || t.includes('project completed') || t.includes('funded project') || t.includes('building') || t.includes('constructed') || t.includes('scrap project') || t.includes('destroy project') || t.includes('🏗️')) {
+                  return { symbol: '🏗️', label: 'PROJECT', color: '#d97706' }; // Amber
+                }
+                if (t.includes('chose') || t.includes('played card') || t.includes('card played') || t.includes('played reward') || t.includes('strategy card') || t.includes('🏆 reward played')) {
+                  return { symbol: '🃏', label: 'CARD', color: '#4f46e5' }; // Indigo
+                }
+                if (t.includes('election') || t.includes('vote') || t.includes('assembly') || t.includes('no-confidence') || t.includes('bill')) {
+                  return { symbol: '🏛️', label: 'HOUSE', color: '#1e3a8a' }; // Navy
+                }
+                return { symbol: '🚨', label: 'FLASH', color: '#ef4444' }; // Red
+              };
+
+              return turnData.lastResults.map((res, i) => {
+                const badge = getNewsBadge(res);
+                let displayMsg = res;
+                // Remove prefix symbols if matching the badge to prevent double icons
+                if (displayMsg.startsWith('🚨 ') && badge.symbol !== '🚨') displayMsg = displayMsg.substring(2);
+                if (displayMsg.startsWith('🕊️ ') && badge.symbol !== '🕊️') displayMsg = displayMsg.substring(2);
+                if (displayMsg.startsWith('🏆 ') && badge.symbol !== '🏆') displayMsg = displayMsg.substring(2);
+
+                return (
+                  <div key={i} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '15px',
+                    background: 'rgba(15, 23, 42, 0.6)',
+                    borderLeft: `5px solid ${badge.color}`,
+                    padding: '14px 18px',
+                    borderRadius: '0 8px 8px 0',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    borderLeftWidth: '5px'
+                  }}>
+                    <div style={{ 
+                      background: badge.color, 
+                      color: '#ffffff', 
+                      fontSize: '9px', 
+                      padding: '3px 8px', 
+                      borderRadius: '3px', 
+                      fontWeight: '900',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      <span>{badge.symbol}</span>
+                      <span>{badge.label}</span>
+                    </div>
+                    <div style={{ fontSize: '13.5px', lineHeight: 1.5, fontWeight: 600, color: '#f1f5f9' }}>
+                      {displayMsg}
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
 
           {/* Scrolling Ticker Footer */}
@@ -1460,11 +1496,11 @@ export default function StatsView({
 
                                   {/* Faction Yields row */}
                                   <div style={{ display: 'flex', gap: '15px', fontSize: '11px', fontWeight: 'bold', borderTop: '1px dotted var(--primary-border)', paddingTop: '6px' }}>
-                                    <span style={{ color: '#15803d' }}>Coins: {y.coins >= 0 ? '+' : ''}{y.coins} 💰</span>
-                                    <span style={{ color: '#1d4ed8' }}>Support: {y.support >= 0 ? '+' : ''}{y.support}% 📈</span>
-                                    <span style={{ color: '#a21caf' }}>Morale: {y.morale >= 0 ? '+' : ''}{y.morale} ✊</span>
-                                    <span style={{ color: y.corruption > 0 ? '#b91c1c' : '#15803d' }}>Corruption: {y.corruption >= 0 ? '+' : ''}{y.corruption} ⚖️</span>
-                                    <span style={{ color: '#ec4899' }}>Media: {y.media >= 0 ? '+' : ''}{y.media} 📢</span>
+                                    <span style={{ color: '#15803d' }}>💰 {y.coins >= 0 ? '+' : ''}{y.coins}</span>
+                                    <span style={{ color: '#1d4ed8' }}>📈 {y.support >= 0 ? '+' : ''}{y.support}%</span>
+                                    <span style={{ color: '#a21caf' }}>✊ {y.morale >= 0 ? '+' : ''}{y.morale}</span>
+                                    <span style={{ color: y.corruption > 0 ? '#b91c1c' : '#15803d' }}>⚖️ {y.corruption >= 0 ? '+' : ''}{y.corruption}</span>
+                                    <span style={{ color: '#ec4899' }}>📢 {y.media >= 0 ? '+' : ''}{y.media}</span>
                                   </div>
                                 </div>
                               );
@@ -1489,11 +1525,11 @@ export default function StatsView({
                           fontWeight: 'bold'
                         }}>
                           <span>Combined Yield Sum:</span>
-                          <span>💰 {netCoins >= 0 ? '+' : ''}{netCoins} Coins</span>
-                          <span>📈 {netSupport >= 0 ? '+' : ''}{netSupport}% Support</span>
-                          <span>✊ {finalMorale >= 0 ? '+' : ''}{finalMorale} Morale</span>
-                          <span>⚖️ {finalCorruption >= 0 ? '+' : ''}{finalCorruption} Corruption</span>
-                          <span>📢 {netMedia >= 0 ? '+' : ''}{netMedia} Media</span>
+                          <span>💰 {netCoins >= 0 ? '+' : ''}{netCoins}</span>
+                          <span>📈 {netSupport >= 0 ? '+' : ''}{netSupport}%</span>
+                          <span>✊ {finalMorale >= 0 ? '+' : ''}{finalMorale}</span>
+                          <span>⚖️ {finalCorruption >= 0 ? '+' : ''}{finalCorruption}</span>
+                          <span>📢 {netMedia >= 0 ? '+' : ''}{netMedia}</span>
                         </div>
                       </div>
                     </div>

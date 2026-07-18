@@ -2308,10 +2308,27 @@ public class RoundResolutionEngine {
                     .findFirst().orElse(null);
 
 
+            // Check for faction jealousy
+            com.politicalsim.party.FactionState dominantFaction = null;
+            for (com.politicalsim.party.FactionState fs : party.getFactions()) {
+                if (fs.isActive() && fs.getInfluence() > 50 && fs.getLoyalty() > 80) {
+                    dominantFaction = fs;
+                    break;
+                }
+            }
+
+            if (dominantFaction != null) {
+                commentary.add(String.format("⚠️ Faction Jealousy: %s's dominance (influence > 50%%, loyalty > 80%%) causes jealousy in other factions! They lose an additional -4 loyalty.", dominantFaction.getName()));
+            }
+
             // Apply a natural loyalty decay of -4 loyalty per round
             for (com.politicalsim.party.FactionState fs : party.getFactions()) {
                 if (fs.isActive()) {
-                    fs.setLoyalty(fs.getLoyalty() - 4);
+                    int decay = 4;
+                    if (dominantFaction != null && !fs.getKey().equals(dominantFaction.getKey())) {
+                        decay += 4; // jealousy decay (total 8)
+                    }
+                    fs.setLoyalty(Math.max(0, fs.getLoyalty() - decay));
                 }
             }
 

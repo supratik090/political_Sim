@@ -337,3 +337,28 @@ We have fully implemented the end-to-end Legislative Bills and Event Cards gamep
 - **Actions & Turn Submission (`ActionsView.jsx` & `GamePlayBoard.jsx`)**: Packages assembly selections, event choices, and proposed bill keys into the REST API payload on turn advancement.
 - **Dashboard Assembly Agenda Tracker (`StatsView.jsx`)**: Renders a dedicated legislative agenda summary card displaying the active bill vote, history of resolved bills, and total passed/failed counts.
 
+---
+
+## 🏢 Part 6: Party Building Yield Formatting (Tweak)
+
+We updated the formatting of party building project yields across both the frontend and backend.
+
+### 1. Unified Symbol-Only Format
+* Yield descriptions now display purely the emoji symbols and values, omitting the text labels (e.g. `Coins`, `Morale`, `Media Image`, `Corruption`, `Public Support`).
+* Example: `💰 +6 Coins, ✊ +2 Morale, 📢 +2 Media Image, 📈 +1% Public Support per turn` is now rendered concisely as `💰 +6, ✊ +2, 📢 +2, 📈 +1% per turn`.
+
+### 2. Changes Made
+* **Frontend Formatting (`GamePlayBoard.jsx`)**: Standardized `getYieldString` and `getCostString` within the `formatProjectDefinitions` method to strip out resource label strings and prepended emoji symbols to all properties.
+* **Frontend Fallback Definitions (`constants.js`)**: Updated both fallback `yield` and `cost` strings to match the new symbol-only format.
+* **Backend Description Generator (`ProjectState.java`)**: Updated `buildYieldDesc` to format backend-derived yield descriptions with symbols instead of text names.
+* **Action 6 Custom Tabs (`Action6PartyBuilding.jsx`)**: Converted the "Build Party" vs "Target Opponents" select dropdown into modern toggle tabs styled matching the Action 1 selection. Also simplified contribution cost strings to use the symbol-only layout.
+* **Faction Stats (`StatsView.jsx`)**: Cleaned up inner faction yields and combined yield totals in the sidebar to only render symbols and numbers.
+* **Party Management Auto-Close Disabled (`ActionsView.jsx`)**: Removed the `useEffect` that automatically collapsed Section 3 (Party Management) and advanced the accordion selection as soon as a user locked their faction allocations. This resolves the bug where mounting Section 3 with a saved locked state immediately auto-closed the accordion panel and locked the user out.
+* **Bribe Target Party Details (`GameService.java`)**: Updated successful bribe and exposed bribe attempt commentary strings (added to `pendingSabotageResults`) to include the target faction's parent party name (e.g. `Left Front's Veterans Faction`).
+* **Dynamic News Badges (`StatsView.jsx`)**: Replaced the generic `FLASH` red badge in the TV Breaking News alert body with context-specific badge styles (color + icon tag) mapping to `BRIBE` 🕵️‍♂️, `PACT` 🕊️, `PROJECT` 🏗️, `CARD` 🃏, `HOUSE` 🏛️ (legislative/elections), and fallback `FLASH` 🚨. Also sanitizes duplicate starting emojis.
+* **Simplified Project Funding Message (`ProjectResolver.java`)**: Removed the detailed cost list from project funding activity commentary and turn results (e.g. `(Progress: +100%, Cost: 120 Coins, 5 Corruption, 20 Media Image)` is now simplified to `(Progress: +100%)`).
+* **Faction Jealousy Factor (`RoundResolutionEngine.java` & `Action3PartyDecision.jsx`)**: Implemented a dynamic "jealousy" modifier. If any active faction holds over >50% influence and >80% loyalty, a jealousy event occurs. Other factions gain a jealousy modifier, causing their loyalty to decay faster (backend decay increases from 4 to 8, which is +4 additional decay; frontend allocation simulation decay preview increases from 2 to 4, which is +2 additional decay). Added a warning log to the turn commentary when jealousy triggers.
+* **Completed Infrastructure Display Reverted (`Action6PartyBuilding.jsx`)**: Reverted the completed projects container layout back to the original vertical stack style (no horizontal grid, no managing faction badges), but retained the active flashing red border alert and blinking `⚠️ ASSIGN TARGET!` warning indicators for target-less completed offensive projects.
+* **Projects in Progress Grid Layout (`Action6PartyBuilding.jsx`)**: Converted the vertical stack of "Projects in Progress" into a modern grid format matching completed projects, making all project state lists sit horizontally and compactly.
+* **Target Assignment Flash Alert (`Action6PartyBuilding.jsx`)**: Added CSS keyframe animations (`borderFlashRed` and `textBlink`) to completed offensive projects that do not have a target assigned. A red pulsing border and blinking `⚠️ ASSIGN TARGET!` warning badge draw the player's attention to outstanding choices immediately.
+

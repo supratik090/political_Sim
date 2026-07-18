@@ -59,6 +59,19 @@ export default function Action6PartyBuilding({
 
   return (
     <div>
+      <style>{`
+        @keyframes borderFlashRed {
+          0% { border-color: #ef4444; box-shadow: 0 0 4px rgba(239, 68, 68, 0.3); }
+          50% { border-color: #f43f5e; box-shadow: 0 0 12px rgba(244, 63, 94, 0.6); }
+          100% { border-color: #ef4444; box-shadow: 0 0 4px rgba(239, 68, 68, 0.3); }
+        }
+        @keyframes textBlink {
+          0% { opacity: 0.45; }
+          50% { opacity: 1; }
+          100% { opacity: 0.45; }
+        }
+      `}</style>
+
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -96,31 +109,51 @@ export default function Action6PartyBuilding({
             {completedProjects.map((proj, idx) => {
               const pDef = PROJECT_DEFS[proj.projectKey] || {};
               const projId = proj.id || proj.projectKey;
+              const needsTargetWarning = pDef.offensive && (!proj.targetPartyId || proj.targetPartyId === '');
+
               return (
                 <div 
                   key={proj.id || `${proj.projectKey}-completed-${idx}`} 
                   className="themed-action-card"
                   style={{ 
-                    border: '2.5px solid #22c55e', 
+                    border: needsTargetWarning ? '2.5px solid #ef4444' : '2.5px solid #22c55e', 
                     borderRadius: '8px', 
                     padding: '12px', 
-                    background: 'rgba(34,197,94,0.04)',
+                    background: needsTargetWarning ? 'rgba(239, 68, 68, 0.04)' : 'rgba(34,197,94,0.04)',
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    animation: needsTargetWarning ? 'borderFlashRed 1.5s infinite ease-in-out' : 'none'
                   }}
                 >
                   {/* Faint Background Watermark */}
                   <div className="themed-card-watermark">
-                    <SymbolIcon size={64} color="#22c55e" />
+                    <SymbolIcon size={64} color={needsTargetWarning ? "#ef4444" : "#22c55e"} />
                   </div>
 
                   {/* Bottom Right Corner Ribbon */}
-                  <div className="themed-card-ribbon" style={{ background: '#22c55e' }}>
+                  <div className="themed-card-ribbon" style={{ background: needsTargetWarning ? "#ef4444" : "#22c55e" }}>
                     <SymbolIcon size={10} color="#ffffff" style={{ marginRight: '1px', marginBottom: '1px', filter: 'brightness(0) invert(1)' }} />
                   </div>
 
                   <div style={{ position: 'relative', zIndex: 2 }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#1b5e20' }}>{pDef.name || proj.projectKey}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontWeight: 'bold', fontSize: '13px', color: needsTargetWarning ? '#991b1b' : '#1b5e20' }}>{pDef.name || proj.projectKey}</div>
+                      {needsTargetWarning && (
+                        <span style={{ 
+                          fontSize: '9px', 
+                          background: '#ef4444', 
+                          color: '#ffffff', 
+                          padding: '2px 6px', 
+                          borderRadius: '4px', 
+                          fontWeight: '900', 
+                          whiteSpace: 'nowrap',
+                          animation: 'textBlink 1.2s infinite ease-in-out',
+                          boxShadow: '0 2px 5px rgba(239,68,68,0.2)'
+                        }}>
+                          ⚠️ ASSIGN TARGET!
+                        </span>
+                      )}
+                    </div>
                     <div style={{ fontSize: '11px', color: 'var(--card-text)', marginTop: '2px' }}>Yield: {pDef.yield}</div>
                     {pDef.offensive ? (
                       <div style={{ marginTop: '8px' }}>
@@ -133,7 +166,7 @@ export default function Action6PartyBuilding({
                             handleSetProjectTarget(projId, e.target.value);
                             setPartyBuildingConfirmed(false);
                           }}
-                          style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}
+                          style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '4px', background: '#fff', color: '#000', border: needsTargetWarning ? '1.5px solid #ef4444' : '1px solid var(--primary-border)' }}
                         >
                           <option value="">-- Select Target Opponent --</option>
                           {turnData.parties.filter(opp => opp.id !== turnData.activeHumanPartyId).map(opp => (
@@ -163,7 +196,7 @@ export default function Action6PartyBuilding({
                           color: '#ffffff',
                           border: 'none',
                           fontWeight: 'bold',
-                          cursor: 'pointer',
+                          cursor: partyBuildingConfirmed ? 'not-allowed' : 'pointer',
                           borderRadius: '4px',
                           boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)'
                         }}
@@ -331,15 +364,35 @@ export default function Action6PartyBuilding({
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '4px' }}>
           <h5 style={{ margin: 0, fontSize: '13px', color: 'var(--primary-dark)' }}>Build Infrastructure</h5>
-          <select 
-            value={projectCategoryFilter}
-            disabled={partyBuildingConfirmed}
-            onChange={(e) => setProjectCategoryFilter(e.target.value)}
-            style={{ padding: '3px', fontSize: '11px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}
-          >
-            <option value="BUILD">Build Party</option>
-            <option value="OFFENSIVE">Target Opponents</option>
-          </select>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {[
+              { key: 'BUILD', label: 'Build Party 🛡️' },
+              { key: 'OFFENSIVE', label: 'Target Opponents 💥' }
+            ].map(tab => {
+              const isActive = projectCategoryFilter === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  disabled={partyBuildingConfirmed}
+                  onClick={() => setProjectCategoryFilter(tab.key)}
+                  style={{
+                    padding: '4px 12px',
+                    fontSize: '11px',
+                    background: isActive ? 'var(--party-primary-color, var(--primary-dark))' : '#ffffff',
+                    color: isActive ? '#ffffff' : 'var(--party-primary-color, var(--primary-dark))',
+                    border: isActive ? '1.5px solid var(--party-primary-color, var(--primary-dark))' : '1px solid rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.3)',
+                    borderRadius: '20px',
+                    fontWeight: 'bold',
+                    cursor: partyBuildingConfirmed ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease',
+                    opacity: partyBuildingConfirmed ? 0.6 : 1
+                  }}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {filteredAvail.length === 0 ? (

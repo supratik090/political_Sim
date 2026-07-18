@@ -39,7 +39,7 @@ public class ProjectResolver {
                     if (supportCost > 0) costDetails.add(supportCost + "% Public Support");
                     
                     String costStr = String.join(", ", costDetails);
-                    String msg = party.getName() + " funded project '" + def.getName() + "' (Progress: +" + progressAdded + "%, Cost: " + costStr + ")";
+                    String msg = party.getName() + " funded project '" + def.getName() + "' (Progress: +" + progressAdded + "%)";
                     commentary.add("  - " + msg);
                     resultLines.add(msg);
                 }

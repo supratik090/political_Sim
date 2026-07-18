@@ -98,7 +98,24 @@ public class CooperationResolver {
     public String getOfferDescription(CooperationOffer offer) {
         if (offer.getType() == CooperationOffer.OfferType.LOBBYING) {
             StringBuilder sb = new StringBuilder();
-            sb.append("Lobbying support for bill '").append(offer.getLobbyBillKey()).append("' (Offers: ");
+            String billName = offer.getLobbyBillKey();
+            try {
+                com.politicalsim.content.LegislativeBillDefinitionRepository repo = gameService.getBillRepository();
+                if (repo != null) {
+                    com.politicalsim.content.LegislativeBillDefinition def = repo.findById(offer.getLobbyBillKey()).orElse(null);
+                    if (def == null) {
+                        def = repo.findAll().stream()
+                            .filter(b -> b.getBillKey().equals(offer.getLobbyBillKey()))
+                            .findFirst().orElse(null);
+                    }
+                    if (def != null && def.getName() != null) {
+                        billName = def.getName();
+                    }
+                }
+            } catch (Exception e) {
+                // Fallback to key
+            }
+            sb.append("Lobbying support for bill '").append(billName).append("' (Offers: ");
             List<String> itemsOffered = new ArrayList<>();
             if (offer.getOfferedCoins() > 0) itemsOffered.add(offer.getOfferedCoins() + " Coins");
             if (offer.getOfferedMorale() > 0) itemsOffered.add(offer.getOfferedMorale() + " Morale");
