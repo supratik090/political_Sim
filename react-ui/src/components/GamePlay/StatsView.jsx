@@ -350,23 +350,73 @@ export default function StatsView({
                     )}
                   </div>
 
-                  {/* Chart Bar */}
-                  <div style={{ display: 'flex', height: '24px', borderRadius: '6px', overflow: 'hidden', background: '#f3f4f6', marginBottom: '15px', border: '1px solid #e5e7eb' }}>
-                    {yes > 0 && (
-                      <div style={{ width: `${yes}%`, background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '10px', fontWeight: 'bold' }} title={`YES: ${yes.toFixed(1)}%`}>
-                        YES {yes.toFixed(1)}%
-                      </div>
-                    )}
-                    {no > 0 && (
-                      <div style={{ width: `${no}%`, background: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '10px', fontWeight: 'bold' }} title={`NO: ${no.toFixed(1)}%`}>
-                        NO {no.toFixed(1)}%
-                      </div>
-                    )}
-                    {abstain > 0 && (
-                      <div style={{ width: `${abstain}%`, background: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '10px', fontWeight: 'bold' }} title={`ABSTAIN: ${abstain.toFixed(1)}%`}>
-                        ABS {abstain.toFixed(1)}%
-                      </div>
-                    )}
+                  {/* Parliament semi-circle seating chart */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '15px 0' }}>
+                    <svg width="240" height="120" viewBox="0 0 240 120" style={{ overflow: 'visible' }}>
+                      <style dangerouslySetInnerHTML={{__html: `
+                        @keyframes seatPopStats {
+                          0% { transform: scale(0); opacity: 0; }
+                          70% { transform: scale(1.3); opacity: 0.8; }
+                          100% { transform: scale(1); opacity: 1; }
+                        }
+                      `}} />
+                      {(() => {
+                        const totalSeats = 100;
+                        const yesCount = Math.min(totalSeats, Math.round(yes));
+                        const abstainCount = Math.min(totalSeats - yesCount, Math.round(abstain));
+                        const noCount = Math.max(0, totalSeats - yesCount - abstainCount);
+
+                        const seats = [];
+                        const arcs = [
+                          { r: 35, count: 12 },
+                          { r: 55, count: 20 },
+                          { r: 75, count: 28 },
+                          { r: 95, count: 40 }
+                        ];
+                        
+                        arcs.forEach(arc => {
+                          for (let i = 0; i < arc.count; i++) {
+                            const angle = Math.PI - (i * Math.PI / (arc.count - 1));
+                            seats.push({
+                              x: 120 + arc.r * Math.cos(angle),
+                              y: 110 - arc.r * Math.sin(angle)
+                            });
+                          }
+                        });
+
+                        // Sort seats from left to right
+                        seats.sort((a, b) => a.x - b.x);
+
+                        return seats.map((s, index) => {
+                          let color = '#ef4444'; // default NO red
+                          if (index < yesCount) {
+                            color = '#22c55e'; // YES green
+                          } else if (index < yesCount + abstainCount) {
+                            color = '#9ca3af'; // ABSTAIN gray
+                          }
+
+                          return (
+                            <circle
+                              key={index}
+                              cx={s.x}
+                              cy={s.y}
+                              r="4.5"
+                              fill={color}
+                              style={{
+                                transformOrigin: `${s.x}px ${s.y}px`,
+                                animation: 'seatPopStats 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both',
+                                animationDelay: `${index * 0.008}s`
+                              }}
+                            />
+                          );
+                        });
+                      })()}
+                    </svg>
+                    <div style={{ display: 'flex', gap: '15px', fontSize: '11px', marginTop: '8px', fontWeight: 'bold' }}>
+                      <span style={{ color: '#22c55e' }}>● YES: {yes.toFixed(1)}%</span>
+                      <span style={{ color: '#ef4444' }}>● NO: {no.toFixed(1)}%</span>
+                      {abstain > 0 && <span style={{ color: '#9ca3af' }}>● ABS: {abstain.toFixed(1)}%</span>}
+                    </div>
                   </div>
 
                   {/* Vote Breakdown by Party */}
@@ -422,76 +472,102 @@ export default function StatsView({
         alignItems: 'center',
         boxShadow: '0 4px 15px rgba(33,60,81,0.05)'
       }}>
-        {/* Left: SVG Doughnut Chart */}
-        <div style={{ flex: '1 1 200px', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+        {/* Left: SVG Parliament Assembly Diagram for Voter Support */}
+        <div style={{ flex: '1 1 240px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
           {(() => {
             const activeParties = (turnData.parties || []).filter(p => p.role !== 'DEFEATED');
             const partiesSum = activeParties.reduce((sum, p) => sum + (p.stats?.publicSupport || 0), 0);
             const undecidedSupport = Math.max(0, 100 - partiesSum);
 
-            const slices = activeParties.map(p => ({
+            const shares = activeParties.map(p => ({
               name: p.name,
               value: p.stats?.publicSupport || 0,
-              color: getPartyColor(p),
-              isPlayer: p.id === myPartyId
+              color: getPartyColor(p)
             }));
 
             if (undecidedSupport > 0) {
-              slices.push({
-                name: 'Undecided Voters',
+              shares.push({
+                name: 'Undecided',
                 value: undecidedSupport,
-                color: '#9ca3af', // Gray
-                isPlayer: false
+                color: '#9ca3af'
               });
             }
 
-            const total = 100;
-            const radius = 35;
-            const circ = 2 * Math.PI * radius; // ~219.91
-            let cumulativePercent = 0;
+            let seatAssignments = [];
+            shares.forEach(share => {
+              const seatCount = Math.round(share.value);
+              for (let i = 0; i < seatCount; i++) {
+                seatAssignments.push(share.color);
+              }
+            });
+
+            // Ensure exactly 100 seats
+            while (seatAssignments.length < 100) {
+              seatAssignments.push('#9ca3af');
+            }
+            if (seatAssignments.length > 100) {
+              seatAssignments = seatAssignments.slice(0, 100);
+            }
+
+            const seats = [];
+            const arcs = [
+              { r: 35, count: 12 },
+              { r: 55, count: 20 },
+              { r: 75, count: 28 },
+              { r: 95, count: 40 }
+            ];
+            
+            arcs.forEach(arc => {
+              for (let i = 0; i < arc.count; i++) {
+                const angle = Math.PI - (i * Math.PI / (arc.count - 1));
+                seats.push({
+                  x: 120 + arc.r * Math.cos(angle),
+                  y: 110 - arc.r * Math.sin(angle)
+                });
+              }
+            });
+
+            // Sort seats from left to right so parties sit grouped together
+            seats.sort((a, b) => a.x - b.x);
 
             return (
-              <div style={{ position: 'relative', width: '200px', height: '200px' }}>
-                <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-                  {slices.map((slice, idx) => {
-                    const pct = (slice.value / total) * 100;
-                    const strokeLength = (pct / 100) * circ;
-                    const strokeOffset = - (cumulativePercent / 100) * circ;
-                    cumulativePercent += pct;
+              <div style={{ width: '240px', height: '130px', position: 'relative', marginTop: '10px' }}>
+                <svg width="240" height="120" viewBox="0 0 240 120" style={{ overflow: 'visible' }}>
+                  <style dangerouslySetInnerHTML={{__html: `
+                    @keyframes seatPopStandings {
+                      0% { transform: scale(0); opacity: 0; }
+                      70% { transform: scale(1.3); opacity: 0.8; }
+                      100% { transform: scale(1); opacity: 1; }
+                    }
+                  `}} />
+                  {seats.map((s, index) => {
+                    const color = seatAssignments[index] || '#9ca3af';
                     return (
                       <circle
-                        key={idx}
-                        cx="50"
-                        cy="50"
-                        r={radius}
-                        fill="transparent"
-                        stroke={slice.color}
-                        strokeWidth="14"
-                        strokeDasharray={`${strokeLength} ${circ}`}
-                        strokeDashoffset={strokeOffset}
+                        key={index}
+                        cx={s.x}
+                        cy={s.y}
+                        r="4.5"
+                        fill={color}
                         style={{
-                          transition: 'stroke-dashoffset 0.8s ease-in-out, stroke-dasharray 0.8s ease-in-out',
-                          cursor: 'pointer'
+                          transformOrigin: `${s.x}px ${s.y}px`,
+                          animation: 'seatPopStandings 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both',
+                          animationDelay: `${index * 0.005}s`
                         }}
-                        title={`${slice.name}: ${slice.value}%`}
                       />
                     );
                   })}
                 </svg>
-                {/* Center text of the Doughnut Chart */}
                 <div style={{
                   position: 'absolute',
-                  top: '50%',
+                  bottom: '5px',
                   left: '50%',
-                  transform: 'translate(-50%, -50%)',
+                  transform: 'translateX(-50%)',
                   textAlign: 'center',
                   fontFamily: "'Inter', sans-serif"
                 }}>
-                  <div style={{ fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase', opacity: 0.6, letterSpacing: '0.05em' }}>
-                    Voter Support
-                  </div>
-                  <div style={{ fontSize: '24px', fontWeight: '900', color: 'var(--primary-dark)' }}>
-                    100%
+                  <div style={{ fontSize: '11px', fontWeight: '900', color: 'var(--primary-dark)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Assembly seats
                   </div>
                 </div>
               </div>

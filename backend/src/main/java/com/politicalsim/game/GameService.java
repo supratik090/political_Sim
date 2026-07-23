@@ -3037,10 +3037,10 @@ public class GameService {
             sender.getStats().setMediaImage(Math.max(0, sender.getStats().getMediaImage() - mediaLoss));
             sender.getStats().setPartyMorale(Math.max(0, sender.getStats().getPartyMorale() - moraleLoss));
 
-            String msg = String.format("🚨 Bribe Refused & Exposed: %s attempted to bribe %s's %s but was refused! %s loses -%d Media Image (-10%%) and -%d Party Morale (-5%%).",
+            String msg = String.format("🚨 Bribe Scandal Exposed! %s attempted to bribe %s's %s but was refused! %s loses -%d Media Image (-10%%) and -%d Party Morale (-5%%).",
                     sender.getName(), targetParty.getName(), fs.getName(), sender.getName(), mediaLoss, moraleLoss);
             session.getPendingSabotageCommentary().add(msg);
-            session.getPendingSabotageResults().add("🚨 " + sender.getName() + " bribe attempt on " + targetParty.getName() + "'s " + fs.getName() + " exposed!");
+            session.getPendingSabotageResults().add("🚨 Bribe Scandal Exposed! " + sender.getName() + " bribe attempt on " + targetParty.getName() + "'s " + fs.getName() + " exposed!");
         }
 
         gameSessionService.save(session);

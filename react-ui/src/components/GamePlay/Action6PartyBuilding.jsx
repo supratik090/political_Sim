@@ -28,9 +28,7 @@ export default function Action6PartyBuilding({
   
   const selectedProjects = activeProjects.filter(p => 
     p.progressPercent < 100 && 
-    p.progressPercent > 0 &&
-    !fundedThisTurn.includes(p.id) &&
-    !fundedThisTurn.includes(p.projectKey)
+    p.progressPercent > 0
   );
   
   const capReached = fundedThisTurn.length >= 3;
@@ -105,7 +103,7 @@ export default function Action6PartyBuilding({
       {completedProjects.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
           <h5 style={{ margin: '0 0 10px 0', fontSize: '13px', color: 'var(--primary-dark)', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '4px' }}>Completed Infrastructure</h5>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
             {completedProjects.map((proj, idx) => {
               const pDef = PROJECT_DEFS[proj.projectKey] || {};
               const projId = proj.id || proj.projectKey;
@@ -154,7 +152,7 @@ export default function Action6PartyBuilding({
                         </span>
                       )}
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--card-text)', marginTop: '2px' }}>Yield: {pDef.yield}</div>
+
                     {pDef.offensive ? (
                       <div style={{ marginTop: '8px' }}>
                         <label htmlFor={`target-${projId}`} style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>🎯 Target:</label>
@@ -234,127 +232,162 @@ export default function Action6PartyBuilding({
               const costForContrib = getProgressCost(pDef, chosenContrib);
               const canAfford = canAffordCost(costForContrib, activeParty.stats);
 
-              return (
-                <div 
-                  key={proj.id || `${proj.projectKey}-in-progress-${idx}`} 
-                  className="themed-action-card"
-                  style={{ 
-                    border: '2.5px solid #3b82f6', 
-                    borderRadius: '8px', 
-                    padding: '12px', 
-                    background: 'rgba(59, 130, 246, 0.06)',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {/* Faint Background Watermark */}
-                  <div className="themed-card-watermark">
-                    <SymbolIcon size={64} color="#93c5fd" />
+                const blueprintBg = 'linear-gradient(135deg, #1e3a8a 0%, #172554 100%)';
+                const blueprintGrid = 'repeating-linear-gradient(0deg, rgba(255,255,255,0.07), rgba(255,255,255,0.07) 1px, transparent 1px, transparent 12px), repeating-linear-gradient(90deg, rgba(255,255,255,0.07), rgba(255,255,255,0.07) 1px, transparent 1px, transparent 12px)';
+
+                return (
+                  <div 
+                    key={proj.id || `${proj.projectKey}-in-progress-${idx}`} 
+                    className="themed-action-card"
+                    style={{ 
+                      border: '2px dashed #60a5fa', 
+                      borderRadius: '12px', 
+                      padding: '15px', 
+                      backgroundImage: `${blueprintGrid}, ${blueprintBg}`,
+                      position: 'relative',
+                      overflow: 'hidden',
+                      color: '#ffffff',
+                      boxShadow: '0 6px 20px rgba(30, 58, 138, 0.2)'
+                    }}
+                  >
+                    {/* Faint Background Watermark */}
+                    <div className="themed-card-watermark">
+                      <SymbolIcon size={64} color="rgba(96, 165, 250, 0.15)" />
+                    </div>
+
+                    {/* Bottom Right Corner Ribbon */}
+                    <div className="themed-card-ribbon" style={{ background: '#3b82f6' }}>
+                      <SymbolIcon size={10} color="#ffffff" style={{ marginRight: '1px', marginBottom: '1px', filter: 'brightness(0) invert(1)' }} />
+                    </div>
+
+                    <div style={{ position: 'relative', zIndex: 2 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ fontWeight: '900', fontSize: '14px', color: '#93c5fd', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          📐 {pDef.name || proj.projectKey} [UNDER CONSTRUCTION]
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '4px' }}>
+                        Total Cost: {pDef.cost}
+                      </div>
+                      
+                      <div style={{ marginTop: '12px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px', fontWeight: 'bold' }}>
+                          <span>Funding Progress: {progress}%</span>
+                          {chosenContrib > 0 && <span style={{ color: '#4ade80' }}>+ {chosenContrib}%</span>}
+                        </div>
+                        <div style={{ width: '100%', height: '8px', background: 'rgba(0,0,0,0.3)', borderRadius: '4px', overflow: 'hidden', display: 'flex', border: '1px solid rgba(255,255,255,0.1)' }}>
+                          <div style={{ width: `${progress}%`, background: '#3b82f6' }} />
+                          <div style={{ width: `${chosenContrib}%`, background: '#22c55e' }} />
+                        </div>
+                      </div>
+
+                      {(() => {
+                        const isAlreadyFunded = fundedThisTurn.includes(proj.id) || fundedThisTurn.includes(proj.projectKey);
+                        if (isAlreadyFunded) {
+                          return (
+                            <div style={{
+                              marginTop: '12px',
+                              background: 'rgba(34, 197, 94, 0.15)',
+                              border: '1.5px solid #22c55e',
+                              color: '#4ade80',
+                              padding: '8px 12px',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              textAlign: 'center'
+                            }}>
+                              ✅ Construction Funding Submitted (Locked This Turn)
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <>
+                            <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <label htmlFor={`contrib-${projId}`} style={{ fontSize: '11px', fontWeight: 'bold', color: '#93c5fd' }}>Add Funding %:</label>
+                                <select
+                                  id={`contrib-${projId}`}
+                                  value={chosenContrib}
+                                  disabled={partyBuildingConfirmed}
+                                  onChange={(e) => {
+                                    const val = parseInt(e.target.value);
+                                    setFundingContributions(prev => ({ ...prev, [projId]: val }));
+                                    setPartyBuildingConfirmed(false);
+                                  }}
+                                  style={{ padding: '3px', fontSize: '11px', borderRadius: '4px', background: '#1e293b', color: '#ffffff', border: '1px solid #475569' }}
+                                >
+                                  {presets.map(val => (
+                                    <option key={val} value={val}>+{val}%</option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              <div style={{ fontSize: '11px', color: canAfford ? '#cbd5e1' : '#f87171', fontWeight: chosenContrib > 0 ? 'bold' : 'normal' }}>
+                                Cost: {costForContrib.coins} Coins
+                                {costForContrib.morale > 0 && `, ${costForContrib.morale} Morale`}
+                                {costForContrib.corruption > 0 && `, ${costForContrib.corruption} Corruption`}
+                                {costForContrib.media > 0 && `, ${costForContrib.media} Media`}
+                                {costForContrib.support > 0 && `, ${costForContrib.support}% Support`}
+                                {!canAfford && chosenContrib > 0 && " ⚠️ (CANNOT AFFORD)"}
+                              </div>
+                            </div>
+
+                            <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+                              {chosenContrib > 0 && canAfford && (
+                                <button
+                                  disabled={partyBuildingConfirmed || capReached}
+                                  onClick={() => handleFundProject(projId, chosenContrib)}
+                                  style={{
+                                    padding: '6px 15px',
+                                    fontSize: '11px',
+                                    background: capReached ? 'gray' : '#22c55e',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    fontWeight: 'bold',
+                                    cursor: capReached ? 'not-allowed' : 'pointer',
+                                    borderRadius: '4px',
+                                    boxShadow: '0 4px 10px rgba(34,197,94,0.3)'
+                                  }}
+                                >
+                                  🏗️ Confirm Funding
+                                </button>
+                              )}
+
+                              {progress > 0 && (
+                                <button
+                                  disabled={partyBuildingConfirmed}
+                                  onClick={() => {
+                                    const refundCoins = Math.ceil((pDef.costCoins || 0) * progress / 100.0);
+                                    setDestroyingProject({
+                                      projectKey: projId,
+                                      refundCoins,
+                                      name: pDef.name || proj.projectKey,
+                                      isInProgress: true
+                                    });
+                                  }}
+                                  style={{
+                                    padding: '6px 15px',
+                                    fontSize: '11px',
+                                    background: '#ef4444',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer',
+                                    borderRadius: '4px',
+                                    boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)'
+                                  }}
+                                >
+                                  🗑️ Scrap &amp; Refund ({Math.ceil((pDef.costCoins || 0) * progress / 100.0)} 💰)
+                                </button>
+                              )}
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
                   </div>
-
-                  {/* Bottom Right Corner Ribbon */}
-                  <div className="themed-card-ribbon">
-                    <SymbolIcon size={10} color="#ffffff" style={{ marginRight: '1px', marginBottom: '1px', filter: 'brightness(0) invert(1)' }} />
-                  </div>
-
-                  <div style={{ position: 'relative', zIndex: 2 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#1d4ed8' }}>{pDef.name || proj.projectKey}</div>
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'var(--card-text)', marginTop: '2px' }}>Total Cost: {pDef.cost} | Yield: {pDef.yield}</div>
-                    
-                    <div style={{ marginTop: '8px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px' }}>
-                        <span>Funding: <b>{progress}%</b></span>
-                        {chosenContrib > 0 && <span style={{ color: '#22c55e', marginLeft: '6px' }}>+ {chosenContrib}%</span>}
-                      </div>
-                      <div style={{ width: '100%', height: '8px', background: 'rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
-                        <div style={{ width: `${progress}%`, background: '#3b82f6' }} />
-                        <div style={{ width: `${chosenContrib}%`, background: '#22c55e' }} />
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <label htmlFor={`contrib-${projId}`} style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>Add Funding %:</label>
-                        <select
-                          id={`contrib-${projId}`}
-                          value={chosenContrib}
-                          disabled={partyBuildingConfirmed}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value);
-                            setFundingContributions(prev => ({ ...prev, [projId]: val }));
-                            setPartyBuildingConfirmed(false);
-                          }}
-                          style={{ padding: '3px', fontSize: '11px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}
-                        >
-                          {presets.map(val => (
-                            <option key={val} value={val}>+{val}%</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div style={{ fontSize: '11px', color: canAfford ? 'var(--card-text)' : '#d23f31', fontWeight: chosenContrib > 0 ? 'bold' : 'normal' }}>
-                        Cost: {costForContrib.coins} Coins
-                        {costForContrib.morale > 0 && `, ${costForContrib.morale} Morale`}
-                        {costForContrib.corruption > 0 && `, ${costForContrib.corruption} Corruption`}
-                        {costForContrib.media > 0 && `, ${costForContrib.media} Media`}
-                        {costForContrib.support > 0 && `, ${costForContrib.support}% Support`}
-                        {!canAfford && chosenContrib > 0 && " ⚠️ (CANNOT AFFORD)"}
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
-                      {chosenContrib > 0 && canAfford && (
-                        <button
-                          disabled={partyBuildingConfirmed || capReached}
-                          onClick={() => handleFundProject(projId, chosenContrib)}
-                          style={{
-                            padding: '6px 15px',
-                            fontSize: '11px',
-                            background: capReached ? 'gray' : '#22c55e',
-                            color: '#ffffff',
-                            border: 'none',
-                            fontWeight: 'bold',
-                            cursor: capReached ? 'not-allowed' : 'pointer',
-                            borderRadius: '4px'
-                          }}
-                        >
-                          🏗️ Confirm Funding
-                        </button>
-                      )}
-
-                      {progress > 0 && (
-                        <button
-                          disabled={partyBuildingConfirmed}
-                          onClick={() => {
-                            const refundCoins = Math.ceil((pDef.costCoins || 0) * progress / 100.0);
-                            setDestroyingProject({
-                              projectKey: projId,
-                              refundCoins,
-                              name: pDef.name || proj.projectKey,
-                              isInProgress: true
-                            });
-                          }}
-                          style={{
-                            padding: '6px 15px',
-                            fontSize: '11px',
-                            background: '#ef4444',
-                            color: '#ffffff',
-                            border: 'none',
-                            fontWeight: 'bold',
-                            cursor: 'pointer',
-                            borderRadius: '4px',
-                            boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)'
-                          }}
-                        >
-                          🗑️ Scrap &amp; Refund ({Math.ceil((pDef.costCoins || 0) * progress / 100.0)} 💰)
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
+                );
             })}
           </div>
         </div>

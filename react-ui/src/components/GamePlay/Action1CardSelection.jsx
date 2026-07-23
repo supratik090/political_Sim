@@ -104,15 +104,21 @@ export default function Action1CardSelection({
                   padding: '12px',
                   background: isCardSelected ? 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.08)' : '#ffffff',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: isCardSelected ? '0 4px 12px rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.15)' : 'none',
+                  transition: 'all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                  boxShadow: isCardSelected ? '0 8px 16px rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.25)' : '0 2px 4px rgba(0,0,0,0.05)',
                   position: 'relative',
-                  overflow: 'hidden'
+                  overflow: 'hidden',
+                  transform: isCardSelected ? 'scale(1.02)' : 'scale(1)',
+                  perspective: '1000px'
                 }}
                 onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.06) translateY(-6px) rotate3d(1, 1, 0, 8deg)';
+                  e.currentTarget.style.boxShadow = '0 15px 30px rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.35)';
                   if (!isCardSelected) e.currentTarget.style.background = 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.02)';
                 }}
                 onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = isCardSelected ? 'scale(1.02)' : 'scale(1) translateY(0) rotate3d(0, 0, 0, 0deg)';
+                  e.currentTarget.style.boxShadow = isCardSelected ? '0 8px 16px rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.25)' : '0 2px 4px rgba(0,0,0,0.05)';
                   if (!isCardSelected) e.currentTarget.style.background = '#ffffff';
                 }}
               >

@@ -136,6 +136,44 @@ export default function Action2NewsReaction({
                   {options.map(opt => {
                     const optKey = opt.reactionKey || opt.optionKey;
                     const isSelected = currentReaction === optKey;
+                    
+                    // Determine style based on effects
+                    const rawEffects = opt.effects || {};
+                    const effects = rawEffects.playerParty || rawEffects; // Handles both nested playerParty and flat styles
+                    let isPositive = false;
+                    let isNegative = false;
+                    Object.entries(effects).forEach(([key, val]) => {
+                      const num = Number(val) || 0;
+                      if (key === 'corruptionScore') {
+                        if (num > 0) isNegative = true;
+                        if (num < 0) isPositive = true;
+                      } else {
+                        if (num > 0) isPositive = true;
+                        if (num < 0) isNegative = true;
+                      }
+                    });
+
+                    let borderStyle = isSelected ? `2.5px solid var(--party-primary-color)` : '1px solid #d6d3d1';
+                    let backgroundStyle = isSelected ? 'var(--party-primary-color)' : '#ffffff';
+                    let textColor = isSelected ? '#ffffff' : '#1c1917';
+                    let indicator = isSelected ? '🖋️ ' : '○ ';
+
+                    if (!isSelected) {
+                      if (isPositive && !isNegative) {
+                        borderStyle = '1.5px solid #22c55e';
+                        backgroundStyle = 'rgba(34, 197, 94, 0.03)';
+                        indicator = '📈 ';
+                      } else if (isNegative && !isPositive) {
+                        borderStyle = '1.5px solid #ef4444';
+                        backgroundStyle = 'rgba(239, 68, 68, 0.03)';
+                        indicator = '📉 ';
+                      } else if (isPositive && isNegative) {
+                        borderStyle = '1.5px solid #f59e0b';
+                        backgroundStyle = 'rgba(245, 158, 11, 0.03)';
+                        indicator = '⚡ ';
+                      }
+                    }
+
                     return (
                       <button
                         key={optKey}
@@ -145,9 +183,9 @@ export default function Action2NewsReaction({
                           padding: '10px 14px',
                           borderRadius: '6px',
                           fontSize: '12px',
-                          background: isSelected ? 'var(--party-primary-color)' : '#ffffff',
-                          color: isSelected ? '#ffffff' : '#1c1917',
-                          border: isSelected ? '1px solid var(--party-primary-color)' : '1px solid #d6d3d1',
+                          background: backgroundStyle,
+                          color: textColor,
+                          border: borderStyle,
                           boxShadow: isSelected ? '0 4px 10px rgba(var(--party-primary-color-rgb), 0.2)' : 'none',
                           fontWeight: isSelected ? 'bold' : 'normal',
                           transition: 'all 0.15s ease',
@@ -157,17 +195,17 @@ export default function Action2NewsReaction({
                         onMouseEnter={(e) => {
                           if (!isSelected) {
                             e.currentTarget.style.background = '#fafaf9';
-                            e.currentTarget.style.borderColor = '#a8a29e';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!isSelected) {
-                            e.currentTarget.style.background = '#ffffff';
-                            e.currentTarget.style.borderColor = '#d6d3d1';
+                            e.currentTarget.style.background = backgroundStyle;
+                            e.currentTarget.style.transform = 'translateY(0)';
                           }
                         }}
                       >
-                        {isSelected ? '🖋️ [Selected] ' : '○ '}{opt.text}
+                        {indicator}{opt.text}
                       </button>
                     );
                   })}

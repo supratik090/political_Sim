@@ -118,9 +118,48 @@ export default function Action4Bid({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '350px', margin: '0 0 20px 0' }}>
-        {/* Option 2: Number Box */}
+        {/* Slider Input Pressure Gauge */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label htmlFor="custom-bid-slider" style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-dark)', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+            Pressure Gauge Slider:
+          </label>
+          <input
+            id="custom-bid-slider"
+            type="range"
+            min="0"
+            max={maxBid}
+            value={bidAmount}
+            disabled={bidConfirmed}
+            onChange={(e) => {
+              setBidAmount(parseInt(e.target.value) || 0);
+            }}
+            style={{
+              width: '100%',
+              cursor: bidConfirmed ? 'not-allowed' : 'pointer',
+              accentColor: bidAmount <= 5 ? '#3b82f6' : (bidAmount < 15 ? '#eab308' : '#ef4444')
+            }}
+          />
+          {/* Pressure level indicator text */}
+          <div style={{
+            fontSize: '11px',
+            fontWeight: 'bold',
+            color: bidAmount <= 5 ? '#3b82f6' : (bidAmount < 15 ? '#d97706' : '#ef4444'),
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: '2px'
+          }}>
+            <span>
+              {bidAmount <= 5 ? '❄️ Low Investment' : (bidAmount < 15 ? '🔥 Competitive Bid' : '🚨 High Stakes / Max Pressure!')}
+            </span>
+            <span>
+              {Math.round((bidAmount / maxBid) * 100 || 0)}%
+            </span>
+          </div>
+        </div>
+
+        {/* Custom Number Input */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <label htmlFor="custom-bid-input" style={{ fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap', color: 'var(--primary-dark)' }}>Bid Amount:</label>
+          <label htmlFor="custom-bid-input" style={{ fontSize: '12px', fontWeight: 'bold', whiteSpace: 'nowrap', color: 'var(--primary-dark)' }}>Manual Amount:</label>
           <input 
             id="custom-bid-input"
             type="number" 
