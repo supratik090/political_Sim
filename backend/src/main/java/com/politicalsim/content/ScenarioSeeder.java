@@ -24,6 +24,16 @@ public class ScenarioSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                performScenarioSeeding();
+            } catch (Exception e) {
+                org.slf4j.LoggerFactory.getLogger(ScenarioSeeder.class).error("Error during background scenario seeding", e);
+            }
+        });
+    }
+
+    private void performScenarioSeeding() {
         // 2001 Era Scenarios
         seedScenario("west_bengal_2000", "West Bengal 2000", "West Bengal",
                 "Fictionalized Indian state scenario inspired by long incumbency, organized cadre politics, rural unrest, and a rising opposition mood.",

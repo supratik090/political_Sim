@@ -1,40 +1,86 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap');
 
+/* ====================================================
+   DESIGN TOKENS
+   ==================================================== */
 :root {
   /* Base App Theme */
-  --primary-background: #E6E6FA; /* Lavender */
-  --text-primary: #000000;
-  --text-secondary: #475569;
-  
+  --primary-background: #EEF0F8;    /* Cooler lavender-white — cleaner on Android LCD */
+  --text-primary: #0F1C28;          /* Near-black — softer, rich contrast */
+  --text-secondary: #4A5568;        /* Warm slate — 5.1:1 contrast on bg */
+
   /* Primary Elements & Borders */
-  --primary-dark: #213C51;       /* Deep Blue */
-  --primary-border: #b0cbe0;     /* Lighter Steel Blue */
-  
+  --primary-dark: #1A3448;          /* Richer Deep Blue */
+  --primary-border: #9DBDD6;        /* Steel Blue */
+
   /* Interactive Elements (Buttons, Inputs) */
-  --button-bg: #213C51;
+  --button-bg: #1A3448;
   --button-text: #ffffff;
-  --button-hover-bg: #192e3e;
-  --button-disabled-bg: #192e3e;
-  --button-disabled-text: rgba(255, 255, 255, 0.6);
-  
-  /* Selected State */
-  --selected-highlight: #22c55e; /* Green */
-  
+  --button-hover-bg: #142839;
+  --button-disabled-bg: #3A5469;    /* Lighter disabled — better distinction */
+  --button-disabled-text: rgba(255, 255, 255, 0.45);
+
+  /* Selected / Accent State */
+  --selected-highlight: #16A34A;        /* Slightly darker green — better contrast */
+  --selected-highlight-light: rgba(22, 163, 74, 0.12);
+
   /* Unified Dashboard & Cards */
-  --card-bg: #ffffff;            /* Clean White */
-  --card-border: #b0cbe0;        /* Lighter Steel Blue */
-  --card-text: #213C51;          /* Deep Blue */
+  --card-bg: #ffffff;
+  --card-border: #C5D8E8;           /* Softer border */
+  --card-text: #1A3448;
+
+  /* Android Safe Area support */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+
+  /* ── Typography Scale ── */
+  --text-xs:   12px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-md:   17px;
+  --text-lg:   20px;
+  --text-xl:   24px;
+  --text-2xl:  32px;
+
+  /* Line heights */
+  --leading-tight:   1.25;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.7;
+
+  /* Letter spacing */
+  --tracking-tight:  -0.02em;
+  --tracking-normal:  0em;
+  --tracking-wide:    0.05em;
+  --tracking-wider:   0.10em;
+
+  /* ── Spacing Scale ── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;  /* Minimum Android touch target height */
 }
 
+/* ====================================================
+   BASE RESET
+   ==================================================== */
 html, body {
   margin: 0;
   padding: 0;
   background-color: var(--primary-background);
   color: var(--text-primary);
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  /* Prevent content from shifting behind status bar on Android */
+  padding-top: var(--safe-top);
 }
 
 * {
@@ -51,37 +97,67 @@ html, body {
   color: #ffffff;
 }
 
-/* Global Button Styles */
+/* ====================================================
+   GLOBAL BUTTON STYLES — Android Optimised
+   ==================================================== */
 button {
   background-color: var(--button-bg);
   color: var(--button-text);
   border: 1px solid var(--button-bg);
-  border-radius: 8px;
-  font-family: 'Montserrat', sans-serif;
+  border-radius: 10px;              /* Was 8px — more Android-native */
+  font-family: 'Montserrat', system-ui, sans-serif;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;                  /* Was 14px */
   letter-spacing: 0.03em;
-  padding: 10px 20px;
+  padding: 12px 20px;               /* Was 10px 20px */
+  min-height: 44px;                 /* Soft floor for touch targets */
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(33, 60, 81, 0.15);
+  box-shadow: 0 4px 6px rgba(26, 52, 72, 0.15);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Android touch optimisations */
+  touch-action: manipulation;        /* Eliminates 300ms tap delay */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+
+  /* Needed for ripple ::after */
+  position: relative;
+  overflow: hidden;
 }
 
-button:hover:not(:disabled) {
-  background-color: var(--button-hover-bg);
-  border-color: var(--button-hover-bg);
-  box-shadow: 0 6px 12px rgba(33, 60, 81, 0.25);
-  transform: translateY(-2px);
+/* Android Ripple Effect — pure CSS */
+button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.18);
+  opacity: 0;
+  border-radius: inherit;
+  transition: opacity 0.1s ease;
+  pointer-events: none;
+}
+button:active:not(:disabled)::after {
+  opacity: 1;
+}
+
+/* Hover only for mouse/trackpad — NOT triggered on Android touch */
+@media (hover: hover) and (pointer: fine) {
+  button:hover:not(:disabled) {
+    background-color: var(--button-hover-bg);
+    border-color: var(--button-hover-bg);
+    box-shadow: 0 6px 12px rgba(26, 52, 72, 0.25);
+    transform: translateY(-2px);
+  }
 }
 
 button:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: scale(0.97);           /* Scale feels more native than translateY on touch */
 }
 
 button:disabled {
   background-color: var(--button-disabled-bg);
   color: var(--button-disabled-text);
-  border-color: rgba(33, 60, 81, 0.1);
+  border-color: rgba(26, 52, 72, 0.15);
   box-shadow: none;
   cursor: not-allowed;
 }
@@ -90,7 +166,7 @@ button.selected {
   background-color: var(--button-bg);
   color: var(--selected-highlight);
   border: 1.5px solid var(--selected-highlight);
-  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.2);
 }
 
 button.selected:hover {
@@ -98,18 +174,72 @@ button.selected:hover {
   border-color: var(--selected-highlight);
 }
 
-/* Global Inputs */
-input[type="text"], input[type="password"], input[type="email"], input[type="number"], select {
+/* ── CTA Primary Button (End Turn) ── */
+.btn-primary-cta {
+  width: 100%;
+  min-height: 56px;
+  font-size: 17px;
+  font-weight: 900;
+  border-radius: 14px;
+  letter-spacing: 0.04em;
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.35);
+}
+
+/* ── Danger Button (Skip Turn) ── */
+.btn-danger {
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%) !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  padding: 10px 18px !important;
+  min-height: 40px;
+  border: none !important;
+  border-radius: 20px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3) !important;
+}
+
+/* ── Pulse Highlight Utility ── */
+@keyframes btnHighlightPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.8), 0 4px 6px rgba(26, 52, 72, 0.15);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 25px 8px rgba(14, 165, 233, 0.9), 0 8px 20px rgba(14, 165, 233, 0.4);
+    border-color: #38bdf8;
+  }
+}
+
+.btn-pulse-highlight {
+  animation: btnHighlightPulse 1.2s ease-in-out infinite !important;
+  background-color: #0ea5e9 !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+}
+
+/* ====================================================
+   GLOBAL INPUTS
+   ==================================================== */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+select {
   background-color: var(--primary-dark);
   color: #ffffff;
   border: 1.5px solid var(--primary-border);
-  border-radius: 4px;
-  padding: 10px 12px;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 14px;
+  border-radius: 8px;               /* Was 4px — more modern */
+  padding: 13px 14px;               /* Was 10px 12px — min-height ~48px */
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 15px;                  /* Was 14px */
+  min-height: 48px;
   outline: none;
   transition: border-color 0.2s;
   width: 100%;
+  touch-action: manipulation;
 }
 
 input:focus, select:focus {
@@ -117,30 +247,64 @@ input:focus, select:focus {
 }
 
 input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.55);
 }
 
+/* ── Range slider — bigger thumb for touch ── */
+input[type="range"] {
+  height: 6px;
+  border-radius: 3px;
+  accent-color: var(--selected-highlight);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--selected-highlight);
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.4);
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--selected-highlight);
+  border: none;
+  cursor: pointer;
+}
+
+/* ====================================================
+   UNIFIED CARD
+   ==================================================== */
 .unified-card {
   background-color: var(--card-bg);
-  border: 2px solid var(--card-border);
+  border: 1.5px solid var(--card-border);  /* Was 2px */
   color: var(--card-text);
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 10px rgba(33, 60, 81, 0.05);
+  border-radius: 14px;              /* Was 12px */
+  padding: 18px;                    /* Was 16px */
+  box-shadow: 0 2px 8px rgba(26, 52, 72, 0.07);
 }
 
+/* ====================================================
+   ANIMATIONS
+   ==================================================== */
 @keyframes pulse-soft {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.2);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+    box-shadow: 0 4px 20px rgba(22, 163, 74, 0.4);
   }
 }
 
-/* Layout & Container Classes */
+/* ====================================================
+   LAYOUT & CONTAINER CLASSES
+   ==================================================== */
 .dashboard-container {
   padding: 20px;
   max-width: 1200px;
@@ -179,14 +343,14 @@ input::placeholder {
   margin-bottom: 25px;
   text-align: center;
   color: #ffffff;
-  box-shadow: 0 10px 30px rgba(33,60,81,0.1);
+  box-shadow: 0 10px 30px rgba(26, 52, 72, 0.1);
 }
 
 .game-title-h1 {
-  font-size: 40px;
+  font-size: 36px;                  /* Was 40px */
   font-weight: 900;
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.06em;
   color: #ffffff;
 }
 
@@ -197,6 +361,7 @@ input::placeholder {
   color: #ffffff;
 }
 
+/* ── View Toggle ── */
 .view-toggle-bar {
   display: flex;
   gap: 10px;
@@ -205,10 +370,12 @@ input::placeholder {
 
 .view-toggle-button {
   flex: 1;
-  padding: 15px;
-  font-size: 16px;
+  padding: 14px 10px;               /* Was 15px */
+  font-size: 15px;                  /* Was 16px */
+  min-height: 50px;
 }
 
+/* ── Cycle Reward Pane ── */
 .cycle-reward-pane {
   flex: 1 1 300px;
   border-left: 1px solid rgba(101, 148, 177, 0.3);
@@ -217,165 +384,104 @@ input::placeholder {
   border-top: none;
 }
 
+/* ====================================================
+   FLOATING NAV ARROW — safe area aware
+   ==================================================== */
 .floating-nav-arrow {
   position: fixed;
-  right: 25px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: calc(16px + var(--safe-right));
+  bottom: calc(80px + var(--safe-bottom));
+  top: auto;
+  transform: none;
   background: linear-gradient(135deg, var(--selected-highlight) 0%, #15803d 100%);
   color: #ffffff;
-  width: 64px;
-  height: 64px;
+  width: 56px;                      /* Was 64px */
+  height: 56px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 8px 25px rgba(34, 19, 94, 0.4);
+  box-shadow: 0 8px 25px rgba(22, 163, 74, 0.4);
   z-index: 1000;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 3px solid #ffffff;
   animation: pulse-soft 2s infinite ease-in-out;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.floating-nav-arrow:hover {
-  transform: translateY(-50%) scale(1.12);
-  box-shadow: 0 12px 30px rgba(34, 19, 94, 0.6);
+@media (hover: hover) and (pointer: fine) {
+  .floating-nav-arrow:hover {
+    transform: scale(1.12);
+    box-shadow: 0 12px 30px rgba(22, 163, 74, 0.6);
+  }
+}
+.floating-nav-arrow:active {
+  transform: scale(0.95);
 }
 
+/* ====================================================
+   CREATE PARTY GRID
+   ==================================================== */
 .create-party-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 15px;
 }
 
-/* Mobile Responsiveness Rules (Samsung Galaxy & Mobile Devices) */
-@media (max-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .create-party-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .dashboard-container {
-    padding: 10px;
-  }
-
-  .dashboard-top-nav {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-
-  .nav-subtitle {
-    display: none; /* Hide subtitle to save vertical space on mobile */
-  }
-
-  .dashboard-top-nav-buttons {
-    justify-content: center;
-  }
-
-  .dashboard-top-nav-buttons button {
-    flex: 1;
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-
-  .game-board-container {
-    padding: 12px 6px;
-  }
-
-  .game-title-banner {
-    padding: 15px 10px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-  }
-
-  .banner-subtitle {
-    font-size: 10px !important;
-  }
-
-  .game-title-h1 {
-    font-size: 24px;
-  }
-
-  .game-title-p {
-    font-size: 12px;
-    margin-top: 4px;
-  }
-
-  .view-toggle-bar {
-    gap: 6px;
-    margin-bottom: 12px;
-  }
-
-  .view-toggle-button {
-    padding: 10px 8px;
-    font-size: 12px;
-    border-radius: 6px;
-  }
-
-  .game-content-card {
-    padding: 12px;
-    border-radius: 8px;
-  }
-
-  .cycle-reward-pane {
-    border-left: none;
-    padding-left: 0;
-    padding-top: 15px;
-    border-top: 1px solid rgba(101, 148, 177, 0.2);
-  }
-
-  .floating-nav-arrow {
-    right: 12px;
-    width: 48px;
-    height: 48px;
-    border: 2px solid #ffffff;
-    box-shadow: 0 4px 15px rgba(34, 19, 94, 0.3);
-  }
-  
-  .floating-nav-arrow span {
-    font-size: 20px !important;
-  }
-
-  .floating-nav-arrow:hover {
-    transform: translateY(-50%) scale(1.05);
-  }
-
-  /* Compacting typography inside game views */
-  .game-board-container h2 {
-    font-size: 18px !important;
-  }
-  .game-board-container h3 {
-    font-size: 15px !important;
-  }
-  .game-board-container h4 {
-    font-size: 13px !important;
-  }
-  .game-board-container h5 {
-    font-size: 12px !important;
-  }
-
-  .unified-card {
-    padding: 12px;
-    border-radius: 8px;
-  }
+/* ====================================================
+   CARD FILTER BAR — horizontal scroll on all screens
+   ==================================================== */
+.card-filter-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  flex-wrap: nowrap;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(101, 148, 177, 0.2);
+  padding-bottom: 12px;
+}
+.card-filter-bar::-webkit-scrollbar {
+  display: none;
 }
 
-/* --- Party Theming Classes --- */
+.card-filter-pill {
+  padding: 9px 16px;
+  font-size: 13px;
+  min-height: 38px;
+  white-space: nowrap;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  border-radius: 20px;
+  font-weight: 700;
+  border: 1.5px solid;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ====================================================
+   ANDROID BOTTOM TAB BAR
+   ==================================================== */
+.android-bottom-nav {
+  display: none; /* Hidden on desktop */
+}
+
+/* ====================================================
+   PARTY THEMING CLASSES
+   ==================================================== */
 .game-layout-wrapper {
   display: flex;
   background: var(--card-bg);
   border: 2px solid var(--party-primary-color, var(--primary-dark));
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(33, 60, 81, 0.08);
+  box-shadow: 0 10px 30px rgba(26, 52, 72, 0.08);
   overflow: hidden;
   margin-top: 20px;
 }
@@ -410,22 +516,33 @@ input::placeholder {
   padding: 30px;
   border-left: 4px double var(--party-primary-color, var(--primary-dark));
   background: #ffffff;
-  min-width: 0; /* Prevents flex overflow */
+  min-width: 0;
 }
 
-/* Action Card Custom Watermarks & Corner Ribbons */
+/* ── Action Card Custom Watermarks & Corner Ribbons ── */
 .themed-action-card {
   position: relative;
   overflow: hidden;
   background: #ffffff !important;
-  border: 1.5px solid rgba(var(--party-primary-color-rgb, 33, 60, 81), 0.15) !important;
+  border: 1.5px solid rgba(var(--party-primary-color-rgb, 26, 52, 72), 0.15) !important;
   transition: all 0.25s ease !important;
 }
 
-.themed-action-card:hover {
-  border-color: var(--party-primary-color, var(--primary-dark)) !important;
-  box-shadow: 0 6px 16px rgba(var(--party-primary-color-rgb, 33, 60, 81), 0.1) !important;
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .themed-action-card:hover {
+    border-color: var(--party-primary-color, var(--primary-dark)) !important;
+    box-shadow: 0 6px 16px rgba(var(--party-primary-color-rgb, 26, 52, 72), 0.12) !important;
+    transform: translateY(-2px) !important;
+  }
+}
+
+/* On touch devices: no hover stuck states — use :active instead */
+@media (hover: none) {
+  .themed-action-card:active {
+    transform: scale(0.98) !important;
+    opacity: 0.9;
+    transition: transform 0.1s, opacity 0.1s !important;
+  }
 }
 
 .themed-card-watermark {
@@ -457,17 +574,86 @@ input::placeholder {
 .themed-card-ribbon-icon {
   margin-right: 2px;
   margin-bottom: 2px;
-  filter: brightness(0) invert(1); /* Forces SVG to white */
+  filter: brightness(0) invert(1);
 }
 
-/* Mobile responsive layout overrides */
+/* ====================================================
+   MOBILE BREAKPOINT — 768px (tablets, large phones)
+   ==================================================== */
 @media (max-width: 768px) {
-  .game-layout-wrapper {
+  /* ── Layout ── */
+  .dashboard-grid       { grid-template-columns: 1fr; gap: 14px; }
+  .create-party-grid    { grid-template-columns: 1fr; gap: 10px; }
+  .dashboard-container  { padding: 12px 14px; }
+
+  /* ── Top Nav ── */
+  .dashboard-top-nav {
     flex-direction: column;
-    border-radius: 12px;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .nav-subtitle { display: none; }
+  .dashboard-top-nav-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .dashboard-top-nav-buttons button {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 14px;             /* Was 8px 12px */
+    font-size: 13px;                /* Was 12px */
+    min-height: 40px;
   }
 
-  .themed-left-sidebar {
+  /* ── Game Board ── */
+  .game-board-container { padding: 12px 10px; }
+
+  /* ── Title Banner ── */
+  .game-title-banner  { padding: 14px 12px; border-radius: 12px; margin-bottom: 14px; }
+  .banner-subtitle    { font-size: 11px !important; }
+  .game-title-h1      { font-size: 20px; }
+  .game-title-p       { font-size: 13px; margin-top: 4px; }
+
+  /* ── View Toggle ── */
+  .view-toggle-bar    { gap: 6px; margin-bottom: 12px; }
+  .view-toggle-button { padding: 12px 8px; font-size: 13px; border-radius: 8px; min-height: 46px; }
+
+  /* ── Game Content Card ── */
+  .game-content-card  { padding: 12px; border-radius: 10px; }
+
+  /* ── Reward Pane ── */
+  .cycle-reward-pane {
+    border-left: none;
+    padding-left: 0;
+    padding-top: 16px;
+    border-top: 1px solid rgba(101, 148, 177, 0.2);
+  }
+
+  /* ── Floating Arrow ── */
+  .floating-nav-arrow {
+    right: calc(12px + var(--safe-right));
+    bottom: calc(72px + var(--safe-bottom));
+    width: 50px;
+    height: 50px;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
+  }
+  .floating-nav-arrow span { font-size: 22px !important; }
+
+  /* ── Typography — consistent compacting ── */
+  .game-board-container h2 { font-size: 18px !important; }
+  .game-board-container h3 { font-size: 16px !important; }
+  .game-board-container h4 { font-size: 14px !important; }
+  .game-board-container h5 { font-size: 13px !important; }
+
+  /* ── Unified Card ── */
+  .unified-card { padding: 14px; border-radius: 12px; }
+
+  /* ── Party Layout ── */
+  .game-layout-wrapper  { flex-direction: column; border-radius: 12px; }
+  .themed-left-sidebar  {
     width: 100%;
     height: 60px;
     flex-direction: row;
@@ -476,19 +662,70 @@ input::placeholder {
     padding-top: 0;
     align-items: center;
   }
-
-  .themed-symbol-badge {
-    width: 40px;
-    height: 40px;
-    border-width: 2px;
-  }
-
+  .themed-symbol-badge  { width: 40px; height: 40px; border-width: 2px; }
   .themed-right-content {
-    padding: 15px;
+    padding: 14px;
     border-left: none;
     border-top: 4px double var(--party-primary-color, var(--primary-dark));
   }
+
+  /* ── Android Bottom Tab Bar ── */
+  .android-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--primary-dark);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+    z-index: 200;
+    padding-bottom: var(--safe-bottom);
+  }
+  .android-bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 4px 12px;
+    min-height: 56px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    gap: 4px;
+    cursor: pointer;
+    transition: color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 56px;
+    padding: 8px 4px 12px;
+  }
+  .android-bottom-nav-item::after { display: none; } /* No ripple on tab bar */
+  .android-bottom-nav-item:active { transform: none; opacity: 0.7; }
+  .android-bottom-nav-item.active { color: var(--selected-highlight); }
+  .android-bottom-nav-item .nav-icon { font-size: 20px; line-height: 1; }
+
+  /* Push main content above tab bar */
+  .dashboard-container {
+    padding-bottom: calc(68px + var(--safe-bottom));
+  }
 }
 
-
-
+/* ====================================================
+   EXTRA SMALL — 380px (budget/older Android)
+   ==================================================== */
+@media (max-width: 380px) {
+  .dashboard-container   { padding: 10px 10px; }
+  .game-board-container  { padding: 10px 8px; }
+  .game-title-h1         { font-size: 18px; }
+  .view-toggle-button    { font-size: 12px; padding: 10px 6px; }
+  .dashboard-top-nav-buttons button { font-size: 12px; padding: 9px 12px; }
+  .unified-card          { padding: 12px; }
+}

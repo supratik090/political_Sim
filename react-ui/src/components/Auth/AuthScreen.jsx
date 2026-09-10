@@ -52,26 +52,26 @@ export default function AuthScreen() {
       {/* Banner */}
       <div style={{
         background: 'var(--primary-border)',
-        padding: '40px 50px',
+        padding: 'clamp(24px, 5vw, 40px) clamp(20px, 6vw, 50px)',
         borderRadius: '16px',
         border: '2px solid var(--primary-dark)',
         textAlign: 'center',
-        boxShadow: '0 10px 30px rgba(33,60,81,0.05)',
+        boxShadow: '0 10px 30px rgba(26,52,72,0.05)',
         maxWidth: '600px',
         width: '100%',
-        marginBottom: '30px',
+        marginBottom: '28px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center'
       }}>
-        <img src="/politics.svg" alt="Power Play Logo" style={{ width: '80px', height: '80px', marginBottom: '20px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }} />
-        <span style={{ fontSize: '14px', color: '#ffffff', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.15em', display: 'block', marginBottom: '10px', opacity: 0.9 }}>
+        <img src="/politics.svg" alt="Power Play Logo" style={{ width: '72px', height: '72px', marginBottom: '18px', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }} />
+        <span style={{ fontSize: '13px', color: '#ffffff', textTransform: 'uppercase', fontWeight: 800, letterSpacing: '0.15em', display: 'block', marginBottom: '10px', opacity: 0.9 }}>
           RULES OF STATECRAFT
         </span>
-        <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#ffffff', margin: 0, letterSpacing: '-0.02em' }}>
-          Power Play: Ballot & Betrayal
+        <h1 style={{ fontSize: 'clamp(22px, 5vw, 36px)', fontWeight: 900, color: '#ffffff', margin: 0, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+          Power Play: Ballot &amp; Betrayal
         </h1>
-        <p style={{ fontSize: '15px', color: '#ffffff', opacity: 0.95, marginTop: '12px', marginBottom: 0, lineHeight: 1.5 }}>
+        <p style={{ fontSize: 'clamp(13px, 2vw, 15px)', color: '#ffffff', opacity: 0.95, marginTop: '12px', marginBottom: 0, lineHeight: 1.5 }}>
           Sign in or register to govern state campaigns, design coalition policies, and survive the battle for the assembly.
         </p>
       </div>
@@ -122,7 +122,7 @@ export default function AuthScreen() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           {!isLogin && (
             <div>
-              <label style={{ fontSize: '12px', fontWeight: 700, marginBottom: '5px', display: 'block' }}>Full Name</label>
+              <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>Full Name</label>
               <input 
                 type="text" 
                 placeholder="Name" 
@@ -133,7 +133,7 @@ export default function AuthScreen() {
           )}
           
           <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, marginBottom: '5px', display: 'block' }}>Email</label>
+            <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>Email</label>
             <input 
               type="email" 
               placeholder="you@example.com" 
@@ -143,7 +143,7 @@ export default function AuthScreen() {
           </div>
 
           <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, marginBottom: '5px', display: 'block' }}>Password</label>
+            <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>Password</label>
             <input 
               type="password" 
               placeholder="••••••••" 
@@ -152,7 +152,7 @@ export default function AuthScreen() {
             />
           </div>
 
-          <button type="submit" disabled={loading} style={{ marginTop: '10px', width: '100%' }}>
+          <button type="submit" disabled={loading} style={{ marginTop: '16px', width: '100%', minHeight: '52px', fontSize: '16px', fontWeight: '800', borderRadius: '12px' }}>
             {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
           </button>
         </form>

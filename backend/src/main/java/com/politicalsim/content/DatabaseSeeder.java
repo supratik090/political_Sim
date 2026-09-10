@@ -38,7 +38,17 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        log.info("Checking database seed files for initial loading...");
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                performSeeding();
+            } catch (Exception e) {
+                log.error("Error during background database seeding", e);
+            }
+        });
+    }
+
+    private void performSeeding() throws Exception {
+        log.info("Checking database seed files for initial loading in background...");
 
         File seedDir = new File("../seed-data/startup");
         if (!seedDir.exists()) {

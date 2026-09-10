@@ -149,22 +149,11 @@ export default function ActionsView({
           <button
             onClick={handleSkipTurn}
             disabled={loading || !isMyTurn}
+            className="btn-danger"
             style={{
-              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-              color: '#ffffff',
-              fontSize: '11px',
-              fontWeight: '900',
-              padding: '6px 14px',
-              border: 'none',
-              borderRadius: '20px',
               cursor: isMyTurn ? 'pointer' : 'not-allowed',
-              textTransform: 'uppercase',
-              boxShadow: '0 4px 10px rgba(239, 68, 68, 0.2)',
-              transition: 'all 0.2s',
-              fontFamily: "system-ui, -apple-system, sans-serif"
+              opacity: !isMyTurn ? 0.5 : 1
             }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
           >
             ⏭️ Skip Turn
           </button>
@@ -351,14 +340,14 @@ export default function ActionsView({
       </ActionSection>
 
       {/* Submit Section */}
-      <div style={{ marginTop: '30px', borderTop: '2px solid var(--primary-border)', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-        <div>
+      <div style={{ marginTop: '30px', borderTop: '2px solid var(--primary-border)', paddingTop: '20px' }}>
+        <div style={{ marginBottom: '12px' }}>
           {!allActionsReady ? (
-            <span style={{ color: '#d23f31', fontWeight: 'bold', fontSize: '13px' }}>
+            <span style={{ color: '#d23f31', fontWeight: 'bold', fontSize: '14px' }}>
               ⏳ Please complete all required actions (Political Card, News Reaction, Event Decision, Bid).
             </span>
           ) : (
-            <span style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '13px' }}>
+            <span style={{ color: '#16A34A', fontWeight: 'bold', fontSize: '14px' }}>
               🎉 All required decisions locked! Ready to proceed.
             </span>
           )}
@@ -366,19 +355,15 @@ export default function ActionsView({
         <button
           onClick={handleAdvanceTurn}
           disabled={!allActionsReady || loading}
+          className="btn-primary-cta"
           style={{
-            backgroundColor: allActionsReady ? '#22c55e' : 'gray',
-            borderColor: allActionsReady ? '#22c55e' : 'gray',
+            backgroundColor: allActionsReady ? '#16A34A' : '#3A5469',
             color: '#ffffff',
-            padding: '12px 30px',
-            fontSize: '15px',
-            fontWeight: 'bold',
             cursor: allActionsReady ? 'pointer' : 'not-allowed',
             border: 'none',
-            borderRadius: '8px'
           }}
         >
-          {loading ? 'Advancing Turn...' : 'End Turn (Submit Decisions) ➔'}
+          {loading ? 'Advancing Turn...' : 'End Turn — Submit Decisions ➔'}
         </button>
       </div>
       </>

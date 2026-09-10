@@ -18,50 +18,55 @@ export default function ActionSection({ num, title, isCompleted, isOptional, act
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '15px 20px',
+          padding: '16px 18px',
+          minHeight: '52px',
           background: isExpanded ? 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.08)' : 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.02)',
           cursor: 'pointer',
           borderBottom: isExpanded ? '1px solid var(--party-primary-color, var(--primary-border))' : 'none',
-          userSelect: 'none'
+          userSelect: 'none',
+          WebkitTapHighlightColor: 'transparent',
+          touchAction: 'manipulation'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{
             background: 'var(--party-primary-color, var(--primary-dark))',
             color: '#ffffff',
-            width: '24px',
-            height: '24px',
+            width: '30px',
+            height: '30px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '12px',
-            fontWeight: 'bold'
+            fontSize: '14px',
+            fontWeight: 'bold',
+            flexShrink: 0
           }}>
             {num}
           </span>
-          <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '13px', letterSpacing: '0.05em', color: 'var(--primary-dark)', fontWeight: 'bold' }}>
+          <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '14px', letterSpacing: '0.04em', color: 'var(--primary-dark)', fontWeight: 'bold' }}>
             {title}
           </h4>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
-            fontSize: '11px',
-            fontWeight: 'bold',
-            padding: '3px 8px',
+            fontSize: '12px',
+            fontWeight: '700',
+            padding: '5px 10px',
             borderRadius: '12px',
-            background: isCompleted ? 'rgba(34, 197, 94, 0.15)' : (isOptional ? 'rgba(101, 148, 177, 0.15)' : 'rgba(210, 63, 49, 0.15)'),
-            color: isCompleted ? '#22c55e' : (isOptional ? 'var(--primary-dark)' : '#d23f31')
+            background: isCompleted ? 'rgba(22, 163, 74, 0.15)' : (isOptional ? 'rgba(101, 148, 177, 0.15)' : 'rgba(210, 63, 49, 0.15)'),
+            color: isCompleted ? '#16A34A' : (isOptional ? 'var(--primary-dark)' : '#d23f31'),
+            whiteSpace: 'nowrap'
           }}>
             {isCompleted ? '✅ READY' : (isOptional ? 'ℹ️ OPTIONAL' : '⏳ PENDING')}
           </span>
-          <span style={{ fontSize: '12px', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s', display: 'inline-block', color: 'var(--primary-dark)' }}>
+          <span style={{ fontSize: '16px', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s', display: 'inline-block', color: 'var(--primary-dark)' }}>
             ▶
           </span>
         </div>
       </div>
       {isExpanded && (
-        <div style={{ padding: '20px' }}>
+        <div style={{ padding: '18px 16px' }}>
           {children}
         </div>
       )}

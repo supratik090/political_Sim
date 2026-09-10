@@ -18,11 +18,11 @@ export default function DashboardLayout({ children }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img src="/politics.svg" alt="Political Sim Logo" style={{ width: '42px', height: '42px', borderRadius: '8px' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '18px', fontWeight: 900, color: 'var(--primary-dark)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            <span style={{ fontSize: '20px', fontWeight: 900, color: 'var(--primary-dark)', letterSpacing: '-0.03em', lineHeight: 1.2 }}>
               Power Play
             </span>
             <span style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
-              Ballot & Betrayal
+              Ballot &amp; Betrayal
             </span>
           </div>
         </div>
@@ -33,11 +33,11 @@ export default function DashboardLayout({ children }) {
             👋 Welcome, <b style={{ fontWeight: 800 }}>{user?.name || 'Unknown'}</b>!
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }} className="nav-subtitle">
-            Command campaigns & win elections.
+            Command campaigns &amp; win elections.
           </div>
         </div>
         
-        {/* Right Side: Buttons */}
+        {/* Right Side: Buttons — hidden on mobile (replaced by bottom tab bar) */}
         <div className="dashboard-top-nav-buttons" style={{ margin: 0 }}>
           {turnData?.isMultiplayer && timeLeft !== null && (
             <button disabled style={{
@@ -77,6 +77,49 @@ export default function DashboardLayout({ children }) {
       <main>
         {children}
       </main>
+
+      {/* ── Android Bottom Tab Bar (mobile only via CSS) ── */}
+      <nav className="android-bottom-nav" role="navigation" aria-label="Main navigation">
+        <button
+          className={`android-bottom-nav-item ${currentScreen === 'HOME' ? 'active' : ''}`}
+          onClick={() => setScreen('HOME')}
+        >
+          <span className="nav-icon">🏠</span>
+          Home
+        </button>
+        {turnData && (
+          <button
+            className={`android-bottom-nav-item ${currentScreen === 'GAME' ? 'active' : ''}`}
+            onClick={() => setScreen('GAME')}
+          >
+            <span className="nav-icon">🎮</span>
+            Game
+          </button>
+        )}
+        <button
+          className={`android-bottom-nav-item ${currentScreen === 'HOW_TO_PLAY' ? 'active' : ''}`}
+          onClick={() => setScreen('HOW_TO_PLAY')}
+        >
+          <span className="nav-icon">📖</span>
+          Rules
+        </button>
+        {isAdmin && (
+          <button
+            className={`android-bottom-nav-item ${currentScreen === 'ADMIN' ? 'active' : ''}`}
+            onClick={() => setScreen('ADMIN')}
+          >
+            <span className="nav-icon">🛠️</span>
+            Admin
+          </button>
+        )}
+        <button
+          className="android-bottom-nav-item"
+          onClick={logout}
+        >
+          <span className="nav-icon">🚪</span>
+          Logout
+        </button>
+      </nav>
       
     </div>
   );

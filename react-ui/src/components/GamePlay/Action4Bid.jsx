@@ -54,9 +54,9 @@ export default function Action4Bid({
                       right: '0',
                       background: 'linear-gradient(90deg, #f59e0b, #d97706)',
                       color: '#ffffff',
-                      fontSize: '9px',
+                      fontSize: '11px',
                       fontWeight: 'bold',
-                      padding: '2px 8px',
+                      padding: '3px 10px',
                       borderRadius: '0 7px 0 7px',
                       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                       letterSpacing: '0.05em'
@@ -64,16 +64,16 @@ export default function Action4Bid({
                       ⭐ SPECIAL REWARD
                     </div>
                   )}
-                  <div style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold', color: isSpecial ? '#b45309' : 'var(--primary-dark)', opacity: 0.8 }}>Bidding For</div>
-                  <div style={{ fontSize: '15px', fontWeight: 'bold', color: isSpecial ? '#78350f' : 'var(--primary-dark)', marginTop: '2px' }}>🎯 {turnData.currentRewardName}</div>
-                  <div style={{ fontSize: '11px', opacity: 0.8, fontStyle: 'italic', marginTop: '4px', color: isSpecial ? '#78350f' : 'inherit' }}>{turnData.currentRewardDescription}</div>
+                  <div style={{ fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', color: isSpecial ? '#b45309' : 'var(--primary-dark)', opacity: 0.8 }}>Bidding For</div>
+                  <div style={{ fontSize: '16px', fontWeight: 'bold', color: isSpecial ? '#78350f' : 'var(--primary-dark)', marginTop: '2px' }}>🎯 {turnData.currentRewardName}</div>
+                  <div style={{ fontSize: '13px', opacity: 0.8, fontStyle: 'italic', marginTop: '4px', color: isSpecial ? '#78350f' : 'inherit' }}>{turnData.currentRewardDescription}</div>
                 </div>
               );
             })()}
 
       {/* Current Cycle Standings */}
       <div style={{ background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.04)', border: '1.5px dashed var(--party-primary-color, var(--primary-border))', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
-        <h5 style={{ margin: '0 0 10px 0', color: '#1e3a8a', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <h5 style={{ margin: '0 0 10px 0', color: '#1e3a8a', fontSize: '13px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           🏆 Current 5-Turn Cycle Standings
         </h5>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -103,11 +103,11 @@ export default function Action4Bid({
       
       <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
         <div>
-          <div style={{ fontSize: '11px', opacity: 0.8 }}>Bidding Metric</div>
+          <div style={{ fontSize: '13px', opacity: 0.8 }}>Bidding Metric</div>
           <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>⚡ {bidMetric.toUpperCase()}</div>
         </div>
         <div>
-          <div style={{ fontSize: '11px', opacity: 0.8 }}>Your Reserves</div>
+          <div style={{ fontSize: '13px', opacity: 0.8 }}>Your Reserves</div>
           <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>💎 {maxBid}</div>
         </div>
       </div>
@@ -187,16 +187,17 @@ export default function Action4Bid({
             style={{
               flex: 1,
               minWidth: '150px',
-              padding: '10px 15px',
+              padding: '13px 20px',
+              minHeight: '48px',
               background: bidConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--primary-dark))',
               borderWidth: '1.5px',
               borderStyle: 'solid',
               borderColor: bidConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--party-primary-color))',
               color: bidConfirmed ? 'var(--primary-dark)' : '#ffffff',
               fontWeight: 'bold',
-              borderRadius: '6px',
+              borderRadius: '10px',
               cursor: 'pointer',
-              fontSize: '13px'
+              fontSize: '15px'
             }}
           >
             {bidConfirmed ? '✅ Bid Locked' : '🔒 Confirm Bid'}

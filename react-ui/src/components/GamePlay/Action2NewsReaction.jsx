@@ -99,16 +99,14 @@ export default function Action2NewsReaction({
                 {news.title}
               </h2>
               
-              {/* Article Content in Newspaper Column style */}
+              {/* Article Content */}
               <div style={{ 
-                fontSize: '13.5px', 
-                lineHeight: 1.6, 
-                textAlign: 'justify', 
+                fontSize: '14px', 
+                lineHeight: 1.65, 
+                textAlign: 'left', 
                 color: '#292524',
                 marginBottom: '20px',
-                textIndent: '20px',
-                columnCount: news.description.length > 200 ? 1 : 1,
-                columnGap: '20px'
+                textIndent: '16px'
               }}>
                 {news.description}
               </div>
@@ -180,9 +178,10 @@ export default function Action2NewsReaction({
                         onClick={() => setSelectedNewsReactions(prev => ({ ...prev, [newsKey]: optKey }))}
                         style={{
                           textAlign: 'left',
-                          padding: '10px 14px',
-                          borderRadius: '6px',
-                          fontSize: '12px',
+                          padding: '13px 16px',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          minHeight: '44px',
                           background: backgroundStyle,
                           color: textColor,
                           border: borderStyle,
@@ -190,19 +189,9 @@ export default function Action2NewsReaction({
                           fontWeight: isSelected ? 'bold' : 'normal',
                           transition: 'all 0.15s ease',
                           cursor: 'pointer',
-                          fontFamily: "system-ui, -apple-system, sans-serif"
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isSelected) {
-                            e.currentTarget.style.background = '#fafaf9';
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isSelected) {
-                            e.currentTarget.style.background = backgroundStyle;
-                            e.currentTarget.style.transform = 'translateY(0)';
-                          }
+                          fontFamily: "'Montserrat', system-ui, sans-serif",
+                          WebkitTapHighlightColor: 'transparent',
+                          touchAction: 'manipulation'
                         }}
                       >
                         {indicator}{opt.text}

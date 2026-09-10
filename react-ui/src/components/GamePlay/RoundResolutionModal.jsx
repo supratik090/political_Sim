@@ -170,6 +170,7 @@ export default function RoundResolutionModal({
   ];
 
   const completedProjectsLastTurn = (activeParty.projects || []).filter(p => p.progressPercent === 100 && p.completionTurn === lastTurnNum);
+  const hasCompletedProject = completedProjectsLastTurn.length > 0;
   const allCompletedProjects = (activeParty.projects || []).filter(p => p.progressPercent === 100);
   
   let netCoins = 0;

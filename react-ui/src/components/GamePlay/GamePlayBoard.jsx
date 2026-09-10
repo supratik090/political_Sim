@@ -102,7 +102,13 @@ export default function GamePlayBoard() {
   const [projectDefs, setProjectDefs] = useState(PROJECT_DEFS);
   
   // Multiplayer
-  const { isConnected, messages, sendMessage, gameUpdateTick, triggerGameUpdate } = useMultiplayer(activeGameId, user?.id || user?.email, user?.name);
+  const isMultiplayer = Boolean(turnData?.isMultiplayer);
+  const { isConnected, messages, sendMessage, gameUpdateTick, triggerGameUpdate } = useMultiplayer(
+    activeGameId,
+    user?.id || user?.email,
+    user?.name,
+    isMultiplayer
+  );
   const [showChat, setShowChat] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [unreadCount, setUnreadCount] = useState(0);

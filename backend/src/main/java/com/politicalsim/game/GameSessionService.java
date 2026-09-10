@@ -45,37 +45,40 @@ public class GameSessionService {
         log.info("[METRIC] Static definition caches cleared.");
     }
 
+    @org.springframework.scheduling.annotation.Async
     @org.springframework.context.event.EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
     public void preloadCaches() {
-        log.info("[CACHE] Preloading static caches on startup...");
-        long start = System.currentTimeMillis();
-        
-        // 1. Preload cards
-        try {
-            getCachedCards();
-            log.info("[CACHE] Cards preloaded successfully. Count: {}", cachedCards != null ? cachedCards.size() : 0);
-        } catch (Exception e) {
-            log.error("[CACHE] Failed to preload cards", e);
-        }
-
-        // 2. Preload bills
-        try {
-            List<String> scenarioKeys = scenarioRepository.findAll().stream()
-                    .map(ScenarioDefinition::getScenarioKey)
-                    .filter(java.util.Objects::nonNull)
-                    .toList();
-
-            for (String key : scenarioKeys) {
-                long t = System.currentTimeMillis();
-                com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, key);
-                log.info("[CACHE] Bills for '{}' preloaded in {} ms", key, (System.currentTimeMillis() - t));
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            log.info("[CACHE] Preloading static caches in parallel background task...");
+            long start = System.currentTimeMillis();
+            
+            // 1. Preload cards
+            try {
+                getCachedCards();
+                log.info("[CACHE] Cards preloaded successfully. Count: {}", cachedCards != null ? cachedCards.size() : 0);
+            } catch (Exception e) {
+                log.error("[CACHE] Failed to preload cards", e);
             }
-            com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, "default");
-        } catch (Exception e) {
-            log.error("[CACHE] Failed to preload bills", e);
-        }
-        
-        log.info("[CACHE] Total preloading finished in {} ms", (System.currentTimeMillis() - start));
+
+            // 2. Preload bills
+            try {
+                List<String> scenarioKeys = scenarioRepository.findAll().stream()
+                        .map(ScenarioDefinition::getScenarioKey)
+                        .filter(java.util.Objects::nonNull)
+                        .toList();
+
+                for (String key : scenarioKeys) {
+                    long t = System.currentTimeMillis();
+                    com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, key);
+                    log.info("[CACHE] Bills for '{}' preloaded in {} ms", key, (System.currentTimeMillis() - t));
+                }
+                com.politicalsim.content.DefinitionCache.getBillsForScenario(billRepository, "default");
+            } catch (Exception e) {
+                log.error("[CACHE] Failed to preload bills", e);
+            }
+            
+            log.info("[CACHE] Total parallel preloading finished in {} ms", (System.currentTimeMillis() - start));
+        });
     }
 
     private final GameSessionRepository repository;

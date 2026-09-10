@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { listGames, fetchScenarioProgress, createGame, deleteGame, getGameByJoinCode } from '../../api/apiClient';
 import { getPartyThemeByName } from '../../constants/partyThemes';
@@ -49,6 +49,38 @@ export default function DashboardHome() {
   const [rejoinCode, setRejoinCode] = useState('');
   const [rejoinError, setRejoinError] = useState('');
   const [deletingGameId, setDeletingGameId] = useState(null);
+
+  // Button Refs & Highlight Animations
+  const startCampaignBtnRef = useRef(null);
+  const startGameBtnRef = useRef(null);
+  const [mapStartBtnHighlighted, setMapStartBtnHighlighted] = useState(false);
+  const [createStartBtnHighlighted, setCreateStartBtnHighlighted] = useState(false);
+
+  // Auto-scroll to Start Campaign button when a state is selected on the map
+  useEffect(() => {
+    if (selectedStateName) {
+      setMapStartBtnHighlighted(true);
+      const timer = setTimeout(() => {
+        startCampaignBtnRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 150);
+      return () => clearTimeout(timer);
+    } else {
+      setMapStartBtnHighlighted(false);
+    }
+  }, [selectedStateName]);
+
+  // Auto-scroll to Start Game button when view switches to CREATE
+  useEffect(() => {
+    if (view === 'CREATE') {
+      setCreateStartBtnHighlighted(true);
+      const timer = setTimeout(() => {
+        startGameBtnRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 200);
+      return () => clearTimeout(timer);
+    } else {
+      setCreateStartBtnHighlighted(false);
+    }
+  }, [view]);
 
   useEffect(() => {
     if (currentScreen === 'HOME') {
@@ -201,8 +233,8 @@ export default function DashboardHome() {
         userId: user.id || user.email,
         scenarioKey: scenario.scenarioKey,
         retainInstitutions: retainInstitutions,
-        isMultiplayer: isMultiplayer,
-        turnDurationSeconds: isMultiplayer ? turnDurationSeconds : null,
+        isMultiplayer: false,
+        turnDurationSeconds: null,
         partySetups: partyConfigs.map(config => ({
           partyKey: config.partyKey,
           partyName: config.name,
@@ -220,11 +252,7 @@ export default function DashboardHome() {
       // Invalidate cache so returning to dashboard shows the new game
       invalidateCache(user?.id || user?.email);
       setActiveGame(gameData.id);
-      if (gameData.status === 'LOBBY') {
-          setCreatedMultiplayerGame(gameData);
-      } else {
-          setScreen('GAME');
-      }
+      setScreen('GAME');
     } catch (err) {
       console.error(err);
       alert('Failed to create game. Check console for details.');
@@ -306,7 +334,6 @@ export default function DashboardHome() {
       <div style={{ display: 'flex', gap: '15px', marginTop: '30px', justifyContent: 'center' }}>
         <button onClick={() => setView('CREATE')} disabled={loading}>🎮 Create Campaign</button>
         <button onClick={() => setView('LOAD')} disabled={loading}>📂 Load Saved Campaign</button>
-        <button onClick={() => setScreen('JOIN_GAME')} disabled={loading}>🤝 Join Multiplayer</button>
       </div>
     </div>
   );
@@ -382,32 +409,7 @@ export default function DashboardHome() {
           </div>
         )}
 
-        <div style={{ margin: '20px 0', padding: '15px', border: '1px solid var(--primary-border)', borderRadius: '8px', backgroundColor: 'rgba(101, 148, 177, 0.05)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <input 
-              type="checkbox" 
-              id="isMultiplayer"
-              checked={isMultiplayer} 
-              onChange={(e) => setIsMultiplayer(e.target.checked)} 
-              style={{ width: 'auto', margin: 0 }}
-            />
-            <label htmlFor="isMultiplayer" style={{ fontWeight: 'bold', cursor: 'pointer', color: 'var(--primary-dark)' }}>
-              Enable Multiplayer (Play with friends)
-            </label>
-          </div>
-          {isMultiplayer && (
-            <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px', paddingLeft: '25px' }}>
-              <label style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--text-secondary)' }}>Turn Timer (seconds):</label>
-              <input 
-                type="number" 
-                value={turnDurationSeconds} 
-                onChange={(e) => setTurnDurationSeconds(parseInt(e.target.value) || 60)} 
-                style={{ width: '80px', padding: '5px' }}
-                min="30" max="900"
-              />
-            </div>
-          )}
-        </div>
+
 
         {currentScenario?.scenarioKey?.endsWith('_2006') && (
           <div style={{ margin: '20px 0', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
@@ -425,7 +427,13 @@ export default function DashboardHome() {
         )}
 
         <div style={{ marginTop: '30px', textAlign: 'center' }}>
-          <button onClick={handleStartNewGame} disabled={loading} style={{ padding: '15px 40px', fontSize: '18px' }}>
+          <button 
+            ref={startGameBtnRef}
+            className={createStartBtnHighlighted ? 'btn-pulse-highlight' : ''}
+            onClick={handleStartNewGame} 
+            disabled={loading} 
+            style={{ padding: '15px 40px', fontSize: '18px' }}
+          >
             {loading ? 'Starting...' : 'Start Game'}
           </button>
         </div>
@@ -463,14 +471,6 @@ export default function DashboardHome() {
               <div>
                 <h4 style={{ margin: '0 0 5px 0' }}>
                   {game.scenarioName || game.scenarioKey}
-                  {game.isMultiplayer && (
-                    <span style={{
-                      marginLeft: '8px', fontSize: '11px',
-                      background: 'var(--primary-dark)', color: '#fff',
-                      padding: '2px 8px', borderRadius: '999px', fontWeight: 700,
-                      verticalAlign: 'middle'
-                    }}>🌐 Multiplayer</span>
-                  )}
                 </h4>
                 <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Status: {game.status} | Started: {formatDate(game.createdAt)}</span>
               </div>
@@ -838,6 +838,8 @@ export default function DashboardHome() {
               <div style={{ display: 'flex', gap: '10px' }}>
                 {scenario.status !== 'LOCKED' &&  scenario.status !== 'WON'  && !activeGame && scenario.status !== 'VICTORY' &&(
                   <button 
+                    ref={startCampaignBtnRef}
+                    className={mapStartBtnHighlighted ? 'btn-pulse-highlight' : ''}
                     onClick={() => {
                       const idx = scenarios.findIndex(s => s.scenarioKey === scenario.scenarioKey);
                       if (idx !== -1) {

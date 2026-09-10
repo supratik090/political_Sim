@@ -1,5 +1,36 @@
 {
   "appId": "com.supratik.politicalsim",
-  "appName": "Political Party Sim",
-  "webDir": "dist"
+  "appName": "Power Play",
+  "webDir": "dist",
+  "android": {
+    "backgroundColor": "#E6E6FA",
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false,
+    "initialFocus": true,
+    "minWebViewVersion": 60
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2500,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 500,
+      "backgroundColor": "#213C51",
+      "androidSpinnerStyle": "large",
+      "spinnerColor": "#22c55e",
+      "showSpinner": true,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "Keyboard": {
+      "resize": "body",
+      "resizeOnFullScreen": true,
+      "style": "dark"
+    },
+    "StatusBar": {
+      "style": "dark",
+      "backgroundColor": "#213C51",
+      "overlaysWebView": false
+    }
+  }
 }
