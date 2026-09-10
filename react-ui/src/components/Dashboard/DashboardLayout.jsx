@@ -16,13 +16,13 @@ export default function DashboardLayout({ children }) {
         
         {/* Left Side: Logo & App Title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/politics.svg" alt="Political Sim Logo" style={{ width: '42px', height: '42px', borderRadius: '8px' }} />
+          <img src="/app-logo.png" alt="Statecraft Logo" style={{ width: '42px', height: '42px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '20px', fontWeight: 900, color: 'var(--primary-dark)', letterSpacing: '-0.03em', lineHeight: 1.2 }}>
-              Power Play
+              Statecraft
             </span>
             <span style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
-              Ballot &amp; Betrayal
+              Grand Strategy &amp; Governance
             </span>
           </div>
         </div>
@@ -31,9 +31,6 @@ export default function DashboardLayout({ children }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '150px' }}>
           <div style={{ fontSize: '13px', color: 'var(--primary-dark)' }}>
             👋 Welcome, <b style={{ fontWeight: 800 }}>{user?.name || 'Unknown'}</b>!
-          </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontStyle: 'italic' }} className="nav-subtitle">
-            Command campaigns &amp; win elections.
           </div>
         </div>
         

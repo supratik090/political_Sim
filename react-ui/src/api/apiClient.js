@@ -1,70 +1,133 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:7810';
+const FALLBACK_CANDIDATES = [
+  'http://192.168.29.219:7810',
+  'http://10.0.2.2:7810',
+  'http://localhost:7810',
+  'https://political-sim.onrender.com'
+];
+
+export function getApiBaseUrl() {
+  if (typeof window !== 'undefined' && window.localStorage.getItem('CUSTOM_API_URL')) {
+    return window.localStorage.getItem('CUSTOM_API_URL').replace(/\/+$/, '');
+  }
+  const envUrl = import.meta.env.VITE_API_URL;
+  const isCapacitor = typeof window !== 'undefined' && (
+    window.Capacitor?.isNativePlatform() ||
+    (window.location.hostname === 'localhost' && window.location.port === '')
+  );
+
+  if (isCapacitor) {
+    if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
+      return FALLBACK_CANDIDATES[0];
+    }
+    return envUrl.replace(/\/+$/, '');
+  }
+
+  if (envUrl && envUrl.trim() !== '') {
+    return envUrl.replace(/\/+$/, '');
+  }
+
+  return FALLBACK_CANDIDATES[0];
+}
+
+async function fetchWithAutoFallback(fetchFn) {
+  try {
+    return await fetchFn(getApiBaseUrl());
+  } catch (initialErr) {
+    // If user explicitly configured custom URL, don't auto-fallback without permission
+    if (typeof window !== 'undefined' && window.localStorage.getItem('CUSTOM_API_URL')) {
+      throw initialErr;
+    }
+    const currentBase = getApiBaseUrl();
+    for (const candidate of FALLBACK_CANDIDATES) {
+      if (candidate === currentBase) continue;
+      try {
+        const result = await fetchFn(candidate);
+        if (typeof window !== 'undefined') {
+          console.log(`[API] Auto-discovered working backend URL: ${candidate}`);
+          window.localStorage.setItem('CUSTOM_API_URL', candidate);
+        }
+        return result;
+      } catch (_) {
+        // Continue checking candidates
+      }
+    }
+    throw initialErr;
+  }
+}
 
 export async function apiGet(path, params = {}) {
-  const url = new URL(`${API_BASE_URL}${path}`);
-  Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+  return fetchWithAutoFallback(async (baseUrl) => {
+    const url = new URL(`${baseUrl}${path}`);
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
-  const response = await fetch(url.toString());
-  if (!response.ok) {
-    let errMsg = `API GET request failed: ${response.statusText}`;
-    try {
-      const errData = await response.json();
-      if (errData && errData.error) errMsg = errData.error;
-    } catch (_) {}
-    throw new Error(errMsg);
-  }
-  return response.json();
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      let errMsg = `API GET request failed: ${response.statusText}`;
+      try {
+        const errData = await response.json();
+        if (errData && errData.error) errMsg = errData.error;
+      } catch (_) {}
+      throw new Error(errMsg);
+    }
+    return response.json();
+  });
 }
 
 export async function apiPost(path, payload) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+  return fetchWithAutoFallback(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      let errMsg = `API POST request failed: ${response.statusText}`;
+      try {
+        const errData = await response.json();
+        if (errData && errData.error) errMsg = errData.error;
+      } catch (_) {}
+      throw new Error(errMsg);
+    }
+    return response.json();
   });
-  if (!response.ok) {
-    let errMsg = `API POST request failed: ${response.statusText}`;
-    try {
-      const errData = await response.json();
-      if (errData && errData.error) errMsg = errData.error;
-    } catch (_) {}
-    throw new Error(errMsg);
-  }
-  return response.json();
 }
 
 export async function apiPut(path, payload) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+  return fetchWithAutoFallback(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}${path}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      let errMsg = `API PUT request failed: ${response.statusText}`;
+      try {
+        const errData = await response.json();
+        if (errData && errData.error) errMsg = errData.error;
+      } catch (_) {}
+      throw new Error(errMsg);
+    }
+    return response.json();
   });
-  if (!response.ok) {
-    let errMsg = `API PUT request failed: ${response.statusText}`;
-    try {
-      const errData = await response.json();
-      if (errData && errData.error) errMsg = errData.error;
-    } catch (_) {}
-    throw new Error(errMsg);
-  }
-  return response.json();
 }
 
 export async function apiDelete(path) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: 'DELETE',
+  return fetchWithAutoFallback(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}${path}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      let errMsg = `API DELETE request failed: ${response.statusText}`;
+      try {
+        const errData = await response.json();
+        if (errData && errData.error) errMsg = errData.error;
+      } catch (_) {}
+      throw new Error(errMsg);
+    }
+    if (response.status === 204) return null;
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
   });
-  if (!response.ok) {
-    let errMsg = `API DELETE request failed: ${response.statusText}`;
-    try {
-      const errData = await response.json();
-      if (errData && errData.error) errMsg = errData.error;
-    } catch (_) {}
-    throw new Error(errMsg);
-  }
-  if (response.status === 204) return null;
-  const text = await response.text();
-  return text ? JSON.parse(text) : null;
 }
 
 // Game API bindings

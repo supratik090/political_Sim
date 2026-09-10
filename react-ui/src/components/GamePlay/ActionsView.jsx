@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import ActionSection from './ActionSection';
 import Action1CardSelection from './Action1CardSelection';
@@ -11,363 +11,231 @@ import Action7Cooperation from './Action7Cooperation';
 import Action8Assembly from './Action8Assembly';
 import { cardRequiresTarget } from './gameUtils';
 
+const TAB_POLITICS   = 'politics';
+const TAB_GOVERNANCE = 'governance';
+const TAB_ECONOMY    = 'economy';
+
 export default function ActionsView({
-  turnData,
-  activeParty,
-  loading,
-  handleAdvanceTurn,
-  handleSkipTurn,
-  projectDefs,
-  
-  // Action 1 props
-  selectedCard,
-  setSelectedCard,
-  targetPartyId,
-  setTargetPartyId,
-  cardCategoryFilter,
-  setCardCategoryFilter,
-
-  // Action 2 props
-  selectedNewsReactions,
-  setSelectedNewsReactions,
-
-  // Action 3 props
-  selectedIssueOptionKey,
-  setSelectedIssueOptionKey,
-
-  // Action 4 props
-  bidAmount,
-  setBidAmount,
-  bidConfirmed,
-  setBidConfirmed,
-
-  // Action 5 props
-  selectedRewardKey,
-  setSelectedRewardKey,
-  rewardTargetPartyId,
-  setRewardTargetPartyId,
-  rewardConfirmed,
-  setRewardConfirmed,
-
-  // Action 6 props
-  projectCategoryFilter,
-  setProjectCategoryFilter,
-  fundingContributions,
-  setFundingContributions,
-  partyBuildingConfirmed,
-  setPartyBuildingConfirmed,
-  handleFundProject,
-  handleDestroyProject,
-  handleSetProjectTarget,
-  fundedThisTurn = [],
-  setFundedThisTurn,
-
-  // Action 7 props
+  turnData, activeParty, loading, handleAdvanceTurn, handleSkipTurn, projectDefs,
+  selectedCard, setSelectedCard, targetPartyId, setTargetPartyId,
+  cardCategoryFilter, setCardCategoryFilter,
+  selectedNewsReactions, setSelectedNewsReactions,
+  selectedIssueOptionKey, setSelectedIssueOptionKey,
+  bidAmount, setBidAmount, bidConfirmed, setBidConfirmed,
+  selectedRewardKey, setSelectedRewardKey, rewardTargetPartyId, setRewardTargetPartyId,
+  rewardConfirmed, setRewardConfirmed,
+  projectCategoryFilter, setProjectCategoryFilter,
+  fundingContributions, setFundingContributions,
+  partyBuildingConfirmed, setPartyBuildingConfirmed,
+  handleFundProject, handleDestroyProject, handleSetProjectTarget,
+  fundedThisTurn = [], setFundedThisTurn,
   handleCooperationUpdate,
-
-  // Action 8 / Assembly props
-  billVote,
-  setBillVote,
-  whipIssued,
-  setWhipIssued,
-  proposedBillKey,
-  setProposedBillKey,
-  selectedEventOptionKey,
-  setSelectedEventOptionKey,
-  scenarioBills,
-  scenarioEvents,
-
-  // Accordion props
-  activeAccordion,
-  setActiveAccordion
+  billVote, setBillVote, whipIssued, setWhipIssued,
+  proposedBillKey, setProposedBillKey,
+  selectedEventOptionKey, setSelectedEventOptionKey,
+  scenarioBills, scenarioEvents,
+  activeAccordion, setActiveAccordion,
 }) {
+  const [activeTab, setActiveTab] = useState(TAB_POLITICS);
+  const [polAcc, setPolAcc] = useState(1);
+  const [govAcc, setGovAcc] = useState(31);
+  const [ecoAcc, setEcoAcc] = useState(41);
+
   const { user } = useGameStore();
   const humanPlayerMap = turnData?.humanPlayerMap || {};
-  const isMultiplayer = turnData?.isMultiplayer;
-  // Find which party belongs to the logged-in user in multiplayer
+  const isMultiplayer  = turnData?.isMultiplayer;
   const loggedInUserId = (user?.id || user?.email)?.toLowerCase();
   const myParty = isMultiplayer
     ? turnData?.parties?.find(p => humanPlayerMap[p.id]?.toLowerCase() === loggedInUserId)
     : activeParty;
-  
   const isMyTurn = !isMultiplayer || (myParty?.id === turnData?.activeHumanPartyId);
 
   const isCardCompleted = selectedCard !== null && (!cardRequiresTarget(selectedCard) || targetPartyId !== '');
-  
-  const newsItems = turnData.currentNews || [];
-  const isNewsCompleted = newsItems.length === 0 || newsItems.every(news => selectedNewsReactions[news.newsKey || news.issueKey] !== undefined);
-  
+  const newsItems       = turnData.currentNews || [];
+  const isNewsCompleted = newsItems.length === 0 || newsItems.every(n => selectedNewsReactions[n.newsKey || n.issueKey] !== undefined);
   const isSection3Completed = turnData.activeEventKey
     ? (selectedEventOptionKey !== '' && selectedEventOptionKey !== null && selectedEventOptionKey !== undefined)
     : (selectedIssueOptionKey === 'mock_done');
-  const isBidCompleted = bidConfirmed;
-
-  const hasRewards = turnData.activePlayerHeldRewards && turnData.activePlayerHeldRewards.length > 0;
-  const selectedReward = hasRewards ? turnData.activePlayerHeldRewards.find(r => r.rewardKey === selectedRewardKey) : null;
-  const rewardRequiresTarget = selectedReward?.requiresTarget;
-  const isRewardTargetSelected = !rewardRequiresTarget || rewardTargetPartyId !== '';
-  const isRewardCompleted = !hasRewards || selectedRewardKey === '' || (rewardConfirmed && isRewardTargetSelected);
-
-  const hasPartyBuildingDrafts = Object.values(fundingContributions).some(v => v > 0);
+  const isBidCompleted  = bidConfirmed;
+  const hasRewards      = turnData.activePlayerHeldRewards && turnData.activePlayerHeldRewards.length > 0;
+  const selectedReward  = hasRewards ? turnData.activePlayerHeldRewards.find(r => r.rewardKey === selectedRewardKey) : null;
+  const isRewardCompleted = !hasRewards || selectedRewardKey === '' || (rewardConfirmed && (!selectedReward?.requiresTarget || rewardTargetPartyId !== ''));
+  const hasPartyBuildingDrafts   = Object.values(fundingContributions).some(v => v > 0);
   const isPartyBuildingCompleted = !hasPartyBuildingDrafts || partyBuildingConfirmed;
-  const isLegislativeCompleted = !turnData.proposedBillKeyThisTurn || (billVote !== '' && billVote !== null && billVote !== undefined);
-  
+  const isLegislativeCompleted   = !turnData.proposedBillKeyThisTurn || (billVote !== '' && billVote !== null && billVote !== undefined);
   const allActionsReady = isCardCompleted && isNewsCompleted && isSection3Completed && isBidCompleted && isRewardCompleted && isPartyBuildingCompleted && isLegislativeCompleted;
 
-  const prevCardCompleted = useRef(isCardCompleted);
+  const politicsDone    = isCardCompleted && isNewsCompleted && isLegislativeCompleted;
+  const governanceDone  = isSection3Completed;
+  const economyDone     = isBidCompleted && isRewardCompleted && isPartyBuildingCompleted;
+  const politicsPending   = !isCardCompleted || !isNewsCompleted || (!!turnData.proposedBillKeyThisTurn && !isLegislativeCompleted);
+  const governancePending = !isSection3Completed;
+  const economyPending    = !isBidCompleted;
+  const doneCount = [isCardCompleted, isNewsCompleted, isSection3Completed, isBidCompleted, isRewardCompleted, isPartyBuildingCompleted, isLegislativeCompleted].filter(Boolean).length;
+
+  const prevCard = useRef(isCardCompleted);
+  useEffect(() => { if (!prevCard.current && isCardCompleted && polAcc === 1) setPolAcc(2); prevCard.current = isCardCompleted; }, [isCardCompleted, polAcc]);
+  const prevNews = useRef(isNewsCompleted);
+  useEffect(() => { if (!prevNews.current && isNewsCompleted && polAcc === 2 && turnData.proposedBillKeyThisTurn) setPolAcc(3); prevNews.current = isNewsCompleted; }, [isNewsCompleted, polAcc]);
+  const prevBid = useRef(isBidCompleted);
+  useEffect(() => { if (!prevBid.current && isBidCompleted && ecoAcc === 41 && hasRewards) setEcoAcc(42); prevBid.current = isBidCompleted; }, [isBidCompleted, ecoAcc, hasRewards]);
+
+  const prevPolDone = useRef(politicsDone);
   useEffect(() => {
-    if (!prevCardCompleted.current && isCardCompleted && activeAccordion === 1) {
-      setActiveAccordion(2);
+    if (!prevPolDone.current && politicsDone && activeTab === TAB_POLITICS) {
+      if (!governanceDone) setActiveTab(TAB_GOVERNANCE); else if (!economyDone) setActiveTab(TAB_ECONOMY);
     }
-    prevCardCompleted.current = isCardCompleted;
-  }, [isCardCompleted, activeAccordion, setActiveAccordion]);
-
-  const prevNewsCompleted = useRef(isNewsCompleted);
+    prevPolDone.current = politicsDone;
+  }, [politicsDone]);
+  const prevGovDone = useRef(governanceDone);
   useEffect(() => {
-    if (!prevNewsCompleted.current && isNewsCompleted && activeAccordion === 2) {
-      setActiveAccordion(3);
-    }
-    prevNewsCompleted.current = isNewsCompleted;
-  }, [isNewsCompleted, activeAccordion, setActiveAccordion]);
+    if (!prevGovDone.current && governanceDone && activeTab === TAB_GOVERNANCE && !economyDone) setActiveTab(TAB_ECONOMY);
+    prevGovDone.current = governanceDone;
+  }, [governanceDone]);
 
+  function TabBtn({ id, icon, label, isDone, hasPending }) {
+    const isActive = activeTab === id;
+    const dot = isDone ? '#16A34A' : hasPending ? '#f59e0b' : '#94a3b8';
+    return (
+      <button onClick={() => setActiveTab(id)} style={{
+        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+        padding: '10px 6px 12px', minHeight: '60px', position: 'relative',
+        background: isActive ? 'var(--party-primary-color, var(--primary-dark))' : 'transparent',
+        color: isActive ? '#ffffff' : 'var(--primary-dark)',
+        border: 'none', borderRadius: 0,
+        borderBottom: isActive ? '3px solid var(--selected-highlight)' : '3px solid transparent',
+        fontWeight: isActive ? 800 : 600, fontSize: '11px', letterSpacing: '0.03em',
+        textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.18s ease',
+        boxShadow: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation',
+      }}>
+        <span style={{ position: 'absolute', top: '7px', right: '7px', width: '8px', height: '8px', borderRadius: '50%', background: dot, boxShadow: isDone ? `0 0 5px ${dot}` : 'none' }} />
+        <span style={{ fontSize: '20px', lineHeight: 1 }}>{icon}</span>
+        <span>{label}</span>
+      </button>
+    );
+  }
 
-
-  const isSection4Completed = isBidCompleted && isRewardCompleted;
-  const prevSection4Completed = useRef(isSection4Completed);
-  useEffect(() => {
-    if (!prevSection4Completed.current && isSection4Completed && activeAccordion === 4) {
-      setActiveAccordion(5);
-    }
-    prevSection4Completed.current = isSection4Completed;
-  }, [isSection4Completed, activeAccordion, setActiveAccordion]);
+  function SummaryChip({ label, value, done }) {
+    return (
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: '4px', flexShrink: 0,
+        background: done ? 'rgba(22,163,74,0.10)' : 'rgba(245,158,11,0.10)',
+        border: `1px solid ${done ? 'rgba(22,163,74,0.3)' : 'rgba(245,158,11,0.3)'}`,
+        borderRadius: '20px', padding: '4px 10px', fontSize: '11px', fontWeight: 700,
+        color: done ? '#16A34A' : '#92400e', whiteSpace: 'nowrap',
+      }}>
+        {done ? '✅' : '⚠️'} {label}: <span style={{ fontWeight: 400, marginLeft: 2 }}>{value}</span>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-        <h2 style={{ marginTop: 0, marginBottom: '0' }}>🃏 Card Selection &amp; Campaign Actions</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+        <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 900, color: 'var(--primary-dark)' }}>🃏 Campaign Actions</h2>
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <button
-            onClick={handleSkipTurn}
-            disabled={loading || !isMyTurn}
-            className="btn-danger"
-            style={{
-              cursor: isMyTurn ? 'pointer' : 'not-allowed',
-              opacity: !isMyTurn ? 0.5 : 1
-            }}
-          >
-            ⏭️ Skip Turn
-          </button>
-          <div style={{ fontSize: '12px', background: 'var(--primary-border)', padding: '5px 12px', borderRadius: '20px', color: '#fff', fontWeight: 'bold' }}>
-            Month {turnData.turnNumber} / 60
+          <div style={{ fontSize: '13px', background: 'var(--primary-dark)', padding: '5px 14px', borderRadius: '20px', color: '#fff', fontWeight: 700 }}>
+            📅 Month {turnData.turnNumber} / 60
           </div>
+          <button onClick={handleSkipTurn} disabled={loading || !isMyTurn} className="btn-danger"
+            style={{ cursor: isMyTurn ? 'pointer' : 'not-allowed', opacity: !isMyTurn ? 0.5 : 1 }}>
+            ⏭️ Skip
+          </button>
         </div>
       </div>
 
-      {/* Multiplayer wait banner when it’s not this player’s turn */}
       {!isMyTurn && (
-        <div style={{
-          background: 'linear-gradient(135deg, var(--primary-dark) 0%, #1a2f3e 100%)',
-          border: '2px solid var(--primary-border)',
-          borderRadius: '14px',
-          padding: '30px',
-          textAlign: 'center',
-          color: '#ffffff',
-          marginBottom: '20px',
-          boxShadow: '0 8px 25px rgba(33,60,81,0.2)'
-        }}>
+        <div style={{ background: 'linear-gradient(135deg, var(--primary-dark) 0%, #1a2f3e 100%)', border: '2px solid var(--primary-border)', borderRadius: '14px', padding: '30px', textAlign: 'center', color: '#ffffff', marginBottom: '20px', boxShadow: '0 8px 25px rgba(33,60,81,0.2)' }}>
           <div style={{ fontSize: '36px', marginBottom: '12px' }}>⏳</div>
           <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 900 }}>Waiting for Opponent</h3>
           <p style={{ margin: 0, opacity: 0.75, fontSize: '14px' }}>
-            It is <strong>{turnData.activeHumanPartyName || 'the other player'}’s</strong> turn to play.
-            <br />Actions will be available once they submit their decisions.
+            It is <strong>{turnData.activeHumanPartyName || 'the other player'}'s</strong> turn to play.<br />
+            Actions will be available once they submit their decisions.
           </p>
         </div>
       )}
 
-      {/* Show action sections only when it’s this player’s turn */}
-      {isMyTurn && (
-        <>
-      {/* 1. Political Card Selection */}
-      <ActionSection
-        num={1}
-        title="Political Card Selection"
-        isCompleted={isCardCompleted}
-        activeAccordion={activeAccordion}
-        setActiveAccordion={setActiveAccordion}
-      >
-        <Action1CardSelection
-          turnData={turnData}
-          selectedCard={selectedCard}
-          setSelectedCard={setSelectedCard}
-          targetPartyId={targetPartyId}
-          setTargetPartyId={setTargetPartyId}
-          cardCategoryFilter={cardCategoryFilter}
-          setCardCategoryFilter={setCardCategoryFilter}
-        />
-      </ActionSection>
-
-      {/* 2. News Reaction */}
-      <ActionSection
-        num={2}
-        title="News Reaction"
-        isCompleted={isNewsCompleted}
-        activeAccordion={activeAccordion}
-        setActiveAccordion={setActiveAccordion}
-      >
-        <Action2NewsReaction
-          turnData={turnData}
-          selectedNewsReactions={selectedNewsReactions}
-          setSelectedNewsReactions={setSelectedNewsReactions}
-        />
-      </ActionSection>
-
-      {/* 3. Party Management */}
-      <ActionSection
-        num={3}
-        title="Party Management"
-        isCompleted={isSection3Completed}
-        activeAccordion={activeAccordion}
-        setActiveAccordion={setActiveAccordion}
-      >
-        <Action3PartyDecision
-          turnData={turnData}
-          selectedIssueOptionKey={selectedIssueOptionKey}
-          setSelectedIssueOptionKey={setSelectedIssueOptionKey}
-          activeParty={activeParty}
-          selectedEventOptionKey={selectedEventOptionKey}
-          setSelectedEventOptionKey={setSelectedEventOptionKey}
-          scenarioEvents={scenarioEvents}
-          projectDefs={projectDefs}
-        />
-      </ActionSection>
-
-      {/* 4. Bid & Play Rewards */}
-      <ActionSection
-        num={4}
-        title="Bid & Play Rewards"
-        isCompleted={isSection4Completed}
-        activeAccordion={activeAccordion}
-        setActiveAccordion={setActiveAccordion}
-      >
-        <Action4Bid
-          turnData={turnData}
-          activeParty={activeParty}
-          bidAmount={bidAmount}
-          setBidAmount={setBidAmount}
-          bidConfirmed={bidConfirmed}
-          setBidConfirmed={setBidConfirmed}
-        />
-
-        <div style={{ marginTop: '20px', borderTop: '1px dashed var(--primary-border)', paddingTop: '20px' }}>
-          <Action5PlayReward
-            turnData={turnData}
-            selectedRewardKey={selectedRewardKey}
-            setSelectedRewardKey={setSelectedRewardKey}
-            rewardTargetPartyId={rewardTargetPartyId}
-            setRewardTargetPartyId={setRewardTargetPartyId}
-            rewardConfirmed={rewardConfirmed}
-            setRewardConfirmed={setRewardConfirmed}
-          />
+      {isMyTurn && (<>
+        <div style={{ display: 'flex', background: 'rgba(var(--party-primary-color-rgb,26,52,72),0.05)', borderRadius: '12px 12px 0 0', border: '1.5px solid var(--card-border)', borderBottom: 'none', overflow: 'hidden' }}>
+          <TabBtn id={TAB_POLITICS}   icon="🗳️" label="Politics"   isDone={politicsDone}   hasPending={politicsPending}   />
+          <div style={{ width: '1px', background: 'var(--card-border)', flexShrink: 0 }} />
+          <TabBtn id={TAB_GOVERNANCE} icon="🏛️" label="Governance" isDone={governanceDone} hasPending={governancePending} />
+          <div style={{ width: '1px', background: 'var(--card-border)', flexShrink: 0 }} />
+          <TabBtn id={TAB_ECONOMY}    icon="💰" label="Economy"    isDone={economyDone}    hasPending={economyPending}    />
         </div>
-      </ActionSection>
 
-      {/* 5. Party Building activity */}
-      <ActionSection
-        num={5}
-        title="Party Building activity"
-        isCompleted={isPartyBuildingCompleted}
-        isOptional={true}
-        activeAccordion={activeAccordion}
-        setActiveAccordion={setActiveAccordion}
-      >
-        <Action6PartyBuilding
-          turnData={turnData}
-          activeParty={activeParty}
-          projectDefs={projectDefs}
-          projectCategoryFilter={projectCategoryFilter}
-          setProjectCategoryFilter={setProjectCategoryFilter}
-          fundingContributions={fundingContributions}
-          setFundingContributions={setFundingContributions}
-          partyBuildingConfirmed={partyBuildingConfirmed}
-          setPartyBuildingConfirmed={setPartyBuildingConfirmed}
-          handleFundProject={handleFundProject}
-          handleDestroyProject={handleDestroyProject}
-          handleSetProjectTarget={handleSetProjectTarget}
-          fundedThisTurn={fundedThisTurn}
-          setFundedThisTurn={setFundedThisTurn}
-        />
-      </ActionSection>
+        <div style={{ background: 'rgba(26,52,72,0.03)', border: '1.5px solid var(--card-border)', borderTop: 'none', borderBottom: 'none', padding: '7px 12px', display: 'flex', gap: '7px', overflowX: 'auto', scrollbarWidth: 'none', flexWrap: 'nowrap' }}>
+          {activeTab !== TAB_POLITICS && (<>
+            <SummaryChip label="Card" value={selectedCard ? selectedCard.name : 'Not chosen'} done={isCardCompleted} />
+            <SummaryChip label="News" value={isNewsCompleted ? `${newsItems.length} done` : `${newsItems.length - Object.keys(selectedNewsReactions).length} left`} done={isNewsCompleted} />
+          </>)}
+          {activeTab !== TAB_GOVERNANCE && (
+            <SummaryChip label="Govt" value={isSection3Completed ? 'Done' : 'Pending'} done={isSection3Completed} />
+          )}
+          {activeTab !== TAB_ECONOMY && (<>
+            <SummaryChip label="Bid" value={isBidCompleted ? `${bidAmount} staked` : 'Not locked'} done={isBidCompleted} />
+            {hasRewards && <SummaryChip label="Reward" value={isRewardCompleted ? 'Set' : 'Pending'} done={isRewardCompleted} />}
+          </>)}
+        </div>
 
-      {/* 6. Diplomatic Cooperation */}
-      <ActionSection
-        num={6}
-        title="Diplomatic Cooperation"
-        isCompleted={true}
-        isOptional={true}
-        activeAccordion={activeAccordion}
-        setActiveAccordion={setActiveAccordion}
-      >
-        <Action7Cooperation
-          turnData={turnData}
-          projectDefs={projectDefs}
-          onActionComplete={handleCooperationUpdate}
-        />
-      </ActionSection>
+        <div style={{ border: '1.5px solid var(--card-border)', borderTop: 'none', borderRadius: '0 0 12px 12px', background: '#ffffff', minHeight: '300px' }}>
+          {activeTab === TAB_POLITICS && (
+            <div>
+              <ActionSection num={1} title="Political Card" isCompleted={isCardCompleted} activeAccordion={polAcc} setActiveAccordion={setPolAcc}>
+                <Action1CardSelection turnData={turnData} selectedCard={selectedCard} setSelectedCard={setSelectedCard} targetPartyId={targetPartyId} setTargetPartyId={setTargetPartyId} cardCategoryFilter={cardCategoryFilter} setCardCategoryFilter={setCardCategoryFilter} />
+              </ActionSection>
+              <ActionSection num={2} title="News Reaction" isCompleted={isNewsCompleted} activeAccordion={polAcc} setActiveAccordion={setPolAcc}>
+                <Action2NewsReaction turnData={turnData} selectedNewsReactions={selectedNewsReactions} setSelectedNewsReactions={setSelectedNewsReactions} />
+              </ActionSection>
+              <ActionSection num={3} title={turnData.proposedBillKeyThisTurn ? '🗳️ Assembly Vote' : '🏛️ Legislative Agenda'} isCompleted={isLegislativeCompleted} isOptional={!turnData.proposedBillKeyThisTurn} activeAccordion={polAcc} setActiveAccordion={setPolAcc}>
+                <Action8Assembly turnData={turnData} activeParty={activeParty} billVote={billVote} setBillVote={setBillVote} whipIssued={whipIssued} setWhipIssued={setWhipIssued} proposedBillKey={proposedBillKey} setProposedBillKey={setProposedBillKey} selectedEventOptionKey={selectedEventOptionKey} setSelectedEventOptionKey={setSelectedEventOptionKey} scenarioBills={scenarioBills} scenarioEvents={scenarioEvents} />
+              </ActionSection>
+            </div>
+          )}
 
-      {/* 7. Legislative Assembly & State Affairs */}
-      <ActionSection
-        num={7}
-        title={turnData.proposedBillKeyThisTurn ? "🗳️ Legislative Assembly Vote" : "🏛️ Legislative Agenda"}
-        isCompleted={isLegislativeCompleted}
-        isOptional={!turnData.proposedBillKeyThisTurn}
-        activeAccordion={activeAccordion}
-        setActiveAccordion={setActiveAccordion}
-      >
-        <Action8Assembly
-          turnData={turnData}
-          activeParty={activeParty}
-          billVote={billVote}
-          setBillVote={setBillVote}
-          whipIssued={whipIssued}
-          setWhipIssued={setWhipIssued}
-          proposedBillKey={proposedBillKey}
-          setProposedBillKey={setProposedBillKey}
-          selectedEventOptionKey={selectedEventOptionKey}
-          setSelectedEventOptionKey={setSelectedEventOptionKey}
-          scenarioBills={scenarioBills}
-          scenarioEvents={scenarioEvents}
-        />
-      </ActionSection>
+          {activeTab === TAB_GOVERNANCE && (
+            <div>
+              <ActionSection num={31} title="Party Management" isCompleted={isSection3Completed} activeAccordion={govAcc} setActiveAccordion={setGovAcc}>
+                <Action3PartyDecision turnData={turnData} selectedIssueOptionKey={selectedIssueOptionKey} setSelectedIssueOptionKey={setSelectedIssueOptionKey} activeParty={activeParty} selectedEventOptionKey={selectedEventOptionKey} setSelectedEventOptionKey={setSelectedEventOptionKey} scenarioEvents={scenarioEvents} projectDefs={projectDefs} />
+              </ActionSection>
+              <ActionSection num={32} title="Diplomatic Cooperation" isCompleted={true} isOptional={true} activeAccordion={govAcc} setActiveAccordion={setGovAcc}>
+                <Action7Cooperation turnData={turnData} projectDefs={projectDefs} onActionComplete={handleCooperationUpdate} />
+              </ActionSection>
+            </div>
+          )}
 
-      {/* Submit Section */}
-      <div style={{ marginTop: '30px', borderTop: '2px solid var(--primary-border)', paddingTop: '20px' }}>
-        <div style={{ marginBottom: '12px' }}>
-          {!allActionsReady ? (
-            <span style={{ color: '#d23f31', fontWeight: 'bold', fontSize: '14px' }}>
-              ⏳ Please complete all required actions (Political Card, News Reaction, Event Decision, Bid).
-            </span>
-          ) : (
-            <span style={{ color: '#16A34A', fontWeight: 'bold', fontSize: '14px' }}>
-              🎉 All required decisions locked! Ready to proceed.
-            </span>
+          {activeTab === TAB_ECONOMY && (
+            <div>
+              <ActionSection num={41} title="Competitive Bid" isCompleted={isBidCompleted} activeAccordion={ecoAcc} setActiveAccordion={setEcoAcc}>
+                <Action4Bid turnData={turnData} activeParty={activeParty} bidAmount={bidAmount} setBidAmount={setBidAmount} bidConfirmed={bidConfirmed} setBidConfirmed={setBidConfirmed} />
+              </ActionSection>
+              <ActionSection num={42} title="Play Rewards" isCompleted={isRewardCompleted} isOptional={!hasRewards} activeAccordion={ecoAcc} setActiveAccordion={setEcoAcc}>
+                <Action5PlayReward turnData={turnData} selectedRewardKey={selectedRewardKey} setSelectedRewardKey={setSelectedRewardKey} rewardTargetPartyId={rewardTargetPartyId} setRewardTargetPartyId={setRewardTargetPartyId} rewardConfirmed={rewardConfirmed} setRewardConfirmed={setRewardConfirmed} />
+              </ActionSection>
+              <ActionSection num={43} title="Party Building" isCompleted={isPartyBuildingCompleted} isOptional={true} activeAccordion={ecoAcc} setActiveAccordion={setEcoAcc}>
+                <Action6PartyBuilding turnData={turnData} activeParty={activeParty} projectDefs={projectDefs} projectCategoryFilter={projectCategoryFilter} setProjectCategoryFilter={setProjectCategoryFilter} fundingContributions={fundingContributions} setFundingContributions={setFundingContributions} partyBuildingConfirmed={partyBuildingConfirmed} setPartyBuildingConfirmed={setPartyBuildingConfirmed} handleFundProject={handleFundProject} handleDestroyProject={handleDestroyProject} handleSetProjectTarget={handleSetProjectTarget} fundedThisTurn={fundedThisTurn} setFundedThisTurn={setFundedThisTurn} />
+              </ActionSection>
+            </div>
           )}
         </div>
-        <button
-          onClick={handleAdvanceTurn}
-          disabled={!allActionsReady || loading}
-          className="btn-primary-cta"
-          style={{
-            backgroundColor: allActionsReady ? '#16A34A' : '#3A5469',
-            color: '#ffffff',
-            cursor: allActionsReady ? 'pointer' : 'not-allowed',
-            border: 'none',
-          }}
-        >
-          {loading ? 'Advancing Turn...' : 'End Turn — Submit Decisions ➔'}
-        </button>
-      </div>
-      </>
-      )}
+
+        <div style={{ marginTop: '14px', background: 'rgba(26,52,72,0.04)', border: '1.5px solid var(--card-border)', borderRadius: '12px', padding: '14px 16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '7px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Turn Progress</span>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: allActionsReady ? '#16A34A' : 'var(--text-secondary)' }}>{doneCount} / 7 done</span>
+          </div>
+          <div style={{ width: '100%', height: '6px', background: 'rgba(26,52,72,0.12)', borderRadius: '3px', overflow: 'hidden', marginBottom: '12px' }}>
+            <div style={{ height: '100%', width: `${(doneCount / 7) * 100}%`, background: allActionsReady ? '#16A34A' : 'var(--party-primary-color, var(--primary-dark))', borderRadius: '3px', transition: 'width 0.4s ease' }} />
+          </div>
+          <div style={{ marginBottom: '10px', fontSize: '14px', fontWeight: 700, color: allActionsReady ? '#16A34A' : '#d23f31' }}>
+            {allActionsReady ? '🎉 All decisions locked — ready to submit!' : '⏳ Complete required actions in all tabs.'}
+          </div>
+          <button onClick={handleAdvanceTurn} disabled={!allActionsReady || loading} className="btn-primary-cta"
+            style={{ backgroundColor: allActionsReady ? '#16A34A' : '#3A5469', color: '#ffffff', cursor: allActionsReady ? 'pointer' : 'not-allowed', border: 'none' }}>
+            {loading ? '⏳ Advancing Turn...' : 'End Turn — Submit Decisions ➔'}
+          </button>
+        </div>
+      </>)}
     </div>
   );
 }

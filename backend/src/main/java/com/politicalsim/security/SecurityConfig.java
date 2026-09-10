@@ -44,12 +44,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Build allowed origins list from env var (comma-separated)
-        List<String> origins = Arrays.stream(allowedOriginsRaw.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toList();
-        config.setAllowedOriginPatterns(origins);
+        // Allow all origin patterns to accommodate Capacitor mobile webviews (http://localhost, capacitor://localhost), dev, and production
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization", "Content-Type"));

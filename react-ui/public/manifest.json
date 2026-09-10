@@ -1,11 +1,11 @@
 {
-  "short_name": "Bharat Rajneeti",
-  "name": "Bharat Rajneeti: Indian Politics Simulator",
+  "short_name": "Statecraft",
+  "name": "Statecraft",
   "icons": [
     {
-      "src": "/politics.svg",
-      "type": "image/svg+xml",
-      "sizes": "any"
+      "src": "/app-logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ],
   "start_url": "/",

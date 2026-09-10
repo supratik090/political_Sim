@@ -2,7 +2,7 @@ const CACHE_NAME = 'bharat-rajneeti-cache-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/politics.svg',
+  '/app-logo.png',
   '/india_states.geojson'
 ];
 

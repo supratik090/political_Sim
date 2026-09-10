@@ -136,9 +136,9 @@ export default function LandingPage({ onPlayNow }) {
         backgroundColor: 'rgba(10, 15, 29, 0.9)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/politics.svg" alt="Power Play Logo" style={{ width: '40px', height: '40px', borderRadius: '8px' }} />
+          <img src="/app-logo.png" alt="Statecraft Logo" style={{ width: '40px', height: '40px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }} />
           <span style={{ fontSize: '20px', fontWeight: 900, letterSpacing: '-0.02em', background: 'linear-gradient(90deg, #38bdf8, #818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            POWER PLAY
+            STATECRAFT
           </span>
         </div>
         <button 
@@ -199,7 +199,7 @@ export default function LandingPage({ onPlayNow }) {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
           }}>
-            POWER PLAY
+            STATECRAFT
           </h1>
           <h2 style={{
             fontSize: '28px',
@@ -548,7 +548,7 @@ export default function LandingPage({ onPlayNow }) {
             Start Playing
           </button>
           <div style={{ marginTop: '40px', fontSize: '13px', color: '#475569' }}>
-            © 2026 Power Play. Built using premium responsive Web Technologies.
+            © 2026 Statecraft. Built using premium responsive Web Technologies.
           </div>
         </div>
       </footer>
