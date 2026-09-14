@@ -31,7 +31,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             origins[i] = origins[i].trim();
         }
         registry.addEndpoint("/ws-game")
-                .setAllowedOriginPatterns(origins)
+                .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
 }

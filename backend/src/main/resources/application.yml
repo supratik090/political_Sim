@@ -9,6 +9,9 @@ spring:
 
 server:
   port: ${PORT:7810}
+  tomcat:
+    relaxed-query-chars: "[,],{,},|,^,#,<,>"
+    relaxed-path-chars: "[,],{,},|,^,#,<,>"
 allowed:
   origins: "http://localhost:5173,http://localhost:3000,https://political-sim-mu.vercel.app"
 political-sim:
