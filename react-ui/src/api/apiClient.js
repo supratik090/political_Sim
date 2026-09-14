@@ -8,10 +8,10 @@ class ApiHttpError extends Error {
 }
 
 const FALLBACK_CANDIDATES = [
+  'https://political-sim-279311597920.asia-south1.run.app',
   'http://192.168.29.219:7810',
   'http://10.0.2.2:7810',
-  'http://localhost:7810',
-  'https://political-sim.onrender.com'
+  'http://localhost:7810'
 ];
 
 export function getApiBaseUrl() {
