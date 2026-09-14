@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useGameStore } from '../../store/gameStore';
 import { listGames, fetchScenarioProgress, createGame, deleteGame, getGameByJoinCode } from '../../api/apiClient';
 import { getPartyThemeByName } from '../../constants/partyThemes';
+import { isAndroidApp } from '../../utils/platform';
 
 // Module-level cache: userId → { gamesData, progressData, timestamp }
 // Lives for the lifetime of the browser session. Entries expire after CACHE_TTL_MS.
@@ -189,6 +190,14 @@ export default function DashboardHome() {
       if (cacheKey) setCached(cacheKey, gamesData, progressData);
 
       setGames(gamesData);
+
+      if (isAndroidApp() && gamesData && gamesData.length > 0) {
+        const activeOrLatest = gamesData.find(g => g.status === 'ACTIVE' || g.status === 'IN_PROGRESS') || gamesData[0];
+        if (activeOrLatest) {
+          setActiveGame(activeOrLatest.id);
+          setScreen('GAME');
+        }
+      }
 
       const allScenariosData = (progressData?.scenarios || [])
         .map(s => {

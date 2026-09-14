@@ -183,41 +183,6 @@ export default function AuthScreen() {
             {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
           </button>
         </form>
-
-        {/* Backend Connection Bar */}
-        <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px dashed var(--card-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 700 }}>
-            <span style={{
-              display: 'inline-block', width: '9px', height: '9px', borderRadius: '50%',
-              backgroundColor: serverStatus === 'ONLINE' ? '#16A34A' : serverStatus === 'OFFLINE' ? '#DC2626' : '#F59E0B',
-              boxShadow: serverStatus === 'ONLINE' ? '0 0 6px #16A34A' : 'none'
-            }} />
-            <span style={{ color: serverStatus === 'ONLINE' ? '#16A34A' : serverStatus === 'OFFLINE' ? '#DC2626' : '#F59E0B' }}>
-              {serverStatus === 'ONLINE' ? 'Backend Connected' : serverStatus === 'OFFLINE' ? 'Backend Disconnected' : 'Checking Connection...'}
-            </span>
-          </div>
-
-          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textAlign: 'center', wordBreak: 'break-all' }}>
-            Target: <code style={{ background: 'rgba(0,0,0,0.05)', padding: '2px 6px', borderRadius: '4px' }}>{currentApiUrl}</code>
-          </div>
-
-          <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-            <button 
-              type="button"
-              onClick={checkConnection}
-              style={{ background: 'transparent', border: '1px solid var(--card-border)', color: 'var(--text-secondary)', fontSize: '11px', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer' }}
-            >
-              🔄 Retry
-            </button>
-            <button 
-              type="button"
-              onClick={() => { setCustomUrlInput(currentApiUrl); setShowUrlModal(true); }}
-              style={{ background: 'transparent', border: '1px solid var(--card-border)', color: 'var(--text-primary)', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', cursor: 'pointer' }}
-            >
-              ⚙️ Change Server IP
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* URL Switcher Modal */}
