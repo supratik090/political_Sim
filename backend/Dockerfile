@@ -23,11 +23,11 @@ VOLUME /tmp
 # Copy the built JAR from the builder stage.
 COPY --from=builder /src/target/political-sim-backend-0.0.1-SNAPSHOT.jar /app.jar
 
-# Expose the port the Spring Boot app listens on.
-EXPOSE 7810
+# Expose default HTTP port
+EXPOSE 8080
 
-# Set max Java heap memory to 512MB
-ENV JAVA_OPTS="-Xms128m -Xmx512m"
+# Set Java heap memory (256MB heap leaves ~256MB for JVM metaspace/native RAM in a 512MB container)
+ENV JAVA_OPTS="-Xms64m -Xmx256m"
 
 # Run the application.
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app.jar"]
