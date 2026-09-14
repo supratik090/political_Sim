@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGameStore } from './store/gameStore';
 import AuthScreen from './components/Auth/AuthScreen';
 import LandingPage from './components/LandingPage';
@@ -10,38 +10,48 @@ import AdminConsole from './components/Admin/AdminConsole';
 
 import Lobby from './components/Dashboard/Lobby';
 import JoinGame from './components/Dashboard/JoinGame';
+import { isAndroidApp } from './utils/platform';
 
 const ADMIN_USERNAME = 'AdminUserFoo';
 
 function App() {
-  const { user, currentScreen, activeGameId } = useGameStore();
+  const { user, currentScreen, setScreen, activeGameId } = useGameStore();
   const [isPlayClicked, setIsPlayClicked] = useState(false);
   const isAdmin = user?.name === ADMIN_USERNAME;
+  const isAndroid = isAndroidApp();
+
+  useEffect(() => {
+    if (isAndroid && user && currentScreen === 'HOME' && activeGameId) {
+      setScreen('GAME');
+    }
+  }, [isAndroid, user, currentScreen, activeGameId, setScreen]);
 
   if (!user) {
-    if (!isPlayClicked) {
+    if (!isPlayClicked && !isAndroid) {
       return <LandingPage onPlayNow={() => setIsPlayClicked(true)} />;
     }
     return (
       <div style={{ position: 'relative' }}>
-        <button 
-          onClick={() => setIsPlayClicked(false)}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            color: '#94a3b8',
-            fontSize: '12px',
-            padding: '6px 12px',
-            borderRadius: '9999px',
-            cursor: 'pointer',
-            zIndex: 10
-          }}
-        >
-          ← Back to Info
-        </button>
+        {!isAndroid && (
+          <button 
+            onClick={() => setIsPlayClicked(false)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              left: '20px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: '#94a3b8',
+              fontSize: '12px',
+              padding: '6px 12px',
+              borderRadius: '9999px',
+              cursor: 'pointer',
+              zIndex: 10
+            }}
+          >
+            ← Back to Info
+          </button>
+        )}
         <AuthScreen />
       </div>
     );
@@ -66,7 +76,7 @@ function App() {
           <AdminConsole />
         </div>
       )}
-      {activeGameId && (
+      {(activeGameId || isAndroid) && (
         <div style={{ display: currentScreen === 'GAME' ? 'block' : 'none' }}>
           <GamePlayBoard />
         </div>

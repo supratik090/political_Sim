@@ -1,11 +1,13 @@
 import React from 'react';
 import { useGameStore } from '../../store/gameStore';
+import { isAndroidApp } from '../../utils/platform';
 
 const ADMIN_USERNAME = 'AdminUserFoo';
 
 export default function DashboardLayout({ children }) {
   const { user, logout, currentScreen, setScreen, turnData, timeLeft } = useGameStore();
   const isAdmin = user?.name === ADMIN_USERNAME;
+  const isAndroid = isAndroidApp();
   const formatTime = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
 
   return (
@@ -54,7 +56,7 @@ export default function DashboardLayout({ children }) {
               📖 How to Play
             </button>
           )}
-          {currentScreen !== 'HOME' && (
+          {!isAndroid && currentScreen !== 'HOME' && (
             <button onClick={() => setScreen('HOME')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>
               🏠 Home
             </button>
@@ -77,22 +79,22 @@ export default function DashboardLayout({ children }) {
 
       {/* ── Android Bottom Tab Bar (mobile only via CSS) ── */}
       <nav className="android-bottom-nav" role="navigation" aria-label="Main navigation">
-        <button
-          className={`android-bottom-nav-item ${currentScreen === 'HOME' ? 'active' : ''}`}
-          onClick={() => setScreen('HOME')}
-        >
-          <span className="nav-icon">🏠</span>
-          Home
-        </button>
-        {turnData && (
+        {!isAndroid && (
           <button
-            className={`android-bottom-nav-item ${currentScreen === 'GAME' ? 'active' : ''}`}
-            onClick={() => setScreen('GAME')}
+            className={`android-bottom-nav-item ${currentScreen === 'HOME' ? 'active' : ''}`}
+            onClick={() => setScreen('HOME')}
           >
-            <span className="nav-icon">🎮</span>
-            Game
+            <span className="nav-icon">🏠</span>
+            Home
           </button>
         )}
+        <button
+          className={`android-bottom-nav-item ${currentScreen === 'GAME' ? 'active' : ''}`}
+          onClick={() => setScreen('GAME')}
+        >
+          <span className="nav-icon">🎮</span>
+          Campaign
+        </button>
         <button
           className={`android-bottom-nav-item ${currentScreen === 'HOW_TO_PLAY' ? 'active' : ''}`}
           onClick={() => setScreen('HOW_TO_PLAY')}

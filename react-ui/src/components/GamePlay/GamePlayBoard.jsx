@@ -4,6 +4,7 @@ import { fetchTurnView, advanceTurn, fundProject, destroyProject, setProjectTarg
 import { getPartyColor, cardRequiresTarget } from './gameUtils';
 import StatsView from './StatsView';
 import ActionsView from './ActionsView';
+import WarRoomView from './WarRoom/WarRoomView';
 import { getPartyThemeByName } from '../../constants/partyThemes';
 import { PROJECT_DEFS } from './constants';
 import RoundResolutionModal from './RoundResolutionModal';
@@ -209,6 +210,14 @@ export default function GamePlayBoard() {
   const [showResolutionReport, setShowResolutionReport] = useState(false);
   const [showSkipModal, setShowSkipModal] = useState(false);
   const [showDefeatHazardModal, setShowDefeatHazardModal] = useState(false);
+  const [useWarRoom, setUseWarRoom] = useState(() => {
+    try {
+      const saved = localStorage.getItem('political_sim_ui_mode');
+      return saved === 'warroom' || saved === 'true';
+    } catch (e) {
+      return false;
+    }
+  }); // ⚔️ War Room UI toggle persisted in localStorage
 
   // Project building draft states
   const [projectCategoryFilter, setProjectCategoryFilter] = useState('BUILD');
@@ -304,6 +313,31 @@ export default function GamePlayBoard() {
       loadTurnData(false);
     }
   }, [gameUpdateTick]);
+
+  // Set default Safe Bid value when turn loads or updates
+  useEffect(() => {
+    if (turnData) {
+      const lastWonBid = (turnData?.lastRoundWinnerPartyId && turnData?.lastRoundBids?.[turnData.lastRoundWinnerPartyId] != null)
+        ? turnData.lastRoundBids[turnData.lastRoundWinnerPartyId]
+        : null;
+      const safeBidValue = lastWonBid != null ? lastWonBid : 10;
+
+      const bidMetric = turnData?.biddingMetric || 'COINS';
+      const activePartyStats = activeParty?.stats || {};
+      const metricMap = {
+        COINS: 'coins',
+        CORRUPTION: 'corruptionScore',
+        MORALE: 'partyMorale',
+        MEDIA: 'mediaImage',
+        PUBLIC_SUPPORT: 'publicSupport'
+      };
+      let maxBid = activePartyStats[metricMap[bidMetric.toUpperCase()] || 'coins'] || 0;
+      if (bidMetric.toUpperCase() === 'CORRUPTION') {
+        maxBid = Math.max(0, 95 - (activePartyStats.corruptionScore || 0));
+      }
+      setBidAmount(Math.min(safeBidValue, maxBid));
+    }
+  }, [turnData?.turnNumber]);
 
   useEffect(() => {
     if (turnData?.turnStartTime && turnData?.turnDurationSeconds) {
@@ -777,6 +811,41 @@ useEffect(() => {
             🚨 CRISIS: SOS
           </button>
         )}
+        {/* ⚔️ War Room Toggle */}
+        <button
+          onClick={() => {
+            setUseWarRoom(prev => {
+              const nextVal = !prev;
+              try {
+                localStorage.setItem('political_sim_ui_mode', nextVal ? 'warroom' : 'classic');
+              } catch (e) {
+                console.error(e);
+              }
+              return nextVal;
+            });
+          }}
+          style={{
+            background: useWarRoom
+              ? 'linear-gradient(135deg, #6C3AB5, #9B5DE5)'
+              : 'rgba(108, 58, 181, 0.12)',
+            color: useWarRoom ? '#ffffff' : '#9B5DE5',
+            border: `1.5px solid ${useWarRoom ? '#9B5DE5' : 'rgba(108,58,181,0.4)'}`,
+            fontWeight: 800,
+            fontSize: '12px',
+            padding: '10px 14px',
+            borderRadius: '20px',
+            minHeight: '44px',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent',
+            transition: 'all 0.2s ease',
+            flexShrink: 0,
+          }}
+        >
+          {useWarRoom ? '⚔️ War Room' : '⚔️ Classic'}
+        </button>
       </div>
 
       {/* View Content inside Curved Layout Wrapper */}
@@ -813,78 +882,135 @@ useEffect(() => {
           )}
 
           {activeView === 'ACTION' && turnData && (
-            <ActionsView
-              turnData={turnData}
-              activeParty={activeParty}
-              loading={loading}
-              handleAdvanceTurn={handleAdvanceTurn}
-              handleSkipTurn={handleSkipTurn}
-              projectDefs={projectDefs}
-              
-              // Action 1 props
-              selectedCard={selectedCard}
-              setSelectedCard={setSelectedCard}
-              targetPartyId={targetPartyId}
-              setTargetPartyId={setTargetPartyId}
-              cardCategoryFilter={cardCategoryFilter}
-              setCardCategoryFilter={setCardCategoryFilter}
+            useWarRoom ? (
+              <WarRoomView
+                turnData={turnData}
+                activeParty={activeParty}
+                loading={loading}
+                handleAdvanceTurn={handleAdvanceTurn}
+                handleSkipTurn={handleSkipTurn}
+                projectDefs={projectDefs}
+                selectedCard={selectedCard}
+                setSelectedCard={setSelectedCard}
+                targetPartyId={targetPartyId}
+                setTargetPartyId={setTargetPartyId}
+                cardCategoryFilter={cardCategoryFilter}
+                setCardCategoryFilter={setCardCategoryFilter}
+                selectedNewsReactions={selectedNewsReactions}
+                setSelectedNewsReactions={setSelectedNewsReactions}
+                selectedIssueOptionKey={selectedIssueOptionKey}
+                setSelectedIssueOptionKey={setSelectedIssueOptionKey}
+                bidAmount={bidAmount}
+                setBidAmount={setBidAmount}
+                bidConfirmed={bidConfirmed}
+                setBidConfirmed={setBidConfirmed}
+                selectedRewardKey={selectedRewardKey}
+                setSelectedRewardKey={setSelectedRewardKey}
+                rewardTargetPartyId={rewardTargetPartyId}
+                setRewardTargetPartyId={setRewardTargetPartyId}
+                rewardConfirmed={rewardConfirmed}
+                setRewardConfirmed={setRewardConfirmed}
+                projectCategoryFilter={projectCategoryFilter}
+                setProjectCategoryFilter={setProjectCategoryFilter}
+                draftProjectKeys={draftProjectKeys}
+                setDraftProjectKeys={setDraftProjectKeys}
+                fundingContributions={fundingContributions}
+                setFundingContributions={setFundingContributions}
+                partyBuildingConfirmed={partyBuildingConfirmed}
+                setPartyBuildingConfirmed={setPartyBuildingConfirmed}
+                handleFundProject={handleFundProject}
+                handleDestroyProject={handleDestroyProject}
+                handleSetProjectTarget={handleSetProjectTarget}
+                fundedThisTurn={fundedThisTurn}
+                setFundedThisTurn={setFundedThisTurn}
+                handleCooperationUpdate={setTurnData}
+                billVote={billVote}
+                setBillVote={setBillVote}
+                whipIssued={whipIssued}
+                setWhipIssued={setWhipIssued}
+                proposedBillKey={proposedBillKey}
+                setProposedBillKey={setProposedBillKey}
+                selectedEventOptionKey={selectedEventOptionKey}
+                setSelectedEventOptionKey={setSelectedEventOptionKey}
+                scenarioBills={scenarioBills}
+                scenarioEvents={scenarioEvents}
+                activeAccordion={activeAccordion}
+                setActiveAccordion={setActiveAccordion}
+              />
+            ) : (
+              <ActionsView
+                turnData={turnData}
+                activeParty={activeParty}
+                loading={loading}
+                handleAdvanceTurn={handleAdvanceTurn}
+                handleSkipTurn={handleSkipTurn}
+                projectDefs={projectDefs}
+                
+                // Action 1 props
+                selectedCard={selectedCard}
+                setSelectedCard={setSelectedCard}
+                targetPartyId={targetPartyId}
+                setTargetPartyId={setTargetPartyId}
+                cardCategoryFilter={cardCategoryFilter}
+                setCardCategoryFilter={setCardCategoryFilter}
 
-              // Action 2 props
-              selectedNewsReactions={selectedNewsReactions}
-              setSelectedNewsReactions={setSelectedNewsReactions}
+                // Action 2 props
+                selectedNewsReactions={selectedNewsReactions}
+                setSelectedNewsReactions={setSelectedNewsReactions}
 
-              // Action 3 props
-              selectedIssueOptionKey={selectedIssueOptionKey}
-              setSelectedIssueOptionKey={setSelectedIssueOptionKey}
+                // Action 3 props
+                selectedIssueOptionKey={selectedIssueOptionKey}
+                setSelectedIssueOptionKey={setSelectedIssueOptionKey}
 
-              // Action 4 props
-              bidAmount={bidAmount}
-              setBidAmount={setBidAmount}
-              bidConfirmed={bidConfirmed}
-              setBidConfirmed={setBidConfirmed}
+                // Action 4 props
+                bidAmount={bidAmount}
+                setBidAmount={setBidAmount}
+                bidConfirmed={bidConfirmed}
+                setBidConfirmed={setBidConfirmed}
 
-              // Action 5 props
-              selectedRewardKey={selectedRewardKey}
-              setSelectedRewardKey={setSelectedRewardKey}
-              rewardTargetPartyId={rewardTargetPartyId}
-              setRewardTargetPartyId={setRewardTargetPartyId}
-              rewardConfirmed={rewardConfirmed}
-              setRewardConfirmed={setRewardConfirmed}
+                // Action 5 props
+                selectedRewardKey={selectedRewardKey}
+                setSelectedRewardKey={setSelectedRewardKey}
+                rewardTargetPartyId={rewardTargetPartyId}
+                setRewardTargetPartyId={setRewardTargetPartyId}
+                rewardConfirmed={rewardConfirmed}
+                setRewardConfirmed={setRewardConfirmed}
 
-              // Action 6 props
-              projectCategoryFilter={projectCategoryFilter}
-              setProjectCategoryFilter={setProjectCategoryFilter}
-              draftProjectKeys={draftProjectKeys}
-              setDraftProjectKeys={setDraftProjectKeys}
-              fundingContributions={fundingContributions}
-              setFundingContributions={setFundingContributions}
-              partyBuildingConfirmed={partyBuildingConfirmed}
-              setPartyBuildingConfirmed={setPartyBuildingConfirmed}
-              handleFundProject={handleFundProject}
-              handleDestroyProject={handleDestroyProject}
-              handleSetProjectTarget={handleSetProjectTarget}
-              fundedThisTurn={fundedThisTurn}
-              setFundedThisTurn={setFundedThisTurn}
+                // Action 6 props
+                projectCategoryFilter={projectCategoryFilter}
+                setProjectCategoryFilter={setProjectCategoryFilter}
+                draftProjectKeys={draftProjectKeys}
+                setDraftProjectKeys={setDraftProjectKeys}
+                fundingContributions={fundingContributions}
+                setFundingContributions={setFundingContributions}
+                partyBuildingConfirmed={partyBuildingConfirmed}
+                setPartyBuildingConfirmed={setPartyBuildingConfirmed}
+                handleFundProject={handleFundProject}
+                handleDestroyProject={handleDestroyProject}
+                handleSetProjectTarget={handleSetProjectTarget}
+                fundedThisTurn={fundedThisTurn}
+                setFundedThisTurn={setFundedThisTurn}
 
-              // Action 7 props
-              handleCooperationUpdate={setTurnData}
+                // Action 7 props
+                handleCooperationUpdate={setTurnData}
 
-              // Action 8 / Assembly props
-              billVote={billVote}
-              setBillVote={setBillVote}
-              whipIssued={whipIssued}
-              setWhipIssued={setWhipIssued}
-              proposedBillKey={proposedBillKey}
-              setProposedBillKey={setProposedBillKey}
-              selectedEventOptionKey={selectedEventOptionKey}
-              setSelectedEventOptionKey={setSelectedEventOptionKey}
-              scenarioBills={scenarioBills}
-              scenarioEvents={scenarioEvents}
+                // Action 8 / Assembly props
+                billVote={billVote}
+                setBillVote={setBillVote}
+                whipIssued={whipIssued}
+                setWhipIssued={setWhipIssued}
+                proposedBillKey={proposedBillKey}
+                setProposedBillKey={setProposedBillKey}
+                selectedEventOptionKey={selectedEventOptionKey}
+                setSelectedEventOptionKey={setSelectedEventOptionKey}
+                scenarioBills={scenarioBills}
+                scenarioEvents={scenarioEvents}
 
-              // Accordion state
-              activeAccordion={activeAccordion}
-              setActiveAccordion={setActiveAccordion}
-            />
+                // Accordion state
+                activeAccordion={activeAccordion}
+                setActiveAccordion={setActiveAccordion}
+              />
+            )
           )}
 
         </div>

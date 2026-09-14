@@ -1,0 +1,490 @@
+/* ============================================================
+   WAR ROOM UI — warroom.css
+   Scoped entirely under .wr-root — zero leakage to existing styles
+   ============================================================ */
+
+/* ── Design Tokens ── */
+.wr-root {
+  /* Core surfaces */
+  --wr-bg:            #0D1117;
+  --wr-surface:       #161B22;
+  --wr-surface-2:     #1C2128;
+  --wr-border:        rgba(255,255,255,0.08);
+  --wr-border-strong: rgba(255,255,255,0.20);
+
+  /* Tab theme colours */
+  --wr-politics-from:   #6C3AB5;
+  --wr-politics-to:     #9B5DE5;
+  --wr-gov-from:        #0F766E;
+  --wr-gov-to:          #10B981;
+  --wr-eco-from:        #D97706;
+  --wr-eco-to:          #F59E0B;
+
+  /* Status */
+  --wr-done:    #16A34A;
+  --wr-pending: #F59E0B;
+  --wr-danger:  #DC2626;
+  --wr-gold:    #F59E0B;
+  --wr-blue:    #2563EB;
+
+  /* Card category gradients */
+  --wr-cat-governance:   linear-gradient(145deg, #3b1d8e 0%, #5b21b6 100%);
+  --wr-cat-agitation:    linear-gradient(145deg, #7f1d1d 0%, #b91c1c 100%);
+  --wr-cat-welfare:      linear-gradient(145deg, #064e3b 0%, #059669 100%);
+  --wr-cat-media:        linear-gradient(145deg, #1e3a8a 0%, #2563eb 100%);
+  --wr-cat-organization: linear-gradient(145deg, #164e63 0%, #0891b2 100%);
+  --wr-cat-ideology:     linear-gradient(145deg, #78350f 0%, #d97706 100%);
+  --wr-cat-scandal:      linear-gradient(145deg, #7c2d12 0%, #ea580c 100%);
+  --wr-cat-defensive:    linear-gradient(145deg, #1f2937 0%, #374151 100%);
+  --wr-cat-default:      linear-gradient(145deg, #1a3448 0%, #2d4a62 100%);
+
+  /* Glow shadows */
+  --wr-glow-gold:   0 0 18px rgba(245,158,11,0.55);
+  --wr-glow-green:  0 0 20px rgba(22,163,74,0.6);
+  --wr-glow-purple: 0 0 16px rgba(108,58,181,0.55);
+  --wr-glow-teal:   0 0 16px rgba(16,185,129,0.45);
+
+  /* Radii */
+  --wr-r-sm:   8px;
+  --wr-r-md:   12px;
+  --wr-r-lg:   16px;
+  --wr-r-xl:   20px;
+  --wr-r-full: 9999px;
+
+  /* Font */
+  --wr-font: 'Montserrat', system-ui, -apple-system, sans-serif;
+
+  /* Base setup */
+  font-family: var(--wr-font);
+  background: var(--wr-bg);
+  color: #E6EDF3;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Typography ── */
+.wr-label-xs  { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #7D8590; }
+.wr-label-sm  { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #8B949E; }
+.wr-label-md  { font-size: 14px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.wr-label-lg  { font-size: 18px; font-weight: 900; letter-spacing: 0.03em; }
+.wr-heading   { font-size: 20px; font-weight: 900; color: #E6EDF3; }
+.wr-body-sm   { font-size: 12px; font-weight: 400; line-height: 1.55; color: #8B949E; }
+.wr-body-md   { font-size: 14px; font-weight: 400; line-height: 1.65; color: #C9D1D9; }
+.wr-gold-text  { color: #F59E0B; }
+.wr-green-text { color: #4ADE80; }
+.wr-red-text   { color: #F87171; }
+.wr-muted      { color: #7D8590; }
+
+/* ── Surfaces ── */
+.wr-panel {
+  background: var(--wr-surface);
+  border: 1px solid var(--wr-border);
+  border-radius: var(--wr-r-md);
+}
+.wr-panel-2 {
+  background: var(--wr-surface-2);
+  border: 1px solid var(--wr-border);
+  border-radius: var(--wr-r-md);
+}
+
+/* ── Effect Badge Chips ── */
+.wr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: var(--wr-r-full);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.wr-badge-green  { background: rgba(22,163,74,0.18);  color: #4ADE80; border: 1px solid rgba(22,163,74,0.35); }
+.wr-badge-red    { background: rgba(220,38,38,0.18);  color: #F87171; border: 1px solid rgba(220,38,38,0.35); }
+.wr-badge-amber  { background: rgba(245,158,11,0.18); color: #FCD34D; border: 1px solid rgba(245,158,11,0.35); }
+.wr-badge-blue   { background: rgba(37,99,235,0.18);  color: #60A5FA; border: 1px solid rgba(37,99,235,0.35); }
+.wr-badge-teal   { background: rgba(16,185,129,0.18); color: #34D399; border: 1px solid rgba(16,185,129,0.35); }
+.wr-badge-purple { background: rgba(108,58,181,0.18); color: #C084FC; border: 1px solid rgba(108,58,181,0.35); }
+.wr-badge-special { background: linear-gradient(135deg,rgba(245,158,11,0.25),rgba(234,179,8,0.1)); color: #FCD34D; border: 1px solid rgba(245,158,11,0.5); }
+
+/* ── Horizontal Scroll Snap Container ── */
+.wr-hscroll {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  gap: 10px;
+  padding-bottom: 2px;
+}
+.wr-hscroll::-webkit-scrollbar { display: none; }
+.wr-hscroll > * { scroll-snap-align: center; flex-shrink: 0; }
+
+/* ── Touch-Optimised Button Base ── */
+.wr-btn {
+  font-family: var(--wr-font);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.wr-btn:active:not(:disabled) { transform: scale(0.95); }
+.wr-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Divider ── */
+.wr-divider {
+  height: 1px;
+  background: var(--wr-border);
+  margin: 12px 0;
+}
+.wr-divider-gold {
+  text-align: center;
+  color: rgba(245,158,11,0.5);
+  letter-spacing: 0.5em;
+  font-size: 13px;
+  margin: 16px 0;
+}
+
+/* ── Section Header inside tabs ── */
+.wr-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+}
+.wr-section-title {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #F59E0B;
+}
+.wr-section-subtitle {
+  font-size: 12px;
+  color: #7D8590;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* ── Status chips (READY / PENDING / OPTIONAL) ── */
+.wr-status-ready    { background: rgba(22,163,74,0.18);  color: #4ADE80; border: 1px solid rgba(22,163,74,0.4);  border-radius: var(--wr-r-full); padding: 3px 10px; font-size: 11px; font-weight: 800; }
+.wr-status-pending  { background: rgba(245,158,11,0.18); color: #FCD34D; border: 1px solid rgba(245,158,11,0.4); border-radius: var(--wr-r-full); padding: 3px 10px; font-size: 11px; font-weight: 800; }
+.wr-status-optional { background: rgba(255,255,255,0.06); color: #8B949E; border: 1px solid rgba(255,255,255,0.12); border-radius: var(--wr-r-full); padding: 3px 10px; font-size: 11px; font-weight: 800; }
+
+/* ────────────────────────────────────────────
+   KEYFRAME ANIMATIONS
+   ──────────────────────────────────────────── */
+
+/* Hex completion pop */
+@keyframes wr-hex-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.3); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+/* Gold fill-in when done */
+@keyframes wr-gold-fill {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Pending hex heartbeat */
+@keyframes wr-pending-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* End Turn ready glow */
+@keyframes wr-pulse-green {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+  50%       { box-shadow: 0 0 0 10px rgba(22,163,74,0.22); }
+}
+
+/* Card selected glow loop */
+@keyframes wr-card-glow {
+  0%, 100% { box-shadow: 0 0 12px rgba(245,158,11,0.4), 0 8px 30px rgba(0,0,0,0.5); }
+  50%       { box-shadow: 0 0 28px rgba(245,158,11,0.85), 0 12px 40px rgba(0,0,0,0.6); }
+}
+
+/* Tab content slide in */
+@keyframes wr-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Stance button selected fill */
+@keyframes wr-fill-in {
+  from { opacity: 0.5; }
+  to   { opacity: 1; }
+}
+
+/* Tab pending light flash */
+@keyframes wr-tab-pending-flash {
+  0%, 100% { background: rgba(245,158,11,0.06); box-shadow: inset 0 0 0 1px rgba(245,158,11,0.2); }
+  50%       { background: rgba(245,158,11,0.22); box-shadow: inset 0 0 0 1.5px rgba(245,158,11,0.65), 0 0 12px rgba(245,158,11,0.3); }
+}
+
+/* End Turn unlock bounce */
+@keyframes wr-unlock-bounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.03); }
+  60%  { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+/* ── Applied animation classes ── */
+.wr-anim-slide-in   { animation: wr-slide-in 0.22s ease both; }
+.wr-anim-fill-in    { animation: wr-fill-in 0.18s ease both; }
+.wr-anim-hex-pop    { animation: wr-hex-pop 0.35s ease both; }
+.wr-anim-pulse-green { animation: wr-pulse-green 2s ease-in-out infinite; }
+.wr-anim-card-glow  { animation: wr-card-glow 2s ease-in-out infinite; }
+.wr-anim-pending    { animation: wr-pending-pulse 1.6s ease-in-out infinite; }
+
+/* ── Tab Content Panels ── */
+.wr-tab-content { animation: wr-slide-in 0.22s ease both; }
+
+/* ── Category Chip (filter pills) ── */
+.wr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border-radius: var(--wr-r-full);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1.5px solid;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  min-height: 36px;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  font-family: var(--wr-font);
+}
+.wr-chip:active { transform: scale(0.94); }
+.wr-chip-inactive {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.12);
+  color: #8B949E;
+}
+.wr-chip-inactive:hover { background: rgba(255,255,255,0.09); }
+
+/* ── Option Card (governance, news stances) ── */
+.wr-option-card {
+  width: 100%;
+  text-align: left;
+  padding: 14px 14px 14px 16px;
+  margin-bottom: 8px;
+  min-height: 64px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border-radius: var(--wr-r-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1.5px solid;
+  border-left-width: 4px;
+  font-family: var(--wr-font);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.wr-option-card:active { transform: scale(0.985); }
+.wr-option-card-inactive {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.07);
+  border-left-color: transparent;
+}
+.wr-option-card-active-teal {
+  background: rgba(16,185,129,0.10);
+  border-color: rgba(16,185,129,0.3);
+  border-left-color: #10B981;
+  box-shadow: 0 0 16px rgba(16,185,129,0.15);
+}
+.wr-option-card-active-purple {
+  background: rgba(108,58,181,0.12);
+  border-color: rgba(108,58,181,0.35);
+  border-left-color: #7C3AED;
+  box-shadow: var(--wr-glow-purple);
+}
+
+/* ── Stepper (+/-) ── */
+.wr-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: var(--wr-r-sm);
+  overflow: hidden;
+}
+.wr-stepper-btn {
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: #E6EDF3;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s;
+  font-family: var(--wr-font);
+}
+.wr-stepper-btn:active { background: rgba(255,255,255,0.15); }
+.wr-stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.wr-stepper-val {
+  min-width: 38px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+  color: #E6EDF3;
+  background: rgba(255,255,255,0.03);
+  padding: 0 4px;
+}
+
+/* ── Freeze / Warning Banner ── */
+.wr-freeze-banner {
+  background: rgba(220,38,38,0.12);
+  border: 1.5px solid rgba(220,38,38,0.4);
+  border-radius: var(--wr-r-md);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #F87171;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+/* ── Project progress bar ── */
+.wr-progress-bar-track {
+  height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.wr-progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #6C3AB5, #9B5DE5);
+  transition: width 0.4s ease;
+}
+
+/* ── Waiting Screen ── */
+.wr-waiting {
+  padding: 40px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(26,52,72,0.6) 0%, rgba(13,17,23,0.8) 100%);
+  border: 1px solid var(--wr-border);
+  border-radius: var(--wr-r-lg);
+  margin: 16px;
+}
+
+/* ── End Turn footer ── */
+.wr-end-turn-footer {
+  padding: 14px 16px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--wr-border);
+  background: var(--wr-bg);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+/* ── Hex shape (clip-path) ── */
+.wr-hex {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* ── Reward card ── */
+.wr-reward-card {
+  padding: 14px;
+  margin-bottom: 10px;
+  border-radius: var(--wr-r-lg);
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  transition: all 0.15s ease;
+  border: 2px solid;
+}
+.wr-reward-card:active { transform: scale(0.98); }
+.wr-reward-card-inactive {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.08);
+}
+.wr-reward-card-selected {
+  background: rgba(245,158,11,0.10);
+  border-color: #F59E0B;
+  box-shadow: var(--wr-glow-gold);
+}
+
+/* ── News card ── */
+.wr-news-card {
+  background: linear-gradient(145deg, #2D1B00, #1a1000);
+  border: 1px solid rgba(245,158,11,0.18);
+  border-radius: var(--wr-r-lg);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* ── BID gauge arc container ── */
+.wr-gauge-container {
+  width: 160px;
+  height: 90px;
+  position: relative;
+  overflow: visible;
+  margin: 0 auto 6px;
+}
+
+/* ── Quick-pick row ── */
+.wr-quickpick-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* ── Cooperation collapsible ── */
+.wr-coop-panel {
+  border: 1.5px dashed rgba(16,185,129,0.3);
+  border-radius: var(--wr-r-md);
+  padding: 14px;
+  background: rgba(16,185,129,0.04);
+}
+
+/* ── Card carousel item ── */
+.wr-play-card {
+  width: 148px;
+  height: 218px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 11px 11px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.10);
+  transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s ease, border-color 0.2s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.wr-play-card:active { transform: scale(0.95) !important; }
+.wr-play-card-selected {
+  border-color: #F59E0B;
+  transform: scale(1.06) translateY(-6px);
+}
+.wr-play-card-unselected { opacity: 0.75; }

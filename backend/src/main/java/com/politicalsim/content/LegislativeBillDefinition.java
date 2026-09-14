@@ -24,6 +24,9 @@ public class LegislativeBillDefinition {
     private int pointsFailed;
     private Map<String, Object> effectsPassed = new LinkedHashMap<>();
     private Map<String, Object> effectsFailed = new LinkedHashMap<>();
+    private Map<String, Object> effectsSponsor = new LinkedHashMap<>();
+    private Map<String, Object> effectsSupporters = new LinkedHashMap<>();
+    private Map<String, Object> effectsOpponents = new LinkedHashMap<>();
     private boolean active = true;
 
     public String getId() {
@@ -104,6 +107,36 @@ public class LegislativeBillDefinition {
 
     public void setEffectsFailed(Map<String, Object> effectsFailed) {
         this.effectsFailed = effectsFailed;
+    }
+
+    public Map<String, Object> getEffectsSponsor() {
+        if ((effectsSponsor == null || effectsSponsor.isEmpty()) && effectsPassed != null && !effectsPassed.isEmpty()) {
+            return effectsPassed;
+        }
+        return effectsSponsor;
+    }
+
+    public void setEffectsSponsor(Map<String, Object> effectsSponsor) {
+        this.effectsSponsor = effectsSponsor;
+    }
+
+    public Map<String, Object> getEffectsSupporters() {
+        if ((effectsSupporters == null || effectsSupporters.isEmpty()) && effectsPassed != null && !effectsPassed.isEmpty()) {
+            return effectsPassed;
+        }
+        return effectsSupporters;
+    }
+
+    public void setEffectsSupporters(Map<String, Object> effectsSupporters) {
+        this.effectsSupporters = effectsSupporters;
+    }
+
+    public Map<String, Object> getEffectsOpponents() {
+        return effectsOpponents != null ? effectsOpponents : new LinkedHashMap<>();
+    }
+
+    public void setEffectsOpponents(Map<String, Object> effectsOpponents) {
+        this.effectsOpponents = effectsOpponents;
     }
 
     public boolean isActive() {

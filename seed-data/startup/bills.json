@@ -6,17 +6,21 @@
     "description": "Construct high-speed state expressways and rural link roads to connect rural mandis with urban trading hubs.",
     "proposingRole": "GOVERNMENT",
     "pointsPassed": 25,
-    "pointsFailed": -5,
-    "effectsPassed": {
-      "coins": 100,
-      "publicSupport": 5,
+    "effectsSponsor": {
+      "coins": 160,
+      "publicSupport": 6,
       "mediaImage": 10,
       "corruptionScore": -10
     },
-    "effectsFailed": {
-      "partyMorale": -8,
+    "effectsSupporters": {
+      "coins": 40,
+      "publicSupport": 2,
+      "mediaImage": 3
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
       "coins": -20,
-      "publicSupport": -2
+      "partyMorale": -5
     },
     "active": true
   },
@@ -27,15 +31,20 @@
     "description": "Provide direct DBT monetary transfers to farming households to offset high diesel and electricity costs.",
     "proposingRole": "GOVERNMENT",
     "pointsPassed": 30,
-    "pointsFailed": -6,
-    "effectsPassed": {
-      "coins": 100,
-      "publicSupport": 5,
+    "effectsSponsor": {
+      "coins": 180,
+      "publicSupport": 8,
       "partyMorale": 25
     },
-    "effectsFailed": {
-      "partyMorale": -10,
-      "publicSupport": -2
+    "effectsSupporters": {
+      "coins": 35,
+      "publicSupport": 2,
+      "partyMorale": 5
+    },
+    "effectsOpponents": {
+      "publicSupport": -6,
+      "coins": -30,
+      "partyMorale": -8
     },
     "active": true
   },
@@ -46,14 +55,19 @@
     "description": "Abolish complex municipal licensing fees and replace them with single-window digital clearances for local MSMEs.",
     "proposingRole": "GOVERNMENT",
     "pointsPassed": 20,
-    "pointsFailed": -4,
-    "effectsPassed": {
+    "effectsSponsor": {
       "coins": 150,
       "publicSupport": 5,
       "corruptionScore": -10
     },
-    "effectsFailed": {
-      "partyMorale": -5
+    "effectsSupporters": {
+      "coins": 45,
+      "publicSupport": 2,
+      "corruptionScore": -3
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
+      "coins": -25
     },
     "active": true
   },
@@ -64,14 +78,19 @@
     "description": "Fund 500 new primary health sub-centers and free diagnostic clinics across under-served tribal and rural blocks.",
     "proposingRole": "GOVERNMENT",
     "pointsPassed": 25,
-    "pointsFailed": -5,
-    "effectsPassed": {
-      "coins": 50,
-      "publicSupport": 5,
+    "effectsSponsor": {
+      "coins": 120,
+      "publicSupport": 7,
       "mediaImage": 15
     },
-    "effectsFailed": {
-      "partyMorale": -7
+    "effectsSupporters": {
+      "coins": 42,
+      "publicSupport": 3,
+      "mediaImage": 5
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
+      "coins": -15
     },
     "active": true
   },
@@ -82,14 +101,18 @@
     "description": "Mandate strict infrastructure benchmarks, digital smartboards, and centralized tracking for all state-run schools.",
     "proposingRole": "GOVERNMENT",
     "pointsPassed": 20,
-    "pointsFailed": -4,
-    "effectsPassed": {
-      "coins": 100,
-      "publicSupport": 5,
-      "partyMorale": 5
+    "effectsSponsor": {
+      "coins": 130,
+      "publicSupport": 6,
+      "partyMorale": 10
     },
-    "effectsFailed": {
-      "partyMorale": -6
+    "effectsSupporters": {
+      "coins": 32,
+      "publicSupport": 2
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
+      "partyMorale": -5
     },
     "active": true
   },
@@ -100,16 +123,21 @@
     "description": "Fast-track land acquisition and offer tax holidays to attract major auto and tech manufacturing hubs to the state.",
     "proposingRole": "GOVERNMENT",
     "pointsPassed": 30,
-    "pointsFailed": -6,
-    "effectsPassed": {
-      "coins": 100,
+    "effectsSponsor": {
+      "coins": 200,
       "publicSupport": 10,
       "mediaImage": 15,
       "corruptionScore": -15
     },
-    "effectsFailed": {
-      "partyMorale": -9,
-      "publicSupport": -5
+    "effectsSupporters": {
+      "coins": 40,
+      "publicSupport": 2,
+      "mediaImage": 3
+    },
+    "effectsOpponents": {
+      "publicSupport": -8,
+      "coins": -40,
+      "partyMorale": -6
     },
     "active": true
   },
@@ -120,14 +148,19 @@
     "description": "Distribute heavily subsidized off-grid solar water pumps to farmers lacking reliable grid electricity.",
     "proposingRole": "GOVERNMENT",
     "pointsPassed": 25,
-    "pointsFailed": -5,
-    "effectsPassed": {
-      "coins": 50,
-      "publicSupport": 3,
+    "effectsSponsor": {
+      "coins": 110,
+      "publicSupport": 5,
       "mediaImage": 10
     },
-    "effectsFailed": {
-      "partyMorale": -6
+    "effectsSupporters": {
+      "coins": 33,
+      "publicSupport": 2,
+      "mediaImage": 3
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
+      "coins": -10
     },
     "active": true
   },
@@ -138,13 +171,17 @@
     "description": "Lay underground optic fiber cables to bring high-speed broadband to all Gram Panchayat offices and village centers.",
     "proposingRole": "GOVERNMENT",
     "pointsPassed": 15,
-    "pointsFailed": -3,
-    "effectsPassed": {
-      "coins": 50,
-      "publicSupport": 3,
+    "effectsSponsor": {
+      "coins": 100,
+      "publicSupport": 5,
       "mediaImage": 10
     },
-    "effectsFailed": {
+    "effectsSupporters": {
+      "coins": 20,
+      "publicSupport": 1
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
       "partyMorale": -4
     },
     "active": true
@@ -156,15 +193,20 @@
     "description": "Provide a temporary monthly cash allowance (Bhatta) to registered unemployed graduates undergoing skill training.",
     "proposingRole": "GOVERNMENT",
     "pointsPassed": 30,
-    "pointsFailed": -6,
-    "effectsPassed": {
-      "coins": 100,
-      "publicSupport": 10,
-      "partyMorale": 10
+    "effectsSponsor": {
+      "coins": 170,
+      "publicSupport": 9,
+      "partyMorale": 15
     },
-    "effectsFailed": {
-      "partyMorale": -8,
-      "publicSupport": -2
+    "effectsSupporters": {
+      "coins": 42,
+      "publicSupport": 2,
+      "partyMorale": 4
+    },
+    "effectsOpponents": {
+      "publicSupport": -7,
+      "coins": -35,
+      "partyMorale": -5
     },
     "active": true
   },
@@ -175,15 +217,20 @@
     "description": "Procure high-tech surveillance, advanced forensic kits, and tactical vehicles for state law enforcement units.",
     "proposingRole": "GOVERNMENT",
     "pointsPassed": 20,
-    "pointsFailed": -4,
-    "effectsPassed": {
-      "coins": 50,
-      "publicSupport": 2,
+    "effectsSponsor": {
+      "coins": 140,
+      "publicSupport": 5,
       "partyMorale": 5,
       "corruptionScore": -20
     },
-    "effectsFailed": {
-      "partyMorale": -5
+    "effectsSupporters": {
+      "coins": 42,
+      "corruptionScore": -6
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
+      "coins": -20,
+      "partyMorale": -4
     },
     "active": true
   },
@@ -194,15 +241,23 @@
     "description": "Empower the state Lokayukta with absolute judicial authority to directly raid and prosecute high-ranking state ministers.",
     "proposingRole": "OPPOSITION",
     "pointsPassed": 15,
-    "pointsFailed": -3,
-    "effectsPassed": {
-      "corruptionScore": -30,
+    "effectsSponsor": {
+      "coins": 160,
       "publicSupport": 10,
-      "partyMorale": 20,
-      "coins": 100
+      "corruptionScore": -30,
+      "partyMorale": 20
     },
-    "effectsFailed": {
-      "partyMorale": -4
+    "effectsSupporters": {
+      "coins": 64,
+      "publicSupport": 4,
+      "corruptionScore": -12,
+      "partyMorale": 8
+    },
+    "effectsOpponents": {
+      "publicSupport": -8,
+      "coins": -50,
+      "corruptionScore": 15,
+      "partyMorale": -10
     },
     "active": true
   },
@@ -213,15 +268,22 @@
     "description": "Enforce strict live online bidding for all state PWD and municipal development contracts exceeding 10 Lakhs.",
     "proposingRole": "OPPOSITION",
     "pointsPassed": 10,
-    "pointsFailed": -2,
-    "effectsPassed": {
+    "effectsSponsor": {
+      "coins": 120,
+      "publicSupport": 6,
       "corruptionScore": -15,
-      "publicSupport": 5,
-      "mediaImage": 15,
-      "coins": 50
+      "mediaImage": 15
     },
-    "effectsFailed": {
-      "partyMorale": -3
+    "effectsSupporters": {
+      "coins": 60,
+      "publicSupport": 3,
+      "corruptionScore": -7,
+      "mediaImage": 7
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
+      "coins": -25,
+      "corruptionScore": 10
     },
     "active": true
   },
@@ -232,15 +294,23 @@
     "description": "Enable local resident welfare associations and citizen panels to lodge institutional corruption charges directly.",
     "proposingRole": "OPPOSITION",
     "pointsPassed": 15,
-    "pointsFailed": -3,
-    "effectsPassed": {
+    "effectsSponsor": {
+      "coins": 130,
+      "publicSupport": 7,
       "corruptionScore": -30,
-      "publicSupport": 5,
-      "partyMorale": 20,
-      "coins": 50
+      "partyMorale": 20
     },
-    "effectsFailed": {
-      "partyMorale": -4
+    "effectsSupporters": {
+      "coins": 39,
+      "publicSupport": 2,
+      "corruptionScore": -9,
+      "partyMorale": 6
+    },
+    "effectsOpponents": {
+      "publicSupport": -6,
+      "coins": -30,
+      "corruptionScore": 10,
+      "partyMorale": -5
     },
     "active": true
   },
@@ -251,15 +321,22 @@
     "description": "Enforce strict budgetary spending allocations and targeted business grants for marginalized communities.",
     "proposingRole": "OPPOSITION",
     "pointsPassed": 15,
-    "pointsFailed": -3,
-    "effectsPassed": {
-      "publicSupport": 15,
+    "effectsSponsor": {
+      "coins": 190,
+      "publicSupport": 10,
       "mediaImage": 15,
-      "partyMorale": 15,
-      "coins": 150
+      "partyMorale": 15
     },
-    "effectsFailed": {
-      "partyMorale": -3
+    "effectsSupporters": {
+      "coins": 47,
+      "publicSupport": 3,
+      "mediaImage": 4,
+      "partyMorale": 4
+    },
+    "effectsOpponents": {
+      "publicSupport": -7,
+      "coins": -35,
+      "partyMorale": -5
     },
     "active": true
   },
@@ -270,15 +347,22 @@
     "description": "Impose hefty criminal fines and cancel factory licenses for industrial units discharging toxic waste into local rivers.",
     "proposingRole": "OPPOSITION",
     "pointsPassed": 10,
-    "pointsFailed": -2,
-    "effectsPassed": {
-      "publicSupport": 5,
+    "effectsSponsor": {
+      "coins": 150,
+      "publicSupport": 6,
       "mediaImage": 15,
-      "corruptionScore": -20,
-      "coins": 100
+      "corruptionScore": -20
     },
-    "effectsFailed": {
-      "partyMorale": -2
+    "effectsSupporters": {
+      "coins": 52,
+      "publicSupport": 2,
+      "mediaImage": 5,
+      "corruptionScore": -7
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
+      "coins": -45,
+      "partyMorale": -4
     },
     "active": true
   },
@@ -289,14 +373,20 @@
     "description": "Demand an institutionalized, legally-backed monthly pension scheme for all educated youth seeking employment.",
     "proposingRole": "OPPOSITION",
     "pointsPassed": 20,
-    "pointsFailed": -4,
-    "effectsPassed": {
-      "publicSupport": 10,
-      "partyMorale": 25,
-      "coins": 50
+    "effectsSponsor": {
+      "coins": 160,
+      "publicSupport": 8,
+      "partyMorale": 25
     },
-    "effectsFailed": {
-      "partyMorale": -4
+    "effectsSupporters": {
+      "coins": 32,
+      "publicSupport": 2,
+      "partyMorale": 5
+    },
+    "effectsOpponents": {
+      "publicSupport": -6,
+      "coins": -30,
+      "partyMorale": -6
     },
     "active": true
   },
@@ -307,14 +397,20 @@
     "description": "Force strict price controls on the open-market retail costs of mustard oil, pulses, rice, and life-saving drugs.",
     "proposingRole": "OPPOSITION",
     "pointsPassed": 15,
-    "pointsFailed": -3,
-    "effectsPassed": {
-      "publicSupport": 10,
-      "partyMorale": 15,
-      "coins": 50
+    "effectsSponsor": {
+      "coins": 140,
+      "publicSupport": 7,
+      "partyMorale": 15
     },
-    "effectsFailed": {
-      "partyMorale": -3
+    "effectsSupporters": {
+      "coins": 42,
+      "publicSupport": 2,
+      "partyMorale": 4
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
+      "coins": -20,
+      "partyMorale": -4
     },
     "active": true
   },
@@ -325,15 +421,23 @@
     "description": "Bypass state secretariat red tape to transfer rural infrastructure budgets straight into Gram Panchayat bank accounts.",
     "proposingRole": "OPPOSITION",
     "pointsPassed": 15,
-    "pointsFailed": -3,
-    "effectsPassed": {
-      "publicSupport": 5,
+    "effectsSponsor": {
+      "coins": 180,
+      "publicSupport": 6,
       "corruptionScore": -15,
-      "partyMorale": 20,
-      "coins": 100
+      "partyMorale": 20
     },
-    "effectsFailed": {
-      "partyMorale": -4
+    "effectsSupporters": {
+      "coins": 45,
+      "publicSupport": 2,
+      "corruptionScore": -4,
+      "partyMorale": 5
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
+      "coins": -35,
+      "corruptionScore": 10,
+      "partyMorale": -5
     },
     "active": true
   },
@@ -344,14 +448,19 @@
     "description": "Mandate that all high court filings, local administration directives, and signs strictly prioritize the regional language.",
     "proposingRole": "OPPOSITION",
     "pointsPassed": 10,
-    "pointsFailed": -2,
-    "effectsPassed": {
-      "publicSupport": 10,
-      "mediaImage": 10,
-      "coins": 50
+    "effectsSponsor": {
+      "coins": 110,
+      "publicSupport": 6,
+      "mediaImage": 10
     },
-    "effectsFailed": {
-      "partyMorale": -2
+    "effectsSupporters": {
+      "coins": 44,
+      "publicSupport": 2,
+      "mediaImage": 4
+    },
+    "effectsOpponents": {
+      "publicSupport": -5,
+      "coins": -15
     },
     "active": true
   },
@@ -362,15 +471,22 @@
     "description": "Prohibit state police from applying Section 144 or using preventive detentions against peaceful political agitators.",
     "proposingRole": "OPPOSITION",
     "pointsPassed": 15,
-    "pointsFailed": -3,
-    "effectsPassed": {
-      "publicSupport": 10,
+    "effectsSponsor": {
+      "coins": 150,
+      "publicSupport": 8,
       "partyMorale": 20,
-      "mediaImage": 15,
-      "coins": 100
+      "mediaImage": 15
     },
-    "effectsFailed": {
-      "partyMorale": -3
+    "effectsSupporters": {
+      "coins": 45,
+      "publicSupport": 2,
+      "partyMorale": 6,
+      "mediaImage": 5
+    },
+    "effectsOpponents": {
+      "publicSupport": -6,
+      "coins": -25,
+      "partyMorale": -5
     },
     "active": true
   }

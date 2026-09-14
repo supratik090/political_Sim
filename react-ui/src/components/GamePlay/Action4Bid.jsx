@@ -23,6 +23,18 @@ export default function Action4Bid({
     maxBid = Math.max(0, 95 - (activePartyStats.corruptionScore || 0));
   }
 
+  const lastWonBid = (turnData?.lastRoundWinnerPartyId && turnData?.lastRoundBids?.[turnData.lastRoundWinnerPartyId] != null)
+    ? turnData.lastRoundBids[turnData.lastRoundWinnerPartyId]
+    : null;
+  const safeBidValue = lastWonBid != null ? lastWonBid : 10;
+
+  const quickPicks = [
+    { label: `🛡️ Safe Bid (${safeBidValue})`, val: safeBidValue },
+    ...(safeBidValue !== 15 ? [{ label: '15', val: 15 }] : []),
+    ...(safeBidValue !== 25 ? [{ label: '25', val: 25 }] : []),
+    { label: 'MAX', val: maxBid }
+  ];
+
   return (
     <div>
       {turnData.turnNumber <= 2 && (
@@ -31,45 +43,43 @@ export default function Action4Bid({
         </p>
       )}
 
-
-
-            {turnData.currentRewardName && (() => {
-              const isSpecial = turnData.currentRewardKey?.startsWith('special_');
-              return (
-                <div style={{
-                  background: isSpecial ? 'linear-gradient(135deg, rgba(250, 204, 21, 0.12) 0%, rgba(234, 179, 8, 0.05) 100%)' : 'rgba(101,148,177,0.08)',
-                  borderLeft: isSpecial ? '4px solid #eab308' : '4px solid var(--selected-highlight)',
-                  border: isSpecial ? '1px solid rgba(234, 179, 8, 0.3)' : 'none',
-                  borderLeftWidth: '4px',
-                  boxShadow: isSpecial ? '0 0 15px rgba(234, 179, 8, 0.2)' : 'none',
-                  padding: '12px 15px',
-                  borderRadius: '8px',
-                  marginBottom: '15px',
-                  position: 'relative'
-                }}>
-                  {isSpecial && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '0',
-                      right: '0',
-                      background: 'linear-gradient(90deg, #f59e0b, #d97706)',
-                      color: '#ffffff',
-                      fontSize: '11px',
-                      fontWeight: 'bold',
-                      padding: '3px 10px',
-                      borderRadius: '0 7px 0 7px',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                      letterSpacing: '0.05em'
-                    }}>
-                      ⭐ SPECIAL REWARD
-                    </div>
-                  )}
-                  <div style={{ fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', color: isSpecial ? '#b45309' : 'var(--primary-dark)', opacity: 0.8 }}>Bidding For</div>
-                  <div style={{ fontSize: '16px', fontWeight: 'bold', color: isSpecial ? '#78350f' : 'var(--primary-dark)', marginTop: '2px' }}>🎯 {turnData.currentRewardName}</div>
-                  <div style={{ fontSize: '13px', opacity: 0.8, fontStyle: 'italic', marginTop: '4px', color: isSpecial ? '#78350f' : 'inherit' }}>{turnData.currentRewardDescription}</div>
-                </div>
-              );
-            })()}
+      {turnData.currentRewardName && (() => {
+        const isSpecial = turnData.currentRewardKey?.startsWith('special_');
+        return (
+          <div style={{
+            background: isSpecial ? 'linear-gradient(135deg, rgba(250, 204, 21, 0.12) 0%, rgba(234, 179, 8, 0.05) 100%)' : 'rgba(101,148,177,0.08)',
+            borderLeft: isSpecial ? '4px solid #eab308' : '4px solid var(--selected-highlight)',
+            border: isSpecial ? '1px solid rgba(234, 179, 8, 0.3)' : 'none',
+            borderLeftWidth: '4px',
+            boxShadow: isSpecial ? '0 0 15px rgba(234, 179, 8, 0.2)' : 'none',
+            padding: '12px 15px',
+            borderRadius: '8px',
+            marginBottom: '15px',
+            position: 'relative'
+          }}>
+            {isSpecial && (
+              <div style={{
+                position: 'absolute',
+                top: '0',
+                right: '0',
+                background: 'linear-gradient(90deg, #f59e0b, #d97706)',
+                color: '#ffffff',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                padding: '3px 10px',
+                borderRadius: '0 7px 0 7px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                letterSpacing: '0.05em'
+              }}>
+                ⭐ SPECIAL REWARD
+              </div>
+            )}
+            <div style={{ fontSize: '12px', textTransform: 'uppercase', fontWeight: 'bold', color: isSpecial ? '#b45309' : 'var(--primary-dark)', opacity: 0.8 }}>Bidding For</div>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', color: isSpecial ? '#78350f' : 'var(--primary-dark)', marginTop: '2px' }}>🎯 {turnData.currentRewardName}</div>
+            <div style={{ fontSize: '13px', opacity: 0.8, fontStyle: 'italic', marginTop: '4px', color: isSpecial ? '#78350f' : 'inherit' }}>{turnData.currentRewardDescription}</div>
+          </div>
+        );
+      })()}
 
       {/* Current Cycle Standings */}
       <div style={{ background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.04)', border: '1.5px dashed var(--party-primary-color, var(--primary-border))', padding: '15px', borderRadius: '10px', marginBottom: '20px' }}>
@@ -99,8 +109,6 @@ export default function Action4Bid({
         </div>
       </div>
 
-
-      
       <div style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
         <div>
           <div style={{ fontSize: '13px', opacity: 0.8 }}>Bidding Metric</div>
@@ -112,12 +120,42 @@ export default function Action4Bid({
         </div>
       </div>
 
+      <div style={{ background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '8px 12px', borderRadius: '6px', marginBottom: '15px', fontSize: '12px', color: '#1e40af' }}>
+        🛡️ <strong>Safe Bid Recommendation: {safeBidValue} {bidMetric.toUpperCase()}</strong> {lastWonBid != null ? `(Picked from last won bid: ${lastWonBid})` : '(Default: 10)'}
+      </div>
+
       <div style={{ textAlign: 'left', fontSize: '14px', fontWeight: 'bold', marginBottom: '15px', color: 'var(--primary-dark)' }}>
         🗳️ Stake: <span style={{ color: 'var(--selected-highlight)', fontSize: '18px' }}>{bidAmount}</span> / {maxBid} ({bidMetric})
         <span style={{ fontWeight: 'normal', opacity: 0.7, marginLeft: '8px' }}>(Remaining: {maxBid - bidAmount})</span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '350px', margin: '0 0 20px 0' }}>
+        {/* Quick Pick Buttons */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {quickPicks.map(item => {
+            const isActive = bidAmount === item.val;
+            return (
+              <button
+                key={item.label}
+                disabled={bidConfirmed}
+                onClick={() => setBidAmount(Math.min(item.val, maxBid))}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: isActive ? '2px solid #3b82f6' : '1px solid var(--primary-border)',
+                  background: isActive ? '#dbeafe' : '#f9fafb',
+                  color: isActive ? '#1e40af' : '#374151',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  cursor: bidConfirmed ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Slider Input Pressure Gauge */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <label htmlFor="custom-bid-slider" style={{ fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-dark)', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
@@ -179,8 +217,6 @@ export default function Action4Bid({
 
         {/* Buttons Row */}
         <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-
-
           <button
             onClick={() => setBidConfirmed(!bidConfirmed)}
             disabled={bidAmount < 0 || bidAmount > maxBid}
@@ -194,9 +230,6 @@ export default function Action4Bid({
               borderStyle: 'solid',
               borderColor: bidConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--party-primary-color))',
               color: bidConfirmed ? 'var(--primary-dark)' : '#ffffff',
-              fontWeight: 'bold',
-              borderRadius: '10px',
-              cursor: 'pointer',
               fontSize: '15px'
             }}
           >

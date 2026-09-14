@@ -126,20 +126,23 @@ export default function Action8Assembly({
 
           {/* Effects Panel */}
           {activeBill && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', background: '#fff', padding: '12px', borderRadius: '8px', border: '1px solid var(--primary-border)', marginBottom: '20px', fontSize: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', background: '#fff', padding: '12px', borderRadius: '8px', border: '1px solid var(--primary-border)', marginBottom: '20px', fontSize: '11px' }}>
               <div>
-                <strong style={{ color: '#166534', display: 'block', marginBottom: '4px' }}>✅ If Passed:</strong>
-                <span style={{ color: '#374151' }}>{formatEffects(activeBill.effectsPassed)}</span>
-                <span style={{ display: 'block', color: '#15803d', fontWeight: 'bold', marginTop: '2px' }}>
-                  +{activeBill.pointsPassed} Morale (Proposer)
-                </span>
+                <strong style={{ color: '#166534', display: 'block', marginBottom: '4px' }}>👑 Sponsor Benefit (100%):</strong>
+                <span style={{ color: '#374151' }}>{formatEffects(activeBill.effectsSponsor || activeBill.effectsPassed)}</span>
+                {activeBill.pointsPassed > 0 && (
+                  <span style={{ display: 'block', color: '#15803d', fontWeight: 'bold', marginTop: '2px' }}>
+                    +{activeBill.pointsPassed} Morale
+                  </span>
+                )}
               </div>
               <div>
-                <strong style={{ color: '#9f1239', display: 'block', marginBottom: '4px' }}>❌ If Failed:</strong>
-                <span style={{ color: '#374151' }}>{formatEffects(activeBill.effectsFailed)}</span>
-                <span style={{ display: 'block', color: '#b91c1c', fontWeight: 'bold', marginTop: '2px' }}>
-                  {activeBill.pointsFailed} Morale (Proposer)
-                </span>
+                <strong style={{ color: '#2563eb', display: 'block', marginBottom: '4px' }}>🤝 Supporter Benefit (Vote YES):</strong>
+                <span style={{ color: '#374151' }}>{formatEffects(activeBill.effectsSupporters || activeBill.effectsPassed) || 'Same as Pass Benefit'}</span>
+              </div>
+              <div>
+                <strong style={{ color: '#dc2626', display: 'block', marginBottom: '4px' }}>⚡ Opponent Impact (Vote NO):</strong>
+                <span style={{ color: '#374151' }}>{formatEffects(activeBill.effectsOpponents) || 'None'}</span>
               </div>
             </div>
           )}
@@ -431,11 +434,16 @@ export default function Action8Assembly({
                         </div>
                       )}
                       <div style={{ color: '#166534', fontWeight: 'bold' }}>
-                        🎁 Pass Benefit: {passBenefit} (+{def.pointsPassed} Morale)
+                        👑 Sponsor Benefit: {formatEffects(def.effectsSponsor || def.effectsPassed)} {def.pointsPassed > 0 ? `(+${def.pointsPassed} Morale)` : ''}
                       </div>
-                      <div style={{ color: '#6b7280', fontWeight: 'bold' }}>
-                        ❌ If Defeated: {formatEffects(def.effectsFailed)} ({def.pointsFailed} Morale)
+                      <div style={{ color: '#2563eb', fontWeight: 'bold' }}>
+                        🤝 Supporter Benefit: {formatEffects(def.effectsSupporters || def.effectsPassed)}
                       </div>
+                      {def.effectsOpponents && Object.keys(def.effectsOpponents).length > 0 && (
+                        <div style={{ color: '#dc2626', fontWeight: 'bold' }}>
+                          ⚡ Opponent Impact: {formatEffects(def.effectsOpponents)}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
