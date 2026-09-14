@@ -9,14 +9,11 @@ WORKDIR /src
 # Copy only the pom.xml first to leverage Docker layer caching for dependencies.
 COPY pom.xml .
 # Download dependencies (including plugins) without compiling the code.
-# The cache mount stores the local Maven repository between builds.
-RUN --mount=type=cache,target=/root/.m2 \
-    mvn -B dependency:go-offline
+RUN mvn -B dependency:go-offline
 
 # Now copy the source code and build the JAR.
 COPY src ./src
-RUN --mount=type=cache,target=/root/.m2 \
-    mvn -B -DskipTests clean package
+RUN mvn -B -DskipTests clean package
 
 # ---------- Runtime stage ----------
 # Use a minimal JDK distribution (Alpine) for the final image.
