@@ -155,22 +155,35 @@ export default function Action6PartyBuilding({
 
                     {pDef.offensive ? (
                       <div style={{ marginTop: '8px' }}>
-                        <label htmlFor={`target-${projId}`} style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>🎯 Target:</label>
-                        <select 
-                          id={`target-${projId}`}
-                          value={proj.targetPartyId || ''} 
-                          disabled={partyBuildingConfirmed}
-                          onChange={(e) => {
-                            handleSetProjectTarget(projId, e.target.value);
-                            setPartyBuildingConfirmed(false);
-                          }}
-                          style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '4px', background: '#fff', color: '#000', border: needsTargetWarning ? '1.5px solid #ef4444' : '1px solid var(--primary-border)' }}
-                        >
-                          <option value="">-- Select Target Opponent --</option>
-                          {turnData.parties.filter(opp => opp.id !== turnData.activeHumanPartyId).map(opp => (
-                            <option key={opp.id} value={opp.id}>{opp.name}</option>
-                          ))}
-                        </select>
+                        <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: '#0f172a' }}>🎯 Target Opponent:</label>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                          {turnData.parties.filter(opp => opp.id !== turnData.activeHumanPartyId).map(opp => {
+                            const isSelected = proj.targetPartyId === opp.id;
+                            return (
+                              <button
+                                key={opp.id}
+                                type="button"
+                                disabled={partyBuildingConfirmed}
+                                onClick={() => {
+                                  handleSetProjectTarget(projId, opp.id);
+                                  setPartyBuildingConfirmed(false);
+                                }}
+                                style={{
+                                  padding: '4px 8px',
+                                  fontSize: '11.5px',
+                                  fontWeight: 'bold',
+                                  borderRadius: '6px',
+                                  border: isSelected ? `2px solid ${opp.color || '#1d4ed8'}` : needsTargetWarning ? '1.5px solid #ef4444' : '1px solid var(--primary-border)',
+                                  background: isSelected ? `${opp.color || '#1d4ed8'}18` : '#ffffff',
+                                  color: isSelected ? opp.color || '#1d4ed8' : '#334155',
+                                  cursor: partyBuildingConfirmed ? 'not-allowed' : 'pointer'
+                                }}
+                              >
+                                {opp.symbol || '🏛️'} {opp.name} {isSelected ? '✓' : ''}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
                     ) : (
                       <span style={{ fontSize: '10px', color: '#22c55e', fontWeight: 'bold', marginTop: '6px', display: 'inline-block' }}>🛡️ Passive yield active</span>
@@ -305,22 +318,32 @@ export default function Action6PartyBuilding({
                           <>
                             <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <label htmlFor={`contrib-${projId}`} style={{ fontSize: '11px', fontWeight: 'bold', color: '#93c5fd' }}>Add Funding %:</label>
-                                <select
-                                  id={`contrib-${projId}`}
-                                  value={chosenContrib}
-                                  disabled={partyBuildingConfirmed}
-                                  onChange={(e) => {
-                                    const val = parseInt(e.target.value);
-                                    setFundingContributions(prev => ({ ...prev, [projId]: val }));
-                                    setPartyBuildingConfirmed(false);
-                                  }}
-                                  style={{ padding: '3px', fontSize: '11px', borderRadius: '4px', background: '#1e293b', color: '#ffffff', border: '1px solid #475569' }}
-                                >
+                                <label style={{ fontSize: '11px', fontWeight: 'bold', color: '#93c5fd' }}>Funding %:</label>
+                                <div style={{ display: 'flex', gap: '4px' }}>
                                   {presets.map(val => (
-                                    <option key={val} value={val}>+{val}%</option>
+                                    <button
+                                      key={val}
+                                      type="button"
+                                      disabled={partyBuildingConfirmed}
+                                      onClick={() => {
+                                        setFundingContributions(prev => ({ ...prev, [projId]: val }));
+                                        setPartyBuildingConfirmed(false);
+                                      }}
+                                      style={{
+                                        padding: '3px 6px',
+                                        fontSize: '11px',
+                                        fontWeight: 'bold',
+                                        borderRadius: '4px',
+                                        border: chosenContrib === val ? '1.5px solid #38bdf8' : '1px solid #475569',
+                                        background: chosenContrib === val ? '#0284c7' : '#1e293b',
+                                        color: '#ffffff',
+                                        cursor: partyBuildingConfirmed ? 'not-allowed' : 'pointer'
+                                      }}
+                                    >
+                                      +{val}%
+                                    </button>
                                   ))}
-                                </select>
+                                </div>
                               </div>
 
                               <div style={{ fontSize: '11px', color: canAfford ? '#cbd5e1' : '#f87171', fontWeight: chosenContrib > 0 ? 'bold' : 'normal' }}>
@@ -493,23 +516,33 @@ export default function Action6PartyBuilding({
                       <div style={{ fontSize: '10px', color: 'var(--card-text)', marginTop: '4px' }}>Yield: {avail.yield}</div>
                       
                       <div style={{ marginTop: '12px' }}>
-                        <label htmlFor={`new-contrib-${avail.key}`} style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'var(--primary-dark)' }}>Start Funding %:</label>
-                        <select
-                          id={`new-contrib-${avail.key}`}
-                          value={chosenContrib}
-                          disabled={partyBuildingConfirmed}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value);
-                            setFundingContributions(prev => ({ ...prev, [avail.key]: val }));
-                            setPartyBuildingConfirmed(false);
-                          }}
-                          style={{ width: '100%', padding: '4px', fontSize: '11px', borderRadius: '4px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}
-                        >
-                          <option value="0">-- Select Funding --</option>
+                        <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: 'var(--primary-dark)' }}>Start Funding %:</label>
+                        <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
                           {presets.map(val => (
-                            <option key={val} value={val}>{val}%</option>
+                            <button
+                              key={val}
+                              type="button"
+                              disabled={partyBuildingConfirmed}
+                              onClick={() => {
+                                setFundingContributions(prev => ({ ...prev, [avail.key]: val }));
+                                setPartyBuildingConfirmed(false);
+                              }}
+                              style={{
+                                flex: 1,
+                                padding: '4px 0',
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                borderRadius: '4px',
+                                border: chosenContrib === val ? '1.5px solid var(--primary-dark)' : '1px solid var(--primary-border)',
+                                background: chosenContrib === val ? 'var(--primary-dark)' : '#ffffff',
+                                color: chosenContrib === val ? '#ffffff' : '#334155',
+                                cursor: partyBuildingConfirmed ? 'not-allowed' : 'pointer'
+                              }}
+                            >
+                              +{val}%
+                            </button>
                           ))}
-                        </select>
+                        </div>
                       </div>
 
                       {chosenContrib > 0 && (
@@ -553,12 +586,24 @@ export default function Action6PartyBuilding({
       <div style={{ marginTop: '20px', textAlign: 'center', borderTop: '1px solid rgba(101, 148, 177, 0.2)', paddingTop: '15px' }}>
         <button
           onClick={() => setPartyBuildingConfirmed(!partyBuildingConfirmed)}
+          className={(fundedThisTurn.length > 0 && !partyBuildingConfirmed) ? 'btn-pulse-highlight' : ''}
           style={{
-            background: partyBuildingConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--primary-dark))',
-            borderColor: partyBuildingConfirmed ? 'var(--selected-highlight)' : 'var(--party-primary-color, var(--primary-dark))',
+            background: partyBuildingConfirmed
+              ? 'var(--selected-highlight, #22c55e)'
+              : (fundedThisTurn.length > 0)
+              ? '#0ea5e9'
+              : 'var(--party-primary-color, var(--primary-dark))',
+            borderColor: partyBuildingConfirmed
+              ? 'var(--selected-highlight, #22c55e)'
+              : (fundedThisTurn.length > 0)
+              ? '#38bdf8'
+              : 'var(--party-primary-color, var(--primary-dark))',
             color: partyBuildingConfirmed ? 'var(--primary-dark)' : '#ffffff',
             fontWeight: 'bold',
-            padding: '8px 25px'
+            padding: '10px 25px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            cursor: 'pointer'
           }}
         >
           {partyBuildingConfirmed ? '✅ Projects Choice Locked' : '🔒 Confirm Projects Choice'}

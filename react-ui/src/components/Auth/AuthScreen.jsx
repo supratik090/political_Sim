@@ -179,7 +179,7 @@ export default function AuthScreen() {
             />
           </div>
 
-          <button type="submit" disabled={loading} style={{ marginTop: '16px', width: '100%', minHeight: '52px', fontSize: '16px', fontWeight: '800', borderRadius: '12px' }}>
+          <button type="submit" disabled={loading} style={{ marginTop: '16px', width: '100%', minHeight: '42px', fontSize: '14px', fontWeight: '800', borderRadius: '8px' }}>
             {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
           </button>
         </form>

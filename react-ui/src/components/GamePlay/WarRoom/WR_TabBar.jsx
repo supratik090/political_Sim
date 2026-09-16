@@ -56,7 +56,11 @@ export default function WR_TabBar({
     <div style={{
       display: 'flex',
       background: '#0D1117',
-      borderBottom: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: '14px',
+      overflow: 'hidden',
+      border: '1px solid rgba(255,255,255,0.15)',
+      marginBottom: '20px',
+      boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
     }}>
       {TABS.map((tab, idx) => {
         const isActive = activeTab === tab.id;

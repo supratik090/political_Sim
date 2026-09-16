@@ -200,10 +200,9 @@ export default function RoundResolutionModal({
   // Classify Success (Jackpot) and Failure (Bust)
   const isPlayerBillPassed = voteHappenedLastRound && lastResolvedBill.proposedByPartyId === activeParty.id && lastResolvedBill.status === 'PASSED';
   const isPlayerBillFailed = voteHappenedLastRound && lastResolvedBill.proposedByPartyId === activeParty.id && lastResolvedBill.status === 'FAILED';
-  const wonBidding = turnData.lastRoundWinnerPartyId === activeParty.id;
+  const playerBid = turnData.lastRoundBids?.[activeParty.id] || 0;
+  const wonBiddingWithBid = (turnData.lastRoundWinnerPartyId === activeParty.id) && (playerBid > 0);
   const hasLootDropped = turnData.lastRoundDroppedReward && turnData.lastRoundDroppedReward.partyId === activeParty.id;
-
-  const isJackpot = isPlayerBillPassed || wonBidding || hasLootDropped;
 
   const isMajorMoraleLoss = (partyDeltas.partyMorale || 0) <= -15;
   const isMajorSupportLoss = (partyDeltas.publicSupport || 0) <= -8;
@@ -212,20 +211,32 @@ export default function RoundResolutionModal({
   const isBribeScandal = turnData.lastResults?.some(r => r.includes("Bribe Scandal Exposed"));
 
   const isBust = isPlayerBillFailed || isMajorMoraleLoss || isMajorSupportLoss || isDefeatWarning || isBribeScandal;
+  const isSuccess = !isBust && (isPlayerBillPassed || wonBiddingWithBid || hasLootDropped);
 
-  // Set colors based on outcome mode
+  // Set colors and titles based on outcome mode
   let headerColor = partyColor;
-  let modalBorder = `3px solid ${partyColor}`;
+  let modalBorder = `2px solid ${partyColor}`;
   let modeName = 'DEFAULT';
+  let headerTitle = 'Round Resolution Report';
 
-  if (isJackpot) {
-    headerColor = '#10b981'; // Green
-    modalBorder = '4px solid #34d399';
-    modeName = 'JACKPOT';
-  } else if (isBust) {
-    headerColor = '#ef4444'; // Red
-    modalBorder = '4px solid #f87171';
+  if (isBust) {
+    headerColor = '#be123c';
+    modalBorder = '2px solid #f43f5e';
     modeName = 'BUST';
+    headerTitle = '⚠️ Turn Resolution Alert';
+  } else if (isSuccess) {
+    headerColor = '#047857';
+    modalBorder = '2px solid #10b981';
+    modeName = 'SUCCESS';
+    if (wonBiddingWithBid) {
+      headerTitle = '🏆 Winning Bid';
+    } else if (isPlayerBillPassed) {
+      headerTitle = '📜 Legislative Bill Passed';
+    } else if (hasLootDropped) {
+      headerTitle = '🎁 Special Reward Claimed';
+    } else {
+      headerTitle = '✨ Round Success';
+    }
   }
 
   return (
@@ -250,9 +261,9 @@ export default function RoundResolutionModal({
         maxWidth: '520px',
         borderRadius: '20px',
         overflow: 'hidden',
-        boxShadow: modeName === 'JACKPOT' 
-          ? '0 20px 50px rgba(52, 211, 153, 0.3)' 
-          : (modeName === 'BUST' ? '0 20px 50px rgba(239, 68, 68, 0.3)' : '0 15px 40px rgba(0, 0, 0, 0.4)'),
+        boxShadow: modeName === 'SUCCESS' 
+          ? '0 15px 35px rgba(16, 185, 129, 0.2)' 
+          : (modeName === 'BUST' ? '0 15px 35px rgba(239, 68, 68, 0.2)' : '0 15px 40px rgba(0, 0, 0, 0.4)'),
         border: modalBorder,
         position: 'relative',
         animation: modeName === 'BUST' ? 'modalShake 0.4s ease-out' : 'modalSlideIn 0.3s ease-out'
@@ -269,14 +280,7 @@ export default function RoundResolutionModal({
             20%, 60% { transform: translateX(-8px); }
             40%, 80% { transform: translateX(8px); }
           }
-          @keyframes jackpotPulse {
-            0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.6); }
-            50% { text-shadow: 0 0 20px rgba(251,191,36,0.9); }
-          }
         `}} />
-
-        {/* Canvas overlays */}
-        {modeName !== 'DEFAULT' && <ConfettiCanvas mode={modeName} />}
 
         {/* Modal Header */}
         <div style={{
@@ -287,19 +291,9 @@ export default function RoundResolutionModal({
           position: 'relative',
           zIndex: 10
         }}>
-          {modeName === 'JACKPOT' ? (
-            <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em', animation: 'jackpotPulse 1.5s infinite' }}>
-              🎰 JACKPOT WIN! 🎰
-            </h2>
-          ) : modeName === 'BUST' ? (
-            <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              🚨 BUSTED! CRITICAL LOSS 🚨
-            </h2>
-          ) : (
-            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Round Resolution Report
-            </h2>
-          )}
+          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            {headerTitle}
+          </h2>
           
           <div style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '4px', opacity: 0.9 }}>
             Turn {lastTurnNum}
@@ -379,6 +373,94 @@ export default function RoundResolutionModal({
               })}
             </div>
           </div>
+
+          {/* Operations, Sabotage & Diplomacy Log */}
+          {(() => {
+            const opsLines = [];
+            if (turnData.lastRoundCommentary) {
+              turnData.lastRoundCommentary.forEach(line => {
+                if (
+                  line.includes('Sabotage') || 
+                  line.includes('bribed') || 
+                  line.includes('Bribe Scandal') || 
+                  line.includes('Exposed') || 
+                  line.includes('Diplomatic') || 
+                  line.includes('Pact') || 
+                  line.includes('FROZEN') ||
+                  line.includes('Reward played') ||
+                  line.includes('ABSTAINED')
+                ) {
+                  opsLines.push(line);
+                }
+              });
+            }
+            if (turnData.lastResults) {
+              turnData.lastResults.forEach(line => {
+                if (
+                  (line.includes('bribed') || line.includes('Exposed') || line.includes('Sabotage') || line.includes('Pact')) &&
+                  !opsLines.some(existing => existing.includes(line))
+                ) {
+                  opsLines.push(line);
+                }
+              });
+            }
+
+            if (opsLines.length === 0) return null;
+
+            return (
+              <div style={{
+                background: '#f8fafc',
+                border: '2px solid #64748b',
+                borderRadius: '12px',
+                padding: '15px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+              }}>
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#334155', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  🚨 Operations, Sabotage &amp; Diplomacy Log
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', paddingRight: '4px' }}>
+                  {opsLines.map((line, idx) => {
+                    const isFailure = line.includes('Exposed') || line.includes('FAILED') || line.includes('Scandal');
+                    const isSabotage = line.includes('Sabotage') || line.includes('bribed') || line.includes('FROZEN');
+                    const isDiplomacy = line.includes('Diplomatic') || line.includes('Pact');
+                    
+                    let bg = '#eff6ff';
+                    let border = '#bfdbfe';
+                    let color = '#1e40af';
+
+                    if (isFailure) {
+                      bg = '#fef2f2';
+                      border = '#fca5a5';
+                      color = '#991b1b';
+                    } else if (isSabotage) {
+                      bg = '#fff7ed';
+                      border = '#fdba74';
+                      color = '#9a3412';
+                    } else if (isDiplomacy) {
+                      bg = '#f0fdf4';
+                      border = '#86efac';
+                      color = '#166534';
+                    }
+
+                    return (
+                      <div key={idx} style={{
+                        background: bg,
+                        border: `1px solid ${border}`,
+                        color: color,
+                        borderRadius: '8px',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        lineHeight: 1.4
+                      }}>
+                        {line}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Last Turn Legislative Bill Vote Results */}
           {(() => {

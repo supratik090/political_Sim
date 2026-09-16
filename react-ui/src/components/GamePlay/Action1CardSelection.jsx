@@ -22,7 +22,7 @@ export default function Action1CardSelection({
         </p>
       )}
 
-      {/* Card Category Filter Bar — horizontal scroll on mobile */}
+      {/* Card Category Filter Bar — 2 lines wrapped layout */}
       <div className="card-filter-bar">
         {[
           { key: 'governance', label: 'Governance 🏙️' },
@@ -142,28 +142,37 @@ export default function Action1CardSelection({
 
       {selectedCard && cardRequiresTarget(selectedCard) && (
         <div style={{ marginTop: '15px', padding: '12px', border: '1px dashed var(--primary-border)', borderRadius: '8px', background: 'rgba(101, 148, 177, 0.03)' }}>
-          <label htmlFor="card-target-select" style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'var(--primary-dark)' }}>
+          <label style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '8px', color: 'var(--primary-dark)' }}>
             🎯 Select Opponent Target:
           </label>
-          <select 
-            id="card-target-select"
-            value={targetPartyId}
-            onChange={(e) => setTargetPartyId(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '8px',
-              borderRadius: '6px',
-              border: '1px solid var(--primary-border)',
-              background: '#ffffff',
-              color: 'var(--primary-dark)',
-              fontSize: '13px'
-            }}
-          >
-            <option value="">-- Choose Opponent Party --</option>
-            {turnData.parties.filter(p => p.id !== turnData.activeHumanPartyId).map(opp => (
-              <option key={opp.id} value={opp.id}>{opp.name} ({opp.role})</option>
-            ))}
-          </select>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+            {turnData.parties.filter(p => p.id !== turnData.activeHumanPartyId).map(opp => {
+              const isSelected = targetPartyId === opp.id;
+              return (
+                <div
+                  key={opp.id}
+                  onClick={() => setTargetPartyId(opp.id)}
+                  style={{
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: isSelected ? `2px solid ${opp.color || 'var(--primary-dark)'}` : '1.5px solid var(--primary-border)',
+                    background: isSelected ? `${opp.color || 'var(--primary-dark)'}14` : '#ffffff',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '13px', color: '#0f172a' }}>{opp.symbol || '🏛️'} {opp.name}</strong>
+                    <span style={{ fontSize: '11px', color: '#64748b' }}>{opp.role}</span>
+                  </div>
+                  {isSelected && <span style={{ color: opp.color || 'var(--primary-dark)', fontWeight: 'bold', fontSize: '14px' }}>✓</span>}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

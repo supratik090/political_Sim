@@ -117,6 +117,40 @@ export default function WarRoomView({
     prevGovDone.current = governanceDone;
   }, [governanceDone]);
 
+  // Sync tab & scroll to section when navigated from Hint
+  useEffect(() => {
+    if (!activeAccordion) return;
+
+    let targetTab = TAB_POLITICS;
+    if (activeAccordion === 1 || activeAccordion === 2 || activeAccordion === 8) {
+      targetTab = TAB_POLITICS;
+    } else if (activeAccordion === 3 || activeAccordion === 7) {
+      targetTab = TAB_GOVERNANCE;
+    } else if (activeAccordion === 4 || activeAccordion === 5 || activeAccordion === 6) {
+      targetTab = TAB_ECONOMY;
+    }
+
+    setActiveTab(targetTab);
+
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`wr-section-${activeAccordion}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
+        const origBorder = el.style.borderColor;
+        const origShadow = el.style.boxShadow;
+        el.style.borderColor = '#38bdf8';
+        el.style.boxShadow = '0 0 24px rgba(56, 189, 248, 0.5)';
+        setTimeout(() => {
+          el.style.borderColor = origBorder || 'rgba(255,255,255,0.08)';
+          el.style.boxShadow = origShadow || '0 4px 16px rgba(0,0,0,0.2)';
+        }, 1800);
+      }
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [activeAccordion]);
+
   if (!turnData) {
     return (
       <div className="wr-root">
@@ -184,15 +218,7 @@ export default function WarRoomView({
         {activeTab === TAB_POLITICS && (
           <>
             {/* Action 1 — Card */}
-            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '16px', marginBottom: '4px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 0' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#F59E0B' }}>
-                  ACTION 1
-                </div>
-                <span className={isCardCompleted ? 'wr-status-ready' : 'wr-status-pending'}>
-                  {isCardCompleted ? '✓ READY' : 'PENDING'}
-                </span>
-              </div>
+            <div id="wr-section-1" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
               <WR_Action1_Card
                 turnData={turnData}
                 selectedCard={selectedCard}
@@ -205,15 +231,7 @@ export default function WarRoomView({
             </div>
 
             {/* Action 2 — News */}
-            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '16px', marginBottom: '4px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 0' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#F59E0B' }}>
-                  ACTION 2
-                </div>
-                <span className={isNewsCompleted ? 'wr-status-ready' : newsItems.length === 0 ? 'wr-status-ready' : 'wr-status-pending'}>
-                  {isNewsCompleted || newsItems.length === 0 ? '✓ READY' : 'PENDING'}
-                </span>
-              </div>
+            <div id="wr-section-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
               <WR_Action2_News
                 turnData={turnData}
                 selectedNewsReactions={selectedNewsReactions}
@@ -222,15 +240,7 @@ export default function WarRoomView({
             </div>
 
             {/* Action 8 — Assembly Vote (Politics tab) */}
-            <div style={{ paddingBottom: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 0' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#60A5FA' }}>
-                  ACTION 3 — ASSEMBLY
-                </div>
-                <span className={isLegislativeCompleted ? 'wr-status-ready' : 'wr-status-pending'}>
-                  {isLegislativeCompleted ? '✓ READY' : 'PENDING'}
-                </span>
-              </div>
+            <div id="wr-section-8" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
               <WR_Action8_Assembly
                 turnData={turnData}
                 activeParty={activeParty}
@@ -253,15 +263,7 @@ export default function WarRoomView({
         {activeTab === TAB_GOVERNANCE && (
           <>
             {/* Action 3/4 — Party Management */}
-            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '16px', marginBottom: '4px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 0' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#34D399' }}>
-                  ACTION 4 — GOVERNANCE
-                </div>
-                <span className={isSection3Completed ? 'wr-status-ready' : 'wr-status-pending'}>
-                  {isSection3Completed ? '✓ READY' : 'PENDING'}
-                </span>
-              </div>
+            <div id="wr-section-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
               <WR_Action3_Governance
                 turnData={turnData}
                 selectedIssueOptionKey={selectedIssueOptionKey}
@@ -275,13 +277,7 @@ export default function WarRoomView({
             </div>
 
             {/* Action 7 — Cooperation (optional) */}
-            <div style={{ paddingTop: '4px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 16px 0' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#34D399' }}>
-                  ACTION 5 — DIPLOMACY
-                </div>
-                <span className="wr-status-optional">OPTIONAL</span>
-              </div>
+            <div id="wr-section-7" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
               <WR_Action7_Cooperation
                 turnData={turnData}
                 projectDefs={projectDefs}
@@ -295,15 +291,7 @@ export default function WarRoomView({
         {activeTab === TAB_ECONOMY && (
           <>
             {/* Action 4 — Competitive Bid */}
-            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '16px', marginBottom: '4px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 0' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#F59E0B' }}>
-                  ACTION 6 — BID
-                </div>
-                <span className={isBidCompleted ? 'wr-status-ready' : 'wr-status-pending'}>
-                  {isBidCompleted ? '✓ READY' : 'PENDING'}
-                </span>
-              </div>
+            <div id="wr-section-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
               <WR_Action4_Bid
                 turnData={turnData}
                 activeParty={activeParty}
@@ -315,15 +303,7 @@ export default function WarRoomView({
             </div>
 
             {/* Action 5 — Rewards */}
-            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '16px', marginBottom: '4px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 0' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#F59E0B' }}>
-                  ACTION 7 — REWARDS
-                </div>
-                <span className={isRewardCompleted ? 'wr-status-ready' : 'wr-status-pending'}>
-                  {isRewardCompleted ? '✓ READY' : 'PENDING'}
-                </span>
-              </div>
+            <div id="wr-section-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
               <WR_Action5_Reward
                 turnData={turnData}
                 selectedRewardKey={selectedRewardKey}
@@ -336,13 +316,7 @@ export default function WarRoomView({
             </div>
 
             {/* Action 6 — Party Building (optional) */}
-            <div style={{ paddingBottom: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px 0' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.07em', textTransform: 'uppercase', color: '#F59E0B' }}>
-                  ACTION 8 — PARTY BUILDING
-                </div>
-                <span className="wr-status-optional">OPTIONAL</span>
-              </div>
+            <div id="wr-section-6" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
               <WR_Action6_PartyBuilding
                 turnData={turnData}
                 activeParty={activeParty}

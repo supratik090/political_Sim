@@ -1005,7 +1005,7 @@ public class GameService {
             // Determine if the AI itself is weak (should conserve coins)
             boolean selfIsWeak = party.getStats().getPublicSupport() < 22 
                     || party.getStats().getPartyMorale() < 25 
-                    || party.getStats().getCoins() < 80;
+                    || party.getStats().getCoins() < 250;
 
             double bribeChance = ownFactionUnderAttack ? 0.85 : 0.25;
             if (anyOpponentIsWeak && !selfIsWeak) {
@@ -1015,7 +1015,8 @@ public class GameService {
                 bribeChance = 0.0; // Strictly conserve coins when in a weak position
             }
 
-            if (party.getStats().getCoins() >= 120 && new java.util.Random().nextDouble() < bribeChance) {
+            int minBribeCoinReserve = 200;
+            if (party.getStats().getCoins() >= 300 && (party.getStats().getCoins() - minBribeCoinReserve) >= 80 && new java.util.Random().nextDouble() < bribeChance) {
                 com.politicalsim.party.FactionState bestTargetFs = null;
                 PartyState bestTargetParty = null;
                 int highestInfluence = -1;
@@ -1035,9 +1036,9 @@ public class GameService {
                 }
 
                 if (bestTargetFs != null && bestTargetParty != null) {
-                    int bribeCoins = ownFactionUnderAttack 
-                            ? Math.min(200, party.getStats().getCoins() - 50)
-                            : 80 + new java.util.Random().nextInt(61);
+                    int maxAffordableBribe = party.getStats().getCoins() - minBribeCoinReserve;
+                    int baseBribe = 80 + new java.util.Random().nextInt(41);
+                    int bribeCoins = Math.min(baseBribe, maxAffordableBribe);
 
                     // Execute Bribe
                     party.getStats().setCoins(party.getStats().getCoins() - bribeCoins);
@@ -1126,8 +1127,8 @@ public class GameService {
 
                         bestTargetFs.setFrozenTurnsRemaining(10);
                         String frozenList = frozenLabels.isEmpty() ? "No active cards found to freeze" : String.join(", ", frozenLabels);
-                        String msg = String.format("🚨 AI Sabotage: %s successfully bribed %s's %s faction! Loyalty fell by -%d%%. FROZEN: %s.",
-                                party.getName(), bestTargetParty.getName(), bestTargetFs.getName(), loyaltyLoss, frozenList);
+                        String msg = String.format("🚨 AI Sabotage: %s spent 💰 %d Coins and successfully bribed %s's %s faction! Loyalty fell by -%d%%. FROZEN: %s.",
+                                party.getName(), bribeCoins, bestTargetParty.getName(), bestTargetFs.getName(), loyaltyLoss, frozenList);
                         session.getPendingSabotageCommentary().add(msg);
                         session.getPendingSabotageResults().add("🚨 AI " + party.getName() + " successfully bribed " + bestTargetParty.getName() + "'s " + bestTargetFs.getName() + " faction");
                     } else {
@@ -1137,10 +1138,10 @@ public class GameService {
                         party.getStats().setMediaImage(Math.max(0, party.getStats().getMediaImage() - mediaLoss));
                         party.getStats().setPartyMorale(Math.max(0, party.getStats().getPartyMorale() - moraleLoss));
 
-                        String msg = String.format("🚨 AI Sabotage Exposed: %s tried to bribe %s's %s but was exposed! %s loses -%d Media Image and -%d Morale.",
-                                party.getName(), bestTargetParty.getName(), bestTargetFs.getName(), party.getName(), mediaLoss, moraleLoss);
+                        String msg = String.format("🚨 AI Sabotage Exposed: %s spent 💰 %d Coins to bribe %s's %s but was exposed! %s loses 💰 -%d Coins, -%d Media Image and -%d Morale.",
+                                party.getName(), bribeCoins, bestTargetParty.getName(), bestTargetFs.getName(), party.getName(), bribeCoins, mediaLoss, moraleLoss);
                         session.getPendingSabotageCommentary().add(msg);
-                        session.getPendingSabotageResults().add("🚨 AI " + party.getName() + " bribe attempt on " + bestTargetParty.getName() + "'s " + bestTargetFs.getName() + " exposed!");
+                        session.getPendingSabotageResults().add("🚨 AI " + party.getName() + " bribe attempt (" + bribeCoins + " coins) on " + bestTargetParty.getName() + "'s " + bestTargetFs.getName() + " exposed!");
                     }
                 }
             }
@@ -1451,8 +1452,8 @@ public class GameService {
             int bidReserveCoins = "COINS".equalsIgnoreCase(metric) ? bid : 0;
             int bidReserveMorale = ("PARTY_MORALE".equalsIgnoreCase(metric) || "MORALE".equalsIgnoreCase(metric)) ? bid : 0;
 
-            // 3. Compute discretionary funds (Safety reserve of 30 coins, 25 morale, 25 media, 15 support)
-            boolean isCoinCrisis = party.getStats().getCoins() <= 80;
+            // 3. Compute discretionary funds (Safety reserve of 200 coins buffer)
+            boolean isCoinCrisis = party.getStats().getCoins() <= 200;
             boolean isSupportCrisis = party.getStats().getPublicSupport() <= 15 || supportPressureValFinal >= 5;
             boolean isMoraleCrisis = party.getStats().getPartyMorale() <= 25;
             boolean isCorruptionCrisis = party.getStats().getCorruptionScore() >= 75;
@@ -1471,7 +1472,7 @@ public class GameService {
             int discCorruption = 0;
 
             if (!isCoinCrisis) {
-                discCoins = party.getStats().getCoins() - projectedCardCost - bidReserveCoins - 30;
+                discCoins = party.getStats().getCoins() - projectedCardCost - bidReserveCoins - 200;
                 discMorale = party.getStats().getPartyMorale() - bidReserveMorale - (isMoraleCrisis ? 10 : 25);
                 discMedia = party.getStats().getMediaImage() - 25;
                 discSupport = party.getStats().getPublicSupport() - (isSupportCrisis ? 5 : 15);
@@ -1968,11 +1969,13 @@ public class GameService {
             }
         }
 
-        // Defeat condition checks before bidding:
-        // Conserve resources if party is in a danger/warning zone on any metrics
+        // Defeat condition & resource protection checks before bidding:
         PartyStats stats = party.getStats();
-        boolean hasDefeatHazard = stats.getCoins() <= 20
-                || stats.getPartyMorale() <= 18
+        if ("COINS".equalsIgnoreCase(metric) && stats.getCoins() <= 200) {
+            return 0;
+        }
+        boolean hasDefeatHazard = stats.getCoins() <= 200
+                || stats.getPartyMorale() <= 20
                 || stats.getPublicSupport() <= 10
                 || stats.getCorruptionScore() >= 75;
 

@@ -12,12 +12,15 @@ export default function WR_Header({ turnData, activeParty, handleSkipTurn, loadi
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #1a0533 0%, #0D1117 70%)',
-      padding: '12px 16px 10px',
+      background: 'linear-gradient(135deg, #2D1558 0%, #151D2A 100%)',
+      padding: '14px 16px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '8px',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
+      gap: '10px',
+      borderRadius: '14px',
+      border: '1px solid rgba(255,255,255,0.15)',
+      marginBottom: '14px',
+      boxShadow: '0 4px 14px rgba(0,0,0,0.25)'
     }}>
       {/* Row 1: Avatar + Title + Skip */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -58,23 +61,6 @@ export default function WR_Header({ turnData, activeParty, handleSkipTurn, loadi
             </div>
           )}
         </div>
-
-        {/* Skip button */}
-        <button
-          onClick={handleSkipTurn}
-          disabled={loading || !isMyTurn}
-          className="btn-danger"
-          style={{
-            cursor: (isMyTurn && !loading) ? 'pointer' : 'not-allowed',
-            opacity: (!isMyTurn || loading) ? 0.45 : 1,
-            flexShrink: 0,
-            fontSize: '12px',
-            padding: '8px 14px',
-            minHeight: '36px',
-          }}
-        >
-          ⏭️ SKIP
-        </button>
       </div>
 
       {/* Row 2: Month progress bar */}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useHorizontalScroll } from '../../../hooks/useHorizontalScroll';
 
 /**
  * WR_Action8_Assembly — Assembly Vote / Legislative Agenda
@@ -20,6 +21,7 @@ export default function WR_Action8_Assembly({
   scenarioBills = [],
   scenarioEvents = [],
 }) {
+  const billScrollRef = useHorizontalScroll();
   const activeBillKey  = turnData?.proposedBillKeyThisTurn;
   const activeEventKey = turnData?.activeEventKey;
 
@@ -158,16 +160,34 @@ export default function WR_Action8_Assembly({
           </button>
 
           {/* Party Whip toggle */}
-          <button onClick={() => setWhipIssued(!whipIssued)} style={{
-            width: '100%', minHeight: '46px',
-            background: whipIssued ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)',
-            border: `1.5px solid ${whipIssued ? '#F59E0B' : 'rgba(255,255,255,0.1)'}`,
-            borderRadius: '10px', color: whipIssued ? '#FCD34D' : '#7D8590',
-            fontSize: '13px', fontWeight: 700, cursor: 'pointer', touchAction: 'manipulation',
-            transition: 'all 0.15s ease', fontFamily: 'Montserrat,system-ui,sans-serif',
-          }}>
-            🔔 {whipIssued ? 'Party Whip ISSUED (−2 Morale)' : 'Issue Party Whip  (−2 Morale)'}
-          </button>
+          {(() => {
+            const currentCoins = activeParty?.stats?.coins ?? activeParty?.coins ?? 0;
+            const canAffordWhip = currentCoins >= 25;
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <button
+                  disabled={!canAffordWhip}
+                  onClick={() => canAffordWhip && setWhipIssued(!whipIssued)}
+                  style={{
+                    width: '100%', minHeight: '46px',
+                    background: whipIssued ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: `1.5px solid ${whipIssued ? '#F59E0B' : 'rgba(255,255,255,0.1)'}`,
+                    borderRadius: '10px', color: whipIssued ? '#FCD34D' : canAffordWhip ? '#E6EDF3' : '#64748b',
+                    fontSize: '13px', fontWeight: 700, cursor: canAffordWhip ? 'pointer' : 'not-allowed',
+                    opacity: canAffordWhip ? 1 : 0.6,
+                    transition: 'all 0.15s ease', fontFamily: 'Montserrat,system-ui,sans-serif',
+                  }}
+                >
+                  🔔 {whipIssued ? 'Party Whip ISSUED (Cost: 25 Coins)' : 'Issue Party Whip (Cost: 25 Coins)'}
+                </button>
+                {!canAffordWhip && (
+                  <span style={{ fontSize: '11px', color: '#ef4444', textAlign: 'center', fontWeight: 'bold' }}>
+                    ⚠️ Insufficient Coins (25 required, current: {currentCoins})
+                  </span>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </div>
     );
@@ -198,7 +218,7 @@ export default function WR_Action8_Assembly({
           No bills available to propose this turn.
         </div>
       ) : (
-        <div className="wr-hscroll" style={{ paddingBottom: '12px', gap: '12px' }}>
+        <div ref={billScrollRef} className="wr-hscroll" style={{ paddingBottom: '12px', gap: '12px' }}>
           {available.map(({ state, def }) => {
             const isSelected = proposedBillKey === def.billKey;
             return (

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getProgressCost, canAffordCost } from '../gameUtils';
+import { useHorizontalScroll } from '../../../hooks/useHorizontalScroll';
 
 const CATEGORY_CONFIG = [
   { key: 'BUILD',     label: 'Build Party',      icon: '🛡️', color: '#0891B2', bg: 'linear-gradient(145deg,#164e63,#0891b2)' },
@@ -33,6 +34,8 @@ export default function WR_Action6_PartyBuilding({
   fundedThisTurn = [],
 }) {
   const [destroyConfirm, setDestroyConfirm] = useState(null);
+  const chipsScrollRef = useHorizontalScroll();
+  const cardsScrollRef = useHorizontalScroll();
 
   if (!activeParty) return null;
 
@@ -234,19 +237,36 @@ export default function WR_Action6_PartyBuilding({
                 ) : (
                   <div>
                     {/* Funding % selector */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: '11px', fontWeight: 700, color: '#93C5FD' }}>Add Funding %:</span>
-                      <select value={chosenContrib} disabled={partyBuildingConfirmed}
-                        onChange={e => { setFundingContributions(prev => ({ ...prev, [projId]: parseInt(e.target.value) })); setPartyBuildingConfirmed(false); }}
-                        style={{ padding: '4px 8px', fontSize: '12px', borderRadius: '6px', background: 'rgba(255,255,255,0.08)', color: '#E6EDF3', border: '1px solid rgba(255,255,255,0.18)', minHeight: 'unset' }}>
-                        {presets.map(val => <option key={val} value={val}>+{val}%</option>)}
-                      </select>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        {presets.map(val => (
+                          <button
+                            key={val}
+                            type="button"
+                            disabled={partyBuildingConfirmed}
+                            onClick={() => { setFundingContributions(prev => ({ ...prev, [projId]: val })); setPartyBuildingConfirmed(false); }}
+                            style={{
+                              padding: '3px 6px',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              borderRadius: '6px',
+                              border: chosenContrib === val ? '1.5px solid #60A5FA' : '1px solid rgba(255,255,255,0.18)',
+                              background: chosenContrib === val ? 'rgba(37,99,235,0.6)' : 'rgba(255,255,255,0.08)',
+                              color: '#E6EDF3',
+                              cursor: partyBuildingConfirmed ? 'not-allowed' : 'pointer'
+                            }}
+                          >
+                            +{val}%
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                       {chosenContrib > 0 && (
                         <span style={{ fontSize: '11px', color: canAfford ? '#D1D5DB' : '#F87171', fontWeight: 700 }}>
                           {costForContrib.coins} 💰{costForContrib.morale > 0 ? `, ${costForContrib.morale} Morale` : ''}{!canAfford ? ' ⚠️' : ''}
                         </span>
                       )}
-                    </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       {chosenContrib > 0 && canAfford && (
                         <button onClick={() => handleFundProject(projId, chosenContrib)} disabled={partyBuildingConfirmed || capReached}
@@ -276,7 +296,7 @@ export default function WR_Action6_PartyBuilding({
       </div>
 
       {/* Category filter chips */}
-      <div className="wr-hscroll" style={{ marginBottom: '14px', paddingBottom: '4px' }}>
+      <div ref={chipsScrollRef} className="wr-hscroll" style={{ marginBottom: '14px', paddingBottom: '4px' }}>
         {CATEGORY_CONFIG.map(cat => {
           const isActive = projectCategoryFilter === cat.key;
           return (
@@ -303,7 +323,7 @@ export default function WR_Action6_PartyBuilding({
           No projects available in this category.
         </div>
       ) : (
-        <div className="wr-hscroll" style={{ paddingBottom: '14px', paddingTop: '6px', paddingLeft: '2px', paddingRight: '16px', gap: '12px', alignItems: 'flex-start' }}>
+        <div ref={cardsScrollRef} className="wr-hscroll" style={{ paddingBottom: '14px', paddingTop: '6px', paddingLeft: '2px', paddingRight: '16px', gap: '12px', alignItems: 'flex-start' }}>
           {filteredAvail.map(avail => {
             const chosenContrib = fundingContributions[avail.key] || 0;
             const costForContrib = getProgressCost(avail, chosenContrib);
@@ -363,24 +383,28 @@ export default function WR_Action6_PartyBuilding({
                 <div style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Fund %
                 </div>
-                <select
-                  value={chosenContrib}
-                  disabled={partyBuildingConfirmed || capReached}
-                  onChange={e => { setFundingContributions(prev => ({ ...prev, [avail.key]: parseInt(e.target.value) })); setPartyBuildingConfirmed(false); }}
-                  style={{
-                    width: '100%', padding: '5px 6px', fontSize: '12px', fontWeight: 800,
-                    borderRadius: '6px',
-                    background: 'rgba(0,0,0,0.35)',
-                    color: '#E6EDF3',
-                    border: `1.5px solid ${isSelected ? '#F59E0B' : 'rgba(255,255,255,0.2)'}`,
-                    marginBottom: '8px', minHeight: 'unset',
-                    fontFamily: 'Montserrat,sans-serif',
-                    cursor: (partyBuildingConfirmed || capReached) ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  <option value={0}>-- Select --</option>
-                  {PRESETS.map(val => <option key={val} value={val}>{val}%</option>)}
-                </select>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginBottom: '8px' }}>
+                  {PRESETS.map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      disabled={partyBuildingConfirmed || capReached}
+                      onClick={() => { setFundingContributions(prev => ({ ...prev, [avail.key]: val })); setPartyBuildingConfirmed(false); }}
+                      style={{
+                        padding: '4px 2px',
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        borderRadius: '6px',
+                        border: chosenContrib === val ? '1.5px solid #F59E0B' : '1px solid rgba(255,255,255,0.15)',
+                        background: chosenContrib === val ? 'rgba(245,158,11,0.25)' : 'rgba(0,0,0,0.35)',
+                        color: chosenContrib === val ? '#FBBF24' : '#E6EDF3',
+                        cursor: (partyBuildingConfirmed || capReached) ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      +{val}%
+                    </button>
+                  ))}
+                </div>
 
                 {/* Cost display */}
                 {chosenContrib > 0 && (
@@ -417,14 +441,28 @@ export default function WR_Action6_PartyBuilding({
 
       {/* Confirm projects lock */}
       <div style={{ paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.06)', marginBottom: '4px' }}>
-        <button onClick={() => setPartyBuildingConfirmed(!partyBuildingConfirmed)}
+        <button
+          onClick={() => setPartyBuildingConfirmed(!partyBuildingConfirmed)}
+          className={(fundedThisTurn.length > 0 && !partyBuildingConfirmed) ? 'btn-pulse-highlight' : ''}
           style={{
             width: '100%', minHeight: '50px', fontSize: '14px', fontWeight: 900,
-            background: partyBuildingConfirmed ? 'linear-gradient(135deg,#16A34A,#15803d)' : 'rgba(255,255,255,0.06)',
-            color: partyBuildingConfirmed ? '#ffffff' : '#8B949E',
-            border: partyBuildingConfirmed ? 'none' : '1px solid rgba(255,255,255,0.12)',
+            background: partyBuildingConfirmed
+              ? 'linear-gradient(135deg,#16A34A,#15803d)'
+              : (fundedThisTurn.length > 0)
+              ? '#0ea5e9'
+              : 'rgba(255,255,255,0.06)',
+            color: (partyBuildingConfirmed || fundedThisTurn.length > 0) ? '#ffffff' : '#8B949E',
+            border: partyBuildingConfirmed
+              ? 'none'
+              : (fundedThisTurn.length > 0)
+              ? '1.5px solid #38bdf8'
+              : '1px solid rgba(255,255,255,0.12)',
             borderRadius: '12px', cursor: 'pointer',
-            boxShadow: partyBuildingConfirmed ? '0 0 16px rgba(22,163,74,0.4)' : 'none',
+            boxShadow: partyBuildingConfirmed
+              ? '0 0 16px rgba(22,163,74,0.4)'
+              : (fundedThisTurn.length > 0)
+              ? '0 0 16px rgba(14,165,233,0.4)'
+              : 'none',
             transition: 'all 0.2s ease', touchAction: 'manipulation',
             fontFamily: 'Montserrat,system-ui,sans-serif',
           }}>

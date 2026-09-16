@@ -21,10 +21,10 @@ function App() {
   const isAndroid = isAndroidApp();
 
   useEffect(() => {
-    if (isAndroid && user && currentScreen === 'HOME' && activeGameId) {
-      setScreen('GAME');
+    if (isAndroid && user) {
+      setScreen('HOME');
     }
-  }, [isAndroid, user, currentScreen, activeGameId, setScreen]);
+  }, [isAndroid, user, setScreen]);
 
   if (!user) {
     if (!isPlayClicked && !isAndroid) {

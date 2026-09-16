@@ -5,7 +5,7 @@ import { getPartyColor, cardRequiresTarget } from './gameUtils';
 import StatsView from './StatsView';
 import ActionsView from './ActionsView';
 import WarRoomView from './WarRoom/WarRoomView';
-import { getPartyThemeByName } from '../../constants/partyThemes';
+import { getPartyThemeByName, getSymbolIconComponent } from '../../constants/partyThemes';
 import { PROJECT_DEFS } from './constants';
 import RoundResolutionModal from './RoundResolutionModal';
 import SkipTurnConfirmationModal from './SkipTurnConfirmationModal';
@@ -14,6 +14,9 @@ import GameTutorial from './GameTutorial';
 import { useMultiplayer } from '../../hooks/useMultiplayer';
 import ChatDrawer from '../../components/Chat/ChatDrawer';
 import { initializePostDefinitions } from './postsConfig';
+import HintsView from './HintsView';
+import HintsDrawer from './HintsDrawer';
+import { generateTurnHints } from '../../utils/hintsEngine';
 
 const PROJECT_EMOJIS = {
   PARTY_HQ: '🏢',
@@ -96,8 +99,9 @@ function hexToRgbStr(hex) {
 }
 
 export default function GamePlayBoard() {
-  const [activeView, setActiveView] = useState('INFO');
-  const { user, activeGameId, turnData, setTurnData, setTimeLeft } = useGameStore();
+  const { user, activeGameId, turnData, setTurnData, setTimeLeft, activeGameView, setActiveGameView } = useGameStore();
+  const activeView = activeGameView || 'INFO';
+  const setActiveView = setActiveGameView;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [projectDefs, setProjectDefs] = useState(PROJECT_DEFS);
@@ -210,14 +214,34 @@ export default function GamePlayBoard() {
   const [showResolutionReport, setShowResolutionReport] = useState(false);
   const [showSkipModal, setShowSkipModal] = useState(false);
   const [showDefeatHazardModal, setShowDefeatHazardModal] = useState(false);
-  const [useWarRoom, setUseWarRoom] = useState(() => {
-    try {
-      const saved = localStorage.getItem('political_sim_ui_mode');
-      return saved === 'warroom' || saved === 'true';
-    } catch (e) {
-      return false;
+  const [showHintsDrawer, setShowHintsDrawer] = useState(false);
+  const [useWarRoom] = useState(true); // ⚔️ War Room UI active by default
+  const hintsCount = turnData ? generateTurnHints(turnData).length : 0;
+
+  const handleNavigateFromHint = (targetTab) => {
+    setActiveView('ACTION');
+    let accordionNum = 1;
+
+    if (targetTab === 'ASSEMBLY' || targetTab === 'LEGISLATION') {
+      accordionNum = 8;
+    } else if (targetTab === 'CARDS' || targetTab === 'ACTION_CARDS' || targetTab === 'ACTIONS') {
+      accordionNum = 1;
+    } else if (targetTab === 'NEWS' || targetTab === 'MEDIA_NEWS') {
+      accordionNum = 2;
+    } else if (targetTab === 'DECISIONS' || targetTab === 'CRISIS_ISSUES' || targetTab === 'STATS' || targetTab === 'INFO' || targetTab === 'WAR_ROOM') {
+      accordionNum = 3;
+    } else if (targetTab === 'BIDDING' || targetTab === 'BID') {
+      accordionNum = 4;
+    } else if (targetTab === 'REWARDS' || targetTab === 'LOOT') {
+      accordionNum = 5;
+    } else if (targetTab === 'BUILDINGS' || targetTab === 'PARTY_BUILDING' || targetTab === 'RESOURCES') {
+      accordionNum = 6;
+    } else if (targetTab === 'COOPERATION' || targetTab === 'DIPLOMACY') {
+      accordionNum = 7;
     }
-  }); // ⚔️ War Room UI toggle persisted in localStorage
+
+    setActiveAccordion(accordionNum);
+  };
 
   // Project building draft states
   const [projectCategoryFilter, setProjectCategoryFilter] = useState('BUILD');
@@ -238,8 +262,24 @@ export default function GamePlayBoard() {
   const customColor = activeParty?.color;
   const hasCustomColor = customColor && customColor !== '#ffffff' && customColor !== '#fff' && customColor !== '';
   const playerPartyColor = (isDefaultFallback && hasCustomColor) ? customColor : partyTheme.color;
-  const playerPartyColorRgb = (isDefaultFallback && hasCustomColor) ? hexToRgbStr(customColor) : partyTheme.rgb;
-  const SymbolIcon = partyTheme.SymbolIcon;
+  const playerPartyColorRgb = hexToRgbStr(playerPartyColor || '#6594b1');
+  const SymbolIcon = getSymbolIconComponent(activeParty?.symbol || partyTheme?.symbolName || 'Flag');
+  // Mandatory (Required) turn completion checks for Operations badge counter
+  const isCardCompleted = selectedCard !== null && (!cardRequiresTarget(selectedCard) || targetPartyId !== '');
+  const newsItems = turnData?.currentNews || [];
+  const isNewsCompleted = newsItems.length === 0 || newsItems.every(n => selectedNewsReactions[n.newsKey || n.issueKey] !== undefined);
+  const isBidCompleted = bidConfirmed;
+  const isLegislativeCompleted = !turnData?.proposedBillKeyThisTurn || (billVote !== '' && billVote !== null && billVote !== undefined);
+  const isSection3Completed = turnData?.activeEventKey
+    ? (selectedEventOptionKey !== '' && selectedEventOptionKey !== null && selectedEventOptionKey !== undefined)
+    : true;
+
+  let uncompletedMandatoryCount = 0;
+  if (!isCardCompleted) uncompletedMandatoryCount++;
+  if (!isNewsCompleted) uncompletedMandatoryCount++;
+  if (!isBidCompleted) uncompletedMandatoryCount++;
+  if (!isLegislativeCompleted) uncompletedMandatoryCount++;
+  if (!isSection3Completed) uncompletedMandatoryCount++;
 
   // Auto-open the Defeat Hazard Modal when the player's party enters crisis
   const prevHasDefeatHazardRef = useRef(false);
@@ -736,30 +776,20 @@ useEffect(() => {
       `}</style>
       <GameTutorial />
       {/* Title Banner */}
-      <div className="game-title-banner" style={{ padding: '24px 20px', background: 'var(--party-primary-color)' }}>
+      <div className="game-title-banner" style={{ background: 'var(--party-primary-color)' }}>
         <h1 className="game-title-h1" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
           GRAND CAMPAIGN BOARD
         </h1>
         {playerPartyName && (
-          <div style={{ 
-            marginTop: '15px', 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: '8px',
-            background: 'var(--primary-dark)',
-            padding: '8px 16px',
-            borderRadius: '20px',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-          }}>
+          <div className="banner-playing-pill">
             <span style={{ 
-              width: '10px', 
-              height: '10px', 
+              width: '8px', 
+              height: '8px', 
               borderRadius: '50%', 
               backgroundColor: playerPartyColor, 
               display: 'inline-block' 
             }} />
-            <span style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '0.05em', color: '#ffffff' }}>
+            <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '0.05em', color: '#ffffff' }}>
               PLAYING AS: <span style={{ color: playerPartyColor, fontWeight: '900' }}>{playerPartyName.toUpperCase()}</span>
             </span>
           </div>
@@ -789,13 +819,61 @@ useEffect(() => {
           className={`view-toggle-button ${activeView === 'INFO' ? 'selected' : ''}`}
           onClick={() => setActiveView('INFO')}
         >
-          📊 Party info
+          🏛️ Intelligence
         </button>
         <button
           className={`view-toggle-button ${activeView === 'ACTION' ? 'selected' : ''}`}
           onClick={() => setActiveView('ACTION')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
-          🃏 Actions &amp; Cards
+          ⚡ Operations
+          {uncompletedMandatoryCount > 0 ? (
+            <span style={{
+              backgroundColor: '#f59e0b',
+              color: '#ffffff',
+              fontSize: '11px',
+              fontWeight: '900',
+              padding: '1px 7px',
+              borderRadius: '10px',
+              boxShadow: '0 2px 5px rgba(245, 158, 11, 0.4)',
+              lineHeight: '1.4'
+            }}>
+              {uncompletedMandatoryCount}
+            </span>
+          ) : (
+            <span style={{
+              backgroundColor: '#16a34a',
+              color: '#ffffff',
+              fontSize: '10px',
+              fontWeight: '900',
+              padding: '1px 5px',
+              borderRadius: '10px',
+              lineHeight: '1.2'
+            }}>
+              ✓
+            </span>
+          )}
+        </button>
+        <button
+          className={`view-toggle-button ${activeView === 'HINTS' ? 'selected' : ''}`}
+          onClick={() => setActiveView('HINTS')}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+        >
+          💡 Hints
+          {hintsCount > 0 && (
+            <span style={{
+              backgroundColor: '#ef4444',
+              color: '#ffffff',
+              fontSize: '11px',
+              fontWeight: '900',
+              padding: '1px 7px',
+              borderRadius: '10px',
+              boxShadow: '0 2px 5px rgba(239, 68, 68, 0.4)',
+              lineHeight: '1.4'
+            }}>
+              {hintsCount}
+            </span>
+          )}
         </button>
         {myParty?.hasDefeatHazard && (
           <button
@@ -811,133 +889,109 @@ useEffect(() => {
             🚨 CRISIS: SOS
           </button>
         )}
-        {/* ⚔️ War Room Toggle */}
-        <button
-          onClick={() => {
-            setUseWarRoom(prev => {
-              const nextVal = !prev;
-              try {
-                localStorage.setItem('political_sim_ui_mode', nextVal ? 'warroom' : 'classic');
-              } catch (e) {
-                console.error(e);
-              }
-              return nextVal;
-            });
-          }}
-          style={{
-            background: useWarRoom
-              ? 'linear-gradient(135deg, #6C3AB5, #9B5DE5)'
-              : 'rgba(108, 58, 181, 0.12)',
-            color: useWarRoom ? '#ffffff' : '#9B5DE5',
-            border: `1.5px solid ${useWarRoom ? '#9B5DE5' : 'rgba(108,58,181,0.4)'}`,
-            fontWeight: 800,
-            fontSize: '12px',
-            padding: '10px 14px',
-            borderRadius: '20px',
-            minHeight: '44px',
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            touchAction: 'manipulation',
-            WebkitTapHighlightColor: 'transparent',
-            transition: 'all 0.2s ease',
-            flexShrink: 0,
-          }}
-        >
-          {useWarRoom ? '⚔️ War Room' : '⚔️ Classic'}
-        </button>
       </div>
 
-      {/* View Content inside Curved Layout Wrapper */}
-      <div className="game-layout-wrapper">
-        {/* Left themed sidebar */}
-        <div className="themed-left-sidebar">
-          <div className="themed-symbol-badge">
-            <SymbolIcon size={32} color={playerPartyColor} />
-          </div>
+      {/* View Content */}
+      {activeView === 'ACTION' && turnData && useWarRoom ? (
+        <div style={{ width: '100%', marginTop: '10px' }}>
+          <WarRoomView
+            turnData={turnData}
+            activeParty={activeParty}
+            loading={loading}
+            handleAdvanceTurn={handleAdvanceTurn}
+            handleSkipTurn={handleSkipTurn}
+            projectDefs={projectDefs}
+            selectedCard={selectedCard}
+            setSelectedCard={setSelectedCard}
+            targetPartyId={targetPartyId}
+            setTargetPartyId={setTargetPartyId}
+            cardCategoryFilter={cardCategoryFilter}
+            setCardCategoryFilter={setCardCategoryFilter}
+            selectedNewsReactions={selectedNewsReactions}
+            setSelectedNewsReactions={setSelectedNewsReactions}
+            selectedIssueOptionKey={selectedIssueOptionKey}
+            setSelectedIssueOptionKey={setSelectedIssueOptionKey}
+            bidAmount={bidAmount}
+            setBidAmount={setBidAmount}
+            bidConfirmed={bidConfirmed}
+            setBidConfirmed={setBidConfirmed}
+            selectedRewardKey={selectedRewardKey}
+            setSelectedRewardKey={setSelectedRewardKey}
+            rewardTargetPartyId={rewardTargetPartyId}
+            setRewardTargetPartyId={setRewardTargetPartyId}
+            rewardConfirmed={rewardConfirmed}
+            setRewardConfirmed={setRewardConfirmed}
+            projectCategoryFilter={projectCategoryFilter}
+            setProjectCategoryFilter={setProjectCategoryFilter}
+            draftProjectKeys={draftProjectKeys}
+            setDraftProjectKeys={setDraftProjectKeys}
+            fundingContributions={fundingContributions}
+            setFundingContributions={setFundingContributions}
+            partyBuildingConfirmed={partyBuildingConfirmed}
+            setPartyBuildingConfirmed={setPartyBuildingConfirmed}
+            handleFundProject={handleFundProject}
+            handleDestroyProject={handleDestroyProject}
+            handleSetProjectTarget={handleSetProjectTarget}
+            fundedThisTurn={fundedThisTurn}
+            setFundedThisTurn={setFundedThisTurn}
+            handleCooperationUpdate={setTurnData}
+            billVote={billVote}
+            setBillVote={setBillVote}
+            whipIssued={whipIssued}
+            setWhipIssued={setWhipIssued}
+            proposedBillKey={proposedBillKey}
+            setProposedBillKey={setProposedBillKey}
+            selectedEventOptionKey={selectedEventOptionKey}
+            setSelectedEventOptionKey={setSelectedEventOptionKey}
+            scenarioBills={scenarioBills}
+            scenarioEvents={scenarioEvents}
+            activeAccordion={activeAccordion}
+            setActiveAccordion={setActiveAccordion}
+          />
         </div>
-
-        {/* Right Content */}
-        <div className="themed-right-content">
-          {loading && !turnData && <div style={{ textAlign: 'center', padding: '50px 0' }}>⌛ Loading Campaign State...</div>}
-          {error && <div style={{ color: '#d23f31', textAlign: 'center', padding: '50px 0' }}>⚠️ {error}</div>}
-          
-          {!turnData && !loading && !error && (
-            <div style={{ textAlign: 'center', padding: '50px 0' }}>
-              No campaign data loaded. Please return to the Dashboard to load or start a campaign.
+      ) : (
+        <div className="game-layout-wrapper">
+          {/* Left themed sidebar */}
+          <div className="themed-left-sidebar">
+            <div className="themed-symbol-badge">
+              <SymbolIcon size={32} color={playerPartyColor} />
             </div>
-          )}
+          </div>
 
-          {activeView === 'INFO' && turnData && (
-            <StatsView
-              turnData={turnData}
-              commentaryExpanded={commentaryExpanded}
-              setCommentaryExpanded={setCommentaryExpanded}
-              commentaryFilter={commentaryFilter}
-              setCommentaryFilter={setCommentaryFilter}
-              projectDefs={projectDefs}
-              onOpenResolutionReport={() => setShowResolutionReport(true)}
-              scenarioBills={scenarioBills}
-            />
-          )}
+          {/* Right Content */}
+          <div className="themed-right-content">
+            {loading && !turnData && <div style={{ textAlign: 'center', padding: '50px 0' }}>⌛ Loading Campaign State...</div>}
+            {error && <div style={{ color: '#d23f31', textAlign: 'center', padding: '50px 0' }}>⚠️ {error}</div>}
+            
+            {!turnData && !loading && !error && (
+              <div style={{ textAlign: 'center', padding: '50px 0' }}>
+                No campaign data loaded. Please return to the Dashboard to load or start a campaign.
+              </div>
+            )}
 
-          {activeView === 'ACTION' && turnData && (
-            useWarRoom ? (
-              <WarRoomView
+            {activeView === 'INFO' && turnData && (
+              <StatsView
                 turnData={turnData}
-                activeParty={activeParty}
-                loading={loading}
-                handleAdvanceTurn={handleAdvanceTurn}
-                handleSkipTurn={handleSkipTurn}
+                commentaryExpanded={commentaryExpanded}
+                setCommentaryExpanded={setCommentaryExpanded}
+                commentaryFilter={commentaryFilter}
+                setCommentaryFilter={setCommentaryFilter}
                 projectDefs={projectDefs}
-                selectedCard={selectedCard}
-                setSelectedCard={setSelectedCard}
-                targetPartyId={targetPartyId}
-                setTargetPartyId={setTargetPartyId}
-                cardCategoryFilter={cardCategoryFilter}
-                setCardCategoryFilter={setCardCategoryFilter}
-                selectedNewsReactions={selectedNewsReactions}
-                setSelectedNewsReactions={setSelectedNewsReactions}
-                selectedIssueOptionKey={selectedIssueOptionKey}
-                setSelectedIssueOptionKey={setSelectedIssueOptionKey}
-                bidAmount={bidAmount}
-                setBidAmount={setBidAmount}
-                bidConfirmed={bidConfirmed}
-                setBidConfirmed={setBidConfirmed}
-                selectedRewardKey={selectedRewardKey}
-                setSelectedRewardKey={setSelectedRewardKey}
-                rewardTargetPartyId={rewardTargetPartyId}
-                setRewardTargetPartyId={setRewardTargetPartyId}
-                rewardConfirmed={rewardConfirmed}
-                setRewardConfirmed={setRewardConfirmed}
-                projectCategoryFilter={projectCategoryFilter}
-                setProjectCategoryFilter={setProjectCategoryFilter}
-                draftProjectKeys={draftProjectKeys}
-                setDraftProjectKeys={setDraftProjectKeys}
-                fundingContributions={fundingContributions}
-                setFundingContributions={setFundingContributions}
-                partyBuildingConfirmed={partyBuildingConfirmed}
-                setPartyBuildingConfirmed={setPartyBuildingConfirmed}
-                handleFundProject={handleFundProject}
-                handleDestroyProject={handleDestroyProject}
-                handleSetProjectTarget={handleSetProjectTarget}
-                fundedThisTurn={fundedThisTurn}
-                setFundedThisTurn={setFundedThisTurn}
-                handleCooperationUpdate={setTurnData}
-                billVote={billVote}
-                setBillVote={setBillVote}
-                whipIssued={whipIssued}
-                setWhipIssued={setWhipIssued}
-                proposedBillKey={proposedBillKey}
-                setProposedBillKey={setProposedBillKey}
-                selectedEventOptionKey={selectedEventOptionKey}
-                setSelectedEventOptionKey={setSelectedEventOptionKey}
+                onOpenResolutionReport={() => setShowResolutionReport(true)}
+                scenarioBills={scenarioBills}
+              />
+            )}
+
+            {activeView === 'HINTS' && turnData && (
+              <HintsView
+                turnData={turnData}
                 scenarioBills={scenarioBills}
                 scenarioEvents={scenarioEvents}
-                activeAccordion={activeAccordion}
-                setActiveAccordion={setActiveAccordion}
+                onNavigateToAction={handleNavigateFromHint}
               />
-            ) : (
+            )}
+
+            {activeView === 'ACTION' && turnData && !useWarRoom && (
               <ActionsView
                 turnData={turnData}
                 activeParty={activeParty}
@@ -1010,11 +1064,10 @@ useEffect(() => {
                 activeAccordion={activeAccordion}
                 setActiveAccordion={setActiveAccordion}
               />
-            )
-          )}
-
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Floating Chat Toggle Button (bottom-right) – multiplayer only */}
       {turnData?.isMultiplayer && (
@@ -1093,7 +1146,7 @@ useEffect(() => {
         <div 
           onClick={() => setActiveView('ACTION')}
           className="floating-nav-arrow"
-          title="Proceed to Actions & Cards"
+          title="Proceed to Campaign Operations"
         >
           <span style={{ fontSize: '28px', fontWeight: 'bold' }}>➔</span>
         </div>
@@ -1124,6 +1177,8 @@ useEffect(() => {
         partyColor={playerPartyColor}
         projectDefs={projectDefs}
       />
+
+
 
       {/* Skip Turn Confirmation Modal */}
       <SkipTurnConfirmationModal
@@ -1343,6 +1398,15 @@ useEffect(() => {
           </div>
         </div>
       )}
+
+      <HintsDrawer
+        isOpen={showHintsDrawer}
+        onClose={() => setShowHintsDrawer(false)}
+        turnData={turnData}
+        scenarioBills={scenarioBills}
+        scenarioEvents={scenarioEvents}
+        onNavigateTab={handleNavigateFromHint}
+      />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { getFactionDisplayName } from './gameUtils';
 import { getPostByKey, getPostByName, POSTS_CONFIG } from './postsConfig';
 import { lockPartyManagement } from '../../api/apiClient';
@@ -266,6 +266,18 @@ const [deck, setDeck] = useState(() => {
   });
   const [lockError, setLockError] = useState(null);
   const [isLocking, setIsLocking] = useState(false);
+  const confirmBtnRef = useRef(null);
+  const allCardsAssigned = deck.length === 0 && !isLocked;
+
+  // Auto-scroll to Confirm button when all cards are assigned
+  useEffect(() => {
+    if (allCardsAssigned) {
+      const timer = setTimeout(() => {
+        confirmBtnRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [allCardsAssigned]);
 
   const [showCrisisModal, setShowCrisisModal] = useState(false);
 
@@ -1167,25 +1179,31 @@ const [deck, setDeck] = useState(() => {
 
               {/* Lock Allocations button */}
               <button
+                ref={confirmBtnRef}
                 onClick={handleLock}
                 disabled={isLocked || isLocking}
+                className={allCardsAssigned ? 'btn-pulse-highlight' : ''}
                 style={{
                   flex: '1 1 0%',
                   minWidth: '150px',
-                  padding: '10px 15px',
+                  padding: '10px 20px',
                   background: isLocked
                     ? 'var(--selected-highlight, #22c55e)'
+                    : allCardsAssigned
+                    ? '#0ea5e9'
                     : 'var(--party-primary-color, var(--primary-dark))',
                   borderWidth: '1.5px',
                   borderStyle: 'solid',
                   borderColor: isLocked
                     ? 'var(--selected-highlight, #22c55e)'
+                    : allCardsAssigned
+                    ? '#38bdf8'
                     : 'var(--party-primary-color, var(--primary-dark))',
                   color: isLocked ? 'var(--primary-dark, #1e3a5f)' : '#ffffff',
                   fontWeight: 'bold',
-                  borderRadius: '6px',
+                  borderRadius: '8px',
                   cursor: isLocked ? 'default' : 'pointer',
-                  fontSize: '13px',
+                  fontSize: '14px',
                   opacity: isLocking ? 0.7 : 1,
                   transition: 'all 0.2s',
                   display: 'flex',

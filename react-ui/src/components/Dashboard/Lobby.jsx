@@ -106,7 +106,7 @@ export default function Lobby() {
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
                 {isCreator ? (
-                    <button onClick={handleStartGame} disabled={loading} style={{ padding: '15px 40px', fontSize: '18px' }}>
+                    <button onClick={handleStartGame} disabled={loading} style={{ padding: '10px 24px', fontSize: '14px', fontWeight: 'bold' }}>
                         Start Game
                     </button>
                 ) : (

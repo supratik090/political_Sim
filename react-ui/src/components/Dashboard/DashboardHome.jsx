@@ -113,7 +113,6 @@ export default function DashboardHome() {
       const scenario = scenarios[selectedScenarioIndex];
       if (scenario) {
         setSelectedYear(scenario.startYear);
-        setSelectedStateName(scenario.stateName);
       }
       if (scenario && scenario.politicalParties) {
         setPartyConfigs(scenario.politicalParties.map(p => {
@@ -172,7 +171,6 @@ export default function DashboardHome() {
           if (activeScenarios.length > 0) {
             // Dynamically match the default era to the first available backend scenario
             setSelectedYear(activeScenarios[0].startYear);
-            setSelectedStateName(activeScenarios[0].stateName);
           }
         }
         return; // instant render from cache
@@ -441,7 +439,7 @@ export default function DashboardHome() {
             className={createStartBtnHighlighted ? 'btn-pulse-highlight' : ''}
             onClick={handleStartNewGame} 
             disabled={loading} 
-            style={{ padding: '15px 40px', fontSize: '18px' }}
+            style={{ padding: '10px 24px', fontSize: '14px', fontWeight: 'bold' }}
           >
             {loading ? 'Starting...' : 'Start Game'}
           </button>
@@ -856,7 +854,7 @@ export default function DashboardHome() {
                         setView('CREATE');
                       }
                     }}
-                    style={{ fontSize: '12px', padding: '8px 15px' }}
+                    style={{ fontSize: '14px', padding: '10px 20px', fontWeight: 'bold' }}
                   >
                     {'🎮 Start Campaign'}
                   </button>
@@ -865,7 +863,7 @@ export default function DashboardHome() {
                 {activeGame && (
                   <button 
                     onClick={() => handleLoadGame(activeGame.id, activeGame.status)}
-                    style={{ fontSize: '12px', padding: '8px 15px', backgroundColor: 'var(--selected-highlight)', borderColor: 'var(--selected-highlight)' }}
+                    style={{ fontSize: '14px', padding: '10px 20px', fontWeight: 'bold', backgroundColor: 'var(--selected-highlight)', borderColor: 'var(--selected-highlight)' }}
                   >
                     📂 {activeGame.status === 'LOBBY' ? 'Enter Lobby' : 'Resume Active Session'}
                   </button>
@@ -909,7 +907,7 @@ export default function DashboardHome() {
                 setCreatedMultiplayerGame(null);
                 setScreen('LOBBY');
               }}
-              style={{ width: '100%', padding: '15px', fontSize: '16px' }}
+              style={{ width: '100%', padding: '10px 18px', fontSize: '14px', fontWeight: 'bold' }}
             >
               Proceed to Lobby
             </button>

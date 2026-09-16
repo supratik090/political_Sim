@@ -71,8 +71,8 @@ public class AiDecisionService {
         // opponent may be null when ALL other active parties have non-aggression pacts with this party
         boolean hasTargetableOpponent = opponent != null;
 
-        // Coin Crisis Override (coins <= 80)
-        if (stats.getCoins() <= 80) return AiIntent.RAISE_FUNDS;
+        // Coin Buffer Safety Override (coins <= 200)
+        if (stats.getCoins() <= 200) return AiIntent.RAISE_FUNDS;
 
         // ── CHANGE 1: Survival override — thresholds scale with riskTolerance ───────
         // Cautious parties (low riskTolerance) panic earlier; bold ones push slightly longer.
@@ -81,7 +81,7 @@ public class AiDecisionService {
         if (stats.getPublicSupport() < Math.round(20 * survivalFactor)) return AiIntent.GAIN_SUPPORT;
         if (stats.getPartyMorale()   < Math.round(22 * survivalFactor)) return AiIntent.RESTORE_MORALE;
         if (stats.getCorruptionScore() > Math.round(80 / survivalFactor)) return AiIntent.SURVIVE_SCANDAL;
-        if (stats.getCoins()          < Math.round(35 * survivalFactor)) return AiIntent.RAISE_FUNDS;
+        if (stats.getCoins()          < Math.round(250 * survivalFactor)) return AiIntent.RAISE_FUNDS;
         // ─────────────────────────────────────────────────────────────────────────────
 
         if (party.getRole() != PartyRole.GOVERNMENT) {
@@ -373,8 +373,8 @@ public class AiDecisionService {
                     score += 10.0 * attackerHealthFactor;
                 }
             } else {
-                // If a card requires an opponent target but all active opponents have pacts, penalize heavily.
-                score -= 100.0;
+                // If a card requires an opponent target but all active opponents have pacts, penalize heavily so AI never plays it.
+                score -= 2000.0;
             }
         }
 
@@ -970,12 +970,12 @@ public class AiDecisionService {
 
         // 1. Coins benefit
         if (reward.coinsEffect() > 0) {
-            if (stats.getCoins() <= 40) {
-                utility += 0.8;
-            } else if (stats.getCoins() <= 70) {
-                utility += 0.4;
+            if (stats.getCoins() <= 100) {
+                utility += 1.8;
+            } else if (stats.getCoins() <= 250) {
+                utility += 1.2;
             } else {
-                utility += 0.1;
+                utility += 0.3;
             }
         }
 
@@ -1388,7 +1388,11 @@ public class AiDecisionService {
         utility += moraleEffect * 1.5;
         utility += mediaEffect * 1.5;
         utility -= corruptionEffect * 2.0;
-        utility += coinsEffect * 0.1;
+        if (party.getStats().getCoins() < 250 && coinsEffect > 0) {
+            utility += coinsEffect * 6.0;
+        } else {
+            utility += coinsEffect * 1.0;
+        }
 
         return utility;
     }

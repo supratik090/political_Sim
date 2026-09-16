@@ -68,22 +68,171 @@ export default function HowToPlay() {
   ];
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '30px', padding: '10px 20px 50px 20px' }}>
-      
+    <div className="rules-container">
+      <style dangerouslySetInnerHTML={{__html: `
+        .rules-container {
+          max-width: 1000px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          gap: 25px;
+          padding: 15px 20px 80px 20px;
+          font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        .rules-banner-card {
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+          border-radius: 16px;
+          padding: 30px 24px;
+          color: #ffffff;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        }
+
+        .rules-banner-icon {
+          font-size: 36px;
+          display: block;
+          margin-bottom: 8px;
+        }
+
+        .rules-banner-title {
+          margin: 0;
+          font-size: 26px;
+          font-weight: 900;
+          letter-spacing: -0.02em;
+          color: #ffffff;
+        }
+
+        .rules-banner-desc {
+          color: #cbd5e1;
+          font-size: 14.5px;
+          line-height: 1.5;
+          max-width: 750px;
+          margin: 12px auto 0 auto;
+        }
+
+        .rules-section-title {
+          margin: 10px 0 15px 0;
+          font-size: 20px;
+          color: var(--primary-dark);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 800;
+        }
+
+        .rules-action-card {
+          background: #ffffff;
+          border: 1px solid var(--primary-border);
+          border-radius: 14px;
+          padding: 20px;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04);
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .rules-action-title {
+          margin: 0;
+          font-size: 17px;
+          color: var(--primary-dark);
+          font-weight: bold;
+        }
+
+        .rules-action-desc {
+          margin: 0;
+          color: var(--text-secondary);
+          font-size: 14px;
+          line-height: 1.55;
+        }
+
+        .rules-screenshot-box {
+          width: 100%;
+          height: 200px;
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          border-radius: 10px;
+          border: 2px dashed #0284c7;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .rules-outcomes-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 20px;
+        }
+
+        .rules-outcome-card {
+          background: #ffffff;
+          border: 1px solid var(--primary-border);
+          border-radius: 14px;
+          padding: 20px;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04);
+        }
+
+        /* Mobile / Android Responsive Adjustments */
+        @media (max-width: 640px) {
+          .rules-container {
+            padding: 8px 10px 85px 10px;
+            gap: 14px;
+          }
+          .rules-banner-card {
+            padding: 16px 12px;
+            border-radius: 12px;
+          }
+          .rules-banner-icon {
+            font-size: 26px;
+            margin-bottom: 4px;
+          }
+          .rules-banner-title {
+            font-size: 18px;
+          }
+          .rules-banner-desc {
+            font-size: 12px;
+            line-height: 1.4;
+            margin-top: 6px;
+          }
+          .rules-section-title {
+            font-size: 15px;
+            margin: 4px 0 8px 0;
+          }
+          .rules-action-card {
+            padding: 12px;
+            border-radius: 10px;
+            gap: 10px;
+          }
+          .rules-action-title {
+            font-size: 14px;
+          }
+          .rules-action-desc {
+            font-size: 11.5px;
+            line-height: 1.4;
+          }
+          .rules-screenshot-box {
+            height: 110px;
+            border-radius: 8px;
+          }
+          .rules-outcomes-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+          .rules-outcome-card {
+            padding: 12px;
+            border-radius: 10px;
+          }
+        }
+      `}} />
+
       {/* Banner Card */}
-      <div style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-        borderRadius: '16px',
-        padding: '35px 30px',
-        color: '#ffffff',
-        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-        textAlign: 'center'
-      }}>
-        <span style={{ fontSize: '40px', display: 'block', marginBottom: '10px' }}>📖</span>
-        <h1 style={{ marginTop: 0, fontSize: '32px', fontWeight: '900', letterSpacing: '-0.025em', color: '#ffffff' }}>
+      <div className="rules-banner-card">
+        <span className="rules-banner-icon">📖</span>
+        <h1 className="rules-banner-title">
           Rules of Statecraft Guide
         </h1>
-        <p style={{ color: '#cbd5e1', fontSize: '16px', lineHeight: 1.6, maxWidth: '750px', margin: '15px auto 0 auto' }}>
+        <p className="rules-banner-desc">
           Welcome to Statecraft! Navigate a 60-turn campaign representing a dynamic election cycle. 
           Manage your core metrics—<strong>Coins</strong>, <strong>Morale</strong>, <strong>Corruption</strong>, and <strong>Media Image</strong>—to win the battle for the assembly.
         </p>
@@ -91,51 +240,40 @@ export default function HowToPlay() {
 
       {/* Grid Layout of the 7 actions */}
       <div>
-        <h2 style={{ margin: '10px 0 25px 0', fontSize: '22px', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800' }}>
+        <h2 className="rules-section-title">
           🎯 The 7 Campaign Actions
         </h2>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {actions.map(action => (
-            <div 
-              key={action.id} 
-              style={{
-                background: '#ffffff',
-                border: '1px solid var(--primary-border)',
-                borderRadius: '16px',
-                padding: '24px',
-                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '20px'
-              }}
-            >
+            <div key={action.id} className="rules-action-card">
               {/* Card Header Info */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{
-                    width: '42px',
-                    height: '42px',
-                    borderRadius: '10px',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '8px',
                     backgroundColor: `${action.color}15`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '20px',
-                    border: `1.5px solid ${action.color}`
+                    fontSize: '18px',
+                    border: `1.5px solid ${action.color}`,
+                    flexShrink: 0
                   }}>
                     {action.icon}
                   </div>
                   <div>
-                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Action 0{action.id}</span>
-                    <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--primary-dark)', fontWeight: 'bold' }}>{action.title}</h3>
+                    <span style={{ fontSize: '10px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Action 0{action.id}</span>
+                    <h3 className="rules-action-title">{action.title}</h3>
                   </div>
                 </div>
 
                 <span style={{
-                  fontSize: '11px',
+                  fontSize: '10px',
                   fontWeight: '800',
-                  padding: '5px 10px',
+                  padding: '3px 8px',
                   borderRadius: '20px',
                   letterSpacing: '0.05em',
                   backgroundColor: action.type === 'REQUIRED' ? '#fee2e2' : '#dcfce7',
@@ -147,24 +285,12 @@ export default function HowToPlay() {
               </div>
 
               {/* Description */}
-              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14.5px', lineHeight: 1.6 }}>
+              <p className="rules-action-desc">
                 {action.description}
               </p>
 
-              {/* Light Blue Screenshot Placeholder */}
-              <div style={{ 
-                width: '100%', 
-                height: '240px', 
-                background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)', 
-                borderRadius: '12px', 
-                border: '2px dashed #0284c7',
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                position: 'relative',
-                overflow: 'hidden',
-                boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)'
-              }}>
+              {/* Screenshot Placeholder */}
+              <div className="rules-screenshot-box">
                 <img 
                   src={action.imagePlaceholder} 
                   alt={action.title}
@@ -174,10 +300,10 @@ export default function HowToPlay() {
                   }}
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 />
-                <div style={{ display: 'none', flexDirection: 'column', alignItems: 'center', color: '#0369a1', gap: '8px' }}>
-                  <span style={{ fontSize: '32px' }}>📸</span>
-                  <span style={{ fontSize: '13px', fontWeight: 'bold' }}>Screenshot Placeholder</span>
-                  <span style={{ fontSize: '11px', opacity: 0.8 }}>{action.title} Interface Mockup</span>
+                <div style={{ display: 'none', flexDirection: 'column', alignItems: 'center', color: '#0369a1', gap: '4px' }}>
+                  <span style={{ fontSize: '24px' }}>📸</span>
+                  <span style={{ fontSize: '11px', fontWeight: 'bold' }}>Screenshot Placeholder</span>
+                  <span style={{ fontSize: '10px', opacity: 0.8 }}>{action.title} Interface Mockup</span>
                 </div>
               </div>
             </div>
@@ -186,48 +312,34 @@ export default function HowToPlay() {
       </div>
 
       {/* Rules and Win/Defeat Scenarios */}
-      <h2 style={{ margin: '20px 0 10px 0', fontSize: '22px', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '800' }}>
+      <h2 className="rules-section-title">
         ⚙️ Victory and Defeat Scenarios
       </h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '25px' }}>
+      <div className="rules-outcomes-grid">
         
-        <div style={{ 
-          background: '#ffffff',
-          border: '1px solid var(--primary-border)',
-          borderRadius: '16px',
-          padding: '24px',
-          boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
-          borderTop: '5px solid #d9534f'
-        }}>
-          <h4 style={{ margin: '0 0 15px 0', color: '#d9534f', fontSize: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="rules-outcome-card" style={{ borderTop: '4px solid #d9534f' }}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#d9534f', fontSize: '15px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span>💀</span> Campaign Defeat (Elimination)
           </h4>
-          <p style={{ margin: '0 0 15px 0', color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.6 }}>
+          <p style={{ margin: '0 0 10px 0', color: 'var(--text-secondary)', fontSize: '12.5px', lineHeight: 1.45 }}>
             Your party will instantly collapse and be eliminated from the scenario if you hit any of the following critical thresholds:
           </p>
-          <ul style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.8, paddingLeft: '20px', margin: 0 }}>
+          <ul style={{ color: 'var(--text-secondary)', fontSize: '12px', lineHeight: 1.6, paddingLeft: '18px', margin: 0 }}>
             <li><strong>Bankruptcy:</strong> Coins drop to 0 or below.</li>
             <li><strong>Cadre Collapse:</strong> Party Morale drops below 10.</li>
             <li><strong>Total Loss of Faith:</strong> Public Support drops below 10%.</li>
           </ul>
         </div>
 
-        <div style={{ 
-          background: '#ffffff',
-          border: '1px solid var(--primary-border)',
-          borderRadius: '16px',
-          padding: '24px',
-          boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
-          borderTop: '5px solid #16a34a'
-        }}>
-          <h4 style={{ margin: '0 0 15px 0', color: '#16a34a', fontSize: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="rules-outcome-card" style={{ borderTop: '4px solid #16a34a' }}>
+          <h4 style={{ margin: '0 0 10px 0', color: '#16a34a', fontSize: '15px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span>🏆</span> Campaign Victory
           </h4>
-          <p style={{ margin: '0 0 15px 0', color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.6 }}>
+          <p style={{ margin: '0 0 10px 0', color: 'var(--text-secondary)', fontSize: '12.5px', lineHeight: 1.45 }}>
             You can secure victory through two primary paths:
           </p>
-          <ul style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.8, paddingLeft: '20px', margin: 0 }}>
+          <ul style={{ color: 'var(--text-secondary)', fontSize: '12px', lineHeight: 1.6, paddingLeft: '18px', margin: 0 }}>
             <li><strong>Election Day Victory:</strong> Survive all 60 turns. On Turn 60, elections are held automatically. The party with the highest support forms government and wins.</li>
             <li><strong>Sole Survivor:</strong> If all rival parties collapse due to bankruptcy or morale failure before Turn 60, you win by default.</li>
           </ul>

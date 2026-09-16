@@ -92,6 +92,7 @@ public class RoundResolutionEngine {
 
     public boolean resolveRound(GameSession session) {
         session.setLastRoundDroppedReward(null);
+        session.setLastRoundWinnerPartyId(null);
         session.setLastElectionHeld(false);
         session.setLastElectionWinner(null);
         session.setLastElectionVoteShares(new java.util.LinkedHashMap<>());
@@ -255,6 +256,17 @@ public class RoundResolutionEngine {
                 continue;
             }
             PartyStats stats = party.getStats();
+
+            // Auto Emergency Defense Check: If party has >= 80 coins and is in critical danger zone, buy Emergency Stabilization
+            if ((stats.getPartyMorale() < 10 || stats.getCorruptionScore() > 95 || stats.getPublicSupport() < 5) && stats.getCoins() >= 80) {
+                stats.setCoins(stats.getCoins() - 80);
+                stats.setPartyMorale(Math.min(100, stats.getPartyMorale() + 20));
+                stats.setCorruptionScore(Math.max(0, stats.getCorruptionScore() - 20));
+                stats.setPublicSupport(stats.getPublicSupport() + 5);
+                stats.setMediaImage(Math.min(100, stats.getMediaImage() + 20));
+                commentary.add("🛡️ Emergency Defense: " + party.getName() + " spent 80 Coins from treasury reserves to stabilize cadre morale and prevent political defeat!");
+            }
+
             if (stats.getCoins() <= 0 || stats.getPartyMorale() < 10 || stats.getCorruptionScore() > 95 || stats.getPublicSupport() < 5) {
                 party.setRole(com.politicalsim.party.PartyRole.DEFEATED);
                 party.setActive(false);
@@ -262,13 +274,19 @@ public class RoundResolutionEngine {
                 stats.setPublicSupport(0);
                 session.getPublicState().setUndecidedSupport(session.getPublicState().getUndecidedSupport() + supportToMove);
 
+                String defeatReason;
+                if (stats.getCoins() <= 0) defeatReason = "Treasury Bankruptcy (0 Coins remaining)";
+                else if (stats.getPartyMorale() < 10) defeatReason = "Cadre Morale Collapse (" + stats.getPartyMorale() + "% Morale remaining)";
+                else if (stats.getCorruptionScore() > 95) defeatReason = "Massive Corruption Scandal (" + stats.getCorruptionScore() + "% Corruption)";
+                else defeatReason = "Voter Support Wipeout (" + stats.getPublicSupport() + "% Support)";
+
                 if (session.getPlayerPartyIds().contains(party.getId())) {
                     session.setStatus(GameStatus.DEFEAT);
-                    commentary.add("❌ DEFEAT: Your party " + party.getName() + " has been politically eliminated due to critical resource failure (Coins: " + stats.getCoins() + ", Morale: " + stats.getPartyMorale() + ", Corruption: " + stats.getCorruptionScore() + ", Support: " + stats.getPublicSupport() + "%).");
-                    resultLines.add("Defeat: Your party was eliminated.");
+                    commentary.add("❌ DEFEAT: Your party " + party.getName() + " has been politically eliminated due to " + defeatReason + ".");
+                    resultLines.add("Defeat: Your party was eliminated (" + defeatReason + ").");
                 } else {
-                    commentary.add("💀 ELIMINATED: AI Party " + party.getName() + " has been politically eliminated and is no longer active in this campaign.");
-                    resultLines.add("Eliminated: AI Party " + party.getName() + " was eliminated.");
+                    commentary.add("💀 ELIMINATED: AI Party " + party.getName() + " has been politically eliminated due to " + defeatReason + ".");
+                    resultLines.add("Eliminated: AI Party " + party.getName() + " was eliminated (" + defeatReason + ").");
                 }
             }
         }
@@ -653,14 +671,21 @@ public class RoundResolutionEngine {
             if (proposer != null) {
                 applyEffectsMap(session, proposer, billDef.getEffectsPassed());
                 proposer.getStats().setPartyMorale(Math.min(100, proposer.getStats().getPartyMorale() + billDef.getPointsPassed()));
-                commentary.add("  - Proposer " + proposer.getName() + " received effects: " + formatEffectsMap(billDef.getEffectsPassed()) + " and +" + billDef.getPointsPassed() + " Morale.");
+                commentary.add("  - Proposer " + proposer.getName() + " received 100% bill effects: " + formatEffectsMap(billDef.getEffectsPassed()) + " and +" + billDef.getPointsPassed() + " Morale.");
             }
 
-            // Apply benefits to all other active parties (opposition and partners)
+            // Apply benefits to active parties based on vote choice: YES gets 50%, ABSTAIN/NO gets 0%
             for (PartyState party : session.getParties()) {
                 if (party.isActive() && party.getRole() != com.politicalsim.party.PartyRole.DEFEATED && (proposer == null || !party.getId().equals(proposer.getId()))) {
-                    applyEffectsMap(session, party, billDef.getEffectsPassed());
-                    commentary.add("  - Party " + party.getName() + " also received bill effects: " + formatEffectsMap(billDef.getEffectsPassed()) + ".");
+                    String partyVoteStr = lastBillPartyVotes.get(party.getName());
+                    if (partyVoteStr != null && partyVoteStr.startsWith("YES")) {
+                        applyEffectsMapScaled(session, party, billDef.getEffectsPassed(), 0.5);
+                        commentary.add("  - Party " + party.getName() + " voted YES and received 50% bill effects: " + formatEffectsMapScaled(billDef.getEffectsPassed(), 0.5) + ".");
+                    } else if (partyVoteStr != null && partyVoteStr.startsWith("ABSTAIN")) {
+                        commentary.add("  - Party " + party.getName() + " ABSTAINED from vote and received no (0%) bill benefits.");
+                    } else {
+                        commentary.add("  - Party " + party.getName() + " voted NO and received no (0%) bill benefits.");
+                    }
                 }
             }
         } else {
@@ -812,6 +837,31 @@ public class RoundResolutionEngine {
         Map<String, Integer> pressure = new LinkedHashMap<>();
         applyEffects(session, target, effects, pressure);
         resolvePublicSupport(session, pressure, new ArrayList<>());
+    }
+
+    private Map<String, Object> scaleEffectsMap(Map<String, Object> effects, double scale) {
+        if (effects == null || effects.isEmpty()) return Collections.emptyMap();
+        Map<String, Object> scaled = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : effects.entrySet()) {
+            if (entry.getValue() instanceof Number) {
+                double original = ((Number) entry.getValue()).doubleValue();
+                scaled.put(entry.getKey(), (int) Math.round(original * scale));
+            } else {
+                scaled.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return scaled;
+    }
+
+    private void applyEffectsMapScaled(GameSession session, PartyState target, Map<String, Object> effects, double scale) {
+        if (effects == null || effects.isEmpty() || scale <= 0.0) return;
+        Map<String, Object> scaled = scaleEffectsMap(effects, scale);
+        applyEffectsMap(session, target, scaled);
+    }
+
+    private String formatEffectsMapScaled(Map<String, Object> effects, double scale) {
+        Map<String, Object> scaled = scaleEffectsMap(effects, scale);
+        return formatEffectsMap(scaled);
     }
 
 
@@ -1065,7 +1115,8 @@ public class RoundResolutionEngine {
                 int s = intValue(oppEffects.get("publicSupport"));
                 int med = intValue(oppEffects.get("mediaImage"));
                 int corr = intValue(oppEffects.get("corruptionScore"));
-                if (c < 0 || m < 0 || s < 0 || med < 0 || corr > 0) {
+                boolean isExplicitOpponentTarget = card.getTarget() != null && Boolean.TRUE.equals(card.getTarget().get("opponentParty"));
+                if (isExplicitOpponentTarget && (c < 0 || m < 0 || s < 0 || med < 0 || corr > 0)) {
                     checkAndProcessPactViolation(session, actor, opponent, "card '" + card.getName() + "'", commentary);
                 }
                 applyEffects(session, opponent, oppEffects, supportPressure, directSupportChanges, shouldTriple);

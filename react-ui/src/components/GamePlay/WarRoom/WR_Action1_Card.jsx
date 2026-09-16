@@ -1,5 +1,6 @@
 import React from 'react';
 import { cardRequiresTarget, formatEffectValue } from '../gameUtils';
+import { useHorizontalScroll } from '../../../hooks/useHorizontalScroll';
 
 const CATEGORY_CONFIG = [
   { key: 'governance',            label: 'Governance', icon: '🏙️', color: '#7C3AED', bg: 'linear-gradient(145deg,#3b1d8e,#5b21b6)' },
@@ -51,6 +52,8 @@ export default function WR_Action1_Card({
       ? allCards
       : allCards.filter(c => c.category?.toLowerCase() === cardCategoryFilter?.toLowerCase());
 
+  const cardCarouselRef = useHorizontalScroll();
+
   return (
     <div style={{ padding: '14px 16px 0' }}>
       {/* Section header */}
@@ -70,8 +73,8 @@ export default function WR_Action1_Card({
         </div>
       )}
 
-      {/* Category filter chips — horizontal scroll */}
-      <div className="wr-hscroll" style={{ marginBottom: '14px', paddingBottom: '4px' }}>
+      {/* Category filter chips — wrapped 2-line layout */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 10px', marginTop: '12px', marginBottom: '20px', paddingBottom: '4px' }}>
         {CATEGORY_CONFIG.map(cat => {
           const isActive = cardCategoryFilter === cat.key;
           return (
@@ -100,7 +103,7 @@ export default function WR_Action1_Card({
           No cards in this category.
         </div>
       ) : (
-        <div className="wr-hscroll" style={{ alignItems: 'center', paddingBottom: '12px', paddingTop: '6px', paddingLeft: '2px', paddingRight: '16px', gap: '12px' }}>
+        <div ref={cardCarouselRef} className="wr-hscroll" style={{ alignItems: 'center', paddingBottom: '12px', paddingTop: '6px', paddingLeft: '2px', paddingRight: '16px', gap: '12px' }}>
           {filtered.map(card => {
             const isSelected = selectedCard?.cardKey === card.cardKey;
             const { selfPositive, oppNegative } = getEffectSummary(card);

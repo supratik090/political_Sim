@@ -104,15 +104,15 @@ button {
   background-color: var(--button-bg);
   color: var(--button-text);
   border: 1px solid var(--button-bg);
-  border-radius: 10px;              /* Was 8px — more Android-native */
+  border-radius: 8px;
   font-family: 'Montserrat', system-ui, sans-serif;
   font-weight: 600;
-  font-size: 15px;                  /* Was 14px */
-  letter-spacing: 0.03em;
-  padding: 12px 20px;               /* Was 10px 20px */
-  min-height: 44px;                 /* Soft floor for touch targets */
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  padding: 8px 14px;
+  min-height: 36px;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(26, 52, 72, 0.15);
+  box-shadow: 0 2px 4px rgba(26, 52, 72, 0.12);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Android touch optimisations */
@@ -204,17 +204,17 @@ button.selected:hover {
 @keyframes btnHighlightPulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.8), 0 4px 6px rgba(26, 52, 72, 0.15);
+    box-shadow: 0 4px 6px rgba(26, 52, 72, 0.15);
   }
   50% {
-    transform: scale(1.08);
-    box-shadow: 0 0 25px 8px rgba(14, 165, 233, 0.9), 0 8px 20px rgba(14, 165, 233, 0.4);
+    transform: scale(1.02);
+    box-shadow: 0 0 10px 2px rgba(14, 165, 233, 0.4), 0 4px 10px rgba(14, 165, 233, 0.25);
     border-color: #38bdf8;
   }
 }
 
 .btn-pulse-highlight {
-  animation: btnHighlightPulse 1.2s ease-in-out infinite !important;
+  animation: btnHighlightPulse 1.5s ease-in-out infinite !important;
   background-color: #0ea5e9 !important;
   border-color: #38bdf8 !important;
   color: #ffffff !important;
@@ -326,6 +326,36 @@ input[type="range"]::-moz-range-thumb {
   margin-bottom: 20px;
 }
 
+.top-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.top-nav-logo {
+  width: 42px;
+  height: 42px;
+  max-width: 42px;
+  max-height: 42px;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.top-nav-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--primary-dark);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.top-nav-welcome {
+  font-size: 13px;
+  color: var(--primary-dark);
+}
+
 .dashboard-top-nav-buttons {
   display: flex;
   gap: 10px;
@@ -435,29 +465,19 @@ input[type="range"]::-moz-range-thumb {
    ==================================================== */
 .card-filter-bar {
   display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  padding-bottom: 12px;
   margin-bottom: 16px;
   border-bottom: 1px solid rgba(101, 148, 177, 0.2);
-  padding-bottom: 12px;
-}
-.card-filter-bar::-webkit-scrollbar {
-  display: none;
 }
 
 .card-filter-pill {
-  padding: 9px 16px;
-  font-size: 13px;
-  min-height: 38px;
+  padding: 6px 12px;
+  font-size: 12px;
+  min-height: 32px;
   white-space: nowrap;
-  scroll-snap-align: start;
-  flex-shrink: 0;
-  border-radius: 20px;
+  border-radius: 16px;
   font-weight: 700;
   border: 1.5px solid;
   transition: all 0.15s ease;
@@ -578,95 +598,123 @@ input[type="range"]::-moz-range-thumb {
 }
 
 /* ====================================================
-   MOBILE BREAKPOINT — 768px (tablets, large phones)
+   MOBILE BREAKPOINT — 768px (tablets, Android, mobile)
    ==================================================== */
 @media (max-width: 768px) {
-  /* ── Layout ── */
-  .dashboard-grid       { grid-template-columns: 1fr; gap: 14px; }
-  .create-party-grid    { grid-template-columns: 1fr; gap: 10px; }
-  .dashboard-container  { padding: 12px 14px; }
+  /* ── Mobile Form Inputs & Buttons ── */
+  button {
+    font-size: 12px;
+    padding: 7px 12px;
+    min-height: 34px;
+    border-radius: 6px;
+  }
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  input[type="number"],
+  select {
+    padding: 8px 10px;
+    font-size: 13px;
+    min-height: 38px;
+    border-radius: 6px;
+  }
 
-  /* ── Top Nav ── */
+  /* ── Layout — Full width, comfortable padding & spacing ── */
+  .dashboard-grid       { grid-template-columns: 1fr; gap: 14px; }
+  .create-party-grid    { grid-template-columns: 1fr; gap: 12px; }
+  .dashboard-container  { padding: 12px 10px calc(85px + var(--safe-bottom)) 10px; width: 100%; max-width: 100%; }
+
+  /* ── Top Nav Header ── */
   .dashboard-top-nav {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    margin-bottom: 12px;
-    text-align: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 16px;
+    text-align: left;
   }
   .nav-subtitle { display: none; }
+  .top-nav-left { gap: 8px; }
+  .top-nav-logo { width: 32px; height: 32px; border-radius: 8px; }
+  .top-nav-title { font-size: 16px; }
+  .top-nav-welcome { font-size: 11px; }
+
   .dashboard-top-nav-buttons {
-    justify-content: center;
+    justify-content: flex-end;
+    gap: 6px;
     flex-wrap: wrap;
   }
   .dashboard-top-nav-buttons button {
-    flex: 1;
-    min-width: 100px;
-    padding: 10px 14px;             /* Was 8px 12px */
-    font-size: 13px;                /* Was 12px */
-    min-height: 40px;
+    flex: none;
+    min-width: 0;
+    padding: 6px 10px;
+    font-size: 11px;
+    min-height: 32px;
+    border-radius: 6px;
   }
 
-  /* ── Game Board ── */
-  .game-board-container { padding: 12px 10px; }
+  /* ── Game Board Container — Maximize screen width ── */
+  .game-board-container { padding: 6px 0; width: 100%; }
 
-  /* ── Title Banner ── */
-  .game-title-banner  { padding: 14px 12px; border-radius: 12px; margin-bottom: 14px; }
-  .banner-subtitle    { font-size: 11px !important; }
-  .game-title-h1      { font-size: 20px; }
-  .game-title-p       { font-size: 13px; margin-top: 4px; }
+  /* ── Compact Title Banner ── */
+  .game-title-banner  { padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; }
+  .banner-subtitle    { font-size: 10px !important; }
+  .game-title-h1      { font-size: 15px; letter-spacing: 0.04em; }
+  .game-title-p       { font-size: 11px; margin-top: 2px; }
+  .banner-playing-pill { margin-top: 6px; padding: 4px 10px; font-size: 11px; }
 
-  /* ── View Toggle ── */
-  .view-toggle-bar    { gap: 6px; margin-bottom: 12px; }
-  .view-toggle-button { padding: 12px 8px; font-size: 13px; border-radius: 8px; min-height: 46px; }
+  /* ── View Toggle Bar ── */
+  .view-toggle-bar    { gap: 8px; margin-bottom: 18px; margin-top: 10px; }
+  .view-toggle-button { padding: 10px 8px; font-size: 13px; font-weight: 700; border-radius: 10px; min-height: 42px; }
 
   /* ── Game Content Card ── */
-  .game-content-card  { padding: 12px; border-radius: 10px; }
+  .game-content-card  { padding: 12px 10px; border-radius: 12px; }
 
   /* ── Reward Pane ── */
   .cycle-reward-pane {
     border-left: none;
     padding-left: 0;
-    padding-top: 16px;
+    padding-top: 12px;
     border-top: 1px solid rgba(101, 148, 177, 0.2);
   }
 
   /* ── Floating Arrow ── */
   .floating-nav-arrow {
-    right: calc(12px + var(--safe-right));
-    bottom: calc(72px + var(--safe-bottom));
-    width: 50px;
-    height: 50px;
+    right: calc(10px + var(--safe-right));
+    bottom: calc(68px + var(--safe-bottom));
+    width: 44px;
+    height: 44px;
     border: 2px solid #ffffff;
-    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
   }
-  .floating-nav-arrow span { font-size: 22px !important; }
+  .floating-nav-arrow span { font-size: 18px !important; }
 
-  /* ── Typography — consistent compacting ── */
-  .game-board-container h2 { font-size: 18px !important; }
-  .game-board-container h3 { font-size: 16px !important; }
-  .game-board-container h4 { font-size: 14px !important; }
-  .game-board-container h5 { font-size: 13px !important; }
+  /* ── Typography — compact mobile scaling ── */
+  .game-board-container h2 { font-size: 16px !important; }
+  .game-board-container h3 { font-size: 14px !important; }
+  .game-board-container h4 { font-size: 13px !important; }
+  .game-board-container h5 { font-size: 12px !important; }
 
   /* ── Unified Card ── */
-  .unified-card { padding: 14px; border-radius: 12px; }
+  .unified-card { padding: 10px 8px; border-radius: 10px; }
 
-  /* ── Party Layout ── */
-  .game-layout-wrapper  { flex-direction: column; border-radius: 12px; }
+  /* ── Party Layout — Edge to edge ── */
+  .game-layout-wrapper  { flex-direction: column; border-radius: 10px; border-width: 1px; margin-top: 8px; }
   .themed-left-sidebar  {
     width: 100%;
-    height: 60px;
+    height: 48px;
     flex-direction: row;
     justify-content: space-between;
-    padding: 0 20px;
+    padding: 0 12px;
     padding-top: 0;
     align-items: center;
   }
-  .themed-symbol-badge  { width: 40px; height: 40px; border-width: 2px; }
+  .themed-symbol-badge  { width: 34px; height: 34px; border-width: 2px; font-size: 13px; }
   .themed-right-content {
-    padding: 14px;
+    padding: 8px 6px;
     border-left: none;
-    border-top: 4px double var(--party-primary-color, var(--primary-dark));
+    border-top: 2px solid var(--party-primary-color, var(--primary-dark));
   }
 
   /* ── Android Bottom Tab Bar ── */
@@ -688,14 +736,14 @@ input[type="range"]::-moz-range-thumb {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 10px 4px 12px;
-    min-height: 56px;
+    padding: 6px 2px 8px;
+    min-height: 52px;
     color: rgba(255, 255, 255, 0.45);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.03em;
     text-transform: uppercase;
-    gap: 4px;
+    gap: 2px;
     cursor: pointer;
     transition: color 0.15s;
     -webkit-tap-highlight-color: transparent;
@@ -704,17 +752,15 @@ input[type="range"]::-moz-range-thumb {
     background: transparent;
     border-radius: 0;
     box-shadow: none;
-    min-height: 56px;
-    padding: 8px 4px 12px;
   }
-  .android-bottom-nav-item::after { display: none; } /* No ripple on tab bar */
+  .android-bottom-nav-item::after { display: none; }
   .android-bottom-nav-item:active { transform: none; opacity: 0.7; }
   .android-bottom-nav-item.active { color: var(--selected-highlight); }
-  .android-bottom-nav-item .nav-icon { font-size: 20px; line-height: 1; }
+  .android-bottom-nav-item .nav-icon { font-size: 18px; line-height: 1; }
 
   /* Push main content above tab bar */
   .dashboard-container {
-    padding-bottom: calc(68px + var(--safe-bottom));
+    padding-bottom: calc(64px + var(--safe-bottom));
   }
 }
 
@@ -722,10 +768,10 @@ input[type="range"]::-moz-range-thumb {
    EXTRA SMALL — 380px (budget/older Android)
    ==================================================== */
 @media (max-width: 380px) {
-  .dashboard-container   { padding: 10px 10px; }
-  .game-board-container  { padding: 10px 8px; }
-  .game-title-h1         { font-size: 18px; }
-  .view-toggle-button    { font-size: 12px; padding: 10px 6px; }
-  .dashboard-top-nav-buttons button { font-size: 12px; padding: 9px 12px; }
-  .unified-card          { padding: 12px; }
+  .dashboard-container   { padding: 6px 4px calc(60px + var(--safe-bottom)) 4px; }
+  .game-board-container  { padding: 2px 0; }
+  .game-title-h1         { font-size: 14px; }
+  .view-toggle-button    { font-size: 11px; padding: 6px 2px; min-height: 34px; }
+  .dashboard-top-nav-buttons button { font-size: 10px; padding: 5px 8px; }
+  .unified-card          { padding: 8px 6px; }
 }

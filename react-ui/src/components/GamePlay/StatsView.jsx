@@ -1316,30 +1316,46 @@ export default function StatsView({
             </h4>
           </div>
 
-          {/* Filter Dropdown */}
-          <div onClick={(e) => e.stopPropagation()}>
-            <label htmlFor="commentary-filter" style={{ marginRight: '8px', fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>Filter:</label>
-            <select 
-              id="commentary-filter"
-              value={commentaryFilter}
-              onChange={(e) => setCommentaryFilter(e.target.value)}
+          {/* Filter Pills */}
+          <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => setCommentaryFilter('ALL')}
               style={{
-                padding: '4px 8px',
+                padding: '3px 8px',
                 borderRadius: '6px',
-                border: '1px solid var(--primary-border)',
-                background: '#ffffff',
-                color: 'var(--primary-dark)',
+                border: commentaryFilter === 'ALL' ? '1.5px solid var(--primary-dark)' : '1px solid var(--primary-border)',
+                background: commentaryFilter === 'ALL' ? 'var(--primary-dark)' : '#ffffff',
+                color: commentaryFilter === 'ALL' ? '#ffffff' : 'var(--primary-dark)',
                 fontSize: '11px',
                 fontWeight: 'bold',
-                cursor: 'pointer',
-                outline: 'none'
+                cursor: 'pointer'
               }}
             >
-              <option value="ALL">All Parties</option>
-              {(turnData.parties || []).map(p => (
-                <option key={p.id} value={p.name}>{p.name}</option>
-              ))}
-            </select>
+              All
+            </button>
+            {(turnData.parties || []).map(p => {
+              const isSelected = commentaryFilter === p.name;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setCommentaryFilter(p.name)}
+                  style={{
+                    padding: '3px 8px',
+                    borderRadius: '6px',
+                    border: isSelected ? `1.5px solid ${p.color || 'var(--primary-dark)'}` : '1px solid var(--primary-border)',
+                    background: isSelected ? p.color || 'var(--primary-dark)' : '#ffffff',
+                    color: isSelected ? '#ffffff' : '#334155',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {p.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 

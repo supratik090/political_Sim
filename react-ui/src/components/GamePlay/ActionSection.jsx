@@ -4,13 +4,14 @@ export default function ActionSection({ num, title, isCompleted, isOptional, act
   const isExpanded = activeAccordion === num;
   return (
     <div style={{
-      border: '1px solid var(--primary-border)',
+      border: '2px solid var(--primary-border)',
+      borderLeft: '5px solid var(--party-primary-color, var(--primary-dark))',
       borderRadius: '12px',
-      marginBottom: '15px',
+      marginBottom: '16px',
       background: '#ffffff',
       color: '#000000',
       overflow: 'hidden',
-      boxShadow: '0 4px 12px rgba(33,60,81,0.03)'
+      boxShadow: '0 4px 14px rgba(33,60,81,0.06)'
     }}>
       <div 
         onClick={() => setActiveAccordion(isExpanded ? 0 : num)}
@@ -20,31 +21,16 @@ export default function ActionSection({ num, title, isCompleted, isOptional, act
           alignItems: 'center',
           padding: '16px 18px',
           minHeight: '52px',
-          background: isExpanded ? 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.08)' : 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.02)',
+          background: isExpanded ? 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.10)' : 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.03)',
           cursor: 'pointer',
-          borderBottom: isExpanded ? '1px solid var(--party-primary-color, var(--primary-border))' : 'none',
+          borderBottom: isExpanded ? '2px solid var(--party-primary-color, var(--primary-border))' : 'none',
           userSelect: 'none',
           WebkitTapHighlightColor: 'transparent',
           touchAction: 'manipulation'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{
-            background: 'var(--party-primary-color, var(--primary-dark))',
-            color: '#ffffff',
-            width: '30px',
-            height: '30px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            flexShrink: 0
-          }}>
-            {num}
-          </span>
-          <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '14px', letterSpacing: '0.04em', color: 'var(--primary-dark)', fontWeight: 'bold' }}>
+          <h4 style={{ margin: 0, textTransform: 'uppercase', fontSize: '14px', letterSpacing: '0.04em', color: 'var(--primary-dark)', fontWeight: 900 }}>
             {title}
           </h4>
         </div>

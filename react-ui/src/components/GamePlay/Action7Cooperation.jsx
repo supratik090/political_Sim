@@ -35,6 +35,7 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
   }, [turnData.scenarioKey]);
 
   // Exchange details
+  const [showPartnerModal, setShowPartnerModal] = useState(false);
   const [offeredCoins, setOfferedCoins] = useState(0);
   const [offeredMorale, setOfferedMorale] = useState(0);
   const [offeredSupport, setOfferedSupport] = useState(0);
@@ -445,20 +446,82 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
 
         {/* Step A: Choose Partner */}
         <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="partner-select" style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: '#475569' }}>
-            Select Partner:
-          </label>
-          <select
-            id="partner-select"
-            value={recipientId}
-            onChange={(e) => setRecipientId(e.target.value)}
-            style={{ width: '100%', padding: '10px 12px', fontSize: '14px', borderRadius: '8px', background: '#fff', color: '#0f172a', border: '1.5px solid var(--primary-border)', fontWeight: '500' }}
-          >
-            <option value="">-- Choose a Rival Party to Negotiate With --</option>
-            {otherParties.map(p => (
-              <option key={p.id} value={p.id}>{p.name} ({p.role})</option>
-            ))}
-          </select>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#475569' }}>
+              Select Negotiation Partner:
+            </span>
+            {recipientId && (
+              <button
+                type="button"
+                onClick={() => setShowPartnerModal(true)}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid var(--primary-border)',
+                  borderRadius: '6px',
+                  padding: '4px 10px',
+                  fontSize: '11.5px',
+                  fontWeight: 'bold',
+                  color: 'var(--primary-dark)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                🔄 Change Partner
+              </button>
+            )}
+          </div>
+
+          {!recipientId ? (
+            <button
+              type="button"
+              onClick={() => setShowPartnerModal(true)}
+              style={{
+                width: '100%',
+                padding: '14px 16px',
+                borderRadius: '10px',
+                border: '2px dashed var(--primary-border)',
+                background: '#f8fafc',
+                color: 'var(--primary-dark)',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>🏛️</span> Tap to Choose Partner Party
+            </button>
+          ) : (
+            <div
+              onClick={() => setShowPartnerModal(true)}
+              style={{
+                padding: '12px 16px',
+                borderRadius: '10px',
+                border: `2px solid ${recipientParty?.color || '#3b82f6'}`,
+                background: `${recipientParty?.color || '#3b82f6'}0c`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '22px' }}>{recipientParty?.symbol || '🏛️'}</span>
+                <div>
+                  <strong style={{ display: 'block', fontSize: '14px', color: '#0f172a' }}>{recipientParty?.name}</strong>
+                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>{recipientParty?.role} • {recipientParty?.stats?.seats || 0} Seats</span>
+                </div>
+              </div>
+              <span style={{ fontSize: '12px', fontWeight: 'bold', color: recipientParty?.color || '#3b82f6', background: '#fff', padding: '4px 8px', borderRadius: '6px', border: `1px solid ${recipientParty?.color || '#3b82f6'}` }}>
+                Selected ✓
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Blank state block forcing user to select partner */}
@@ -466,18 +529,41 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
           <div style={{
             border: '2px dashed var(--primary-border)',
             borderRadius: '12px',
-            padding: '40px 20px',
+            padding: '24px 16px',
             textAlign: 'center',
             background: 'rgba(101,148,177,0.02)',
             color: '#64748b'
           }}>
-            <span style={{ fontSize: '32px', display: 'block', marginBottom: '10px' }}>🏛️</span>
-            <strong style={{ display: 'block', fontSize: '14px', color: 'var(--primary-dark)' }}>
-              No negotiation partner selected
+            <span style={{ fontSize: '32px', display: 'block', marginBottom: '8px' }}>🏛️</span>
+            <strong style={{ display: 'block', fontSize: '14px', color: 'var(--primary-dark)', marginBottom: '4px' }}>
+              Select a Rival Party to Negotiate
             </strong>
-            <span style={{ fontSize: '13px' }}>
-              Please select a rival party from the dropdown above to initiate negotiations.
+            <span style={{ fontSize: '12px', display: 'block', marginBottom: '16px' }}>
+              Tap a party card below to begin diplomacy negotiations.
             </span>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
+              {otherParties.map(p => (
+                <div
+                  key={p.id}
+                  onClick={() => setRecipientId(p.id)}
+                  style={{
+                    padding: '12px',
+                    borderRadius: '10px',
+                    border: `1.5px solid ${p.color || '#cbd5e1'}`,
+                    background: '#ffffff',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+                    transition: 'all 0.15s ease-in-out'
+                  }}
+                >
+                  <span style={{ fontSize: '24px', display: 'block', marginBottom: '4px' }}>{p.symbol || '🏛️'}</span>
+                  <strong style={{ display: 'block', fontSize: '13px', color: '#0f172a', marginBottom: '2px' }}>{p.name}</strong>
+                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>{p.role}</span>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.25s ease-out' }}>
@@ -656,24 +742,41 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
                     </h5>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       <div>
-                        <label htmlFor="lobby-bill-select" style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '4px', color: '#64748b' }}>
+                        <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: '#64748b' }}>
                           Choose sponsored bill (Your Role: {myRole}, Bills: {targetBillRole}):
                         </label>
-                        <select
-                          id="lobby-bill-select"
-                          value={lobbyBillKey}
-                          onChange={(e) => setLobbyBillKey(e.target.value)}
-                          style={{ width: '100%', padding: '8px', fontSize: '13px', borderRadius: '6px', background: '#fff', color: '#0f172a', border: '1px solid var(--primary-border)' }}
-                        >
-                          <option value="">-- Choose a Bill --</option>
-                          {myRoleBills.map(b => (
-                            <option key={b.billKey} value={b.billKey}>{b.name} ({b.billKey})</option>
-                          ))}
-                        </select>
-                        {myRoleBills.length === 0 && (
+                        {myRoleBills.length === 0 ? (
                           <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#e11d48' }}>
                             You have no bills of role type {targetBillRole} available to lobby for.
                           </p>
+                        ) : (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '140px', overflowY: 'auto' }}>
+                            {myRoleBills.map(b => {
+                              const isSelected = lobbyBillKey === b.billKey;
+                              return (
+                                <div
+                                  key={b.billKey}
+                                  onClick={() => setLobbyBillKey(b.billKey)}
+                                  style={{
+                                    padding: '8px 10px',
+                                    borderRadius: '6px',
+                                    border: isSelected ? '1.5px solid #1d4ed8' : '1px solid var(--primary-border)',
+                                    background: isSelected ? '#eff6ff' : '#ffffff',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    fontSize: '12px'
+                                  }}
+                                >
+                                  <span style={{ fontWeight: 'bold', color: isSelected ? '#1d4ed8' : '#0f172a' }}>
+                                    📜 {b.name} <span style={{ opacity: 0.7, fontWeight: 'normal' }}>({b.billKey})</span>
+                                  </span>
+                                  {isSelected && <span style={{ color: '#1d4ed8', fontWeight: 'bold' }}>✓</span>}
+                                </div>
+                              );
+                            })}
+                          </div>
                         )}
                       </div>
 
@@ -741,12 +844,34 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
                     </h5>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       <div>
-                        <label htmlFor="duration-select" style={{ fontSize: '11px', display: 'block', marginBottom: '4px', color: '#64748b' }}>Pact Duration:</label>
-                        <select id="duration-select" value={durationTurns} onChange={(e) => setDurationTurns(parseInt(e.target.value))} style={{ width: '100%', padding: '8px', fontSize: '13px', borderRadius: '6px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)', fontWeight: '500' }}>
-                          <option value={5}>5 Months (Short Treaty)</option>
-                          <option value={10}>10 Months (Standard Treaty)</option>
-                          <option value={15}>15 Months (Long-Term Pact)</option>
-                        </select>
+                        <label style={{ fontSize: '11px', display: 'block', marginBottom: '6px', color: '#64748b', fontWeight: 'bold' }}>Pact Duration:</label>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          {[
+                            { val: 5, label: '5 Months', desc: 'Short' },
+                            { val: 10, label: '10 Months', desc: 'Standard' },
+                            { val: 15, label: '15 Months', desc: 'Long-Term' }
+                          ].map(opt => (
+                            <button
+                              key={opt.val}
+                              type="button"
+                              onClick={() => setDurationTurns(opt.val)}
+                              style={{
+                                flex: 1,
+                                padding: '8px 4px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                border: durationTurns === opt.val ? '2px solid var(--primary-dark)' : '1px solid var(--primary-border)',
+                                background: durationTurns === opt.val ? 'var(--primary-dark)' : '#ffffff',
+                                color: durationTurns === opt.val ? '#ffffff' : '#334155',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', marginTop: '5px' }}>
                         <input type="checkbox" checked={includePayment} onChange={(e) => setIncludePayment(e.target.checked)} />
@@ -781,13 +906,34 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
                         </div>
 
                         <div>
-                          <label htmlFor="payment-asset" style={{ fontSize: '11px', display: 'block', marginBottom: '2px', color: '#64748b' }}>Asset Type:</label>
-                          <select id="payment-asset" value={pactPaymentResource} onChange={(e) => setPactPaymentResource(e.target.value)} style={{ width: '100%', padding: '6px', fontSize: '12.5px', borderRadius: '6px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)' }}>
-                            <option value="COINS">Coins</option>
-                            <option value="MORALE">Morale</option>
-                            <option value="SUPPORT">Public Support %</option>
-                            <option value="COMPLETED_BUILDING">Completed Buildings</option>
-                          </select>
+                          <span style={{ fontSize: '11px', display: 'block', marginBottom: '6px', color: '#64748b', fontWeight: 'bold' }}>Asset Type:</span>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                            {[
+                              { key: 'COINS', label: '💰 Coins' },
+                              { key: 'MORALE', label: '⭐ Morale' },
+                              { key: 'SUPPORT', label: '📊 Support %' },
+                              { key: 'COMPLETED_BUILDING', label: '🏗️ Buildings' }
+                            ].map(asset => (
+                              <button
+                                key={asset.key}
+                                type="button"
+                                onClick={() => setPactPaymentResource(asset.key)}
+                                style={{
+                                  padding: '6px 8px',
+                                  borderRadius: '6px',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  border: pactPaymentResource === asset.key ? '1.5px solid #1d4ed8' : '1px solid var(--primary-border)',
+                                  background: pactPaymentResource === asset.key ? '#eff6ff' : '#ffffff',
+                                  color: pactPaymentResource === asset.key ? '#1d4ed8' : '#334155',
+                                  cursor: 'pointer',
+                                  textAlign: 'center'
+                                }}
+                              >
+                                {asset.label}
+                              </button>
+                            ))}
+                          </div>
                         </div>
 
                         {pactPaymentResource !== 'COMPLETED_BUILDING' ? (
@@ -855,18 +1001,35 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
                       </h5>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <div>
-                          <label htmlFor="faction-target-select" style={{ fontSize: '11px', display: 'block', marginBottom: '4px', color: '#64748b' }}>Select Target Faction:</label>
-                          <select
-                            id="faction-target-select"
-                            value={selectedFactionKey}
-                            onChange={(e) => setSelectedFactionKey(e.target.value)}
-                            style={{ width: '100%', padding: '8px', fontSize: '13px', borderRadius: '6px', background: '#fff', color: '#000', border: '1px solid var(--primary-border)', fontWeight: '500' }}
-                          >
-                            <option value="">-- Select Faction --</option>
-                            {targetFactions.map(f => (
-                              <option key={f.key} value={f.key}>{f.name} (Loyalty: {f.loyalty}% | Power: {f.influence}%)</option>
-                            ))}
-                          </select>
+                          <label style={{ fontSize: '11px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: '#64748b' }}>Select Target Faction:</label>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {targetFactions.map(f => {
+                              const isSelected = selectedFactionKey === f.key;
+                              return (
+                                <div
+                                  key={f.key}
+                                  onClick={() => setSelectedFactionKey(f.key)}
+                                  style={{
+                                    padding: '8px 10px',
+                                    borderRadius: '6px',
+                                    border: isSelected ? '1.5px solid #9f1239' : '1px solid var(--primary-border)',
+                                    background: isSelected ? '#fff1f2' : '#ffffff',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    fontSize: '12.5px'
+                                  }}
+                                >
+                                  <div>
+                                    <strong style={{ display: 'block', color: isSelected ? '#9f1239' : '#0f172a' }}>{f.name}</strong>
+                                    <span style={{ fontSize: '11px', color: '#64748b' }}>Loyalty: {f.loyalty}% | Power: {f.influence}%</span>
+                                  </div>
+                                  {isSelected && <span style={{ color: '#9f1239', fontWeight: 'bold' }}>✓</span>}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
 
                         {selectedFaction && (
@@ -959,6 +1122,106 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
           </div>
         )}
       </div>
+      {/* Partner Selection Modal Overlay */}
+      {showPartnerModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 99999,
+            padding: '16px'
+          }}
+          onClick={() => setShowPartnerModal(false)}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              width: '100%',
+              maxWidth: '440px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+              padding: '20px',
+              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2)',
+              animation: 'fadeIn 0.2s ease-out'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--primary-border)', paddingBottom: '10px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🏛️ Select Partner Party
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowPartnerModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  color: '#64748b',
+                  padding: '4px'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {otherParties.map(p => {
+                const isSelected = p.id === recipientId;
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => {
+                      setRecipientId(p.id);
+                      setShowPartnerModal(false);
+                    }}
+                    style={{
+                      padding: '14px',
+                      borderRadius: '12px',
+                      border: isSelected ? `2px solid ${p.color || '#3b82f6'}` : '1.5px solid var(--primary-border)',
+                      background: isSelected ? `${p.color || '#3b82f6'}12` : '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '26px' }}>{p.symbol || '🏛️'}</span>
+                      <div>
+                        <strong style={{ display: 'block', fontSize: '14px', color: '#0f172a' }}>{p.name}</strong>
+                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
+                          {p.role} • {p.stats?.seats || 0} Seats • {p.stats?.publicSupport || 0}% Support
+                        </span>
+                      </div>
+                    </div>
+                    {isSelected ? (
+                      <span style={{ fontSize: '12px', fontWeight: 'bold', color: p.color || '#3b82f6', background: '#fff', padding: '4px 10px', borderRadius: '20px', border: `1px solid ${p.color || '#3b82f6'}` }}>
+                        ✓ Active
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', background: '#f1f5f9', padding: '4px 10px', borderRadius: '20px' }}>
+                        Select
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

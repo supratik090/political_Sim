@@ -5,12 +5,12 @@
 
 /* ── Design Tokens ── */
 .wr-root {
-  /* Core surfaces */
-  --wr-bg:            #0D1117;
-  --wr-surface:       #161B22;
-  --wr-surface-2:     #1C2128;
-  --wr-border:        rgba(255,255,255,0.08);
-  --wr-border-strong: rgba(255,255,255,0.20);
+  /* Core surfaces — brightened from pitch-black for rich slate-navy contrast */
+  --wr-bg:            #151D2A;
+  --wr-surface:       #1E293B;
+  --wr-surface-2:     #28354A;
+  --wr-border:        rgba(255,255,255,0.16);
+  --wr-border-strong: rgba(255,255,255,0.30);
 
   /* Tab theme colours */
   --wr-politics-from:   #6C3AB5;
@@ -57,22 +57,22 @@
   /* Base setup */
   font-family: var(--wr-font);
   background: var(--wr-bg);
-  color: #E6EDF3;
+  color: #F8FAFC;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Typography ── */
-.wr-label-xs  { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #7D8590; }
-.wr-label-sm  { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #8B949E; }
+/* ── Typography — High Contrast ── */
+.wr-label-xs  { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94A3B8; }
+.wr-label-sm  { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #CBD5E1; }
 .wr-label-md  { font-size: 14px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
 .wr-label-lg  { font-size: 18px; font-weight: 900; letter-spacing: 0.03em; }
-.wr-heading   { font-size: 20px; font-weight: 900; color: #E6EDF3; }
-.wr-body-sm   { font-size: 12px; font-weight: 400; line-height: 1.55; color: #8B949E; }
-.wr-body-md   { font-size: 14px; font-weight: 400; line-height: 1.65; color: #C9D1D9; }
+.wr-heading   { font-size: 20px; font-weight: 900; color: #F8FAFC; }
+.wr-body-sm   { font-size: 12px; font-weight: 400; line-height: 1.55; color: #CBD5E1; }
+.wr-body-md   { font-size: 14px; font-weight: 400; line-height: 1.65; color: #F1F5F9; }
 .wr-gold-text  { color: #F59E0B; }
 .wr-green-text { color: #4ADE80; }
 .wr-red-text   { color: #F87171; }
-.wr-muted      { color: #7D8590; }
+.wr-muted      { color: #94A3B8; }
 
 /* ── Surfaces ── */
 .wr-panel {
@@ -112,11 +112,29 @@
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 158, 11, 0.4) rgba(255, 255, 255, 0.05);
   gap: 10px;
-  padding-bottom: 2px;
+  padding-bottom: 6px;
+  cursor: grab;
 }
-.wr-hscroll::-webkit-scrollbar { display: none; }
+.wr-hscroll:active {
+  cursor: grabbing;
+}
+.wr-hscroll::-webkit-scrollbar {
+  height: 6px;
+}
+.wr-hscroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+.wr-hscroll::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.4);
+  border-radius: 3px;
+}
+.wr-hscroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.8);
+}
 .wr-hscroll > * { scroll-snap-align: center; flex-shrink: 0; }
 
 /* ── Touch-Optimised Button Base ── */
@@ -488,3 +506,13 @@
   transform: scale(1.06) translateY(-6px);
 }
 .wr-play-card-unselected { opacity: 0.75; }
+
+/* ── Mobile Sticky End Turn Footer offset for bottom tab nav ── */
+@media (max-width: 768px) {
+  .wr-end-turn-footer {
+    position: sticky;
+    bottom: calc(54px + var(--safe-bottom, 0px));
+    z-index: 100;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.4);
+  }
+}

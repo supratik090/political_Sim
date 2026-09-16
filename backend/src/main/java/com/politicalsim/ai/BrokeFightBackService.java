@@ -33,6 +33,9 @@ public class BrokeFightBackService {
             party.getStats().setCoins(party.getStats().getCoins() + 150);
             party.setLoanTaken(true);
             party.setLoanRepaymentTurnsLeft(10);
+            if (session.getLastRoundCommentary() != null) {
+                session.getLastRoundCommentary().add("💳 Emergency Loan: " + party.getName() + " secured an Emergency Hazard Loan (+150 Coins) to prevent bankruptcy!");
+            }
         }
 
         // 2. Buy Recovery Pack if affordable (80 coins) and still in defeat hazard

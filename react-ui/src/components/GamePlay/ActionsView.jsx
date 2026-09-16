@@ -93,6 +93,25 @@ export default function ActionsView({
     prevGovDone.current = governanceDone;
   }, [governanceDone]);
 
+  useEffect(() => {
+    if (!activeAccordion) return;
+    if (activeAccordion === 1 || activeAccordion === 2 || activeAccordion === 8 || activeAccordion === 3) {
+      setActiveTab(TAB_POLITICS);
+      if (activeAccordion === 8) setPolAcc(3);
+      else setPolAcc(activeAccordion);
+    } else if (activeAccordion === 7 || activeAccordion === 31 || activeAccordion === 32) {
+      setActiveTab(TAB_GOVERNANCE);
+      if (activeAccordion === 7) setGovAcc(32);
+      else setGovAcc(activeAccordion);
+    } else if (activeAccordion === 4 || activeAccordion === 5 || activeAccordion === 6 || activeAccordion === 41 || activeAccordion === 42 || activeAccordion === 43) {
+      setActiveTab(TAB_ECONOMY);
+      if (activeAccordion === 4) setEcoAcc(41);
+      else if (activeAccordion === 5) setEcoAcc(42);
+      else if (activeAccordion === 6) setEcoAcc(43);
+      else setEcoAcc(activeAccordion);
+    }
+  }, [activeAccordion]);
+
   function TabBtn({ id, icon, label, isDone, hasPending }) {
     const isActive = activeTab === id;
     const dot = isDone ? '#16A34A' : hasPending ? '#f59e0b' : '#94a3b8';
@@ -137,10 +156,6 @@ export default function ActionsView({
           <div style={{ fontSize: '13px', background: 'var(--primary-dark)', padding: '5px 14px', borderRadius: '20px', color: '#fff', fontWeight: 700 }}>
             📅 Month {turnData.turnNumber} / 60
           </div>
-          <button onClick={handleSkipTurn} disabled={loading || !isMyTurn} className="btn-danger"
-            style={{ cursor: isMyTurn ? 'pointer' : 'not-allowed', opacity: !isMyTurn ? 0.5 : 1 }}>
-            ⏭️ Skip
-          </button>
         </div>
       </div>
 
@@ -178,7 +193,7 @@ export default function ActionsView({
           </>)}
         </div>
 
-        <div style={{ border: '1.5px solid var(--card-border)', borderTop: 'none', borderRadius: '0 0 12px 12px', background: '#ffffff', minHeight: '300px' }}>
+        <div style={{ border: '1.5px solid var(--card-border)', borderTop: 'none', borderRadius: '0 0 12px 12px', background: '#ffffff', minHeight: '300px', padding: '16px 12px 4px 12px' }}>
           {activeTab === TAB_POLITICS && (
             <div>
               <ActionSection num={1} title="Political Card" isCompleted={isCardCompleted} activeAccordion={polAcc} setActiveAccordion={setPolAcc}>

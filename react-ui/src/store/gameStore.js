@@ -16,6 +16,8 @@ export const useGameStore = create((set, get) => ({
   // Application Routing State
   currentScreen: 'HOME', // 'HOME', 'GAME', 'ADMIN'
   setScreen: (screen) => set({ currentScreen: screen }),
+  activeGameView: 'ACTION', // 'ACTION', 'INFO', 'HINTS'
+  setActiveGameView: (view) => set({ activeGameView: view }),
 
   // Game Session State
   activeGameId: null,

@@ -7,70 +7,15 @@ class ApiHttpError extends Error {
   }
 }
 
-const FALLBACK_CANDIDATES = [
-  'https://political-sim-279311597920.asia-south1.run.app',
-  'http://192.168.29.219:7810',
-  'http://10.0.2.2:7810',
-  'http://localhost:7810'
-];
-
 export function getApiBaseUrl() {
   if (typeof window !== 'undefined' && window.localStorage.getItem('CUSTOM_API_URL')) {
     return window.localStorage.getItem('CUSTOM_API_URL').replace(/\/+$/, '');
   }
   const envUrl = import.meta.env.VITE_API_URL;
-  const isCapacitor = typeof window !== 'undefined' && (
-    window.Capacitor?.isNativePlatform() ||
-    (window.location.hostname === 'localhost' && window.location.port === '')
-  );
-
-  if (isCapacitor) {
-    if (!envUrl || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
-      return FALLBACK_CANDIDATES[0];
-    }
-    return envUrl.replace(/\/+$/, '');
-  }
-
   if (envUrl && envUrl.trim() !== '') {
-    return envUrl.replace(/\/+$/, '');
+    return envUrl.trim().replace(/\/+$/, '');
   }
-
-  return FALLBACK_CANDIDATES[0];
-}
-
-async function fetchWithAutoFallback(fetchFn) {
-  try {
-    return await fetchFn(getApiBaseUrl());
-  } catch (initialErr) {
-    // If backend responded with an HTTP status code (e.g. 400, 401, 404, 500),
-    // the backend IS reachable! Do NOT trigger candidate fallback timeouts.
-    if (initialErr.isHttpResponse) {
-      throw initialErr;
-    }
-    if (typeof window !== 'undefined' && window.localStorage.getItem('CUSTOM_API_URL')) {
-      throw initialErr;
-    }
-    const currentBase = getApiBaseUrl();
-    for (const candidate of FALLBACK_CANDIDATES) {
-      if (candidate === currentBase) continue;
-      try {
-        const result = await fetchFn(candidate);
-        if (typeof window !== 'undefined') {
-          console.log(`[API] Auto-discovered working backend URL: ${candidate}`);
-          window.localStorage.setItem('CUSTOM_API_URL', candidate);
-        }
-        return result;
-      } catch (err) {
-        if (err.isHttpResponse) {
-          if (typeof window !== 'undefined') {
-            window.localStorage.setItem('CUSTOM_API_URL', candidate);
-          }
-          throw err;
-        }
-      }
-    }
-    throw initialErr;
-  }
+  return 'http://localhost:7800';
 }
 
 function buildUrl(baseUrl, path, params = {}) {
@@ -86,83 +31,79 @@ function buildUrl(baseUrl, path, params = {}) {
 }
 
 export async function apiGet(path, params = {}) {
-  return fetchWithAutoFallback(async (baseUrl) => {
-    const fullUrl = buildUrl(baseUrl, path, params);
-    const response = await fetch(fullUrl);
-    if (!response.ok) {
-      let errMsg = `API GET request failed (${response.status} ${response.statusText})`;
-      try {
-        const errData = await response.json();
-        if (errData && errData.error) errMsg = errData.error;
-        else if (errData && errData.message) errMsg = errData.message;
-      } catch (_) {}
-      throw new ApiHttpError(errMsg, response.status);
-    }
-    return response.json();
-  });
+  const baseUrl = getApiBaseUrl();
+  const fullUrl = buildUrl(baseUrl, path, params);
+  const response = await fetch(fullUrl);
+  if (!response.ok) {
+    let errMsg = `API GET request failed (${response.status} ${response.statusText})`;
+    try {
+      const errData = await response.json();
+      if (errData && errData.error) errMsg = errData.error;
+      else if (errData && errData.message) errMsg = errData.message;
+    } catch (_) {}
+    throw new ApiHttpError(errMsg, response.status);
+  }
+  return response.json();
 }
 
 export async function apiPost(path, payload) {
-  return fetchWithAutoFallback(async (baseUrl) => {
-    const fullUrl = buildUrl(baseUrl, path);
-    const response = await fetch(fullUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: payload !== undefined ? JSON.stringify(payload) : undefined,
-    });
-    if (!response.ok) {
-      let errMsg = `API POST request failed (${response.status} ${response.statusText})`;
-      try {
-        const errData = await response.json();
-        if (errData && errData.error) errMsg = errData.error;
-        else if (errData && errData.message) errMsg = errData.message;
-      } catch (_) {}
-      throw new ApiHttpError(errMsg, response.status);
-    }
-    return response.json();
+  const baseUrl = getApiBaseUrl();
+  const fullUrl = buildUrl(baseUrl, path);
+  const response = await fetch(fullUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: payload !== undefined ? JSON.stringify(payload) : undefined,
   });
+  if (!response.ok) {
+    let errMsg = `API POST request failed (${response.status} ${response.statusText})`;
+    try {
+      const errData = await response.json();
+      if (errData && errData.error) errMsg = errData.error;
+      else if (errData && errData.message) errMsg = errData.message;
+    } catch (_) {}
+    throw new ApiHttpError(errMsg, response.status);
+  }
+  return response.json();
 }
 
 export async function apiPut(path, payload) {
-  return fetchWithAutoFallback(async (baseUrl) => {
-    const fullUrl = buildUrl(baseUrl, path);
-    const response = await fetch(fullUrl, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: payload !== undefined ? JSON.stringify(payload) : undefined,
-    });
-    if (!response.ok) {
-      let errMsg = `API PUT request failed (${response.status} ${response.statusText})`;
-      try {
-        const errData = await response.json();
-        if (errData && errData.error) errMsg = errData.error;
-        else if (errData && errData.message) errMsg = errData.message;
-      } catch (_) {}
-      throw new ApiHttpError(errMsg, response.status);
-    }
-    return response.json();
+  const baseUrl = getApiBaseUrl();
+  const fullUrl = buildUrl(baseUrl, path);
+  const response = await fetch(fullUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: payload !== undefined ? JSON.stringify(payload) : undefined,
   });
+  if (!response.ok) {
+    let errMsg = `API PUT request failed (${response.status} ${response.statusText})`;
+    try {
+      const errData = await response.json();
+      if (errData && errData.error) errMsg = errData.error;
+      else if (errData && errData.message) errMsg = errData.message;
+    } catch (_) {}
+    throw new ApiHttpError(errMsg, response.status);
+  }
+  return response.json();
 }
 
 export async function apiDelete(path) {
-  return fetchWithAutoFallback(async (baseUrl) => {
-    const fullUrl = buildUrl(baseUrl, path);
-    const response = await fetch(fullUrl, {
-      method: 'DELETE',
-    });
-    if (!response.ok) {
-      let errMsg = `API DELETE request failed (${response.status} ${response.statusText})`;
-      try {
-        const errData = await response.json();
-        if (errData && errData.error) errMsg = errData.error;
-        else if (errData && errData.message) errMsg = errData.message;
-      } catch (_) {}
-      throw new ApiHttpError(errMsg, response.status);
-    }
-    if (response.status === 204) return null;
-    const text = await response.text();
-    return text ? JSON.parse(text) : null;
+  const baseUrl = getApiBaseUrl();
+  const fullUrl = buildUrl(baseUrl, path);
+  const response = await fetch(fullUrl, {
+    method: 'DELETE',
   });
+  if (!response.ok) {
+    let errMsg = `API DELETE request failed (${response.status} ${response.statusText})`;
+    try {
+      const errData = await response.json();
+      if (errData && errData.error) errMsg = errData.error;
+      else if (errData && errData.message) errMsg = errData.message;
+    } catch (_) {}
+    throw new ApiHttpError(errMsg, response.status);
+  }
+  if (response.status === 204) return null;
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
 }
 
 // Game API bindings

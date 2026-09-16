@@ -21,70 +21,113 @@ export default function Action5PlayReward({
         </p>
       ) : (
         <div>
-          <label htmlFor="reward-select" style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'var(--primary-dark)' }}>
+          <label style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '8px', color: 'var(--primary-dark)' }}>
             🎁 Select a Reward to Play:
           </label>
-          <select
-            id="reward-select"
-            value={selectedRewardKey}
-            disabled={rewardConfirmed}
-            onChange={(e) => {
-              setSelectedRewardKey(e.target.value);
-              setRewardTargetPartyId('');
-              setRewardConfirmed(false);
-            }}
-            style={{
-              width: '100%',
-              padding: '8px',
-              borderRadius: '6px',
-              border: '1px solid var(--primary-border)',
-              background: '#ffffff',
-              color: 'var(--primary-dark)',
-              fontSize: '13px',
-              marginBottom: '15px'
-            }}
-          >
-            <option value="">-- Do Not Play Any Reward --</option>
-            {turnData.activePlayerHeldRewards.map(r => (
-              <option key={r.rewardKey} value={r.rewardKey}>🎁 {r.name} (Turns left: {r.turnsLeft})</option>
-            ))}
-          </select>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '15px' }}>
+            <div
+              onClick={() => {
+                if (rewardConfirmed) return;
+                setSelectedRewardKey('');
+                setRewardTargetPartyId('');
+                setRewardConfirmed(false);
+              }}
+              style={{
+                padding: '10px 12px',
+                borderRadius: '8px',
+                border: !selectedRewardKey ? '2px solid var(--primary-dark)' : '1px solid var(--primary-border)',
+                background: !selectedRewardKey ? 'rgba(101, 148, 177, 0.08)' : '#ffffff',
+                cursor: rewardConfirmed ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontSize: '13px',
+                fontWeight: 'bold',
+                color: '#475569',
+                opacity: rewardConfirmed ? 0.6 : 1
+              }}
+            >
+              <span>🚫 Do Not Play Any Reward</span>
+              {!selectedRewardKey && <span style={{ color: 'var(--primary-dark)' }}>✓</span>}
+            </div>
+
+            {turnData.activePlayerHeldRewards.map(r => {
+              const isSelected = selectedRewardKey === r.rewardKey;
+              return (
+                <div
+                  key={r.rewardKey}
+                  onClick={() => {
+                    if (rewardConfirmed) return;
+                    setSelectedRewardKey(r.rewardKey);
+                    setRewardTargetPartyId('');
+                    setRewardConfirmed(false);
+                  }}
+                  style={{
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: isSelected ? '2px solid #1d4ed8' : '1px solid var(--primary-border)',
+                    background: isSelected ? '#eff6ff' : '#ffffff',
+                    cursor: rewardConfirmed ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.15s ease',
+                    opacity: rewardConfirmed ? 0.6 : 1
+                  }}
+                >
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '13px', color: '#0f172a' }}>🎁 {r.name}</strong>
+                    <span style={{ fontSize: '11px', color: '#64748b' }}>Turns left: {r.turnsLeft}</span>
+                  </div>
+                  {isSelected && <span style={{ color: '#1d4ed8', fontWeight: 'bold', fontSize: '14px' }}>✓</span>}
+                </div>
+              );
+            })}
+          </div>
 
           {selectedRewardKey && selectedReward && (
             <div style={{ padding: '12px', background: 'rgba(0,0,0,0.02)', borderRadius: '8px', marginBottom: '15px' }}>
               <div style={{ fontSize: '12px', color: 'var(--primary-dark)' }}><b>Effect:</b> {selectedReward.description}</div>
               {selectedReward.requiresTarget && (
                 <div style={{ marginTop: '12px' }}>
-                  <label htmlFor="reward-target-select" style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '6px', color: 'var(--primary-dark)' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '8px', color: 'var(--primary-dark)' }}>
                     🎯 Select Target Party:
                   </label>
-                  <select
-                    id="reward-target-select"
-                    value={rewardTargetPartyId}
-                    disabled={rewardConfirmed}
-                    onChange={(e) => {
-                      setRewardTargetPartyId(e.target.value);
-                      setRewardConfirmed(false);
-                    }}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      borderRadius: '6px',
-                      border: '1px solid var(--primary-border)',
-                      background: '#ffffff',
-                      color: 'var(--primary-dark)',
-                      fontSize: '13px'
-                    }}
-                  >
-                    <option value="">-- Choose Target Party --</option>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
                     {turnData.parties.map(p => {
                       if (selectedReward.allowedTargets === 'opponent' && p.id === turnData.activeHumanPartyId) return null;
                       if (selectedReward.allowedTargets === 'self' && p.id !== turnData.activeHumanPartyId) return null;
+                      const isSelected = rewardTargetPartyId === p.id;
                       return (
-                        <option key={p.id} value={p.id}>{p.name} {p.id === turnData.activeHumanPartyId ? '(Self)' : `(${p.role})`}</option>
+                        <div
+                          key={p.id}
+                          onClick={() => {
+                            if (rewardConfirmed) return;
+                            setRewardTargetPartyId(p.id);
+                            setRewardConfirmed(false);
+                          }}
+                          style={{
+                            padding: '10px 12px',
+                            borderRadius: '8px',
+                            border: isSelected ? `2px solid ${p.color || '#1d4ed8'}` : '1.5px solid var(--primary-border)',
+                            background: isSelected ? `${p.color || '#1d4ed8'}14` : '#ffffff',
+                            cursor: rewardConfirmed ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            opacity: rewardConfirmed ? 0.6 : 1
+                          }}
+                        >
+                          <div>
+                            <strong style={{ display: 'block', fontSize: '13px', color: '#0f172a' }}>{p.symbol || '🏛️'} {p.name}</strong>
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>{p.id === turnData.activeHumanPartyId ? '(Self)' : p.role}</span>
+                          </div>
+                          {isSelected && <span style={{ color: p.color || '#1d4ed8', fontWeight: 'bold', fontSize: '14px' }}>✓</span>}
+                        </div>
                       );
                     })}
-                  </select>
+                  </div>
                 </div>
               )}
             </div>
