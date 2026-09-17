@@ -488,6 +488,8 @@ public class RoundResolutionEngine {
                     .anyMatch(p -> p.getBillKey().equals(activeBillKey) && p.getPartyId().equals(party.getId()));
 
             String vote = sub != null ? sub.getBillVote() : "ABSTAIN";
+            if ("AYE".equalsIgnoreCase(vote)) vote = "YES";
+            if ("NAY".equalsIgnoreCase(vote)) vote = "NO";
             boolean whip = sub != null && sub.isWhipIssued() && ("YES".equalsIgnoreCase(vote) || "NO".equalsIgnoreCase(vote));
             double weight = party.getAssemblySeatShare();
             if (weight <= 0) {

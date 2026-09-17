@@ -697,8 +697,9 @@ const [deck, setDeck] = useState(() => {
   const remainingCardsCount = deck.length;
 
   return (
-    <div style={{
-      fontFamily: 'system-ui, -apple-system, sans-serif'
+    <div className="action3-warroom-root" style={{
+      fontFamily: 'Montserrat, system-ui, -apple-system, sans-serif',
+      color: '#E6EDF3'
     }}>
       <style>{`
         @keyframes drawCardAnimation {
@@ -706,14 +707,14 @@ const [deck, setDeck] = useState(() => {
           100% { transform: scale(1); opacity: 1; }
         }
         @keyframes rebelPulse {
-          0% { border-color: #ef4444; box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
-          50% { border-color: #dc2626; box-shadow: 0 0 16px rgba(239, 68, 68, 0.7); }
-          100% { border-color: #ef4444; box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+          0% { border-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+          50% { border-color: #dc2626; box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
+          100% { border-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
         }
         @keyframes perkGold {
-          0% { box-shadow: 0 0 4px rgba(234, 179, 8, 0.3); }
-          50% { box-shadow: 0 0 14px rgba(234, 179, 8, 0.6); }
-          100% { box-shadow: 0 0 4px rgba(234, 179, 8, 0.3); }
+          0% { box-shadow: 0 0 6px rgba(234, 179, 8, 0.4); }
+          50% { box-shadow: 0 0 16px rgba(234, 179, 8, 0.7); }
+          100% { box-shadow: 0 0 6px rgba(234, 179, 8, 0.4); }
         }
         .rebel-border-flash {
           animation: rebelPulse 1.5s infinite ease-in-out !important;
@@ -723,9 +724,9 @@ const [deck, setDeck] = useState(() => {
           border: 1.5px solid #eab308 !important;
         }
         @keyframes buttonPulseFlash {
-          0% { background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 2px rgba(255, 255, 255, 0.2); }
-          50% { background: rgba(255, 255, 255, 0.45); box-shadow: 0 0 12px rgba(255, 255, 255, 0.7); }
-          100% { background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 2px rgba(255, 255, 255, 0.2); }
+          0% { background: rgba(56, 189, 248, 0.15); box-shadow: 0 0 4px rgba(56, 189, 248, 0.2); }
+          50% { background: rgba(56, 189, 248, 0.40); box-shadow: 0 0 14px rgba(56, 189, 248, 0.6); }
+          100% { background: rgba(56, 189, 248, 0.15); box-shadow: 0 0 4px rgba(56, 189, 248, 0.2); }
         }
         .pulse-flash-btn {
           animation: buttonPulseFlash 1.5s infinite ease-in-out;
@@ -737,26 +738,26 @@ const [deck, setDeck] = useState(() => {
         <div style={{
           background: 'linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%)',
           border: '1.5px solid #ef4444',
-          borderRadius: '10px',
-          padding: '14px 20px',
+          borderRadius: '12px',
+          padding: '14px 18px',
           color: '#ffffff',
           marginBottom: '20px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          boxShadow: '0 4px 15px rgba(239, 68, 68, 0.2)',
+          boxShadow: '0 4px 15px rgba(239, 68, 68, 0.3)',
           userSelect: 'none'
         }}>
           <div>
-            <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '8px', letterSpacing: '0.04em' }}>
               ⚠️ REBELLIOUS FACTION ULTIMATUM
             </h4>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'rgba(255,255,255,0.9)' }}>
+            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'rgba(255,255,255,0.9)', lineHeight: 1.4 }}>
               The rebellious <b>{activeParty.factions.find(f => f.key === activeParty.activeFactionCrisisKey)?.name || 'Faction'}</b> has issued an ultimatum!
               {factionCrisisChoice ? (
                 <span> Selected Resolution: <b style={{ textTransform: 'uppercase', color: '#facc15' }}>Option {factionCrisisChoice}</b></span>
               ) : (
-                <span> You must resolve this crisis before taking this turn.</span>
+                <span> You must resolve this crisis before completing your turn.</span>
               )}
             </p>
           </div>
@@ -765,253 +766,233 @@ const [deck, setDeck] = useState(() => {
             style={{
               background: '#ffffff',
               border: 'none',
-              borderRadius: '6px',
+              borderRadius: '8px',
               color: '#b91c1c',
-              padding: '6px 14px',
+              padding: '8px 14px',
               fontSize: '12px',
-              fontWeight: 'bold',
+              fontWeight: 900,
               cursor: 'pointer',
+              touchAction: 'manipulation',
               transition: 'all 0.15s'
             }}
           >
-            {factionCrisisChoice ? 'Change Choice' : 'Resolve Ultimatum'}
+            {factionCrisisChoice ? 'CHANGE CHOICE' : 'RESOLVE CRISIS'}
           </button>
         </div>
       )}
 
-      {/* Faction Crisis Modal Overlay */}
+      {/* Faction Crisis Modal Overlay (Dark War Room Backdrop & Touch Friendly) */}
       {showCrisisModal && activeParty?.activeFactionCrisisKey && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(15, 23, 42, 0.85)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 99999,
-          padding: '20px'
-        }}>
-          <div style={{
-            background: '#ffffff',
-            maxWidth: '650px',
-            width: '100%',
-            borderRadius: '16px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-            border: '2px solid #ef4444',
-            overflow: 'hidden',
-            fontFamily: "'Inter', sans-serif"
-          }}>
-            {/* Modal Header */}
+        <div
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 99999,
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '16px'
+          }}
+          onClick={() => setShowCrisisModal(false)}
+        >
+          <div
+            style={{
+              background: 'linear-gradient(145deg, #1e293b, #0f172a)',
+              borderRadius: '16px',
+              maxWidth: '620px',
+              width: '100%',
+              maxHeight: '85vh',
+              overflowY: 'auto',
+              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.6)',
+              border: '2px solid #ef4444',
+              color: '#E6EDF3'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
             <div style={{
-              background: 'linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%)',
-              padding: '20px 24px',
-              color: '#ffffff',
-              position: 'relative'
+              background: 'linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%)',
+              padding: '16px 20px',
+              position: 'relative',
+              borderBottom: '1px solid rgba(255,255,255,0.1)'
             }}>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', letterSpacing: '0.02em' }}>
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '17px', fontWeight: 900, letterSpacing: '0.04em', color: '#fff', paddingRight: '40px' }}>
                 🚨 ULTIMATUM: Rebellious Faction Crisis
               </h3>
-              <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.85)' }}>
-                The rebellious faction <b>{activeParty.factions.find(f => f.key === activeParty.activeFactionCrisisKey)?.name || 'Faction'}</b> is threatening a party split! You must select a resolution.
+              <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.85)', lineHeight: 1.4 }}>
+                The rebellious faction <b>{activeParty.factions.find(f => f.key === activeParty.activeFactionCrisisKey)?.name || 'Faction'}</b> is threatening a party split!
               </p>
+              <button
+                onClick={() => setShowCrisisModal(false)}
+                style={{
+                  position: 'absolute', top: '14px', right: '14px',
+                  background: 'rgba(255,255,255,0.15)', border: 'none',
+                  color: '#ffffff', borderRadius: '50%', width: '32px', height: '32px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', fontSize: '16px', touchAction: 'manipulation'
+                }}
+                aria-label="Close"
+              >
+                ✕
+              </button>
             </div>
 
-            {/* Options list */}
-            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
+            {/* Options Body */}
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {/* Option A */}
               <div
-                onClick={() => {
-                  setFactionCrisisChoice('A');
-                  setShowCrisisModal(false);
-                }}
+                onClick={() => { setFactionCrisisChoice('A'); setShowCrisisModal(false); }}
                 style={{
-                  border: factionCrisisChoice === 'A' ? '2.5px solid #ef4444' : '1.5px solid var(--primary-border)',
-                  background: factionCrisisChoice === 'A' ? 'rgba(239, 68, 68, 0.03)' : '#ffffff',
-                  borderRadius: '10px',
-                  padding: '16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s'
+                  border: factionCrisisChoice === 'A' ? '2px solid #ef4444' : '1px solid rgba(255,255,255,0.1)',
+                  background: factionCrisisChoice === 'A' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(255,255,255,0.03)',
+                  borderRadius: '12px', padding: '14px', cursor: 'pointer', touchAction: 'manipulation'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <strong style={{ fontSize: '14px', color: 'var(--primary-dark)' }}>Option A: Make Concessions</strong>
-                  <span style={{ fontSize: '10px', fontWeight: 'bold', background: '#e2e8f0', padding: '2px 8px', borderRadius: '4px' }}>CONCEDE</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <strong style={{ fontSize: '14px', color: '#fff', fontWeight: 900 }}>Option A: Make Concessions</strong>
+                  <span style={{ fontSize: '9px', fontWeight: 900, background: '#38BDF8', color: '#0f172a', padding: '2px 8px', borderRadius: '4px' }}>CONCEDE</span>
                 </div>
-                <p style={{ margin: 0, fontSize: '12px', color: 'var(--card-text)', lineHeight: '1.4' }}>
+                <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8', lineHeight: 1.4 }}>
                   Offer high-level posts and policy promises to buy their loyalty.
                 </p>
-                <div style={{ marginTop: '8px', fontSize: '11px', fontWeight: 'bold', color: '#b91c1c' }}>
-                  Cost: -50 Coins, -20 Media Image | Effect: Restores Loyalty to 60%; reduces their Influence share by 10%.
+                <div style={{ marginTop: '8px', fontSize: '11px', fontWeight: 800, color: '#F87171' }}>
+                  Cost: -50 Coins, -20 Media Image | Effect: Restores Loyalty to 60%; reduces Influence by 10%.
                 </div>
               </div>
 
               {/* Option B */}
               <div
-                onClick={() => {
-                  setFactionCrisisChoice('B');
-                  setShowCrisisModal(false);
-                }}
+                onClick={() => { setFactionCrisisChoice('B'); setShowCrisisModal(false); }}
                 style={{
-                  border: factionCrisisChoice === 'B' ? '2.5px solid #ef4444' : '1.5px solid var(--primary-border)',
-                  background: factionCrisisChoice === 'B' ? 'rgba(239, 68, 68, 0.03)' : '#ffffff',
-                  borderRadius: '10px',
-                  padding: '16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s'
+                  border: factionCrisisChoice === 'B' ? '2px solid #ef4444' : '1px solid rgba(255,255,255,0.1)',
+                  background: factionCrisisChoice === 'B' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(255,255,255,0.03)',
+                  borderRadius: '12px', padding: '14px', cursor: 'pointer', touchAction: 'manipulation'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <strong style={{ fontSize: '14px', color: 'var(--primary-dark)' }}>Option B: Purge rebellious leaders</strong>
-                  <span style={{ fontSize: '10px', fontWeight: 'bold', background: '#e2e8f0', padding: '2px 8px', borderRadius: '4px' }}>PURGE</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <strong style={{ fontSize: '14px', color: '#fff', fontWeight: 900 }}>Option B: Purge Rebellious Leaders</strong>
+                  <span style={{ fontSize: '9px', fontWeight: 900, background: '#F59E0B', color: '#0f172a', padding: '2px 8px', borderRadius: '4px' }}>PURGE</span>
                 </div>
-                <p style={{ margin: 0, fontSize: '12px', color: 'var(--card-text)', lineHeight: '1.4' }}>
+                <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8', lineHeight: 1.4 }}>
                   Exile rebellious dissenters from the party structure.
                 </p>
-                <div style={{ marginTop: '8px', fontSize: '11px', fontWeight: 'bold', color: '#b91c1c' }}>
-                  Cost: -20 Party Morale, -5% Voter Support | Effect: Restores Loyalty to 50%; permanently caps their Influence share at 20%.
+                <div style={{ marginTop: '8px', fontSize: '11px', fontWeight: 800, color: '#F87171' }}>
+                  Cost: -20 Party Morale, -5% Voter Support | Effect: Restores Loyalty to 50%; caps Influence at 20%.
                 </div>
               </div>
 
               {/* Option C */}
               <div
-                onClick={() => {
-                  setFactionCrisisChoice('C');
-                  setShowCrisisModal(false);
-                }}
+                onClick={() => { setFactionCrisisChoice('C'); setShowCrisisModal(false); }}
                 style={{
-                  border: factionCrisisChoice === 'C' ? '2.5px solid #ef4444' : '1.5px solid var(--primary-border)',
-                  background: factionCrisisChoice === 'C' ? 'rgba(239, 68, 68, 0.03)' : '#ffffff',
-                  borderRadius: '10px',
-                  padding: '16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s'
+                  border: factionCrisisChoice === 'C' ? '2px solid #ef4444' : '1px solid rgba(255,255,255,0.1)',
+                  background: factionCrisisChoice === 'C' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(255,255,255,0.03)',
+                  borderRadius: '12px', padding: '14px', cursor: 'pointer', touchAction: 'manipulation'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <strong style={{ fontSize: '14px', color: 'var(--primary-dark)' }}>Option C: Force a Party Split</strong>
-                  <span style={{ fontSize: '10px', fontWeight: 'bold', background: '#ef4444', color: '#ffffff', padding: '2px 8px', borderRadius: '4px' }}>SPLIT</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <strong style={{ fontSize: '14px', color: '#fff', fontWeight: 900 }}>Option C: Force a Party Split</strong>
+                  <span style={{ fontSize: '9px', fontWeight: 900, background: '#EF4444', color: '#ffffff', padding: '2px 8px', borderRadius: '4px' }}>SPLIT</span>
                 </div>
-                <p style={{ margin: 0, fontSize: '12px', color: 'var(--card-text)', lineHeight: '1.4' }}>
+                <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8', lineHeight: 1.4 }}>
                   Denounce them publicly. The faction will defect, splitting your voter base.
                 </p>
-                <div style={{ marginTop: '8px', fontSize: '11px', fontWeight: 'bold', color: '#b91c1c' }}>
-                  Cost: -15% Voter Support, -30 Party Morale | Effect: Faction permanently defuses and is deleted. (Support dropping to 0% triggers defeat!).
+                <div style={{ marginTop: '8px', fontSize: '11px', fontWeight: 800, color: '#F87171' }}>
+                  Cost: -15% Voter Support, -30 Party Morale | Effect: Faction permanently defuses and is deleted.
                 </div>
               </div>
-
             </div>
 
-            {/* Modal Footer */}
+            {/* Footer */}
             <div style={{
-              background: '#f8fafc',
-              padding: '16px 24px',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              borderTop: '1px solid var(--primary-border)'
+              padding: '12px 16px', display: 'flex', justifyContent: 'flex-end',
+              borderTop: '1px solid rgba(255,255,255,0.08)', gap: '10px'
             }}>
-              {factionCrisisChoice && (
-                <button
-                  onClick={() => setShowCrisisModal(false)}
-                  style={{
-                    background: '#1e293b',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '8px 18px',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Close &amp; Keep Choice
-                </button>
-              )}
+              <button
+                onClick={() => setShowCrisisModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.1)', color: '#ffffff', border: 'none',
+                  borderRadius: '8px', padding: '10px 16px', fontSize: '12px', fontWeight: 800,
+                  cursor: 'pointer', touchAction: 'manipulation'
+                }}
+              >
+                DISMISS
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Top Header & Summary */}
-      <div style={{ marginBottom: '20px' }}>
-        <p style={{ margin: '0 0 15px 0', fontSize: '13px', color: 'var(--card-text)' }}>
-          Allocate resource cards one-by-one from the pile to factions. Keep faction loyalty high to maximize yields.
-        </p>
-      </div>
-
-      {/* Main Workspace (Card on Left, Yield Stats on Right) */}
+      {/* Main Grid: Card Draw Stack (Left) + Combined Yield Command HUD (Right) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '20px',
-        marginBottom: '25px'
+        gap: '16px',
+        marginBottom: '20px'
       }}>
-        {/* Drawn Card Interface */}
+        {/* Drawn Card Interface (Playing Cards Deck Stack) */}
         {topCard ? (
           <div style={{
-            background: topCard.color,
-            borderRadius: '10px',
-            padding: '16px 20px',
+            background: topCard.color || 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
+            borderRadius: '14px',
+            padding: '18px 20px',
             color: '#ffffff',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            minHeight: '200px',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
-            border: '1.5px solid rgba(255,255,255,0.12)',
+            minHeight: '220px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+            border: '2px solid rgba(255,255,255,0.2)',
             animation: 'drawCardAnimation 0.2s ease-out'
           }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{
-                  fontSize: '9px',
-                  fontWeight: '900',
-                  background: 'rgba(255,255,255,0.22)',
+                  fontSize: '10px',
+                  fontWeight: 900,
+                  background: 'rgba(255,255,255,0.25)',
                   color: '#ffffff',
-                  padding: '2px 8px',
-                  borderRadius: '4px',
+                  padding: '3px 9px',
+                  borderRadius: '6px',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.05em'
+                  letterSpacing: '0.06em'
                 }}>
                   {topCard.type}
                 </span>
-                <span style={{ fontSize: '11px', fontWeight: 'bold', background: 'rgba(0,0,0,0.15)', padding: '2px 8px', borderRadius: '12px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 800, background: 'rgba(0,0,0,0.25)', padding: '3px 10px', borderRadius: '12px' }}>
                   🃏 {totalCardsCount - remainingCardsCount + 1} of {totalCardsCount} ({remainingCardsCount - 1} left)
                 </span>
               </div>
-              <h4 style={{ margin: '12px 0 6px 0', fontSize: '18px', fontWeight: '800' }}>
+              <h4 style={{ margin: '14px 0 6px 0', fontSize: '19px', fontWeight: 900 }}>
                 {topCard.icon} {topCard.name}
               </h4>
-              <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.85)', lineHeight: '1.4' }}>
+              <p style={{ margin: 0, fontSize: '12.5px', color: 'rgba(255,255,255,0.9)', lineHeight: 1.4 }}>
                 {topCard.desc}
               </p>
             </div>
 
-            {/* Allocation Options */}
+            {/* Faction Target Buttons */}
             <div style={{ marginTop: '16px' }}>
-              <div style={{ fontSize: '10px', fontWeight: '900', color: 'rgba(255,255,255,0.9)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Assign Faction:
+              <div style={{ fontSize: '10px', fontWeight: 900, color: 'rgba(255,255,255,0.85)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                TAP FACTION TO ASSIGN:
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 {activeFactionsList.map(f => (
                   <button
                     key={f.id}
+                    type="button"
                     onClick={() => handleAllocate(f.id)}
                     className="pulse-flash-btn"
                     style={{
                       flex: 1,
-                      padding: '8px 10px',
+                      minWidth: '80px',
+                      padding: '10px 12px',
                       border: 'none',
-                      borderRadius: '6px',
+                      borderRadius: '8px',
                       color: '#ffffff',
-                      fontSize: '11.5px',
-                      fontWeight: '800',
+                      fontSize: '12px',
+                      fontWeight: 900,
                       cursor: 'pointer',
-                      transition: 'background 0.15s ease, transform 0.15s ease',
+                      touchAction: 'manipulation',
                       whiteSpace: 'nowrap',
                       textOverflow: 'ellipsis',
                       overflow: 'hidden'
@@ -1025,205 +1006,139 @@ const [deck, setDeck] = useState(() => {
           </div>
         ) : (
           <div style={{
-            background: 'rgba(34, 197, 94, 0.04)',
-            border: '2.5px solid #22c55e',
-            borderRadius: '10px',
+            background: 'rgba(34, 197, 94, 0.08)',
+            border: '2px solid #22c55e',
+            borderRadius: '14px',
             padding: '24px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
-            minHeight: '200px'
+            minHeight: '220px'
           }}>
-            <span style={{ fontSize: '32px', marginBottom: '8px' }}>✅</span>
-            <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#166534' }}>
-              All Resource Cards Allocated
+            <span style={{ fontSize: '36px', marginBottom: '8px' }}>✅</span>
+            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: '#4ADE80' }}>
+              ALL RESOURCE CARDS ALLOCATED
             </h4>
-            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--card-text)' }}>
-              Factions allocations are completed. You can safely lock in your turn.
+            <p style={{ margin: '6px 0 0 0', fontSize: '12px', color: '#94a3b8' }}>
+              All turn cards have been distributed to factions. You can lock allocations now.
             </p>
           </div>
         )}
 
-        {/* Combined Yield Summary Box */}
+        {/* Combined Yield Command HUD */}
         <div style={{
-          background: 'rgba(var(--party-primary-color-rgb, 101, 148, 177), 0.03)',
-          border: '1.5px solid var(--party-primary-color, var(--primary-border))',
-          borderRadius: '10px',
+          background: 'linear-gradient(145deg, #1e293b, #0f172a)',
+          border: '1.5px solid rgba(255,255,255,0.12)',
+          borderRadius: '14px',
           padding: '16px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          minHeight: '200px'
+          minHeight: '220px'
         }}>
           <div>
-            <h5 style={{ margin: '0 0 12px 0', color: 'var(--primary-dark)', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              📈 Combined Turn Yields
-            </h5>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <h5 style={{ margin: 0, color: '#38BDF8', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                📈 COMBINED TURN YIELDS
+              </h5>
+              <span style={{ fontSize: '10px', color: '#7D8590', fontWeight: 700 }}>PROJECTED NET</span>
+            </div>
+
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '10px'
+              gap: '8px'
             }}>
-              <div style={{ background: '#ffffff', border: '1px solid var(--primary-border)', padding: '8px 12px', borderRadius: '6px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--card-text)', display: 'block' }}>Party Coins</span>
-                <strong style={{ fontSize: '15px', color: '#15803d' }}>+{finalCoins} 💰</strong>
+              <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', padding: '8px 10px', borderRadius: '8px' }}>
+                <span style={{ fontSize: '10px', color: '#7D8590', display: 'block', textTransform: 'uppercase' }}>Coins</span>
+                <strong style={{ fontSize: '15px', color: '#4ADE80' }}>+{finalCoins} 💰</strong>
               </div>
-              <div style={{ background: '#ffffff', border: '1px solid var(--primary-border)', padding: '8px 12px', borderRadius: '6px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--card-text)', display: 'block' }}>Voter Support</span>
-                <strong style={{ fontSize: '15px', color: '#1d4ed8' }}>+{finalSupport}% 📈</strong>
+              <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', padding: '8px 10px', borderRadius: '8px' }}>
+                <span style={{ fontSize: '10px', color: '#7D8590', display: 'block', textTransform: 'uppercase' }}>Support</span>
+                <strong style={{ fontSize: '15px', color: '#38BDF8' }}>+{finalSupport}% 📈</strong>
               </div>
-              <div style={{ background: '#ffffff', border: '1px solid var(--primary-border)', padding: '8px 12px', borderRadius: '6px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--card-text)', display: 'block' }}>Morale</span>
-                <strong style={{ fontSize: '15px', color: finalMorale < 0 ? '#b91c1c' : '#a21caf' }}>
+              <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', padding: '8px 10px', borderRadius: '8px' }}>
+                <span style={{ fontSize: '10px', color: '#7D8590', display: 'block', textTransform: 'uppercase' }}>Morale</span>
+                <strong style={{ fontSize: '15px', color: finalMorale < 0 ? '#F87171' : '#F43F5E' }}>
                   {finalMorale > 0 ? '+' : ''}{finalMorale} ✊
                 </strong>
-                {totalYields.morale < -5 && <span style={{ fontSize: '9px', color: '#b91c1c', display: 'block' }}>(Capped)</span>}
               </div>
-              <div style={{ background: '#ffffff', border: '1px solid var(--primary-border)', padding: '8px 12px', borderRadius: '6px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--card-text)', display: 'block' }}>Corruption</span>
-                <strong style={{ fontSize: '15px', color: finalCorruption > 0 ? '#b91c1c' : '#15803d' }}>
+              <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', padding: '8px 10px', borderRadius: '8px' }}>
+                <span style={{ fontSize: '10px', color: '#7D8590', display: 'block', textTransform: 'uppercase' }}>Corruption</span>
+                <strong style={{ fontSize: '15px', color: finalCorruption > 0 ? '#F87171' : '#4ADE80' }}>
                   {finalCorruption > 0 ? '+' : ''}{finalCorruption} ⚖️
                 </strong>
-                {totalYields.corruption > 5 && <span style={{ fontSize: '9px', color: '#b91c1c', display: 'block' }}>(Capped)</span>}
               </div>
-              <div style={{ background: '#ffffff', border: '1px solid var(--primary-border)', padding: '8px 12px', borderRadius: '6px', gridColumn: 'span 2' }}>
-                <span style={{ fontSize: '11px', color: 'var(--card-text)', display: 'block' }}>Media Image</span>
-                <strong style={{ fontSize: '15px', color: '#ec4899' }}>+{finalMedia} 📢</strong>
-              </div>
-            </div>
-
-            <div style={{ marginTop: '15px', borderTop: '1px dashed var(--primary-border)', paddingTop: '15px' }}>
-              <h5 style={{ margin: '0 0 10px 0', color: 'var(--primary-dark)', fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                ⚡ Faction Power Perks
-              </h5>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {(() => {
-                  const getPerkStatus = (fid, reqL, reqP) => {
-                    const f = factions.find(fac => fac.id === fid);
-                    if (!f || !f.active) return { active: false, loyalty: 0, power: 0 };
-                    return { active: f.loyalty >= reqL && f.influence >= reqP, loyalty: f.loyalty, power: f.influence };
-                  };
-
-                  const perks = [
-                    { id: 'loyalist', name: 'Loyalists (Elder Statesmen)', reqL: 80, reqP: 50, desc: '+25 Coins, +3% Support per turn' },
-                    { id: 'youth', name: 'Youth Wing (Campaign Machine)', reqL: 80, reqP: 40, desc: '+5 Morale, +3% Support, +5 Media per turn' },
-                    { id: 'trade', name: 'Trade Unions (Strike Force)', reqL: 80, reqP: 40, desc: '-5 Corruption; -3% Support & -3 Morale to opponents' }
-                  ];
-
-                  return perks.map(p => {
-                    const stat = getPerkStatus(p.id, p.reqL, p.reqP);
-                    return (
-                      <div key={p.id} style={{
-                        padding: '8px 10px',
-                        background: stat.active ? 'rgba(234, 179, 8, 0.08)' : '#ffffff',
-                        border: stat.active ? '1.5px solid #eab308' : '1px solid var(--primary-border)',
-                        borderRadius: '6px',
-                        fontSize: '11px',
-                        transition: 'all 0.2s',
-                        boxShadow: stat.active ? '0 0 8px rgba(234, 179, 8, 0.15)' : 'none'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                          <strong style={{ color: stat.active ? '#a16207' : 'var(--primary-dark)', fontSize: '11.5px' }}>{p.name}</strong>
-                          <span style={{
-                            fontSize: '9px',
-                            fontWeight: 'bold',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            background: stat.active ? '#eab308' : '#e2e8f0',
-                            color: stat.active ? '#ffffff' : '#475569'
-                          }}>
-                            {stat.active ? 'ACTIVE ⚡' : `Requires L:${p.reqL} P:${p.reqP}`}
-                          </span>
-                        </div>
-                        <div style={{ color: 'var(--card-text)', fontSize: '10px', lineHeight: '1.3' }}>{p.desc}</div>
-                        <div style={{ fontSize: '9px', color: '#94a3b8', marginTop: '3px' }}>
-                          Current: Loyalty {stat.loyalty}% | Power {stat.power}%
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
+              <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', padding: '8px 10px', borderRadius: '8px', gridColumn: 'span 2' }}>
+                <span style={{ fontSize: '10px', color: '#7D8590', display: 'block', textTransform: 'uppercase' }}>Media Image</span>
+                <strong style={{ fontSize: '15px', color: '#EC4899' }}>+{finalMedia} 📢</strong>
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', marginTop: '14px', flexDirection: 'column', gap: '8px' }}>
-            {/* Error message */}
-            {lockError && (
-              <div style={{ color: '#f87171', fontSize: '12px', padding: '6px 10px', background: '#450a0a', borderRadius: '6px', border: '1px solid #ef4444' }}>
-                ⚠️ {lockError}
-              </div>
-            )}
+          {/* Action Buttons (Undo & Lock Allocations) */}
+          <div style={{ display: 'flex', marginTop: '14px', gap: '8px', alignItems: 'center' }}>
+            <button
+              type="button"
+              onClick={handleUndo}
+              disabled={history.length === 0 || isLocked}
+              style={{
+                padding: '10px 14px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: (history.length > 0 && !isLocked) ? '#ffffff' : '#64748b',
+                borderRadius: '8px',
+                fontWeight: 800,
+                cursor: (history.length > 0 && !isLocked) ? 'pointer' : 'default',
+                fontSize: '12px',
+                touchAction: 'manipulation'
+              }}
+            >
+              ↩ UNDO
+            </button>
 
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button
-                onClick={handleUndo}
-                disabled={history.length === 0 || isLocked}
-                style={{
-                  flex: '0 0 auto',
-                  padding: '10px 15px',
-                  background: '#ffffff',
-                  border: '1.5px solid var(--party-primary-color, var(--primary-border))',
-                  color: (history.length > 0 && !isLocked) ? 'var(--primary-dark)' : '#94a3b8',
-                  borderRadius: '6px',
-                  fontWeight: 'bold',
-                  cursor: (history.length > 0 && !isLocked) ? 'pointer' : 'default',
-                  fontSize: '13px',
-                  opacity: (history.length > 0 && !isLocked) ? 1 : 0.4
-                }}
-              >
-                ↩ Undo
-              </button>
-
-              {/* Lock Allocations button */}
-              <button
-                ref={confirmBtnRef}
-                onClick={handleLock}
-                disabled={isLocked || isLocking}
-                className={allCardsAssigned ? 'btn-pulse-highlight' : ''}
-                style={{
-                  flex: '1 1 0%',
-                  minWidth: '150px',
-                  padding: '10px 20px',
-                  background: isLocked
-                    ? 'var(--selected-highlight, #22c55e)'
-                    : allCardsAssigned
-                    ? '#0ea5e9'
-                    : 'var(--party-primary-color, var(--primary-dark))',
-                  borderWidth: '1.5px',
-                  borderStyle: 'solid',
-                  borderColor: isLocked
-                    ? 'var(--selected-highlight, #22c55e)'
-                    : allCardsAssigned
-                    ? '#38bdf8'
-                    : 'var(--party-primary-color, var(--primary-dark))',
-                  color: isLocked ? 'var(--primary-dark, #1e3a5f)' : '#ffffff',
-                  fontWeight: 'bold',
-                  borderRadius: '8px',
-                  cursor: isLocked ? 'default' : 'pointer',
-                  fontSize: '14px',
-                  opacity: isLocking ? 0.7 : 1,
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px'
-                }}
-              >
-                {isLocking ? '⏳ Saving...' : isLocked ? '✅ Allocations Locked' : '🔒 Confirm'}
-              </button>
-            </div>
+            <button
+              ref={confirmBtnRef}
+              type="button"
+              onClick={handleLock}
+              disabled={isLocked || isLocking}
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                background: isLocked
+                  ? 'linear-gradient(135deg, #16a34a, #15803d)'
+                  : allCardsAssigned
+                  ? 'linear-gradient(135deg, #0284c7, #0369a1)'
+                  : 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                border: 'none',
+                color: '#ffffff',
+                fontWeight: 900,
+                borderRadius: '8px',
+                cursor: isLocked ? 'default' : 'pointer',
+                fontSize: '13px',
+                touchAction: 'manipulation',
+                letterSpacing: '0.04em',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                opacity: isLocking ? 0.7 : 1
+              }}
+            >
+              {isLocking ? '⏳ SAVING...' : isLocked ? '✅ ALLOCATIONS LOCKED' : '🔒 LOCK ALLOCATIONS'}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Factions Deck columns */}
+      {/* FACTION DOSSIER PLAYING CARDS GRID */}
+      <div style={{ fontSize: '11px', fontWeight: 800, color: '#7D8590', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>
+        FACTION DOSSIER CARDS:
+      </div>
+
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '20px'
+        gap: '16px'
       }}>
         {factions.map(f => {
           if (!f.active) {
@@ -1231,19 +1146,19 @@ const [deck, setDeck] = useState(() => {
               <div
                 key={f.id}
                 style={{
-                  background: 'rgba(0,0,0,0.02)',
-                  border: '2px dashed var(--primary-border)',
-                  borderRadius: '10px',
-                  minHeight: '280px',
+                  background: 'rgba(15,23,42,0.4)',
+                  border: '2px dashed rgba(255,255,255,0.1)',
+                  borderRadius: '14px',
+                  minHeight: '260px',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'gray'
+                  color: '#64748b'
                 }}
               >
-                <span style={{ fontSize: '24px', marginBottom: '6px' }}>❌</span>
-                <span style={{ fontSize: '13px', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Faction Purged</span>
+                <span style={{ fontSize: '28px', marginBottom: '6px' }}>💀</span>
+                <span style={{ fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>FACTION PURGED</span>
               </div>
             );
           }
@@ -1252,10 +1167,10 @@ const [deck, setDeck] = useState(() => {
           const y = calculateYield(f);
 
           const getMoodBadge = (loyalty) => {
-            if (loyalty >= 80) return { label: 'Good 😊', color: '#22c55e', bg: 'rgba(34, 197, 94, 0.06)', shadow: '0 0 8px rgba(34, 197, 94, 0.12)' };
-            if (loyalty >= 50) return { label: 'Neutral 😐', color: '#64748b', bg: 'rgba(100, 116, 139, 0.06)', shadow: 'none' };
-            if (loyalty >= 30) return { label: 'Bad 😡', color: '#f97316', bg: 'rgba(249, 115, 22, 0.06)', shadow: '0 0 8px rgba(249, 115, 22, 0.12)' };
-            return { label: 'Rebel 💀', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.06)', shadow: '0 0 12px rgba(239, 68, 68, 0.25)' };
+            if (loyalty >= 80) return { label: 'Good 😊', color: '#4ADE80', bg: 'rgba(74, 222, 128, 0.1)' };
+            if (loyalty >= 50) return { label: 'Co-op 😐', color: '#94A3B8', bg: 'rgba(148, 163, 184, 0.1)' };
+            if (loyalty >= 30) return { label: 'Bad 😡', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' };
+            return { label: 'Rebel 💀', color: '#F87171', bg: 'rgba(248, 113, 113, 0.15)' };
           };
 
           const checkPerkActive = (fid, loyalty, power) => {
@@ -1267,8 +1182,9 @@ const [deck, setDeck] = useState(() => {
 
           const mood = getMoodBadge(f.loyalty);
           const activePerk = checkPerkActive(f.id, f.loyalty, f.influence);
+          const fColor = f.accentColor || '#38BDF8';
 
-          let cardClass = "themed-action-card";
+          let cardClass = "faction-dossier-card";
           if (f.loyalty < 30) cardClass += " rebel-border-flash";
           else if (activePerk) cardClass += " gold-perk-glow";
 
@@ -1277,136 +1193,102 @@ const [deck, setDeck] = useState(() => {
               key={f.id}
               className={cardClass}
               style={{
-                border: activePerk ? '2px solid #eab308' : (f.loyalty < 30 ? '2.5px solid #ef4444' : `2px solid ${mood.color}`),
-                boxShadow: activePerk ? '0 0 12px rgba(234, 179, 8, 0.3)' : mood.shadow,
-                borderRadius: '10px',
+                background: 'linear-gradient(145deg, #1e293b, #0f172a)',
+                border: activePerk ? '2px solid #eab308' : (f.loyalty < 30 ? '2.5px solid #ef4444' : `2px solid ${fColor}`),
+                boxShadow: activePerk ? '0 0 16px rgba(234, 179, 8, 0.3)' : `0 4px 16px ${fColor}25`,
+                borderRadius: '14px',
                 padding: '16px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 minHeight: '280px',
-                background: 'rgba(255,255,255,0.2)',
                 transition: 'all 0.25s ease'
               }}
             >
               <div>
-                {/* Column Header */}
+                {/* Header Row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                   <div>
-                    <h5 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>
-                       {f.name}
+                    <h5 style={{ margin: 0, fontSize: '15px', fontWeight: 900, color: '#ffffff' }}>
+                      {f.name}
                     </h5>
-                    <div style={{ fontSize: '11px', color: 'var(--card-text)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '3px', flexWrap: 'wrap' }}>
-                      ⚡ <b>{f.influence}%</b> | ✊ <b style={{ color: mood.color }}>{f.loyalty}%</b>
-                      {(() => {
-                        const diff = f.loyalty - f.baseLoyalty;
-                        if (diff > 0) return <span style={{ color: '#22c55e', fontSize: '10px', fontWeight: 'bold', marginLeft: '3px' }}>▲ +{diff}%</span>;
-                        if (diff < 0) return <span style={{ color: '#ef4444', fontSize: '10px', fontWeight: 'bold', marginLeft: '3px' }}>▼ {diff}%</span>;
-                        return null;
-                      })()}
+                    <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      ⚡ Power: <b style={{ color: '#fff' }}>{f.influence}%</b> | ✊ Loyalty: <b style={{ color: mood.color }}>{f.loyalty}%</b>
                     </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDissolve(f.id)}
+                    title="Purge / Dissolve Faction"
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#F87171', fontSize: '10px', fontWeight: 800, padding: '3px 8px', borderRadius: '6px',
+                      cursor: 'pointer', touchAction: 'manipulation'
+                    }}
+                  >
+                    PURGE 💀
+                  </button>
                 </div>
 
-                {f.frozenTurnsRemaining > 0 && (() => {
-                  const frozenPostsCount = f.frozenPosts ? Object.values(f.frozenPosts).filter(t => t > 0).length : 0;
-                  const frozenPatronageCount = f.frozenPatronageTurns ? f.frozenPatronageTurns.filter(t => t > 0).length : 0;
-                  const frozenProjectsCount = (f.projects || []).filter(p => p.frozenTurnsRemaining > 0).length;
-                  const totalFrozenAssets = frozenPostsCount + frozenPatronageCount + frozenProjectsCount;
+                {/* Frozen Indicator */}
+                {f.frozenTurnsRemaining > 0 && (
+                  <div style={{ fontSize: '11px', color: '#f97316', background: 'rgba(249,115,22,0.1)', border: '1px dashed #f97316', padding: '6px 10px', borderRadius: '6px', fontWeight: 800, marginBottom: '10px' }}>
+                    ❄️ FROZEN: Assets locked for {f.frozenTurnsRemaining} turns!
+                  </div>
+                )}
 
-                  return (
-                    <div style={{
-                      fontSize: '11px',
-                      color: '#c2410c',
-                      backgroundColor: '#fff7ed',
-                      border: '1.5px dashed #ffedd5',
-                      padding: '6px 10px',
-                      borderRadius: '6px',
-                      fontWeight: '800',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      marginBottom: '10px'
-                    }}>
-                      ❄️ FROZEN: {totalFrozenAssets} card/asset{totalFrozenAssets !== 1 ? 's' : ''} locked for {f.frozenTurnsRemaining} turn{f.frozenTurnsRemaining !== 1 ? 's' : ''}!
-                    </div>
-                  );
-                })()}
-
-                {/* Mood Badge */}
+                {/* Mood & Efficiency Badge */}
                 <div style={{
                   background: mood.bg,
                   color: mood.color,
-                  border: `1.5px solid ${mood.color}25`,
+                  border: `1px solid ${mood.color}40`,
                   fontSize: '11px',
-                  fontWeight: 'bold',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
+                  fontWeight: 800,
+                  padding: '5px 10px',
+                  borderRadius: '6px',
                   marginBottom: '10px',
-                  textAlign: 'center'
+                  display: 'flex',
+                  justifyContent: 'space-between'
                 }}>
-                  Mood: {mood.label} | Efficiency: {multInfo.factor * 100}%
+                  <span>Mood: {mood.label}</span>
+                  <span>Efficiency: {multInfo.factor * 100}%</span>
                 </div>
 
                 {/* Perk Badge */}
                 {activePerk && (
-                  <div style={{
-                    background: '#eab308',
-                    color: '#ffffff',
-                    fontSize: '10px',
-                    fontWeight: '900',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    marginBottom: '10px',
-                    textAlign: 'center',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em'
-                  }}>
-                    🌟 Perk Active: {activePerk}
+                  <div style={{ background: '#eab308', color: '#0f172a', fontSize: '10px', fontWeight: 900, padding: '4px 8px', borderRadius: '6px', marginBottom: '10px', textAlign: 'center', textTransform: 'uppercase' }}>
+                    🌟 PERK ACTIVE: {activePerk}
                   </div>
                 )}
 
-                {/* Stack Pile */}
+                {/* Allocated Playing Cards Stack */}
                 <div style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '8px',
-                  minHeight: '100px',
-                  background: 'rgba(0,0,0,0.02)',
-                  borderRadius: '6px',
+                  gap: '6px',
+                  minHeight: '90px',
+                  background: 'rgba(0,0,0,0.25)',
+                  borderRadius: '8px',
                   padding: '8px',
-                  border: '1px dashed var(--primary-border)',
-                  marginBottom: '14px'
+                  border: '1px dashed rgba(255,255,255,0.1)',
+                  marginBottom: '12px'
                 }}>
                   {(f.patronage === 0 && (!f.post || f.post.length === 0) && f.projects.length === 0) ? (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      height: '84px',
-                      color: 'gray',
-                      fontSize: '11px',
-                      fontStyle: 'italic'
-                    }}>
-                      No Cards Assigned
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '70px', color: '#64748b', fontSize: '11px', fontStyle: 'italic' }}>
+                      No Resource Cards Assigned
                     </div>
                   ) : (
                     <>
                       {/* Patronage */}
                       {f.patronage > 0 && (
                         <div style={{
-                          background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-                          padding: '6px 10px',
-                          borderRadius: '4px',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          fontSize: '11.5px',
-                          fontWeight: 'bold',
-                          color: '#ffffff'
+                          background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
+                          padding: '6px 10px', borderRadius: '6px',
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          fontSize: '11.5px', fontWeight: 800, color: '#ffffff'
                         }}>
                           <span>🛡️ Patronage Points</span>
-                          <span style={{ background: 'rgba(255,255,255,0.25)', padding: '1px 5px', borderRadius: '3px', fontSize: '10px' }}>
+                          <span style={{ background: 'rgba(255,255,255,0.25)', padding: '1px 6px', borderRadius: '4px', fontSize: '10px' }}>
                             ×{f.patronage}
                           </span>
                         </div>
@@ -1420,15 +1302,10 @@ const [deck, setDeck] = useState(() => {
                           <div
                             key={`post-badge-${idx}`}
                             style={{
-                              background: 'linear-gradient(135deg, #581c87 0%, #a855f7 100%)',
-                              padding: '6px 10px',
-                              borderRadius: '4px',
-                              fontSize: '11.5px',
-                              fontWeight: 'bold',
-                              color: '#ffffff',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center'
+                              background: 'linear-gradient(135deg, #581c87, #a855f7)',
+                              padding: '6px 10px', borderRadius: '6px',
+                              fontSize: '11.5px', fontWeight: 800, color: '#ffffff',
+                              display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                             }}
                           >
                             <span>💼 {postDef.name}</span>
@@ -1442,15 +1319,10 @@ const [deck, setDeck] = useState(() => {
                         <div
                           key={idx}
                           style={{
-                            background: 'linear-gradient(135deg, #115e59 0%, #0d9488 100%)',
-                            padding: '6px 10px',
-                            borderRadius: '4px',
-                            fontSize: '11.5px',
-                            fontWeight: 'bold',
-                            color: '#ffffff',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
+                            background: 'linear-gradient(135deg, #115e59, #0d9488)',
+                            padding: '6px 10px', borderRadius: '6px',
+                            fontSize: '11.5px', fontWeight: 800, color: '#ffffff',
+                            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                           }}
                         >
                           <span>{proj.icon} {proj.name.split(' ')[0]}</span>
@@ -1462,19 +1334,19 @@ const [deck, setDeck] = useState(() => {
                 </div>
               </div>
 
-              {/* Faction Yield Footer */}
+              {/* Faction Yield Footer HUD */}
               <div style={{
-                background: 'rgba(0,0,0,0.01)',
-                border: '1px solid var(--primary-border)',
-                padding: '8px 12px',
-                borderRadius: '6px'
+                background: 'rgba(0,0,0,0.3)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                padding: '8px 10px',
+                borderRadius: '8px'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold' }}>
-                  <span style={{ color: '#15803d' }}>💰 {y.coins >= 0 ? '+' : ''}{y.coins}</span>
-                  <span style={{ color: '#1d4ed8' }}>📈 {y.support >= 0 ? '+' : ''}{y.support}%</span>
-                  <span style={{ color: '#a21caf' }}>✊ {y.morale >= 0 ? '+' : ''}{y.morale}</span>
-                  <span style={{ color: '#b91c1c' }}>⚖️ {y.corruption >= 0 ? '+' : ''}{y.corruption}</span>
-                  <span style={{ color: '#ec4899' }}>📢 {y.media >= 0 ? '+' : ''}{y.media}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 800 }}>
+                  <span style={{ color: '#4ADE80' }}>💰 {y.coins >= 0 ? '+' : ''}{y.coins}</span>
+                  <span style={{ color: '#38BDF8' }}>📈 {y.support >= 0 ? '+' : ''}{y.support}%</span>
+                  <span style={{ color: '#F43F5E' }}>✊ {y.morale >= 0 ? '+' : ''}{y.morale}</span>
+                  <span style={{ color: '#F87171' }}>⚖️ {y.corruption >= 0 ? '+' : ''}{y.corruption}</span>
+                  <span style={{ color: '#EC4899' }}>📢 {y.media >= 0 ? '+' : ''}{y.media}</span>
                 </div>
               </div>
             </div>

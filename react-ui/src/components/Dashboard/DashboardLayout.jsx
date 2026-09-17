@@ -15,75 +15,94 @@ export default function DashboardLayout({ children }) {
   return (
     <div className="dashboard-container">
       
-      {/* Top Navigation Bar */}
-      <div className="dashboard-top-nav" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+      {/* Top Navigation Bar — All in 1 Single Line */}
+      <div className="dashboard-top-nav" style={{ 
+        display: 'flex', 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        gap: '8px', 
+        marginBottom: '16px',
+        width: '100%',
+        flexWrap: 'nowrap'
+      }}>
         
-        {/* Top Header Row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '10px' }}>
-          
-          {/* Top Left: Logo + App Title + Logout */}
-          <div className="top-nav-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <img src="/app-logo.png" alt="Statecraft Logo" className="top-nav-logo" style={{ width: '38px', height: '38px', objectFit: 'contain', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', flexShrink: 0 }} />
-            <div style={{ display: 'flex', flexDirection: 'column', marginRight: '4px' }}>
-              <span className="top-nav-title" style={{ fontSize: '18px', fontWeight: 900, color: 'var(--primary-dark)', lineHeight: 1.1 }}>
+        {/* Item 1: Logo + Title (Title hidden if name is long) */}
+        <div className="top-nav-left" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          <img src="/app-logo.png" alt="Statecraft Logo" className="top-nav-logo" style={{ width: '34px', height: '34px', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.15)', flexShrink: 0 }} />
+          {((user?.name || '').length <= 10) && (
+            <div className="top-nav-brand-text" style={{ display: 'flex', flexDirection: 'column' }}>
+              <span className="top-nav-title" style={{ fontSize: '16px', fontWeight: 900, color: 'var(--primary-dark)', lineHeight: 1.1 }}>
                 Statecraft
               </span>
-              <span className="nav-subtitle" style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
-                Grand Strategy &amp; Governance
+              <span className="nav-subtitle" style={{ fontSize: '9px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.04em' }}>
+                Governance
               </span>
             </div>
-
-            {/* Logout button situated on Top Left */}
-            {currentScreen === 'HOME' && (
-              <button 
-                onClick={logout} 
-                style={{ 
-                  backgroundColor: '#be123c', 
-                  borderColor: '#be123c', 
-                  color: '#ffffff',
-                  padding: '5px 12px', 
-                  fontSize: '12px', 
-                  fontWeight: 800, 
-                  borderRadius: '6px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 6px rgba(190,18,60,0.25)',
-                  margin: 0
-                }}
-              >
-                🚪 Logout
-              </button>
-            )}
-          </div>
-
-          {/* Top Right: Buttons (Timer & Admin) */}
-          <div className="dashboard-top-nav-buttons" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-            {turnData?.isMultiplayer && timeLeft !== null && (
-              <button disabled style={{
-                backgroundColor: timeLeft <= 30 ? '#dc2626' : '#be123c',
-                borderColor: timeLeft <= 30 ? '#dc2626' : '#be123c',
-                color: '#fff', padding: '5px 10px', borderRadius: '6px',
-                fontWeight: 'bold', boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-                fontSize: '12px', cursor: 'default',
-                minWidth: '75px',
-                animation: timeLeft <= 30 ? 'pulse-soft 1s infinite' : 'none',
-              }}>
-                ⏱️ {formatTime(timeLeft)}
-              </button>
-            )}
-            {isAdmin && currentScreen !== 'ADMIN' && (
-              <button onClick={() => setScreen('ADMIN')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)', padding: '5px 10px', fontSize: '12px', borderRadius: '6px' }}>
-                🛠️ Admin Console
-              </button>
-            )}
-          </div>
+          )}
         </div>
 
-        {/* 2nd Line: Welcome message (supports long names without pushing Logout) */}
-        <div className="top-nav-welcome" style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 600, wordBreak: 'break-word', marginTop: '2px' }}>
-          👋 Welcome, <b style={{ fontWeight: 800, color: 'var(--primary-dark)' }}>{user?.name || 'Unknown'}</b>!
+        {/* Item 2: User Welcome (middle element, truncates smoothly if long) */}
+        <div className="top-nav-welcome" style={{ 
+          flex: '1 1 auto', 
+          minWidth: 0, 
+          textAlign: 'center', 
+          fontSize: '13px', 
+          fontWeight: 700, 
+          color: 'var(--primary-dark)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          padding: '0 4px'
+        }}>
+          👋 <b style={{ fontWeight: 800 }}>{user?.name || 'Player'}</b>
+        </div>
+
+        {/* Item 3: Buttons & Logout Symbol */}
+        <div className="dashboard-top-nav-buttons" style={{ display: 'flex', alignItems: 'center', gap: '6px', margin: 0, flexShrink: 0 }}>
+          {turnData?.isMultiplayer && timeLeft !== null && (
+            <button disabled style={{
+              backgroundColor: timeLeft <= 30 ? '#dc2626' : '#be123c',
+              borderColor: timeLeft <= 30 ? '#dc2626' : '#be123c',
+              color: '#fff', padding: '4px 8px', borderRadius: '6px',
+              fontWeight: 'bold', boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+              fontSize: '11px', cursor: 'default',
+              minWidth: '60px',
+              animation: timeLeft <= 30 ? 'pulse-soft 1s infinite' : 'none',
+            }}>
+              ⏱️ {formatTime(timeLeft)}
+            </button>
+          )}
+          {isAdmin && currentScreen !== 'ADMIN' && (
+            <button onClick={() => setScreen('ADMIN')} title="Admin Console" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)', padding: '4px 8px', fontSize: '11px', borderRadius: '6px' }}>
+              🛠️
+            </button>
+          )}
+          {currentScreen === 'HOME' && (
+            <button 
+              onClick={logout} 
+              title="Logout"
+              aria-label="Logout"
+              className="logout-symbol-btn"
+              style={{ 
+                backgroundColor: '#be123c', 
+                border: 'none', 
+                color: '#ffffff',
+                width: '32px', 
+                height: '32px', 
+                borderRadius: '8px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(190,18,60,0.25)',
+                fontSize: '15px',
+                flexShrink: 0
+              }}
+            >
+              🚪
+            </button>
+          )}
         </div>
       </div>
 

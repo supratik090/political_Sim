@@ -444,126 +444,72 @@ export default function Action7Cooperation({ turnData, projectDefs: PROJECT_DEFS
           🏛️ Diplomacy
         </h4>
 
-        {/* Step A: Choose Partner */}
+        {/* Step A: Choose Partner — Playing Cards Aesthetic */}
         <div style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#475569' }}>
-              Select Negotiation Partner:
-            </span>
-            {recipientId && (
-              <button
-                type="button"
-                onClick={() => setShowPartnerModal(true)}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--primary-border)',
-                  borderRadius: '6px',
-                  padding: '4px 10px',
-                  fontSize: '11.5px',
-                  fontWeight: 'bold',
-                  color: 'var(--primary-dark)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                🔄 Change Partner
-              </button>
-            )}
-          </div>
-
-          {!recipientId ? (
-            <button
-              type="button"
-              onClick={() => setShowPartnerModal(true)}
-              style={{
-                width: '100%',
-                padding: '14px 16px',
-                borderRadius: '10px',
-                border: '2px dashed var(--primary-border)',
-                background: '#f8fafc',
-                color: 'var(--primary-dark)',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <span>🏛️</span> Tap to Choose Partner Party
-            </button>
-          ) : (
-            <div
-              onClick={() => setShowPartnerModal(true)}
-              style={{
-                padding: '12px 16px',
-                borderRadius: '10px',
-                border: `2px solid ${recipientParty?.color || '#3b82f6'}`,
-                background: `${recipientParty?.color || '#3b82f6'}0c`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '22px' }}>{recipientParty?.symbol || '🏛️'}</span>
-                <div>
-                  <strong style={{ display: 'block', fontSize: '14px', color: '#0f172a' }}>{recipientParty?.name}</strong>
-                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>{recipientParty?.role} • {recipientParty?.stats?.seats || 0} Seats</span>
-                </div>
-              </div>
-              <span style={{ fontSize: '12px', fontWeight: 'bold', color: recipientParty?.color || '#3b82f6', background: '#fff', padding: '4px 8px', borderRadius: '6px', border: `1px solid ${recipientParty?.color || '#3b82f6'}` }}>
-                Selected ✓
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Blank state block forcing user to select partner */}
-        {!recipientId ? (
+          <span style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '10px', color: '#475569' }}>
+            Select Negotiation Partner (Playing Cards):
+          </span>
           <div style={{
-            border: '2px dashed var(--primary-border)',
-            borderRadius: '12px',
-            padding: '24px 16px',
-            textAlign: 'center',
-            background: 'rgba(101,148,177,0.02)',
-            color: '#64748b'
+            display: 'flex',
+            gap: '10px',
+            overflowX: 'auto',
+            paddingBottom: '8px',
+            WebkitOverflowScrolling: 'touch'
           }}>
-            <span style={{ fontSize: '32px', display: 'block', marginBottom: '8px' }}>🏛️</span>
-            <strong style={{ display: 'block', fontSize: '14px', color: 'var(--primary-dark)', marginBottom: '4px' }}>
-              Select a Rival Party to Negotiate
-            </strong>
-            <span style={{ fontSize: '12px', display: 'block', marginBottom: '16px' }}>
-              Tap a party card below to begin diplomacy negotiations.
-            </span>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
-              {otherParties.map(p => (
+            {otherParties.map(p => {
+              const isSelected = p.id === recipientId;
+              const pColor = p.color || '#3b82f6';
+              return (
                 <div
                   key={p.id}
                   onClick={() => setRecipientId(p.id)}
                   style={{
-                    padding: '12px',
-                    borderRadius: '10px',
-                    border: `1.5px solid ${p.color || '#cbd5e1'}`,
-                    background: '#ffffff',
+                    minWidth: '115px',
+                    flex: '0 0 auto',
+                    padding: '12px 10px',
+                    borderRadius: '12px',
+                    border: `2px solid ${isSelected ? pColor : 'var(--primary-border)'}`,
+                    background: isSelected ? `${pColor}15` : '#ffffff',
+                    boxShadow: isSelected ? `0 0 12px ${pColor}44` : '0 2px 6px rgba(0,0,0,0.05)',
                     cursor: 'pointer',
-                    textAlign: 'center',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
-                    transition: 'all 0.15s ease-in-out'
+                    transition: 'all 0.15s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    touchAction: 'manipulation'
                   }}
                 >
-                  <span style={{ fontSize: '24px', display: 'block', marginBottom: '4px' }}>{p.symbol || '🏛️'}</span>
-                  <strong style={{ display: 'block', fontSize: '13px', color: '#0f172a', marginBottom: '2px' }}>{p.name}</strong>
-                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>{p.role}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '24px' }}>{p.symbol || '🏛️'}</span>
+                    <span style={{ fontSize: '9px', fontWeight: 'bold', padding: '2px 5px', borderRadius: '4px', background: `${pColor}20`, color: pColor }}>
+                      {p.role === 'GOVERNMENT' ? 'GOV' : p.role === 'OPPOSITION' ? 'OPP' : '3RD'}
+                    </span>
+                  </div>
+                  <strong style={{ display: 'block', fontSize: '13px', color: '#0f172a', marginBottom: '2px', lineHeight: 1.2 }}>{p.name}</strong>
+                  <span style={{ fontSize: '10px', color: '#64748b', fontWeight: 'bold' }}>{p.stats?.seats || 0} Seats • {p.stats?.publicSupport || 0}%</span>
                 </div>
-              ))}
-            </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Blank state block when no party is selected */}
+        {!recipientId ? (
+          <div style={{
+            border: '2px dashed var(--primary-border)',
+            borderRadius: '12px',
+            padding: '20px 16px',
+            textAlign: 'center',
+            background: 'rgba(101,148,177,0.02)',
+            color: '#64748b'
+          }}>
+            <span style={{ fontSize: '28px', display: 'block', marginBottom: '6px' }}>🏛️</span>
+            <strong style={{ display: 'block', fontSize: '13px', color: 'var(--primary-dark)', marginBottom: '4px' }}>
+              Tap a Party Playing Card Above
+            </strong>
+            <span style={{ fontSize: '11.5px', display: 'block' }}>
+              Select a rival party card to initiate diplomatic proposals, trade assets, or bribe factions.
+            </span>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.25s ease-out' }}>

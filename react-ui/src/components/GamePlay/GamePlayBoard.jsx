@@ -344,7 +344,17 @@ export default function GamePlayBoard() {
     }
   }, [messages.length, showChat]);
 
+  const prevGameIdRef = useRef(activeGameId);
+  const prevTurnNumberRef = useRef(turnData?.turnNumber);
+
   useEffect(() => {
+    prevGameIdRef.current = activeGameId;
+    prevTurnNumberRef.current = undefined;
+    setShowResolutionReport(false);
+    setShowSkipModal(false);
+    setShowDefeatHazardModal(false);
+    setShowDroppedRewardModal(false);
+    setShowProjectRefreshModal(false);
     loadTurnData(true);
   }, [activeGameId]);
 
@@ -394,9 +404,8 @@ export default function GamePlayBoard() {
   }
 }, [turnData]);
 
-const prevTurnNumberRef = useRef(turnData?.turnNumber);
 useEffect(() => {
-  if (turnData && prevTurnNumberRef.current !== undefined) {
+  if (turnData && prevTurnNumberRef.current !== undefined && turnData.gameId === prevGameIdRef.current) {
     if (turnData.turnNumber > prevTurnNumberRef.current) {
       // Turn was advanced (e.g. by time running out or other players submitting)
       setShowResolutionReport(true);
@@ -405,6 +414,7 @@ useEffect(() => {
     }
   }
   prevTurnNumberRef.current = turnData?.turnNumber;
+  prevGameIdRef.current = turnData?.gameId || activeGameId;
 }, [turnData]);
 
   const handleAdvanceTurn = async () => {

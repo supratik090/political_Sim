@@ -240,102 +240,97 @@ export default function RoundResolutionModal({
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(9, 13, 22, 0.85)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 9999,
-      padding: '15px',
-      backdropFilter: 'blur(8px)',
-      fontFamily: "'Inter', system-ui, sans-serif"
-    }}>
-      <div style={{
-        backgroundColor: '#ffffff',
-        width: '100%',
-        maxWidth: '520px',
-        borderRadius: '20px',
-        overflow: 'hidden',
-        boxShadow: modeName === 'SUCCESS' 
-          ? '0 15px 35px rgba(16, 185, 129, 0.2)' 
-          : (modeName === 'BUST' ? '0 15px 35px rgba(239, 68, 68, 0.2)' : '0 15px 40px rgba(0, 0, 0, 0.4)'),
-        border: modalBorder,
-        position: 'relative',
-        animation: modeName === 'BUST' ? 'modalShake 0.4s ease-out' : 'modalSlideIn 0.3s ease-out'
-      }}>
-        
-        {/* Style block for animations */}
-        <style dangerouslySetInnerHTML={{__html: `
-          @keyframes modalSlideIn {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-          }
-          @keyframes modalShake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
-          }
-        `}} />
+    <div
+      className="modal-overlay"
+      style={{
+        fontFamily: "'Inter', system-ui, sans-serif",
+        zIndex: 9999,
+        backgroundColor: 'rgba(9, 13, 22, 0.85)',
+        backdropFilter: 'blur(8px)',
+      }}
+    >
+      {/* Style block for animations */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes modalSlideIn {
+          from { transform: translateY(30px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes modalShake {
+          0%, 100% { transform: translateX(0); }
+          20%, 60% { transform: translateX(-8px); }
+          40%, 80% { transform: translateX(8px); }
+        }
+      `}} />
 
-        {/* Modal Header */}
-        <div style={{
-          backgroundColor: headerColor,
-          padding: '20px',
-          color: '#ffffff',
-          textAlign: 'center',
-          position: 'relative',
-          zIndex: 10
-        }}>
-          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+      <div
+        className="modal-card"
+        style={{
+          backgroundColor: '#ffffff',
+          maxWidth: '520px',
+          boxShadow: modeName === 'SUCCESS'
+            ? '0 15px 35px rgba(16, 185, 129, 0.2)'
+            : (modeName === 'BUST' ? '0 15px 35px rgba(239, 68, 68, 0.2)' : '0 15px 40px rgba(0, 0, 0, 0.4)'),
+          border: modalBorder,
+          animation: modeName === 'BUST' ? 'modalShake 0.4s ease-out' : 'modalSlideIn 0.3s ease-out'
+        }}
+      >
+        {/* Sticky Modal Header */}
+        <div
+          className="modal-header"
+          style={{
+            backgroundColor: headerColor,
+            padding: '16px 20px',
+            color: '#ffffff',
+            textAlign: 'center',
+          }}
+        >
+          <h2 style={{ margin: 0, fontSize: '17px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             {headerTitle}
           </h2>
-          
-          <div style={{ fontSize: '14px', fontWeight: 'bold', marginTop: '4px', opacity: 0.9 }}>
+          <div style={{ fontSize: '12px', fontWeight: 'bold', marginTop: '3px', opacity: 0.9 }}>
             Turn {lastTurnNum}
           </div>
-          <button 
+          <button
+            className="modal-close-btn"
             onClick={onClose}
             style={{
               position: 'absolute',
-              top: '15px',
-              right: '15px',
+              top: '12px',
+              right: '12px',
               background: 'rgba(255, 255, 255, 0.2)',
               border: 'none',
               color: '#ffffff',
               borderRadius: '50%',
-              width: '28px',
-              height: '28px',
+              width: '34px',
+              height: '34px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
               fontWeight: 'bold',
-              fontSize: '14px',
+              fontSize: '16px',
+              flexShrink: 0,
               zIndex: 11
             }}
+            aria-label="Close"
           >
             ✕
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative', zIndex: 10 }}>
-          
+        {/* Scrollable Modal Body */}
+        <div className="modal-body" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
           {/* Resource Changes Grid */}
           <div>
-            <h4 style={{ margin: '0 0 12px 0', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: 'bold' }}>
+            <h4 style={{ margin: '0 0 10px 0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: 'bold' }}>
               Resource Changes Last Turn
             </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
               {statsList.map(stat => {
                 const isPositive = stat.val > 0;
                 const isZero = stat.val === 0;
-                
+
                 let colorClass = '#64748b';
                 if (!isZero) {
                   if (stat.invertColor) {
@@ -349,22 +344,22 @@ export default function RoundResolutionModal({
                   <div key={stat.key} style={{
                     background: '#f8fafc',
                     border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    padding: '12px 4px',
+                    borderRadius: '10px',
+                    padding: '8px 3px',
                     textAlign: 'center',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '4px'
+                    gap: '3px'
                   }}>
-                    <span style={{ fontSize: '20px' }}>{stat.icon}</span>
-                    <span style={{ fontSize: '10px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '17px' }}>{stat.icon}</span>
+                    <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase' }}>
                       {stat.label}
                     </span>
-                    <span style={{ 
-                      fontSize: '14px', 
-                      fontWeight: 'bold', 
-                      color: colorClass 
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      color: colorClass
                     }}>
                       <RollingNumber value={stat.val} suffix={stat.suffix} />
                     </span>
@@ -380,12 +375,12 @@ export default function RoundResolutionModal({
             if (turnData.lastRoundCommentary) {
               turnData.lastRoundCommentary.forEach(line => {
                 if (
-                  line.includes('Sabotage') || 
-                  line.includes('bribed') || 
-                  line.includes('Bribe Scandal') || 
-                  line.includes('Exposed') || 
-                  line.includes('Diplomatic') || 
-                  line.includes('Pact') || 
+                  line.includes('Sabotage') ||
+                  line.includes('bribed') ||
+                  line.includes('Bribe Scandal') ||
+                  line.includes('Exposed') ||
+                  line.includes('Diplomatic') ||
+                  line.includes('Pact') ||
                   line.includes('FROZEN') ||
                   line.includes('Reward played') ||
                   line.includes('ABSTAINED')
@@ -412,34 +407,28 @@ export default function RoundResolutionModal({
                 background: '#f8fafc',
                 border: '2px solid #64748b',
                 borderRadius: '12px',
-                padding: '15px',
+                padding: '12px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
               }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#334155', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#334155', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   🚨 Operations, Sabotage &amp; Diplomacy Log
                 </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', paddingRight: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '150px', overflowY: 'auto', paddingRight: '4px' }}>
                   {opsLines.map((line, idx) => {
                     const isFailure = line.includes('Exposed') || line.includes('FAILED') || line.includes('Scandal');
                     const isSabotage = line.includes('Sabotage') || line.includes('bribed') || line.includes('FROZEN');
                     const isDiplomacy = line.includes('Diplomatic') || line.includes('Pact');
-                    
+
                     let bg = '#eff6ff';
                     let border = '#bfdbfe';
                     let color = '#1e40af';
 
                     if (isFailure) {
-                      bg = '#fef2f2';
-                      border = '#fca5a5';
-                      color = '#991b1b';
+                      bg = '#fef2f2'; border = '#fca5a5'; color = '#991b1b';
                     } else if (isSabotage) {
-                      bg = '#fff7ed';
-                      border = '#fdba74';
-                      color = '#9a3412';
+                      bg = '#fff7ed'; border = '#fdba74'; color = '#9a3412';
                     } else if (isDiplomacy) {
-                      bg = '#f0fdf4';
-                      border = '#86efac';
-                      color = '#166534';
+                      bg = '#f0fdf4'; border = '#86efac'; color = '#166534';
                     }
 
                     return (
@@ -448,8 +437,8 @@ export default function RoundResolutionModal({
                         border: `1px solid ${border}`,
                         color: color,
                         borderRadius: '8px',
-                        padding: '8px 12px',
-                        fontSize: '12px',
+                        padding: '6px 10px',
+                        fontSize: '11px',
                         fontWeight: '600',
                         lineHeight: 1.4
                       }}>
@@ -470,7 +459,7 @@ export default function RoundResolutionModal({
             const no = turnData.lastBillNoVotes || 0;
             const abstain = turnData.lastBillAbstainVotes || 0;
             const passed = yes > no && yes >= 30.0;
-            
+
             let defeatReason = '';
             if (!passed) {
               if (yes > no && yes < 30.0) {
@@ -485,33 +474,33 @@ export default function RoundResolutionModal({
                 background: '#f8fafc',
                 border: passed ? '2px solid #34d399' : '2px solid #ef4444',
                 borderRadius: '12px',
-                padding: '15px',
+                padding: '12px',
                 boxShadow: passed ? '0 0 10px rgba(52, 211, 153, 0.15)' : '0 0 10px rgba(239, 68, 68, 0.15)'
               }}>
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   🗳️ Legislative Vote: {lastResolvedBillKey}
                 </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{
                     background: passed ? 'rgba(34, 197, 94, 0.08)' : 'rgba(239, 68, 68, 0.08)',
                     border: `1px solid ${passed ? '#22c55e' : '#ef4444'}`,
                     borderRadius: '8px',
-                    padding: '8px 12px',
+                    padding: '7px 10px',
                     fontWeight: 'bold',
-                    fontSize: '13px',
+                    fontSize: '12px',
                     color: passed ? '#15803d' : '#b91c1c'
                   }}>
                     {passed ? '✅ PASSED' : '❌ DEFEATED'}
                     {!passed && (
-                      <div style={{ fontSize: '11px', color: '#7f1d1d', fontWeight: 500, marginTop: '2px' }}>
+                      <div style={{ fontSize: '10px', color: '#7f1d1d', fontWeight: 500, marginTop: '2px' }}>
                         Reason: {defeatReason}
                       </div>
                     )}
                   </div>
 
                   {/* Parliament semi-circle seating chart */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '10px 0' }}>
-                    <svg width="240" height="120" viewBox="0 0 240 120" style={{ overflow: 'visible' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '6px 0' }}>
+                    <svg width="200" height="100" viewBox="0 0 240 120" style={{ overflow: 'visible', maxWidth: '100%' }}>
                       <style dangerouslySetInnerHTML={{__html: `
                         @keyframes seatPop {
                           0% { transform: scale(0); opacity: 0; }
@@ -532,8 +521,7 @@ export default function RoundResolutionModal({
                           { r: 75, count: 28 },
                           { r: 95, count: 40 }
                         ];
-                        
-                        let seatIndex = 0;
+
                         arcs.forEach(arc => {
                           for (let i = 0; i < arc.count; i++) {
                             const angle = Math.PI - (i * Math.PI / (arc.count - 1));
@@ -544,15 +532,14 @@ export default function RoundResolutionModal({
                           }
                         });
 
-                        // Sort seats from left to right
                         seats.sort((a, b) => a.x - b.x);
 
                         return seats.map((s, index) => {
-                          let color = '#ef4444'; // default NO red
+                          let color = '#ef4444';
                           if (index < yesCount) {
-                            color = '#22c55e'; // YES green
+                            color = '#22c55e';
                           } else if (index < yesCount + abstainCount) {
-                            color = '#9ca3af'; // ABSTAIN gray
+                            color = '#9ca3af';
                           }
 
                           return (
@@ -572,14 +559,14 @@ export default function RoundResolutionModal({
                         });
                       })()}
                     </svg>
-                    <div style={{ display: 'flex', gap: '15px', fontSize: '11px', marginTop: '5px', fontWeight: 'bold' }}>
+                    <div style={{ display: 'flex', gap: '12px', fontSize: '10px', marginTop: '4px', fontWeight: 'bold' }}>
                       <span style={{ color: '#22c55e' }}>● YES: {yes.toFixed(1)}%</span>
                       <span style={{ color: '#ef4444' }}>● NO: {no.toFixed(1)}%</span>
                       {abstain > 0 && <span style={{ color: '#9ca3af' }}>● ABS: {abstain.toFixed(1)}%</span>}
                     </div>
                   </div>
 
-                  <div style={{ fontSize: '11px', color: '#475569' }}>
+                  <div style={{ fontSize: '10px', color: '#475569' }}>
                     <strong>Breakdown:</strong> {Object.entries(turnData.lastBillPartyVotes || {}).map(([pName, voteText]) => `${pName}: ${voteText}`).join(', ')}
                   </div>
                 </div>
@@ -592,18 +579,18 @@ export default function RoundResolutionModal({
             background: hasCompletedProject ? 'rgba(52, 211, 153, 0.05)' : 'rgba(101, 148, 177, 0.05)',
             border: hasCompletedProject ? '2px solid #34d399' : '1px solid rgba(101, 148, 177, 0.15)',
             borderRadius: '12px',
-            padding: '15px'
+            padding: '12px'
           }}>
-            <h4 style={{ margin: '0 0 10px 0', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: 'bold' }}>
+            <h4 style={{ margin: '0 0 8px 0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: 'bold' }}>
               🏗️ Projects Completed Last Turn
             </h4>
             {completedProjectsLastTurn.length === 0 ? (
-              <div style={{ fontSize: '12px', color: '#64748b', fontStyle: 'italic' }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic' }}>
                 No projects completed last turn.
               </div>
             ) : (
               <div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '10px' }}>
                   {completedProjectsLastTurn.map(proj => {
                     const def = projectDefs[proj.projectKey];
                     const name = def ? def.name : proj.projectKey;
@@ -612,10 +599,9 @@ export default function RoundResolutionModal({
                         fontSize: '10px',
                         background: 'rgba(52, 211, 153, 0.15)',
                         color: '#047857',
-                        padding: '3px 8px',
+                        padding: '2px 7px',
                         borderRadius: '4px',
                         fontWeight: 'bold',
-                        boxShadow: '0 0 8px rgba(52, 211, 153, 0.1)'
                       }}>
                         {name}
                       </span>
@@ -623,15 +609,15 @@ export default function RoundResolutionModal({
                   })}
                 </div>
 
-                <div style={{ 
-                   fontSize: '12px', 
-                   display: 'flex', 
+                <div style={{
+                   fontSize: '11px',
+                   display: 'flex',
                    flexWrap: 'wrap',
-                   gap: '10px',
+                   gap: '8px',
                    color: '#15803d',
                    fontWeight: 'bold',
                    background: 'rgba(34, 197, 94, 0.05)',
-                   padding: '8px 10px',
+                   padding: '7px 9px',
                    borderRadius: '6px'
                 }}>
                   <span style={{ color: '#15803d' }}>Total Yield:</span>
@@ -646,10 +632,14 @@ export default function RoundResolutionModal({
             )}
           </div>
 
-          {/* Action Close Button */}
-          <button 
+        </div>
+
+        {/* Sticky Footer */}
+        <div className="modal-footer" style={{ padding: '12px 16px', borderTop: '1px solid #e2e8f0', background: '#fff' }}>
+          <button
             onClick={onClose}
             style={{
+              width: '100%',
               backgroundColor: headerColor,
               color: '#ffffff',
               border: 'none',
@@ -660,13 +650,12 @@ export default function RoundResolutionModal({
               cursor: 'pointer',
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
               textAlign: 'center',
-              zIndex: 10
             }}
           >
             Review Board &amp; Plan Turn
           </button>
-
         </div>
+
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ function invalidateCache(userId) {
 }
 
 export default function DashboardHome() {
-  const { user, setScreen, setActiveGame, currentScreen } = useGameStore();
+  const { user, setScreen, setActiveGame, currentScreen, activeGameId } = useGameStore();
   const [view, setView] = useState('TABLE'); // TABLE, CREATE, LOAD
   const [games, setGames] = useState([]);
   const [scenarios, setScenarios] = useState([]);
@@ -134,7 +134,7 @@ export default function DashboardHome() {
     }
   }, [selectedScenarioIndex, scenarios]);
 
-  const loadDashboardData = async ({ forceRefresh = false } = {}) => {
+  const loadDashboardData = async ({ forceRefresh = false, skipAutoRedirect = false } = {}) => {
     const cacheKey = user?.id || user?.email;
 
     // Serve from cache immediately if available and not expired
@@ -189,7 +189,7 @@ export default function DashboardHome() {
 
       setGames(gamesData);
 
-      if (isAndroidApp() && gamesData && gamesData.length > 0) {
+      if (!skipAutoRedirect && isAndroidApp() && currentScreen !== 'HOME' && gamesData && gamesData.length > 0) {
         const activeOrLatest = gamesData.find(g => g.status === 'ACTIVE' || g.status === 'IN_PROGRESS') || gamesData[0];
         if (activeOrLatest) {
           setActiveGame(activeOrLatest.id);
@@ -283,12 +283,21 @@ export default function DashboardHome() {
       await deleteGame(gameId);
       // Invalidate cache so next load fetches fresh data
       invalidateCache(user?.id || user?.email);
-      await loadDashboardData({ forceRefresh: true });
+
+      if (activeGameId === gameId) {
+        setActiveGame(null);
+      }
+
+      setScreen('HOME');
+      setView('TABLE');
+
+      await loadDashboardData({ forceRefresh: true, skipAutoRedirect: true });
     } catch (err) {
       console.error(err);
       alert('Failed to delete campaign: ' + err.message);
     } finally {
       setLoading(false);
+      setDeletingGameId(null);
     }
   };
 
@@ -992,33 +1001,42 @@ export default function DashboardHome() {
 
       {/* Deleting Campaign Confirmation Modal */}
       {deletingGameId && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000,
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div className="unified-card" style={{ width: '400px', padding: '30px', textAlign: 'center' }}>
-            <h2 style={{ margin: '0 0 15px 0', color: 'var(--primary-dark)', fontSize: '20px', fontWeight: 800 }}>🗑️ Delete Campaign?</h2>
-            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '25px', lineHeight: 1.5 }}>
-              Are you sure you want to delete this campaign? This action cannot be undone and all progression will be lost.
-            </p>
-            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-              <button 
-                onClick={async () => {
-                  const gId = deletingGameId;
-                  setDeletingGameId(null);
-                  await executeDeleteGame(gId);
-                }}
-                style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 'bold', backgroundColor: '#D9534F', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-              >
-                Yes, Delete
-              </button>
-              <button 
+        <div
+          className="modal-overlay"
+          style={{ zIndex: 1000, backgroundColor: 'rgba(0,0,0,0.6)' }}
+        >
+          <div className="modal-card unified-card" style={{ maxWidth: '380px', padding: 0 }}>
+            <div className="modal-header" style={{ padding: '20px', textAlign: 'center', position: 'relative', borderBottom: '1px solid var(--primary-border)' }}>
+              <h2 style={{ margin: 0, color: 'var(--primary-dark)', fontSize: '18px', fontWeight: 800 }}>🗑️ Delete Campaign?</h2>
+              <button
+                className="modal-close-btn"
                 onClick={() => setDeletingGameId(null)}
-                style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 'bold', backgroundColor: 'transparent', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)', borderRadius: '8px', cursor: 'pointer' }}
-              >
-                Cancel
-              </button>
+                style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(0,0,0,0.08)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary-dark)' }}
+                aria-label="Close"
+              >✕</button>
+            </div>
+            <div className="modal-body" style={{ padding: '16px 20px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: 1.5, textAlign: 'center' }}>
+                Are you sure you want to delete this campaign? This action cannot be undone and all progression will be lost.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button
+                  onClick={async () => {
+                    const gId = deletingGameId;
+                    setDeletingGameId(null);
+                    await executeDeleteGame(gId);
+                  }}
+                  style={{ flex: 1, padding: '12px', fontSize: '13px', fontWeight: 'bold', backgroundColor: '#D9534F', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  Yes, Delete
+                </button>
+                <button
+                  onClick={() => setDeletingGameId(null)}
+                  style={{ flex: 1, padding: '12px', fontSize: '13px', fontWeight: 'bold', backgroundColor: 'transparent', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

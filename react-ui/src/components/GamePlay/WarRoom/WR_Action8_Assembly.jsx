@@ -121,26 +121,26 @@ export default function WR_Action8_Assembly({
             </div>
           )}
 
-          {/* AYE / NAY */}
+          {/* AYE / NAY (Sets YES / NO for backend compatibility) */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
-            <button onClick={() => setBillVote('AYE')} style={{
+            <button onClick={() => setBillVote('YES')} style={{
               minHeight: '56px', fontSize: '16px', fontWeight: 900,
-              background: billVote === 'AYE' ? '#16A34A' : 'rgba(22,163,74,0.10)',
-              color: billVote === 'AYE' ? '#ffffff' : '#4ADE80',
-              border: `2px solid ${billVote === 'AYE' ? '#16A34A' : 'rgba(22,163,74,0.3)'}`,
+              background: (billVote === 'YES' || billVote === 'AYE') ? '#16A34A' : 'rgba(22,163,74,0.10)',
+              color: (billVote === 'YES' || billVote === 'AYE') ? '#ffffff' : '#4ADE80',
+              border: `2px solid ${(billVote === 'YES' || billVote === 'AYE') ? '#16A34A' : 'rgba(22,163,74,0.3)'}`,
               borderRadius: '12px', cursor: 'pointer', touchAction: 'manipulation',
-              boxShadow: billVote === 'AYE' ? '0 0 18px rgba(22,163,74,0.5)' : 'none',
+              boxShadow: (billVote === 'YES' || billVote === 'AYE') ? '0 0 18px rgba(22,163,74,0.5)' : 'none',
               transition: 'all 0.15s ease', fontFamily: 'Montserrat,system-ui,sans-serif',
             }}>
               ✅ AYE
             </button>
-            <button onClick={() => setBillVote('NAY')} style={{
+            <button onClick={() => setBillVote('NO')} style={{
               minHeight: '56px', fontSize: '16px', fontWeight: 900,
-              background: billVote === 'NAY' ? '#DC2626' : 'rgba(220,38,38,0.10)',
-              color: billVote === 'NAY' ? '#ffffff' : '#F87171',
-              border: `2px solid ${billVote === 'NAY' ? '#DC2626' : 'rgba(220,38,38,0.3)'}`,
+              background: (billVote === 'NO' || billVote === 'NAY') ? '#DC2626' : 'rgba(220,38,38,0.10)',
+              color: (billVote === 'NO' || billVote === 'NAY') ? '#ffffff' : '#F87171',
+              border: `2px solid ${(billVote === 'NO' || billVote === 'NAY') ? '#DC2626' : 'rgba(220,38,38,0.3)'}`,
               borderRadius: '12px', cursor: 'pointer', touchAction: 'manipulation',
-              boxShadow: billVote === 'NAY' ? '0 0 18px rgba(220,38,38,0.45)' : 'none',
+              boxShadow: (billVote === 'NO' || billVote === 'NAY') ? '0 0 18px rgba(220,38,38,0.45)' : 'none',
               transition: 'all 0.15s ease', fontFamily: 'Montserrat,system-ui,sans-serif',
             }}>
               ❌ NAY

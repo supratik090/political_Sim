@@ -612,35 +612,41 @@ export default function Action6PartyBuilding({
 
       {/* Custom Confirmation Modal for Destroying/Scrapping Project */}
       {destroyingProject && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 2000,
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div className="unified-card" style={{ width: '400px', padding: '30px', textAlign: 'center', color: '#fff', background: 'var(--primary-dark)', borderRadius: '12px', border: '2px solid var(--primary-border)' }}>
-            <h2 style={{ margin: '0 0 15px 0', color: 'var(--party-primary-color, #ef4444)', fontSize: '20px', fontWeight: 800 }}>
-              {destroyingProject.isInProgress ? '🗑️ Scrap Project?' : '🗑️ Destroy Project?'}
-            </h2>
-            <p style={{ fontSize: '14px', color: 'var(--card-text, #ffffff)', marginBottom: '25px', lineHeight: 1.5, opacity: 0.95 }}>
-              Are you sure you want to {destroyingProject.isInProgress ? 'scrap' : 'destroy'} project <b>{destroyingProject.name}</b>? 
-              You will receive a refund of <b>{destroyingProject.refundCoins} Coins</b>.
-            </p>
-            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-              <button 
-                onClick={() => {
-                  handleDestroyProject(destroyingProject.projectKey);
-                  setDestroyingProject(null);
-                }}
-                style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 'bold', backgroundColor: '#D9534F', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-              >
-                Yes, Confirm
-              </button>
-              <button 
+        <div
+          className="modal-overlay"
+          style={{ zIndex: 2000, backgroundColor: 'rgba(0,0,0,0.6)' }}
+        >
+          <div className="modal-card" style={{ background: 'var(--primary-dark)', border: '2px solid var(--primary-border)', maxWidth: '380px' }}>
+            <div className="modal-header" style={{ padding: '20px 20px 0 20px', textAlign: 'center', position: 'relative' }}>
+              <h2 style={{ margin: '0 0 12px 0', color: 'var(--party-primary-color, #ef4444)', fontSize: '18px', fontWeight: 800 }}>
+                {destroyingProject.isInProgress ? '🗑️ Scrap Project?' : '🗑️ Destroy Project?'}
+              </h2>
+              <button
+                className="modal-close-btn"
                 onClick={() => setDestroyingProject(null)}
-                style={{ flex: 1, padding: '12px', fontSize: '14px', fontWeight: 'bold', backgroundColor: 'transparent', color: 'var(--card-text, #fff)', border: '1px solid var(--primary-border)', borderRadius: '8px', cursor: 'pointer' }}
-              >
-                Cancel
-              </button>
+                style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: '50%', width: '32px', height: '32px', fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-label="Close"
+              >✕</button>
+            </div>
+            <div className="modal-body" style={{ padding: '0 20px 20px 20px', textAlign: 'center' }}>
+              <p style={{ fontSize: '13px', color: 'var(--card-text, #ffffff)', marginBottom: '20px', lineHeight: 1.5, opacity: 0.95 }}>
+                Are you sure you want to {destroyingProject.isInProgress ? 'scrap' : 'destroy'} project <b>{destroyingProject.name}</b>?
+                You will receive a refund of <b>{destroyingProject.refundCoins} Coins</b>.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button
+                  onClick={() => { handleDestroyProject(destroyingProject.projectKey); setDestroyingProject(null); }}
+                  style={{ flex: 1, padding: '11px', fontSize: '13px', fontWeight: 'bold', backgroundColor: '#D9534F', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  Yes, Confirm
+                </button>
+                <button
+                  onClick={() => setDestroyingProject(null)}
+                  style={{ flex: 1, padding: '11px', fontSize: '13px', fontWeight: 'bold', backgroundColor: 'transparent', color: 'var(--card-text, #fff)', border: '1px solid var(--primary-border)', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

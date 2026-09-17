@@ -164,17 +164,14 @@ export default function DefeatHazardModal({
   );
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      backgroundColor: 'rgba(0,0,0,0.88)',
-      backdropFilter: 'blur(6px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999,
-      padding: '20px',
-    }}>
+    <div
+      className="modal-overlay"
+      style={{
+        zIndex: 9999,
+        backgroundColor: 'rgba(0,0,0,0.88)',
+        backdropFilter: 'blur(6px)',
+      }}
+    >
       {/* Animated glow bg */}
       <style>{`
         @keyframes dhPulse {
@@ -187,20 +184,19 @@ export default function DefeatHazardModal({
         }
       `}</style>
 
-      <div style={{
-        width: '100%',
-        maxWidth: '620px',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        background: 'linear-gradient(160deg, #0d1117 0%, #111827 100%)',
-        border: `2px solid rgba(${colorRgb},0.55)`,
-        borderRadius: '24px',
-        padding: '32px',
-        fontFamily: "'Montserrat', sans-serif",
-        animation: 'dhPulse 3s ease-in-out infinite',
-        scrollbarWidth: 'thin',
-        scrollbarColor: `rgba(${colorRgb},0.4) transparent`,
-      }}>
+      <div
+        className="modal-card"
+        style={{
+          maxWidth: '620px',
+          background: 'linear-gradient(160deg, #0d1117 0%, #111827 100%)',
+          border: `2px solid rgba(${colorRgb},0.55)`,
+          padding: '28px',
+          fontFamily: "'Montserrat', sans-serif",
+          animation: 'dhPulse 3s ease-in-out infinite',
+          scrollbarWidth: 'thin',
+          scrollbarColor: `rgba(${colorRgb},0.4) transparent`,
+        }}
+      >
 
         {/* ── Header ── */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>

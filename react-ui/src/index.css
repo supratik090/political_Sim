@@ -775,3 +775,90 @@ input[type="range"]::-moz-range-thumb {
   .dashboard-top-nav-buttons button { font-size: 10px; padding: 5px 8px; }
   .unified-card          { padding: 8px 6px; }
 }
+
+/* ====================================================
+   MODAL — Mobile-safe overlay & scroll rules
+   Applied globally for all fixed-position modals.
+   ==================================================== */
+
+/* Overlay wrapper: always centres, padding ensures tap-targets are reachable */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 13, 22, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 12px;
+  box-sizing: border-box;
+  overscroll-behavior: contain;
+}
+
+/* Inner card: constrained height + scrollable body */
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  /* On mobile: full available height minus overlay padding, always scrollable */
+  max-height: calc(100dvh - 24px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Sticky header (title + close button never scroll away) */
+.modal-header {
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Scrollable body */
+.modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Sticky footer (action buttons stay at bottom) */
+.modal-footer {
+  flex-shrink: 0;
+}
+
+/* ── Mobile overrides ── */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 8px;
+    align-items: flex-end;  /* sheet-style from bottom on mobile */
+  }
+
+  .modal-card {
+    max-width: 100%;
+    max-height: 92dvh;
+    border-radius: 20px 20px 0 0;    /* bottom sheet on mobile */
+  }
+
+  /* Typography scale-down inside modals */
+  .modal-body h2, .modal-body h3 { font-size: 15px !important; }
+  .modal-body h4                 { font-size: 13px !important; }
+  .modal-body p, .modal-body div { font-size: 12px; }
+  .modal-body .stat-value        { font-size: 13px; }
+
+  /* Make close buttons big enough to tap */
+  .modal-close-btn {
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 18px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .modal-overlay { padding: 4px; }
+  .modal-card { max-height: 95dvh; }
+  .modal-body p, .modal-body div { font-size: 11px; }
+}
+

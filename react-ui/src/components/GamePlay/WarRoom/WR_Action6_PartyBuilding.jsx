@@ -472,23 +472,36 @@ export default function WR_Action6_PartyBuilding({
 
       {/* Destroy confirm modal */}
       {destroyConfirm && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.75)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: '#1C2128', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '16px', padding: '24px', maxWidth: '340px', width: '100%', textAlign: 'center' }}>
-            <div style={{ fontSize: '28px', marginBottom: '12px' }}>🗑️</div>
-            <div style={{ fontSize: '17px', fontWeight: 900, color: '#F87171', marginBottom: '8px' }}>Destroy Project?</div>
-            <p style={{ fontSize: '13px', color: '#C9D1D9', lineHeight: 1.6, marginBottom: '20px' }}>
-              Destroy <strong style={{ color: '#E6EDF3' }}>{destroyConfirm.name}</strong>?<br />
-              You'll receive a refund of <strong style={{ color: '#FCD34D' }}>{destroyConfirm.refundCoins} Coins</strong>.
-            </p>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => { handleDestroyProject(destroyConfirm.projectKey); setDestroyConfirm(null); }}
-                style={{ flex: 1, padding: '12px', fontWeight: 900, fontSize: '14px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif' }}>
-                Yes, Destroy
-              </button>
-              <button onClick={() => setDestroyConfirm(null)}
-                style={{ flex: 1, padding: '12px', fontWeight: 700, fontSize: '14px', background: 'rgba(255,255,255,0.06)', color: '#E6EDF3', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif' }}>
-                Cancel
-              </button>
+        <div
+          className="modal-overlay"
+          style={{ zIndex: 2000, backgroundColor: 'rgba(0,0,0,0.75)' }}
+        >
+          <div className="modal-card" style={{ background: '#1C2128', border: '1px solid rgba(255,255,255,0.15)', maxWidth: '340px' }}>
+            <div className="modal-header" style={{ padding: '20px 20px 0 20px', textAlign: 'center', position: 'relative' }}>
+              <div style={{ fontSize: '26px', marginBottom: '10px' }}>🗑️</div>
+              <div style={{ fontSize: '16px', fontWeight: 900, color: '#F87171', marginBottom: '6px' }}>Destroy Project?</div>
+              <button
+                className="modal-close-btn"
+                onClick={() => setDestroyConfirm(null)}
+                style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(255,255,255,0.1)', border: 'none', color: '#E6EDF3', borderRadius: '50%', width: '32px', height: '32px', fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-label="Close"
+              >✕</button>
+            </div>
+            <div className="modal-body" style={{ padding: '0 20px 20px 20px', textAlign: 'center' }}>
+              <p style={{ fontSize: '13px', color: '#C9D1D9', lineHeight: 1.6, marginBottom: '16px' }}>
+                Destroy <strong style={{ color: '#E6EDF3' }}>{destroyConfirm.name}</strong>?<br />
+                You'll receive a refund of <strong style={{ color: '#FCD34D' }}>{destroyConfirm.refundCoins} Coins</strong>.
+              </p>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={() => { handleDestroyProject(destroyConfirm.projectKey); setDestroyConfirm(null); }}
+                  style={{ flex: 1, padding: '11px', fontWeight: 900, fontSize: '13px', background: '#DC2626', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif' }}>
+                  Yes, Destroy
+                </button>
+                <button onClick={() => setDestroyConfirm(null)}
+                  style={{ flex: 1, padding: '11px', fontWeight: 700, fontSize: '13px', background: 'rgba(255,255,255,0.06)', color: '#E6EDF3', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif' }}>
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>

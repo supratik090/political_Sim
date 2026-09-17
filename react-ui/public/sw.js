@@ -31,7 +31,16 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET' || event.request.url.includes('/api/') || event.request.url.includes('/ws-game')) {
+  const url = event.request.url;
+  if (
+    event.request.method !== 'GET' ||
+    url.includes('/api/') ||
+    url.includes('/ws-game') ||
+    url.includes('/@vite') ||
+    url.includes('/@id/') ||
+    url.includes('/node_modules/') ||
+    url.includes('?v=')
+  ) {
     return;
   }
   event.respondWith(
