@@ -775,43 +775,6 @@ useEffect(() => {
         }
       `}</style>
       <GameTutorial />
-      {/* Title Banner */}
-      <div className="game-title-banner" style={{ background: 'var(--party-primary-color)' }}>
-        <h1 className="game-title-h1" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-          GRAND CAMPAIGN BOARD
-        </h1>
-        {playerPartyName && (
-          <div className="banner-playing-pill">
-            <span style={{ 
-              width: '8px', 
-              height: '8px', 
-              borderRadius: '50%', 
-              backgroundColor: playerPartyColor, 
-              display: 'inline-block' 
-            }} />
-            <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '0.05em', color: '#ffffff' }}>
-              PLAYING AS: <span style={{ color: playerPartyColor, fontWeight: '900' }}>{playerPartyName.toUpperCase()}</span>
-            </span>
-          </div>
-        )}
-        {turnData?.isMultiplayer && turnData?.joinCode && (
-          <div style={{ 
-            marginTop: '15px', 
-            marginLeft: '15px',
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            background: 'var(--primary-dark)',
-            padding: '8px 16px',
-            borderRadius: '20px',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-          }}>
-            <span style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '0.05em', color: '#ffffff' }}>
-              JOIN CODE: <span style={{ color: 'var(--accent-teal)', fontWeight: '900', letterSpacing: '2px', marginLeft: '4px' }}>{turnData.joinCode}</span>
-            </span>
-          </div>
-        )}
-      </div>
 
       {/* View Toggle Bar */}
       <div className="view-toggle-bar">

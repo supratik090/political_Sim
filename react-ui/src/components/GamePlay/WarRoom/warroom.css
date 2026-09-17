@@ -410,15 +410,17 @@
   margin: 16px;
 }
 
-/* ── End Turn footer ── */
+/* ── End Turn footer (positioned naturally at the bottom of options) ── */
 .wr-end-turn-footer {
-  padding: 14px 16px;
-  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid var(--wr-border);
-  background: var(--wr-bg);
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
+  padding: 20px 16px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 16px;
+  margin-top: 24px;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Hex shape (clip-path) ── */
@@ -507,12 +509,13 @@
 }
 .wr-play-card-unselected { opacity: 0.75; }
 
-/* ── Mobile Sticky End Turn Footer offset for bottom tab nav ── */
+/* ── Mobile End Turn Footer position at bottom of options ── */
 @media (max-width: 768px) {
   .wr-end-turn-footer {
-    position: sticky;
-    bottom: calc(54px + var(--safe-bottom, 0px));
-    z-index: 100;
-    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.4);
+    position: relative;
+    bottom: auto;
+    z-index: 1;
+    box-shadow: none;
+    margin-bottom: 30px;
   }
 }

@@ -16,51 +16,74 @@ export default function DashboardLayout({ children }) {
     <div className="dashboard-container">
       
       {/* Top Navigation Bar */}
-      <div className="dashboard-top-nav">
+      <div className="dashboard-top-nav" style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
         
-        {/* Left Side: Logo & App Title */}
-        <div className="top-nav-left">
-          <img src="/app-logo.png" alt="Statecraft Logo" className="top-nav-logo" style={{ width: '42px', height: '42px', objectFit: 'contain', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', flexShrink: 0 }} />
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span className="top-nav-title">
-              Statecraft
-            </span>
-            <span className="nav-subtitle" style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
-              Grand Strategy &amp; Governance
-            </span>
+        {/* Top Header Row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '10px' }}>
+          
+          {/* Top Left: Logo + App Title + Logout */}
+          <div className="top-nav-left" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <img src="/app-logo.png" alt="Statecraft Logo" className="top-nav-logo" style={{ width: '38px', height: '38px', objectFit: 'contain', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', flexShrink: 0 }} />
+            <div style={{ display: 'flex', flexDirection: 'column', marginRight: '4px' }}>
+              <span className="top-nav-title" style={{ fontSize: '18px', fontWeight: 900, color: 'var(--primary-dark)', lineHeight: 1.1 }}>
+                Statecraft
+              </span>
+              <span className="nav-subtitle" style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
+                Grand Strategy &amp; Governance
+              </span>
+            </div>
+
+            {/* Logout button situated on Top Left */}
+            {currentScreen === 'HOME' && (
+              <button 
+                onClick={logout} 
+                style={{ 
+                  backgroundColor: '#be123c', 
+                  borderColor: '#be123c', 
+                  color: '#ffffff',
+                  padding: '5px 12px', 
+                  fontSize: '12px', 
+                  fontWeight: 800, 
+                  borderRadius: '6px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 6px rgba(190,18,60,0.25)',
+                  margin: 0
+                }}
+              >
+                🚪 Logout
+              </button>
+            )}
+          </div>
+
+          {/* Top Right: Buttons (Timer & Admin) */}
+          <div className="dashboard-top-nav-buttons" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+            {turnData?.isMultiplayer && timeLeft !== null && (
+              <button disabled style={{
+                backgroundColor: timeLeft <= 30 ? '#dc2626' : '#be123c',
+                borderColor: timeLeft <= 30 ? '#dc2626' : '#be123c',
+                color: '#fff', padding: '5px 10px', borderRadius: '6px',
+                fontWeight: 'bold', boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+                fontSize: '12px', cursor: 'default',
+                minWidth: '75px',
+                animation: timeLeft <= 30 ? 'pulse-soft 1s infinite' : 'none',
+              }}>
+                ⏱️ {formatTime(timeLeft)}
+              </button>
+            )}
+            {isAdmin && currentScreen !== 'ADMIN' && (
+              <button onClick={() => setScreen('ADMIN')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)', padding: '5px 10px', fontSize: '12px', borderRadius: '6px' }}>
+                🛠️ Admin Console
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Center: Welcome message */}
-        <div className="top-nav-welcome">
-          👋 Welcome, <b style={{ fontWeight: 800 }}>{user?.name || 'Unknown'}</b>!
-        </div>
-        
-        {/* Right Side: Buttons */}
-        <div className="dashboard-top-nav-buttons" style={{ margin: 0 }}>
-          {turnData?.isMultiplayer && timeLeft !== null && (
-            <button disabled style={{
-              backgroundColor: timeLeft <= 30 ? '#dc2626' : '#be123c',
-              borderColor: timeLeft <= 30 ? '#dc2626' : '#be123c',
-              color: '#fff', padding: '6px 10px', borderRadius: '4px',
-              fontWeight: 'bold', boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-              fontSize: '13px', cursor: 'default', order: 0, marginRight: '6px',
-              minWidth: '80px',
-              animation: timeLeft <= 30 ? 'pulse-soft 1s infinite' : 'none',
-            }}>
-              ⏱️ {formatTime(timeLeft)}
-            </button>
-          )}
-          {isAdmin && currentScreen !== 'ADMIN' && (
-            <button onClick={() => setScreen('ADMIN')} style={{ backgroundColor: 'var(--card-bg)', color: 'var(--primary-dark)', border: '1px solid var(--primary-border)' }}>
-              🛠️ Admin Console
-            </button>
-          )}
-          {currentScreen === 'HOME' && (
-            <button onClick={logout} style={{ backgroundColor: '#be123c', borderColor: '#be123c' }}>
-              🚪 Logout
-            </button>
-          )}
+        {/* 2nd Line: Welcome message (supports long names without pushing Logout) */}
+        <div className="top-nav-welcome" style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 600, wordBreak: 'break-word', marginTop: '2px' }}>
+          👋 Welcome, <b style={{ fontWeight: 800, color: 'var(--primary-dark)' }}>{user?.name || 'Unknown'}</b>!
         </div>
       </div>
 

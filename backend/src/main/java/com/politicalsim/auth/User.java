@@ -16,6 +16,9 @@ public class User {
     private String name;
     private String passwordHash;
 
+    private String resetOtp;
+    private Long resetOtpExpiry;
+
     public User() {
     }
 
@@ -55,5 +58,21 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public String getResetOtp() {
+        return resetOtp;
+    }
+
+    public void setResetOtp(String resetOtp) {
+        this.resetOtp = resetOtp;
+    }
+
+    public Long getResetOtpExpiry() {
+        return resetOtpExpiry;
+    }
+
+    public void setResetOtpExpiry(Long resetOtpExpiry) {
+        this.resetOtpExpiry = resetOtpExpiry;
     }
 }

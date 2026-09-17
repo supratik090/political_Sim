@@ -230,7 +230,7 @@ export default function HowToPlay() {
       <div className="rules-banner-card">
         <span className="rules-banner-icon">📖</span>
         <h1 className="rules-banner-title">
-          Rules of Statecraft Guide
+          Statecraft Guide
         </h1>
         <p className="rules-banner-desc">
           Welcome to Statecraft! Navigate a 60-turn campaign representing a dynamic election cycle. 

@@ -212,7 +212,7 @@ export default function WarRoomView({
       <div
         className="wr-tab-content"
         key={activeTab}               /* re-mounts to retrigger slide-in animation */
-        style={{ flex: 1, overflowY: 'auto', paddingBottom: '130px' }}
+        style={{ flex: 1, overflowY: 'auto', paddingBottom: '30px' }}
       >
         {/* ──────────── POLITICS TAB ──────────── */}
         {activeTab === TAB_POLITICS && (
@@ -335,58 +335,58 @@ export default function WarRoomView({
             </div>
           </>
         )}
-      </div>
 
-      {/* ── STICKY END TURN FOOTER ── */}
-      <div className="wr-end-turn-footer">
-        {/* Status caption */}
-        <div style={{
-          textAlign: 'center',
-          marginBottom: '10px',
-          fontSize: '13px',
-          fontWeight: 700,
-          color: allActionsReady ? '#4ADE80' : '#7D8590',
-          transition: 'color 0.3s ease',
-        }}>
-          {allActionsReady
-            ? '🎉 All decisions locked — ready to submit!'
-            : `${doneCount} of 7 actions complete`}
-        </div>
-
-        {/* End Turn button */}
-        <button
-          onClick={handleAdvanceTurn}
-          disabled={!allActionsReady || loading || !isMyTurn}
-          style={{
-            width: '100%',
-            minHeight: '56px',
-            fontSize: '17px',
-            fontWeight: 900,
-            letterSpacing: '0.04em',
-            borderRadius: '16px',
-            border: 'none',
-            background: allActionsReady && isMyTurn
-              ? 'linear-gradient(135deg,#16A34A 0%,#15803d 100%)'
-              : 'rgba(255,255,255,0.06)',
-            color: allActionsReady && isMyTurn ? '#ffffff' : '#4B5563',
-            boxShadow: allActionsReady && isMyTurn ? '0 0 24px rgba(22,163,74,0.5)' : 'none',
-            animation: allActionsReady && isMyTurn ? 'wr-pulse-green 2s ease-in-out infinite' : 'none',
-            cursor: allActionsReady && isMyTurn && !loading ? 'pointer' : 'not-allowed',
-            transition: 'background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease',
-            touchAction: 'manipulation',
-            WebkitTapHighlightColor: 'transparent',
-            fontFamily: 'Montserrat,system-ui,sans-serif',
-          }}
-        >
-          {loading ? '⏳ Submitting…' : '⚔️  END TURN — SUBMIT DECISIONS  →'}
-        </button>
-
-        {/* Multiplayer waiting hint */}
-        {isMultiplayer && isMyTurn && !allActionsReady && (
-          <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '11px', color: '#4B5563' }}>
-            Complete all required actions to submit your turn
+        {/* ── END TURN FOOTER (AT BOTTOM OF OPTIONS) ── */}
+        <div className="wr-end-turn-footer">
+          {/* Status caption */}
+          <div style={{
+            textAlign: 'center',
+            marginBottom: '10px',
+            fontSize: '13px',
+            fontWeight: 700,
+            color: allActionsReady ? '#4ADE80' : '#7D8590',
+            transition: 'color 0.3s ease',
+          }}>
+            {allActionsReady
+              ? '🎉 All decisions locked — ready to submit!'
+              : `${doneCount} of 7 actions complete`}
           </div>
-        )}
+
+          {/* End Turn button */}
+          <button
+            onClick={handleAdvanceTurn}
+            disabled={!allActionsReady || loading || !isMyTurn}
+            style={{
+              width: '100%',
+              minHeight: '56px',
+              fontSize: '17px',
+              fontWeight: 900,
+              letterSpacing: '0.04em',
+              borderRadius: '16px',
+              border: 'none',
+              background: allActionsReady && isMyTurn
+                ? 'linear-gradient(135deg,#16A34A 0%,#15803d 100%)'
+                : 'rgba(255,255,255,0.06)',
+              color: allActionsReady && isMyTurn ? '#ffffff' : '#4B5563',
+              boxShadow: allActionsReady && isMyTurn ? '0 0 24px rgba(22,163,74,0.5)' : 'none',
+              animation: allActionsReady && isMyTurn ? 'wr-pulse-green 2s ease-in-out infinite' : 'none',
+              cursor: allActionsReady && isMyTurn && !loading ? 'pointer' : 'not-allowed',
+              transition: 'background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease',
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'transparent',
+              fontFamily: 'Montserrat,system-ui,sans-serif',
+            }}
+          >
+            {loading ? '⏳ Submitting…' : '⚔️  END TURN — SUBMIT DECISIONS  →'}
+          </button>
+
+          {/* Multiplayer waiting hint */}
+          {isMultiplayer && isMyTurn && !allActionsReady && (
+            <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '11px', color: '#4B5563' }}>
+              Complete all required actions to submit your turn
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

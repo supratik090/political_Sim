@@ -159,3 +159,5 @@ export const deleteFaction = (id) => apiDelete(`/api/admin/factions/${id}`);
 // Auth API bindings
 export const registerUser = (payload) => apiPost('/api/auth/register', payload);
 export const loginUser = (payload) => apiPost('/api/auth/login', payload);
+export const requestForgotPasswordOtp = (payload) => apiPost('/api/auth/forgot-password', payload);
+export const resetPasswordWithOtp = (payload) => apiPost('/api/auth/reset-password', payload);
