@@ -15,9 +15,9 @@ export default function HintsDrawer({
   const hints = generateTurnHints(turnData, localDecisions, scenarioBills, scenarioEvents);
   const turnNumber = turnData?.turnNumber || 1;
 
-  const handleActionClick = (targetTab) => {
-    if (onNavigateTab && targetTab) {
-      onNavigateTab(targetTab);
+  const handleActionClick = (targetTab, hint) => {
+    if (onNavigateTab) {
+      onNavigateTab(targetTab, hint);
     }
     onClose();
   };
@@ -154,7 +154,7 @@ export default function HintsDrawer({
               {hint.actionLabel && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
                   <button
-                    onClick={() => handleActionClick(hint.targetTab)}
+                    onClick={() => handleActionClick(hint.targetTab, hint)}
                     style={{
                       backgroundColor: 'rgba(59, 130, 246, 0.15)',
                       color: '#60a5fa',

@@ -2572,6 +2572,16 @@ public class GameService {
         
         PartyState sender = findParty(session, offer.getSenderPartyId());
         PartyState recipient = findParty(session, offer.getRecipientPartyId());
+
+        if (offer.getType() == CooperationOffer.OfferType.NON_AGGRESSION) {
+            boolean activePactExists = session.getActivePacts() != null && session.getActivePacts().stream()
+                .anyMatch(p -> p.getTurnsRemaining() > 0 && 
+                    ((p.getPartyAId().equals(offer.getSenderPartyId()) && p.getPartyBId().equals(offer.getRecipientPartyId())) ||
+                     (p.getPartyAId().equals(offer.getRecipientPartyId()) && p.getPartyBId().equals(offer.getSenderPartyId()))));
+            if (activePactExists) {
+                throw new IllegalArgumentException("An active Non-Aggression Pact already exists with " + recipient.getName() + ".");
+            }
+        }
         
         // Validate sender has enough assets
         validateOfferSenderAssets(session, sender, offer);

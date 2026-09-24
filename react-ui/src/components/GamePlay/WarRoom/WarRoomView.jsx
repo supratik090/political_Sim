@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGameStore } from '../../../store/gameStore';
 import { cardRequiresTarget } from '../gameUtils';
 
@@ -20,33 +20,87 @@ const TAB_POLITICS   = 'politics';
 const TAB_GOVERNANCE = 'governance';
 const TAB_ECONOMY    = 'economy';
 
+// Hex navigation — sequential order, tab mapping, and section ID mapping
+const HEX_ORDER = ['card', 'news', 'assembly', 'governance', 'cooperation', 'bid', 'reward', 'building'];
+
+const HEX_TAB_MAP = {
+  card: 'politics', news: 'politics', assembly: 'politics',
+  governance: 'governance', cooperation: 'governance',
+  bid: 'economy', reward: 'economy', building: 'economy',
+};
+
+const HEX_SECTION_MAP = {
+  card: 'wr-section-1', news: 'wr-section-2', assembly: 'wr-section-8',
+  governance: 'wr-section-3', cooperation: 'wr-section-7',
+  bid: 'wr-section-4', reward: 'wr-section-5', building: 'wr-section-6',
+};
+
+const ACCORDION_TO_HEX = {
+  1: 'card', 2: 'news', 3: 'governance', 4: 'bid', 5: 'reward',
+  6: 'building', 7: 'cooperation', 8: 'assembly',
+};
+
 /**
  * WarRoomView — Dark-theme mobile-first Actions UI
  * Accepts the EXACT same props as ActionsView. Zero state lives in GamePlayBoard
  * beyond the toggle `useWarRoom` + useState.
  */
 export default function WarRoomView({
-  turnData, activeParty, loading, handleAdvanceTurn, handleSkipTurn, projectDefs,
-  selectedCard, setSelectedCard, targetPartyId, setTargetPartyId,
-  cardCategoryFilter, setCardCategoryFilter,
-  selectedNewsReactions, setSelectedNewsReactions,
-  selectedIssueOptionKey, setSelectedIssueOptionKey,
-  bidAmount, setBidAmount, bidConfirmed, setBidConfirmed,
-  selectedRewardKey, setSelectedRewardKey, rewardTargetPartyId, setRewardTargetPartyId,
-  rewardConfirmed, setRewardConfirmed,
-  projectCategoryFilter, setProjectCategoryFilter,
-  fundingContributions, setFundingContributions,
-  partyBuildingConfirmed, setPartyBuildingConfirmed,
-  handleFundProject, handleDestroyProject, handleSetProjectTarget,
-  fundedThisTurn = [], setFundedThisTurn,
-  handleCooperationUpdate,
-  billVote, setBillVote, whipIssued, setWhipIssued,
-  proposedBillKey, setProposedBillKey,
-  selectedEventOptionKey, setSelectedEventOptionKey,
-  scenarioBills = [], scenarioEvents = [],
-  activeAccordion, setActiveAccordion,
+  turnData,
+  activeParty,
+  loading = false,
+  handleAdvanceTurn,
+  handleSkipTurn,
+  projectDefs = {},
+  selectedCard = null,
+  setSelectedCard = () => {},
+  targetPartyId = '',
+  setTargetPartyId = () => {},
+  cardCategoryFilter = 'agitation_movement',
+  setCardCategoryFilter = () => {},
+  selectedNewsReactions = {},
+  setSelectedNewsReactions = () => {},
+  selectedIssueOptionKey = '',
+  setSelectedIssueOptionKey = () => {},
+  bidAmount = 0,
+  setBidAmount = () => {},
+  bidConfirmed = false,
+  setBidConfirmed = () => {},
+  selectedRewardKey = '',
+  setSelectedRewardKey = () => {},
+  rewardTargetPartyId = '',
+  setRewardTargetPartyId = () => {},
+  rewardConfirmed = false,
+  setRewardConfirmed = () => {},
+  projectCategoryFilter = 'BUILD',
+  setProjectCategoryFilter = () => {},
+  fundingContributions = {},
+  setFundingContributions = () => {},
+  partyBuildingConfirmed = false,
+  setPartyBuildingConfirmed = () => {},
+  handleFundProject = () => {},
+  handleDestroyProject = () => {},
+  handleSetProjectTarget = () => {},
+  fundedThisTurn = [],
+  setFundedThisTurn = () => {},
+  handleCooperationUpdate = () => {},
+  billVote = '',
+  setBillVote = () => {},
+  whipIssued = false,
+  setWhipIssued = () => {},
+  proposedBillKey = '',
+  setProposedBillKey = () => {},
+  selectedEventOptionKey = '',
+  setSelectedEventOptionKey = () => {},
+  scenarioBills = [],
+  scenarioEvents = [],
+  activeAccordion = 1,
+  setActiveAccordion = () => {},
 }) {
   const [activeTab, setActiveTab] = useState(TAB_POLITICS);
+  const [activeHex, setActiveHex] = useState('card');
+  const nudgeTimerRef = useRef(null);
+  const activeHexRef = useRef('card');
 
   // ── Multiplayer identity ──
   const { user } = useGameStore();
@@ -58,24 +112,25 @@ export default function WarRoomView({
     : activeParty;
   const isMyTurn = !isMultiplayer || (myParty?.id === turnData?.activeHumanPartyId);
 
-  // ── Completion checks (copied verbatim from ActionsView.jsx lines 53-74) ──
-  const isCardCompleted = selectedCard !== null && (!cardRequiresTarget(selectedCard) || targetPartyId !== '');
+  // ── Completion checks (guarded against undefined/null props) ──
+  const isCardCompleted = selectedCard !== null && selectedCard !== undefined && (!cardRequiresTarget(selectedCard) || targetPartyId !== '');
   const newsItems       = turnData?.currentNews || [];
-  const isNewsCompleted = newsItems.length === 0 || newsItems.every(n => selectedNewsReactions[n.newsKey || n.issueKey] !== undefined);
+  const safeNewsReactions = selectedNewsReactions || {};
+  const isNewsCompleted = newsItems.length === 0 || newsItems.every(n => n && (safeNewsReactions[n.newsKey || n.issueKey] !== undefined));
   const isSection3Completed = turnData?.activeEventKey
     ? (selectedEventOptionKey !== '' && selectedEventOptionKey !== null && selectedEventOptionKey !== undefined)
     : (selectedIssueOptionKey === 'mock_done');
   const isBidCompleted  = bidConfirmed;
   const hasRewards      = turnData?.activePlayerHeldRewards && turnData.activePlayerHeldRewards.length > 0;
-  const selectedReward  = hasRewards ? turnData.activePlayerHeldRewards.find(r => r.rewardKey === selectedRewardKey) : null;
+  const selectedReward  = hasRewards ? (turnData?.activePlayerHeldRewards || []).find(r => r && r.rewardKey === selectedRewardKey) : null;
   const isRewardCompleted = !hasRewards || selectedRewardKey === '' || (rewardConfirmed && (!selectedReward?.requiresTarget || rewardTargetPartyId !== ''));
-  const hasPartyBuildingDrafts   = Object.values(fundingContributions).some(v => v > 0);
+  const hasPartyBuildingDrafts   = Object.values(fundingContributions || {}).some(v => v > 0);
   const isPartyBuildingCompleted = !hasPartyBuildingDrafts || partyBuildingConfirmed;
   const isLegislativeCompleted   = !turnData?.proposedBillKeyThisTurn || (billVote !== '' && billVote !== null && billVote !== undefined);
 
   const allActionsReady = isCardCompleted && isNewsCompleted && isSection3Completed && isBidCompleted && isRewardCompleted && isPartyBuildingCompleted && isLegislativeCompleted;
 
-  // Tab-level completion
+  // Tab-level completion for WR_TabBar
   const politicsDone    = isCardCompleted && isNewsCompleted && isLegislativeCompleted;
   const governanceDone  = isSection3Completed;
   const economyDone     = isBidCompleted && isRewardCompleted && isPartyBuildingCompleted;
@@ -83,12 +138,7 @@ export default function WarRoomView({
   const governancePending = !isSection3Completed;
   const economyPending    = !isBidCompleted;
 
-  const doneCount = [
-    isCardCompleted, isNewsCompleted, isSection3Completed,
-    isBidCompleted, isRewardCompleted, isPartyBuildingCompleted, isLegislativeCompleted,
-  ].filter(Boolean).length;
-
-  // Hex map
+  // Hex map — 8 hexes
   const doneMap = {
     card:        isCardCompleted,
     news:        isNewsCompleted,
@@ -97,29 +147,83 @@ export default function WarRoomView({
     cooperation: true,              // optional — always mark done
     bid:         isBidCompleted,
     reward:      isRewardCompleted,
+    building:    isPartyBuildingCompleted,
   };
 
-  // ── Auto-advance tab on completion (copied from ActionsView.jsx lines 83-94) ──
-  const prevPolDone = useRef(politicsDone);
-  useEffect(() => {
-    if (!prevPolDone.current && politicsDone && activeTab === TAB_POLITICS) {
-      if (!governanceDone) setActiveTab(TAB_GOVERNANCE);
-      else if (!economyDone) setActiveTab(TAB_ECONOMY);
-    }
-    prevPolDone.current = politicsDone;
-  }, [politicsDone]);
+  const doneCount = Object.values(doneMap).filter(Boolean).length;
 
-  const prevGovDone = useRef(governanceDone);
-  useEffect(() => {
-    if (!prevGovDone.current && governanceDone && activeTab === TAB_GOVERNANCE && !economyDone) {
-      setActiveTab(TAB_ECONOMY);
-    }
-    prevGovDone.current = governanceDone;
-  }, [governanceDone]);
+  // ── Keep activeHex ref in sync ──
+  useEffect(() => { activeHexRef.current = activeHex; }, [activeHex]);
 
-  // Sync tab & scroll to section when navigated from Hint
+  // ── Nudge timer helpers ──
+  const clearNudgeTimer = useCallback(() => {
+    if (nudgeTimerRef.current) {
+      clearTimeout(nudgeTimerRef.current);
+      nudgeTimerRef.current = null;
+    }
+  }, []);
+
+  const navigateToHex = useCallback((hexKey) => {
+    clearNudgeTimer();
+    setActiveHex(hexKey);
+    const targetTab = HEX_TAB_MAP[hexKey];
+    setActiveTab(targetTab);
+    // Scroll to the section after the tab switch renders
+    setTimeout(() => {
+      const el = document.getElementById(HEX_SECTION_MAP[hexKey]);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Brief highlight flash on the target section
+        el.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
+        el.style.borderColor = '#38bdf8';
+        el.style.boxShadow = '0 0 20px rgba(56, 189, 248, 0.35)';
+        setTimeout(() => {
+          el.style.borderColor = 'rgba(255,255,255,0.08)';
+          el.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)';
+        }, 1500);
+      }
+    }, 250);
+  }, [clearNudgeTimer]);
+
+  const startNudgeTimer = useCallback(() => {
+    clearNudgeTimer();
+    nudgeTimerRef.current = setTimeout(() => {
+      const currentIdx = HEX_ORDER.indexOf(activeHexRef.current);
+      if (currentIdx < HEX_ORDER.length - 1) {
+        navigateToHex(HEX_ORDER[currentIdx + 1]);
+      }
+    }, 2000);
+  }, [clearNudgeTimer, navigateToHex]);
+
+  // ── Auto-nudge: when active hex is done, start 2s timer to advance ──
+  const isActiveHexDone = !!doneMap[activeHex];
+
+  useEffect(() => {
+    clearNudgeTimer();
+    if (isActiveHexDone) {
+      startNudgeTimer();
+    }
+    return () => clearNudgeTimer();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeHex, isActiveHexDone]);
+
+  // ── Reset nudge timer on any user activity (click, touch, scroll) ──
+  const handleUserActivity = useCallback(() => {
+    if (nudgeTimerRef.current) {
+      startNudgeTimer(); // clears and restarts the 2s timer
+    }
+  }, [startNudgeTimer]);
+
+  // ── Hex click handler ──
+  const handleHexClick = useCallback((hexKey) => {
+    navigateToHex(hexKey);
+  }, [navigateToHex]);
+
+  // Sync tab, activeHex & scroll to section when navigated from Hint
   useEffect(() => {
     if (!activeAccordion) return;
+
+    clearNudgeTimer();
 
     let targetTab = TAB_POLITICS;
     if (activeAccordion === 1 || activeAccordion === 2 || activeAccordion === 8) {
@@ -131,6 +235,10 @@ export default function WarRoomView({
     }
 
     setActiveTab(targetTab);
+
+    // Also sync the active hex
+    const hexKey = ACCORDION_TO_HEX[activeAccordion];
+    if (hexKey) setActiveHex(hexKey);
 
     const timer = setTimeout(() => {
       const el = document.getElementById(`wr-section-${activeAccordion}`);
@@ -149,6 +257,7 @@ export default function WarRoomView({
     }, 150);
 
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeAccordion]);
 
   if (!turnData) {
@@ -193,8 +302,8 @@ export default function WarRoomView({
 
       <WR_HexTracker
         doneMap={doneMap}
-        doneCount={doneCount}
-        onHexClick={setActiveTab}
+        activeHex={activeHex}
+        onHexClick={handleHexClick}
       />
 
       <WR_TabBar
@@ -211,8 +320,11 @@ export default function WarRoomView({
       {/* ── TAB CONTENT ── */}
       <div
         className="wr-tab-content"
-        key={activeTab}               /* re-mounts to retrigger slide-in animation */
+        key={activeTab}
         style={{ flex: 1, overflowY: 'auto', paddingBottom: '30px' }}
+        onMouseDown={handleUserActivity}
+        onTouchStart={handleUserActivity}
+        onScroll={handleUserActivity}
       >
         {/* ──────────── POLITICS TAB ──────────── */}
         {activeTab === TAB_POLITICS && (
@@ -349,7 +461,7 @@ export default function WarRoomView({
           }}>
             {allActionsReady
               ? '🎉 All decisions locked — ready to submit!'
-              : `${doneCount} of 7 actions complete`}
+              : `${doneCount} of 8 actions complete`}
           </div>
 
           {/* End Turn button */}
@@ -390,4 +502,56 @@ export default function WarRoomView({
       </div>
     </div>
   );
+}
+
+export class WarRoomErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("WarRoomView render error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          padding: '24px',
+          margin: '16px',
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid #ef4444',
+          borderRadius: '12px',
+          color: '#f8fafc',
+          textAlign: 'center',
+        }}>
+          <h3 style={{ color: '#f87171', margin: '0 0 8px 0' }}>⚠️ War Room Display Error</h3>
+          <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 0 16px 0' }}>
+            {this.state.error?.message || 'An unexpected error occurred while rendering the War Room.'}
+          </p>
+          <button
+            type="button"
+            onClick={() => this.setState({ hasError: false, error: null })}
+            style={{
+              padding: '8px 16px',
+              background: '#ef4444',
+              border: 'none',
+              borderRadius: '8px',
+              color: '#ffffff',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+            }}
+          >
+            🔄 Reload War Room
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }

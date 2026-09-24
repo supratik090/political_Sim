@@ -215,7 +215,7 @@ export default function HintsView({
                         type="button"
                         onClick={() => {
                           if (onNavigateToAction) {
-                            onNavigateToAction(hint.targetTab);
+                            onNavigateToAction(hint.targetTab, hint);
                           }
                         }}
                         style={{

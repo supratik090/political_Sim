@@ -210,6 +210,12 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* Active hex breathing cyan pulse (uses filter for clip-path compatibility) */
+@keyframes wr-hex-active-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.45)); }
+  50%      { filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.9)); }
+}
+
 /* Pending hex heartbeat */
 @keyframes wr-pending-pulse {
   0%, 100% { opacity: 1; }

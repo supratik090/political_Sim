@@ -58,6 +58,12 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
   const recipientParty = turnData?.parties?.find(p => p.id === recipientId);
   const targetFactions = recipientParty?.factions || [];
 
+  const myPacts = turnData?.activePacts ? turnData.activePacts.filter(p => p.partyAId === activePartyId || p.partyBId === activePartyId) : [];
+  const existingPactWithRecipient = myPacts.find(p => 
+    ((p.partyAId === activePartyId && p.partyBId === recipientId) || 
+     (p.partyAId === recipientId && p.partyBId === activePartyId)) && p.turnsRemaining > 0
+  );
+
   const myCompletedProjects = activeParty?.projects?.filter(p => p.progressPercent >= 100) || [];
   const targetCompletedProjects = recipientParty?.projects?.filter(p => p.progressPercent >= 100) || [];
 
@@ -67,7 +73,6 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
     setErrorMsg('');
   }, [recipientId, offerType, includePayment, senderPaysPact]);
 
-  const myPacts = turnData?.activePacts ? turnData.activePacts.filter(p => p.partyAId === activePartyId || p.partyBId === activePartyId) : [];
   const incomingOffers = turnData?.cooperationOffers ? turnData.cooperationOffers.filter(o => o.recipientPartyId === activePartyId && o.status === 'PENDING') : [];
   const acceptedLobbyAgreements = turnData?.cooperationOffers ? turnData.cooperationOffers.filter(o => o.type === 'LOBBYING' && o.status === 'ACCEPTED' && (o.senderPartyId === activePartyId || o.recipientPartyId === activePartyId)) : [];
 
@@ -99,6 +104,17 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
   };
 
   const handlePropose = async () => {
+    if (offerType === 'NON_AGGRESSION' && existingPactWithRecipient) {
+      const msg = `An active Non-Aggression Pact already exists with ${recipientParty?.name || 'this party'} (${existingPactWithRecipient.turnsRemaining} turns remaining).`;
+      setErrorMsg(msg);
+      setFeedback({
+        status: 'REJECTED',
+        title: 'PACT ALREADY ACTIVE',
+        message: `⚠️ ${msg}`
+      });
+      return;
+    }
+
     setLoading(true);
     setErrorMsg('');
 
@@ -157,7 +173,13 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
       setLobbyBillKey(''); setOfferedBuildingKeys([]); setRequestedCoins(0); setRequestedSupport(0); setRequestedMorale(0);
       setIncludePayment(false); setPactPaymentValue(0); setPactPaymentBuildingKeys([]);
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to submit proposal.');
+      const msg = err.message || 'Failed to submit proposal.';
+      setErrorMsg(msg);
+      setFeedback({
+        status: 'REJECTED',
+        title: 'PROPOSAL FAILED',
+        message: `⚠️ ${msg}`
+      });
     } finally {
       setLoading(false);
     }
@@ -242,40 +264,59 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
     </div>
   );
 
+  useEffect(() => {
+    if (feedback) {
+      const timer = setTimeout(() => setFeedback(null), 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedback]);
+
   return (
     <div style={{
       padding: '14px 16px',
       color: '#E6EDF3',
       fontFamily: 'Montserrat, system-ui, -apple-system, sans-serif'
     }}>
-      {/* Feedback Dialog */}
+      {/* Toast Notification Banner (Floating top-right) */}
       {feedback && (
         <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(8px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 99999, padding: '16px'
+          position: 'fixed', top: '20px', right: '20px', zIndex: 99999,
+          maxWidth: '400px', width: 'calc(100vw - 40px)',
+          background: 'linear-gradient(145deg, #1e293b, #0f172a)',
+          border: `2px solid ${(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? '#22c55e' : '#ef4444'}`,
+          borderRadius: '16px', padding: '16px 20px',
+          boxShadow: `0 16px 36px rgba(0,0,0,0.6), 0 0 20px ${(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+          display: 'flex', flexDirection: 'column', gap: '10px'
         }}>
-          <div style={{
-            background: 'linear-gradient(145deg, #1e293b, #0f172a)',
-            border: `2px solid ${(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? '#22c55e' : '#ef4444'}`,
-            borderRadius: '16px', padding: '24px', maxWidth: '420px', width: '100%',
-            textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
-          }}>
-            <div style={{ fontSize: '42px', marginBottom: '12px' }}>
-              {(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? '✅' : '❌'}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '24px' }}>
+                {(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? '✅' : '❌'}
+              </span>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.02em' }}>
+                {feedback.title}
+              </h3>
             </div>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 900, color: '#ffffff' }}>
-              {feedback.title}
-            </h3>
-            <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#94a3b8', lineHeight: 1.5 }}>
-              {feedback.message}
-            </p>
             <button
               onClick={() => setFeedback(null)}
               style={{
-                width: '100%', padding: '12px', background: '#38BDF8', color: '#0f172a',
-                border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 900,
+                background: 'rgba(255,255,255,0.1)', border: 'none', color: '#94a3b8',
+                width: '26px', height: '26px', borderRadius: '50%', fontSize: '14px',
+                fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}
+            >
+              ✕
+            </button>
+          </div>
+          <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8', lineHeight: 1.4, paddingLeft: '34px' }}>
+            {feedback.message}
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+            <button
+              onClick={() => setFeedback(null)}
+              style={{
+                padding: '8px 16px', background: '#38BDF8', color: '#0f172a',
+                border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 900,
                 cursor: 'pointer', touchAction: 'manipulation'
               }}
             >
@@ -357,14 +398,15 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
           {otherParties.map(p => {
             const isSelected = p.id === recipientId;
             const pColor = p.color || '#38BDF8';
+            const roleTag = p.role === 'GOVERNMENT' ? 'GOV' : p.role === 'OPPOSITION' ? 'OPP' : '3RD';
             return (
               <button
                 key={p.id}
                 type="button"
                 onClick={() => setRecipientId(p.id)}
                 style={{
-                  minWidth: '110px',
-                  maxWidth: '130px',
+                  minWidth: '120px',
+                  maxWidth: '145px',
                   flex: '0 0 auto',
                   padding: '12px 10px',
                   borderRadius: '14px',
@@ -384,9 +426,8 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
               >
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '22px' }}>{p.symbol || '🏛️'}</span>
-                    <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 5px', borderRadius: '4px', background: `${pColor}33`, color: pColor, border: `1px solid ${pColor}55` }}>
-                      {p.role === 'GOVERNMENT' ? 'GOV' : p.role === 'OPPOSITION' ? 'OPP' : '3RD'}
+                    <span style={{ fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', background: `${pColor}33`, color: pColor, border: `1px solid ${pColor}55` }}>
+                      {roleTag}
                     </span>
                   </div>
                   <div style={{ fontSize: '13px', fontWeight: 900, color: '#ffffff', lineHeight: 1.2, marginBottom: '4px' }}>
@@ -483,6 +524,20 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
           {/* NON-AGGRESSION */}
           {offerType === 'NON_AGGRESSION' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {existingPactWithRecipient && (
+                <div style={{
+                  padding: '12px 14px',
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid #EF4444',
+                  borderRadius: '10px',
+                  color: '#F87171',
+                  fontSize: '12.5px',
+                  fontWeight: 700,
+                  lineHeight: 1.4
+                }}>
+                  ⚠️ Active Non-Aggression Treaty already in effect with {recipientParty?.name} ({existingPactWithRecipient.turnsRemaining} turns remaining). New pacts cannot be entered until the current one expires.
+                </div>
+              )}
               <div>
                 <div style={{ fontSize: '12px', fontWeight: 800, color: '#38BDF8', textTransform: 'uppercase', marginBottom: '8px' }}>
                   🕊️ TREATY DURATION
@@ -764,18 +819,20 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
           <button
             type="button"
             onClick={offerType === 'SABOTAGE' ? handleBribe : handlePropose}
-            disabled={loading || !recipientId}
+            disabled={loading || !recipientId || (offerType === 'NON_AGGRESSION' && !!existingPactWithRecipient)}
             style={{
               marginTop: '16px', width: '100%', minHeight: '48px',
               borderRadius: '10px', border: 'none',
-              background: offerType === 'SABOTAGE' ? 'linear-gradient(135deg, #dc2626, #991b1b)' : 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+              background: (offerType === 'NON_AGGRESSION' && !!existingPactWithRecipient)
+                ? '#475569'
+                : offerType === 'SABOTAGE' ? 'linear-gradient(135deg, #dc2626, #991b1b)' : 'linear-gradient(135deg, #2563eb, #1d4ed8)',
               color: '#ffffff', fontSize: '14px', fontWeight: 900,
               letterSpacing: '0.04em', textTransform: 'uppercase',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.4)', cursor: 'pointer',
-              touchAction: 'manipulation', opacity: (loading || !recipientId) ? 0.6 : 1
+              boxShadow: '0 4px 14px rgba(0,0,0,0.4)', cursor: (offerType === 'NON_AGGRESSION' && !!existingPactWithRecipient) ? 'not-allowed' : 'pointer',
+              touchAction: 'manipulation', opacity: (loading || !recipientId || (offerType === 'NON_AGGRESSION' && !!existingPactWithRecipient)) ? 0.6 : 1
             }}
           >
-            {loading ? '⏳ PROCESSING...' : offerType === 'SABOTAGE' ? '⚡ EXECUTE SABOTAGE' : '🤝 DISPATCH DIPLOMATIC TERMS'}
+            {loading ? '⏳ PROCESSING...' : (offerType === 'NON_AGGRESSION' && !!existingPactWithRecipient) ? '🚫 PACT ALREADY ACTIVE' : offerType === 'SABOTAGE' ? '⚡ EXECUTE SABOTAGE' : '🤝 DISPATCH DIPLOMATIC TERMS'}
           </button>
         </div>
       )}

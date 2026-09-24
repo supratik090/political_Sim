@@ -272,7 +272,7 @@ export default function LandingPage({ onPlayNow }) {
         }}>
           <img 
             src="/gameplay_actions.png" 
-            alt="Power Play Gameplay Actions Mockup" 
+            alt="Statecraft Gameplay Actions Mockup"
             style={{ 
               width: '100%', 
               height: 'auto', 

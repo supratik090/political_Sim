@@ -3,8 +3,7 @@ import { useGameStore } from '../../store/gameStore';
 import { fetchTurnView, advanceTurn, fundProject, destroyProject, setProjectTarget, fetchBuildingProjects, fetchPostDefinitions, takeLoan, buyRecoveryPack } from '../../api/apiClient';
 import { getPartyColor, cardRequiresTarget } from './gameUtils';
 import StatsView from './StatsView';
-import ActionsView from './ActionsView';
-import WarRoomView from './WarRoom/WarRoomView';
+import WarRoomView, { WarRoomErrorBoundary } from './WarRoom/WarRoomView';
 import { getPartyThemeByName, getSymbolIconComponent } from '../../constants/partyThemes';
 import { PROJECT_DEFS } from './constants';
 import RoundResolutionModal from './RoundResolutionModal';
@@ -218,7 +217,7 @@ export default function GamePlayBoard() {
   const [useWarRoom] = useState(true); // ⚔️ War Room UI active by default
   const hintsCount = turnData ? generateTurnHints(turnData).length : 0;
 
-  const handleNavigateFromHint = (targetTab) => {
+  const handleNavigateFromHint = (targetTab, hint) => {
     setActiveView('ACTION');
     let accordionNum = 1;
 
@@ -241,6 +240,24 @@ export default function GamePlayBoard() {
     }
 
     setActiveAccordion(accordionNum);
+
+    // Auto-apply recommended action choice when available
+    if (hint?.autoAction) {
+      const { type, vote, newsKey, optionKey, card, targetPartyId: hintTargetPartyId } = hint.autoAction;
+      if (type === 'VOTE_BILL' && vote) {
+        setBillVote(vote);
+      } else if (type === 'SELECT_NEWS' && newsKey && optionKey) {
+        setSelectedNewsReactions(prev => ({
+          ...prev,
+          [newsKey]: optionKey
+        }));
+      } else if (type === 'SELECT_CARD' && card) {
+        setSelectedCard(card);
+        if (hintTargetPartyId) {
+          setTargetPartyId(hintTargetPartyId);
+        }
+      }
+    }
   };
 
   // Project building draft states
@@ -865,145 +882,40 @@ useEffect(() => {
       </div>
 
       {/* View Content */}
-      {activeView === 'ACTION' && turnData && useWarRoom ? (
+      {turnData && (
         <div style={{ width: '100%', marginTop: '10px' }}>
-          <WarRoomView
-            turnData={turnData}
-            activeParty={activeParty}
-            loading={loading}
-            handleAdvanceTurn={handleAdvanceTurn}
-            handleSkipTurn={handleSkipTurn}
-            projectDefs={projectDefs}
-            selectedCard={selectedCard}
-            setSelectedCard={setSelectedCard}
-            targetPartyId={targetPartyId}
-            setTargetPartyId={setTargetPartyId}
-            cardCategoryFilter={cardCategoryFilter}
-            setCardCategoryFilter={setCardCategoryFilter}
-            selectedNewsReactions={selectedNewsReactions}
-            setSelectedNewsReactions={setSelectedNewsReactions}
-            selectedIssueOptionKey={selectedIssueOptionKey}
-            setSelectedIssueOptionKey={setSelectedIssueOptionKey}
-            bidAmount={bidAmount}
-            setBidAmount={setBidAmount}
-            bidConfirmed={bidConfirmed}
-            setBidConfirmed={setBidConfirmed}
-            selectedRewardKey={selectedRewardKey}
-            setSelectedRewardKey={setSelectedRewardKey}
-            rewardTargetPartyId={rewardTargetPartyId}
-            setRewardTargetPartyId={setRewardTargetPartyId}
-            rewardConfirmed={rewardConfirmed}
-            setRewardConfirmed={setRewardConfirmed}
-            projectCategoryFilter={projectCategoryFilter}
-            setProjectCategoryFilter={setProjectCategoryFilter}
-            draftProjectKeys={draftProjectKeys}
-            setDraftProjectKeys={setDraftProjectKeys}
-            fundingContributions={fundingContributions}
-            setFundingContributions={setFundingContributions}
-            partyBuildingConfirmed={partyBuildingConfirmed}
-            setPartyBuildingConfirmed={setPartyBuildingConfirmed}
-            handleFundProject={handleFundProject}
-            handleDestroyProject={handleDestroyProject}
-            handleSetProjectTarget={handleSetProjectTarget}
-            fundedThisTurn={fundedThisTurn}
-            setFundedThisTurn={setFundedThisTurn}
-            handleCooperationUpdate={setTurnData}
-            billVote={billVote}
-            setBillVote={setBillVote}
-            whipIssued={whipIssued}
-            setWhipIssued={setWhipIssued}
-            proposedBillKey={proposedBillKey}
-            setProposedBillKey={setProposedBillKey}
-            selectedEventOptionKey={selectedEventOptionKey}
-            setSelectedEventOptionKey={setSelectedEventOptionKey}
-            scenarioBills={scenarioBills}
-            scenarioEvents={scenarioEvents}
-            activeAccordion={activeAccordion}
-            setActiveAccordion={setActiveAccordion}
-          />
-        </div>
-      ) : (
-        <div className="game-layout-wrapper">
-          {/* Left themed sidebar */}
-          <div className="themed-left-sidebar">
-            <div className="themed-symbol-badge">
-              <SymbolIcon size={32} color={playerPartyColor} />
-            </div>
-          </div>
+          {loading && !turnData && <div style={{ textAlign: 'center', padding: '50px 0' }}>⌛ Loading Campaign State...</div>}
+          {error && <div style={{ color: '#d23f31', textAlign: 'center', padding: '50px 0' }}>⚠️ {error}</div>}
 
-          {/* Right Content */}
-          <div className="themed-right-content">
-            {loading && !turnData && <div style={{ textAlign: 'center', padding: '50px 0' }}>⌛ Loading Campaign State...</div>}
-            {error && <div style={{ color: '#d23f31', textAlign: 'center', padding: '50px 0' }}>⚠️ {error}</div>}
-            
-            {!turnData && !loading && !error && (
-              <div style={{ textAlign: 'center', padding: '50px 0' }}>
-                No campaign data loaded. Please return to the Dashboard to load or start a campaign.
-              </div>
-            )}
-
-            {activeView === 'INFO' && turnData && (
-              <StatsView
-                turnData={turnData}
-                commentaryExpanded={commentaryExpanded}
-                setCommentaryExpanded={setCommentaryExpanded}
-                commentaryFilter={commentaryFilter}
-                setCommentaryFilter={setCommentaryFilter}
-                projectDefs={projectDefs}
-                onOpenResolutionReport={() => setShowResolutionReport(true)}
-                scenarioBills={scenarioBills}
-              />
-            )}
-
-            {activeView === 'HINTS' && turnData && (
-              <HintsView
-                turnData={turnData}
-                scenarioBills={scenarioBills}
-                scenarioEvents={scenarioEvents}
-                onNavigateToAction={handleNavigateFromHint}
-              />
-            )}
-
-            {activeView === 'ACTION' && turnData && !useWarRoom && (
-              <ActionsView
+          {activeView === 'ACTION' && turnData && (
+            <WarRoomErrorBoundary>
+              <WarRoomView
                 turnData={turnData}
                 activeParty={activeParty}
                 loading={loading}
                 handleAdvanceTurn={handleAdvanceTurn}
                 handleSkipTurn={handleSkipTurn}
                 projectDefs={projectDefs}
-                
-                // Action 1 props
                 selectedCard={selectedCard}
                 setSelectedCard={setSelectedCard}
                 targetPartyId={targetPartyId}
                 setTargetPartyId={setTargetPartyId}
                 cardCategoryFilter={cardCategoryFilter}
                 setCardCategoryFilter={setCardCategoryFilter}
-
-                // Action 2 props
                 selectedNewsReactions={selectedNewsReactions}
                 setSelectedNewsReactions={setSelectedNewsReactions}
-
-                // Action 3 props
                 selectedIssueOptionKey={selectedIssueOptionKey}
                 setSelectedIssueOptionKey={setSelectedIssueOptionKey}
-
-                // Action 4 props
                 bidAmount={bidAmount}
                 setBidAmount={setBidAmount}
                 bidConfirmed={bidConfirmed}
                 setBidConfirmed={setBidConfirmed}
-
-                // Action 5 props
                 selectedRewardKey={selectedRewardKey}
                 setSelectedRewardKey={setSelectedRewardKey}
                 rewardTargetPartyId={rewardTargetPartyId}
                 setRewardTargetPartyId={setRewardTargetPartyId}
                 rewardConfirmed={rewardConfirmed}
                 setRewardConfirmed={setRewardConfirmed}
-
-                // Action 6 props
                 projectCategoryFilter={projectCategoryFilter}
                 setProjectCategoryFilter={setProjectCategoryFilter}
                 draftProjectKeys={draftProjectKeys}
@@ -1017,11 +929,7 @@ useEffect(() => {
                 handleSetProjectTarget={handleSetProjectTarget}
                 fundedThisTurn={fundedThisTurn}
                 setFundedThisTurn={setFundedThisTurn}
-
-                // Action 7 props
                 handleCooperationUpdate={setTurnData}
-
-                // Action 8 / Assembly props
                 billVote={billVote}
                 setBillVote={setBillVote}
                 whipIssued={whipIssued}
@@ -1032,13 +940,33 @@ useEffect(() => {
                 setSelectedEventOptionKey={setSelectedEventOptionKey}
                 scenarioBills={scenarioBills}
                 scenarioEvents={scenarioEvents}
-
-                // Accordion state
                 activeAccordion={activeAccordion}
                 setActiveAccordion={setActiveAccordion}
               />
-            )}
-          </div>
+            </WarRoomErrorBoundary>
+          )}
+
+          {activeView === 'INFO' && turnData && (
+            <StatsView
+              turnData={turnData}
+              commentaryExpanded={commentaryExpanded}
+              setCommentaryExpanded={setCommentaryExpanded}
+              commentaryFilter={commentaryFilter}
+              setCommentaryFilter={setCommentaryFilter}
+              projectDefs={projectDefs}
+              onOpenResolutionReport={() => setShowResolutionReport(true)}
+              scenarioBills={scenarioBills}
+            />
+          )}
+
+          {activeView === 'HINTS' && turnData && (
+            <HintsView
+              turnData={turnData}
+              scenarioBills={scenarioBills}
+              scenarioEvents={scenarioEvents}
+              onNavigateToAction={handleNavigateFromHint}
+            />
+          )}
         </div>
       )}
 

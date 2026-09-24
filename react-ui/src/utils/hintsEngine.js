@@ -263,7 +263,8 @@ export function generateTurnHints(turnData, localDecisions = {}, scenarioBills =
         targetTab: 'ASSEMBLY',
         actionLabel: 'Vote AYE',
         badgeText: 'Optimal Vote',
-        badgeBg: '#16a34a'
+        badgeBg: '#16a34a',
+        autoAction: { type: 'VOTE_BILL', vote: 'YES', billKey: activeBillKey }
       });
     } else {
       const reasonText = negativeStr 
@@ -279,7 +280,8 @@ export function generateTurnHints(turnData, localDecisions = {}, scenarioBills =
         targetTab: 'ASSEMBLY',
         actionLabel: 'Vote NAY',
         badgeText: 'Block Bill',
-        badgeBg: '#be123c'
+        badgeBg: '#be123c',
+        autoAction: { type: 'VOTE_BILL', vote: 'NO', billKey: activeBillKey }
       });
     }
   } else {
@@ -333,6 +335,8 @@ export function generateTurnHints(turnData, localDecisions = {}, scenarioBills =
 
       if (bestOption) {
         const optionText = bestOption.text || bestOption.label || bestOption.title || bestOption.reactionKey || bestOption.optionKey || 'the recommended response';
+        const newsKey = newsItem.newsKey || newsItem.issueKey || newsItem.id;
+        const optionKey = bestOption.reactionKey || bestOption.optionKey || bestOption.key || bestOption.id;
         hints.push({
           id: 'news-reaction',
           category: 'NEWS',
@@ -343,7 +347,8 @@ export function generateTurnHints(turnData, localDecisions = {}, scenarioBills =
           targetTab: 'ACTIONS',
           actionLabel: 'React to News',
           badgeText: 'AI News Pick',
-          badgeBg: '#ea580c'
+          badgeBg: '#ea580c',
+          autoAction: { type: 'SELECT_NEWS', newsKey, optionKey }
         });
       }
     }
@@ -393,7 +398,8 @@ export function generateTurnHints(turnData, localDecisions = {}, scenarioBills =
         targetTab: 'CARDS',
         actionLabel: `Play ${cardTitle}`,
         badgeText: 'Optimal Card',
-        badgeBg: '#7c3aed'
+        badgeBg: '#7c3aed',
+        autoAction: { type: 'SELECT_CARD', card: topSelfCard.cardObj }
       });
     }
 
@@ -409,7 +415,8 @@ export function generateTurnHints(turnData, localDecisions = {}, scenarioBills =
         targetTab: 'CARDS',
         actionLabel: `Target ${leadingOpponent.name}`,
         badgeText: 'Attack Card',
-        badgeBg: '#dc2626'
+        badgeBg: '#dc2626',
+        autoAction: { type: 'SELECT_CARD', card: topAttackCard.cardObj, targetPartyId: leadingOpponent.id }
       });
     }
   }
