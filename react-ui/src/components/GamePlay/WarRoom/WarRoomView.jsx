@@ -168,7 +168,7 @@ export default function WarRoomView({
     setActiveHex(hexKey);
     const targetTab = HEX_TAB_MAP[hexKey];
     setActiveTab(targetTab);
-    // Scroll to the section after the tab switch renders
+    // Scroll to the section immediately after the tab switch renders
     setTimeout(() => {
       const el = document.getElementById(HEX_SECTION_MAP[hexKey]);
       if (el) {
@@ -182,37 +182,21 @@ export default function WarRoomView({
           el.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)';
         }, 1500);
       }
-    }, 250);
+    }, 50);
   }, [clearNudgeTimer]);
 
-  const startNudgeTimer = useCallback(() => {
-    clearNudgeTimer();
-    nudgeTimerRef.current = setTimeout(() => {
-      const currentIdx = HEX_ORDER.indexOf(activeHexRef.current);
-      if (currentIdx < HEX_ORDER.length - 1) {
-        navigateToHex(HEX_ORDER[currentIdx + 1]);
-      }
-    }, 2000);
-  }, [clearNudgeTimer, navigateToHex]);
-
-  // ── Auto-nudge: when active hex is done, start 2s timer to advance ──
+  // ── Auto-advance: immediately scroll to the next action card/section when current action is completed ──
   const isActiveHexDone = !!doneMap[activeHex];
 
   useEffect(() => {
-    clearNudgeTimer();
     if (isActiveHexDone) {
-      startNudgeTimer();
+      const currentIdx = HEX_ORDER.indexOf(activeHex);
+      if (currentIdx < HEX_ORDER.length - 1) {
+        navigateToHex(HEX_ORDER[currentIdx + 1]);
+      }
     }
-    return () => clearNudgeTimer();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeHex, isActiveHexDone]);
-
-  // ── Reset nudge timer on any user activity (click, touch, scroll) ──
-  const handleUserActivity = useCallback(() => {
-    if (nudgeTimerRef.current) {
-      startNudgeTimer(); // clears and restarts the 2s timer
-    }
-  }, [startNudgeTimer]);
 
   // ── Hex click handler ──
   const handleHexClick = useCallback((hexKey) => {

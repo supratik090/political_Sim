@@ -60,22 +60,28 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         if (request.getEmail() == null || request.getEmail().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email is required"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Email or User ID is required"));
         }
         if (request.getPassword() == null || request.getPassword().isBlank()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Password is required"));
         }
 
-        String email = request.getEmail().trim().toLowerCase();
-        Optional<User> userOpt = userRepository.findByEmail(email);
+        String input = request.getEmail().trim();
+        Optional<User> userOpt = userRepository.findByEmail(input.toLowerCase());
+        if (userOpt.isEmpty()) {
+            userOpt = userRepository.findById(input);
+        }
+        if (userOpt.isEmpty()) {
+            userOpt = userRepository.findByNameIgnoreCase(input);
+        }
 
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email/user ID or password"));
         }
 
         User user = userOpt.get();
         if (!BCrypt.checkpw(request.getPassword(), user.getPasswordHash())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email/user ID or password"));
         }
 
         return ResponseEntity.ok(new AuthResponse(

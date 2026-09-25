@@ -283,10 +283,12 @@ export default function AuthScreen() {
             )}
             
             <div>
-              <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>Email</label>
+              <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>
+                {isLogin ? 'Email Address or User ID' : 'Email'}
+              </label>
               <input 
-                type="email" 
-                placeholder="you@example.com" 
+                type={isLogin ? 'text' : 'email'} 
+                placeholder={isLogin ? 'Email, User ID, or Name' : 'you@example.com'} 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
               />
