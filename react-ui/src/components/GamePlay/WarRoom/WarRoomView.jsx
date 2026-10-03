@@ -163,6 +163,10 @@ export default function WarRoomView({
     }
   }, []);
 
+  const handleUserActivity = useCallback(() => {
+    clearNudgeTimer();
+  }, [clearNudgeTimer]);
+
   const navigateToHex = useCallback((hexKey) => {
     clearNudgeTimer();
     setActiveHex(hexKey);
