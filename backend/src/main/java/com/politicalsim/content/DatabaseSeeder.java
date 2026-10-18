@@ -23,17 +23,29 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final ScenarioDefinitionRepository scenarioRepository;
     private final LegislativeBillDefinitionRepository billRepository;
     private final FactionDefinitionRepository factionRepository;
+    private final NationalConfigRepository nationalConfigRepository;
+    private final NationalEventRepository nationalEventRepository;
+    private final NationalThemeRepository nationalThemeRepository;
+    private final StateInfrastructureDefinitionRepository infrastructureRepository;
 
     public DatabaseSeeder(CardDefinitionRepository cardRepository,
                           NewsDefinitionRepository newsRepository,
                           ScenarioDefinitionRepository scenarioRepository,
                           LegislativeBillDefinitionRepository billRepository,
-                          FactionDefinitionRepository factionRepository) {
+                          FactionDefinitionRepository factionRepository,
+                          NationalConfigRepository nationalConfigRepository,
+                          NationalEventRepository nationalEventRepository,
+                          NationalThemeRepository nationalThemeRepository,
+                          StateInfrastructureDefinitionRepository infrastructureRepository) {
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
         this.scenarioRepository = scenarioRepository;
         this.billRepository = billRepository;
         this.factionRepository = factionRepository;
+        this.nationalConfigRepository = nationalConfigRepository;
+        this.nationalEventRepository = nationalEventRepository;
+        this.nationalThemeRepository = nationalThemeRepository;
+        this.infrastructureRepository = infrastructureRepository;
     }
 
     @Override
@@ -134,6 +146,88 @@ public class DatabaseSeeder implements CommandLineRunner {
             log.info("Factions already seeded (count: {}). Skipping.", factionRepository.count());
         }
 
+        // 6. Seed / Sync National Configs
+        File nationalDir = new File("../seed-data/national/national_configs");
+        if (nationalDir.exists() && nationalDir.isDirectory()) {
+            File[] configFiles = nationalDir.listFiles((dir, name) -> name.endsWith(".json"));
+            if (configFiles != null) {
+                for (File cfgFile : configFiles) {
+                    try {
+                        log.info("Syncing NationalConfig from {}...", cfgFile.getName());
+                        NationalConfig cfg = mapper.readValue(cfgFile, NationalConfig.class);
+                        var existing = nationalConfigRepository.findByEra(cfg.getEra());
+                        if (existing.isPresent()) {
+                            cfg.setId(existing.get().getId());
+                        }
+                        nationalConfigRepository.save(cfg);
+                        log.info("Successfully synced NationalConfig for era {}.", cfg.getEra());
+                    } catch (Exception ex) {
+                        log.error("Failed to seed/sync NationalConfig from " + cfgFile.getName(), ex);
+                    }
+                }
+            }
+        } else {
+            log.warn("National configs seed directory not found at '../seed-data/national/national_configs'.");
+        }
+
+        // 7. Seed / Sync National Events
+        File eventsDir = new File("../seed-data/national/national_events");
+        if (eventsDir.exists() && eventsDir.isDirectory()) {
+            File[] eventFiles = eventsDir.listFiles((dir, name) -> name.endsWith(".json"));
+            if (eventFiles != null) {
+                for (File evtFile : eventFiles) {
+                    try {
+                        log.info("Syncing NationalEvents from {}...", evtFile.getName());
+                        List<NationalEvent> evts = mapper.readValue(evtFile, new TypeReference<List<NationalEvent>>() {});
+                        for (NationalEvent e : evts) {
+                            nationalEventRepository.save(e);
+                        }
+                        log.info("Successfully synced {} NationalEvents from {}.", evts.size(), evtFile.getName());
+                    } catch (Exception ex) {
+                        log.error("Failed to seed NationalEvents from " + evtFile.getName(), ex);
+                    }
+                }
+            }
+        }
+
+        // 8. Seed / Sync National Themes
+        File themesDir = new File("../seed-data/national/national_themes");
+        if (themesDir.exists() && themesDir.isDirectory()) {
+            File[] themeFiles = themesDir.listFiles((dir, name) -> name.endsWith(".json"));
+            if (themeFiles != null) {
+                for (File thmFile : themeFiles) {
+                    try {
+                        log.info("Syncing NationalThemes from {}...", thmFile.getName());
+                        List<NationalTheme> thms = mapper.readValue(thmFile, new TypeReference<List<NationalTheme>>() {});
+                        for (NationalTheme t : thms) {
+                            nationalThemeRepository.save(t);
+                        }
+                        log.info("Successfully synced {} NationalThemes from {}.", thms.size(), thmFile.getName());
+                    } catch (Exception ex) {
+                        log.error("Failed to seed NationalThemes from " + thmFile.getName(), ex);
+                    }
+                }
+            }
+        }
+
+        // 9. Seed / Sync State Infrastructure Definitions
+        File infraFile = new File("../seed-data/national/state_infrastructure.json");
+        if (infraFile.exists()) {
+            try {
+                log.info("Syncing StateInfrastructureDefinitions from {}...", infraFile.getName());
+                List<StateInfrastructureDefinition> items = mapper.readValue(infraFile, new TypeReference<List<StateInfrastructureDefinition>>() {});
+                for (StateInfrastructureDefinition item : items) {
+                    infrastructureRepository.findByKey(item.getKey())
+                        .ifPresent(existing -> item.setId(existing.getId()));
+                    infrastructureRepository.save(item);
+                }
+                log.info("Successfully synced {} StateInfrastructureDefinitions.", items.size());
+            } catch (Exception ex) {
+                log.error("Failed to seed StateInfrastructureDefinitions from " + infraFile.getName(), ex);
+            }
+        }
+
         log.info("Database seeding check complete.");
     }
 }
+

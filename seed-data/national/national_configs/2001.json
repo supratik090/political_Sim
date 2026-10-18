@@ -1,0 +1,5518 @@
+{
+  "era": 2001,
+  "title": "The NDA Experiment",
+  "description": "Vajpayee leads the 24-party NDA coalition through economic reforms, national security challenges, and political turbulence (2001-2005).",
+  "supportedIdeologies": [
+    "DEVELOPMENTAL_PROGRESSIVE",
+    "NATIONALIST_CONSERVATIVE",
+    "CENTRIST_SECULAR",
+    "LEFT_SOCIALIST",
+    "REGIONAL_SOCIALIST"
+  ],
+  "alliances": [
+    {
+      "key": "NDA",
+      "name": "National Democratic Alliance",
+      "color": "#FF9933",
+      "leaderParty": "bjp",
+      "initialParties": [
+        "bjp",
+        "shiv_sena",
+        "akali_dal",
+        "jdu",
+        "tdp",
+        "pmc",
+        "bjd",
+        "tmc",
+        "dmk",
+        "others"
+      ]
+    },
+    {
+      "key": "INC",
+      "name": "Congress & Allies",
+      "color": "#00BFFF",
+      "leaderParty": "inc",
+      "initialParties": [
+        "inc"
+      ]
+    },
+    {
+      "key": "LEFT",
+      "name": "Left Front",
+      "color": "#CC0000",
+      "leaderParty": "cpim",
+      "initialParties": [
+        "cpim",
+        "cpi",
+        "rsp",
+        "fb"
+      ]
+    },
+    {
+      "key": "INDEPENDENT",
+      "name": "Unaffiliated & Regional",
+      "color": "#888888",
+      "leaderParty": null,
+      "initialParties": [
+        "sp",
+        "rjd",
+        "aidmk",
+        "ydp",
+        "ncp",
+        "others"
+      ]
+    }
+  ],
+  "parties": [
+    {
+      "partyKey": "ydp",
+      "name": "Youth Development Party",
+      "shortName": "YDP",
+      "ideology": "DEVELOPMENTAL_PROGRESSIVE",
+      "initialAllianceKey": "INDEPENDENT",
+      "initialContent": 80,
+      "isPlayerSelectable": true,
+      "color": "#7C3AED",
+      "description": "New upstart youth development party",
+      "activeInAllStates": true,
+      "activeStates": [],
+      "initialSeats": 0,
+      "power": 0,
+      "declaredFundsCr": 15,
+      "fundsCr": 15,
+      "initialFunds": 15,
+      "workers": 250000,
+      "volunteers": 120000,
+      "donors": 5000
+    },
+    {
+      "partyKey": "bjp",
+      "name": "Bharatiya Janata Party",
+      "shortName": "BJP",
+      "ideology": "NATIONALIST_CONSERVATIVE",
+      "initialAllianceKey": "NDA",
+      "initialContent": 75,
+      "isPlayerSelectable": true,
+      "color": "#FF9933",
+      "description": "Ruling NDA alliance leader with 182 seats.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Uttar Pradesh",
+        "Maharashtra",
+        "West Bengal",
+        "Bihar",
+        "Tamil Nadu",
+        "Madhya Pradesh",
+        "Karnataka",
+        "Gujarat",
+        "Andhra Pradesh",
+        "Rajasthan",
+        "Odisha",
+        "Telangana",
+        "Jharkhand",
+        "Assam",
+        "Punjab",
+        "Chhattisgarh",
+        "Haryana",
+        "Delhi",
+        "Jammu & Kashmir",
+        "Uttarakhand",
+        "Himachal Pradesh",
+        "Goa",
+        "Arunachal Pradesh",
+        "Union Territories"
+      ],
+      "initialSeats": 182,
+      "power": 34,
+      "declaredFundsCr": 98.5,
+      "fundsCr": 98.5,
+      "initialFunds": 98.5,
+      "workers": 3800000,
+      "volunteers": 1500000,
+      "donors": 62000
+    },
+    {
+      "partyKey": "inc",
+      "name": "Indian National Congress",
+      "shortName": "INC",
+      "ideology": "CENTRIST_SECULAR",
+      "initialAllianceKey": "INC",
+      "initialContent": 70,
+      "isPlayerSelectable": true,
+      "color": "#00BFFF",
+      "description": "Main opposition party rebuilding under Sonia Gandhi.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Uttar Pradesh",
+        "Maharashtra",
+        "West Bengal",
+        "Bihar",
+        "Tamil Nadu",
+        "Madhya Pradesh",
+        "Karnataka",
+        "Gujarat",
+        "Rajasthan",
+        "Odisha",
+        "Kerala",
+        "Telangana",
+        "Assam",
+        "Punjab",
+        "Chhattisgarh",
+        "Uttarakhand",
+        "Meghalaya",
+        "Manipur",
+        "Nagaland",
+        "Union Territories"
+      ],
+      "initialSeats": 114,
+      "power": 21,
+      "declaredFundsCr": 132.5,
+      "fundsCr": 132.5,
+      "initialFunds": 132.5,
+      "workers": 4500000,
+      "volunteers": 1200000,
+      "donors": 45000
+    },
+    {
+      "partyKey": "cpim",
+      "name": "Communist Party of India (Marxist)",
+      "shortName": "CPM",
+      "ideology": "LEFT_SOCIALIST",
+      "initialAllianceKey": "LEFT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#CC0000",
+      "description": "Leader of Left Front in Bengal, Kerala, and Tripura.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "West Bengal",
+        "Kerala",
+        "Punjab",
+        "Tripura"
+      ],
+      "initialSeats": 33,
+      "power": 6,
+      "declaredFundsCr": 35.4,
+      "fundsCr": 35.4,
+      "initialFunds": 35.4,
+      "workers": 850000,
+      "volunteers": 450000,
+      "donors": 18500
+    },
+    {
+      "partyKey": "tdp",
+      "name": "Telugu Desam Party",
+      "shortName": "TDP",
+      "ideology": "DEVELOPMENTAL_PROGRESSIVE",
+      "initialAllianceKey": "NDA",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#FFFF00",
+      "description": "Andhra Pradesh regional powerhouse and key NDA partner.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Andhra Pradesh",
+        "Telangana"
+      ],
+      "initialSeats": 29,
+      "power": 5,
+      "declaredFundsCr": 18.6,
+      "fundsCr": 18.6,
+      "initialFunds": 18.6,
+      "workers": 550000,
+      "volunteers": 200000,
+      "donors": 9800
+    },
+    {
+      "partyKey": "sp",
+      "name": "Samajwadi Party",
+      "shortName": "SP",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "INDEPENDENT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#FF0000",
+      "description": "UP stronghold party led by Mulayam Singh Yadav.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Uttar Pradesh"
+      ],
+      "initialSeats": 26,
+      "power": 5,
+      "declaredFundsCr": 24.8,
+      "fundsCr": 24.8,
+      "initialFunds": 24.8,
+      "workers": 650000,
+      "volunteers": 220000,
+      "donors": 12500
+    },
+    {
+      "partyKey": "jdu",
+      "name": "Janata Dal (United)",
+      "shortName": "JD(U)",
+      "ideology": "NATIONALIST_CONSERVATIVE",
+      "initialAllianceKey": "NDA",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#008080",
+      "description": "Bihar key NDA coalition partner.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Bihar",
+        "Karnataka"
+      ],
+      "initialSeats": 21,
+      "power": 4,
+      "declaredFundsCr": 10.5,
+      "fundsCr": 10.5,
+      "initialFunds": 10.5,
+      "workers": 290000,
+      "volunteers": 95000,
+      "donors": 4500
+    },
+    {
+      "partyKey": "shiv_sena",
+      "name": "Shiv Sena",
+      "shortName": "SHS",
+      "ideology": "NATIONALIST_CONSERVATIVE",
+      "initialAllianceKey": "NDA",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#FF6600",
+      "description": "Maharashtra regional conservative NDA ally.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Maharashtra"
+      ],
+      "initialSeats": 15,
+      "power": 3,
+      "declaredFundsCr": 16.4,
+      "fundsCr": 16.4,
+      "initialFunds": 16.4,
+      "workers": 380000,
+      "volunteers": 180000,
+      "donors": 11200
+    },
+    {
+      "partyKey": "bsp",
+      "name": "Bahujan Samaj Party",
+      "shortName": "BSP",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "INDEPENDENT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#1565C0",
+      "description": "Dalit movement regional party in UP and Central India.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Uttar Pradesh"
+      ],
+      "initialSeats": 14,
+      "power": 3,
+      "declaredFundsCr": 21.5,
+      "fundsCr": 21.5,
+      "initialFunds": 21.5,
+      "workers": 720000,
+      "volunteers": 280000,
+      "donors": 22000
+    },
+    {
+      "partyKey": "dmk",
+      "name": "Dravida Munnetra Kazhagam",
+      "shortName": "DMK",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "NDA",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#DD0000",
+      "description": "Tamil Nadu Dravidian regional party.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Tamil Nadu"
+      ],
+      "initialSeats": 12,
+      "power": 2,
+      "declaredFundsCr": 14.2,
+      "fundsCr": 14.2,
+      "initialFunds": 14.2,
+      "workers": 480000,
+      "volunteers": 160000,
+      "donors": 8400
+    },
+    {
+      "partyKey": "aidmk",
+      "name": "All India Anna DMK",
+      "shortName": "ADMK",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "INDEPENDENT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#00A859",
+      "description": "Tamil Nadu ruling Dravidian regional party.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Tamil Nadu"
+      ],
+      "initialSeats": 10,
+      "power": 2,
+      "declaredFundsCr": 12.8,
+      "fundsCr": 12.8,
+      "initialFunds": 12.8,
+      "workers": 450000,
+      "volunteers": 150000,
+      "donors": 7600
+    },
+    {
+      "partyKey": "bjd",
+      "name": "Biju Janata Dal",
+      "shortName": "BJD",
+      "ideology": "DEVELOPMENTAL_PROGRESSIVE",
+      "initialAllianceKey": "NDA",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#006600",
+      "description": "Odisha regional ruling party and NDA ally.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Odisha"
+      ],
+      "initialSeats": 10,
+      "power": 2,
+      "declaredFundsCr": 8.5,
+      "fundsCr": 8.5,
+      "initialFunds": 8.5,
+      "workers": 210000,
+      "volunteers": 75000,
+      "donors": 3900
+    },
+    {
+      "partyKey": "tmc",
+      "name": "All India Trinamool Congress",
+      "shortName": "AITC",
+      "ideology": "CENTRIST_SECULAR",
+      "initialAllianceKey": "NDA",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#2E8B57",
+      "description": "West Bengal key opposition challenger.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "West Bengal"
+      ],
+      "initialSeats": 8,
+      "power": 1,
+      "declaredFundsCr": 6.2,
+      "fundsCr": 6.2,
+      "initialFunds": 6.2,
+      "workers": 190000,
+      "volunteers": 70000,
+      "donors": 3100
+    },
+    {
+      "partyKey": "ncp",
+      "name": "Nationalist Congress Party",
+      "shortName": "NCP",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "INDEPENDENT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#10B981",
+      "description": "Maharashtra regional force led by Sharad Pawar.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Maharashtra"
+      ],
+      "initialSeats": 8,
+      "power": 1,
+      "declaredFundsCr": 9.8,
+      "fundsCr": 9.8,
+      "initialFunds": 9.8,
+      "workers": 220000,
+      "volunteers": 80000,
+      "donors": 5800
+    },
+    {
+      "partyKey": "rjd",
+      "name": "Rashtriya Janata Dal",
+      "shortName": "RJD",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "INDEPENDENT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#007A3D",
+      "description": "Bihar regional party led by Lalu Prasad Yadav.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Bihar"
+      ],
+      "initialSeats": 7,
+      "power": 1,
+      "declaredFundsCr": 7.6,
+      "fundsCr": 7.6,
+      "initialFunds": 7.6,
+      "workers": 260000,
+      "volunteers": 90000,
+      "donors": 4200
+    },
+    {
+      "partyKey": "inld",
+      "name": "Indian National Lok Dal",
+      "shortName": "INLD",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "INDEPENDENT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#009933",
+      "description": "Haryana regional agrarian party.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Haryana"
+      ],
+      "initialSeats": 5,
+      "power": 1,
+      "declaredFundsCr": 4.5,
+      "fundsCr": 4.5,
+      "initialFunds": 4.5,
+      "workers": 95000,
+      "volunteers": 35000,
+      "donors": 2100
+    },
+    {
+      "partyKey": "cpi",
+      "name": "Communist Party of India",
+      "shortName": "CPI",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "LEFT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#DC2626",
+      "description": "Left Front constituent partner.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "West Bengal",
+        "Kerala"
+      ],
+      "initialSeats": 4,
+      "power": 1,
+      "declaredFundsCr": 4.2,
+      "fundsCr": 4.2,
+      "initialFunds": 4.2,
+      "workers": 120000,
+      "volunteers": 45000,
+      "donors": 2800
+    },
+    {
+      "partyKey": "nc",
+      "name": "J&K National Conference",
+      "shortName": "JKN",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "INDEPENDENT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#CC0000",
+      "description": "Jammu & Kashmir regional ruling party.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Jammu & Kashmir"
+      ],
+      "initialSeats": 4,
+      "power": 1,
+      "declaredFundsCr": 3.5,
+      "fundsCr": 3.5,
+      "initialFunds": 3.5,
+      "workers": 75000,
+      "volunteers": 25000,
+      "donors": 1500
+    },
+    {
+      "partyKey": "rsp",
+      "name": "Revolutionary Socialist Party",
+      "shortName": "RSP",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "LEFT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#B91C1C",
+      "description": "Left Front regional partner.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "West Bengal"
+      ],
+      "initialSeats": 3,
+      "power": 1,
+      "declaredFundsCr": 2.1,
+      "fundsCr": 2.1,
+      "initialFunds": 2.1,
+      "workers": 45000,
+      "volunteers": 15000,
+      "donors": 950
+    },
+    {
+      "partyKey": "akali_dal",
+      "name": "Shiromani Akali Dal",
+      "shortName": "SAD",
+      "ideology": "NATIONALIST_CONSERVATIVE",
+      "initialAllianceKey": "NDA",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#F4C430",
+      "description": "Punjab regional NDA partner.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Punjab"
+      ],
+      "initialSeats": 2,
+      "power": 0,
+      "declaredFundsCr": 4.8,
+      "fundsCr": 4.8,
+      "initialFunds": 4.8,
+      "workers": 140000,
+      "volunteers": 50000,
+      "donors": 3600
+    },
+    {
+      "partyKey": "rld",
+      "name": "Rashtriya Lok Dal",
+      "shortName": "RLD",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "INDEPENDENT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#16A34A",
+      "description": "Western UP agrarian regional party.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Uttar Pradesh"
+      ],
+      "initialSeats": 2,
+      "power": 0,
+      "declaredFundsCr": 2.4,
+      "fundsCr": 2.4,
+      "initialFunds": 2.4,
+      "workers": 60000,
+      "volunteers": 20000,
+      "donors": 1200
+    },
+    {
+      "partyKey": "fbl",
+      "name": "All India Forward Bloc",
+      "shortName": "FBL",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "LEFT",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#991B1B",
+      "description": "Left Front constituent partner.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "West Bengal"
+      ],
+      "initialSeats": 2,
+      "power": 0,
+      "declaredFundsCr": 1.8,
+      "fundsCr": 1.8,
+      "initialFunds": 1.8,
+      "workers": 40000,
+      "volunteers": 12000,
+      "donors": 800
+    },
+    {
+      "partyKey": "mul",
+      "name": "Indian Union Muslim League",
+      "shortName": "MUL",
+      "ideology": "REGIONAL_SOCIALIST",
+      "initialAllianceKey": "INC",
+      "initialContent": 60,
+      "isPlayerSelectable": true,
+      "color": "#047857",
+      "description": "Kerala regional INC partner.",
+      "activeInAllStates": false,
+      "activeStates": [
+        "Kerala"
+      ],
+      "initialSeats": 2,
+      "power": 0,
+      "declaredFundsCr": 2,
+      "fundsCr": 2,
+      "initialFunds": 2,
+      "workers": 55000,
+      "volunteers": 20000,
+      "donors": 1400
+    }
+  ],
+  "stateSeatData": [
+    {
+      "stateName": "Uttar Pradesh",
+      "totalSeats": 80,
+      "rulingPartyKey": "bjp",
+      "oppositionPartyKey": "sp",
+      "supportPercentages": {
+        "bjp": 36,
+        "sp": 33,
+        "bsp": 17,
+        "inc": 11,
+        "rld": 3,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 21,
+        "sp": 26,
+        "bsp": 14,
+        "inc": 9,
+        "rld": 2,
+        "others": 8,
+        "ydp": 0
+      },
+      "regions": [
+        {
+          "regionId": "paschim_pradesh",
+          "regionName": "Paschim Pradesh (Western UP)",
+          "lokSabhaSeats": 26,
+          "assemblySeats": 136,
+          "description": "Agrarian sugar belt, Jat-Muslim dynamics, high farmer mobilization (BKU), and NCR industrial-urban hubs."
+        },
+        {
+          "regionId": "rohilkhand",
+          "regionName": "Rohilkhand & Upper Plains",
+          "lokSabhaSeats": 10,
+          "assemblySeats": 52,
+          "description": "Upper Gangetic plains, brass & artisanal handicraft centres, high minority concentration, and intense triangular contests."
+        },
+        {
+          "regionId": "awadh",
+          "regionName": "Awadh (Central UP)",
+          "lokSabhaSeats": 14,
+          "assemblySeats": 73,
+          "description": "State capital corridor around Lucknow, administrative hub, and traditional socialist and royal political bastions."
+        },
+        {
+          "regionId": "bundelkhand",
+          "regionName": "Bundelkhand",
+          "lokSabhaSeats": 4,
+          "assemblySeats": 19,
+          "description": "Drought-prone rugged southern plateau, severe water distress, agrarian poverty, and strong distinct cultural identity."
+        },
+        {
+          "regionId": "purvanchal",
+          "regionName": "Purvanchal (Eastern UP)",
+          "lokSabhaSeats": 26,
+          "assemblySeats": 123,
+          "description": "Varanasi-Gorakhpur Bhojpuri heartland, dense rural population, weaver clusters, intense caste polarization, and high out-migration."
+        }
+      ]
+    },
+    {
+      "stateName": "Maharashtra",
+      "totalSeats": 48,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "shiv_sena",
+      "supportPercentages": {
+        "bjp": 28,
+        "shiv_sena": 28,
+        "inc": 24,
+        "ncp": 20,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "shiv_sena": 15,
+        "bjp": 13,
+        "inc": 12,
+        "ncp": 8,
+        "ydp": 0
+      },
+      "regions": [
+        {
+          "regionId": "vidarbha",
+          "regionName": "Vidarbha",
+          "lokSabhaSeats": 10,
+          "assemblySeats": 62,
+          "description": "Eastern Maharashtra agrarian & cotton belt; high farmer distress with acute political volatility."
+        },
+        {
+          "regionId": "marathwada",
+          "regionName": "Marathwada",
+          "lokSabhaSeats": 8,
+          "assemblySeats": 46,
+          "description": "Drought-prone central plateau; intense social mobilization and deep caste competition."
+        },
+        {
+          "regionId": "mumbai_konkan",
+          "regionName": "Greater Mumbai and Konkan",
+          "lokSabhaSeats": 12,
+          "assemblySeats": 75,
+          "description": "Financial capital and coastal belt; dense urban infrastructure, high business and media influence."
+        },
+        {
+          "regionId": "north_maharashtra",
+          "regionName": "North Maharashtra and Khandesh",
+          "lokSabhaSeats": 7,
+          "assemblySeats": 47,
+          "description": "Khandesh & tribal belt; agricultural produce markets and cooperative banking networks."
+        },
+        {
+          "regionId": "western_maharashtra",
+          "regionName": "Western Maharashtra",
+          "lokSabhaSeats": 11,
+          "assemblySeats": 58,
+          "description": "Sugar belt and cooperative heartland; prosperous rural institutions and influential political networks."
+        }
+      ]
+    },
+    {
+      "stateName": "West Bengal",
+      "totalSeats": 42,
+      "rulingPartyKey": "cpim",
+      "oppositionPartyKey": "tmc",
+      "supportPercentages": {
+        "cpim": 50,
+        "tmc": 19,
+        "inc": 12,
+        "cpi": 7,
+        "rsp": 7,
+        "fbl": 5,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "cpim": 21,
+        "tmc": 8,
+        "inc": 3,
+        "cpi": 3,
+        "rsp": 3,
+        "fbl": 2,
+        "bjp": 2,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Bihar",
+      "totalSeats": 40,
+      "rulingPartyKey": "jdu",
+      "oppositionPartyKey": "rjd",
+      "supportPercentages": {
+        "jdu": 45,
+        "bjp": 30,
+        "rjd": 17,
+        "inc": 8,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "jdu": 18,
+        "bjp": 12,
+        "rjd": 7,
+        "inc": 3,
+        "ydp": 0
+      },
+      "regions": [
+        {
+          "regionId": "tirhut_champaran",
+          "regionName": "Tirhut & Champaran (North-West Bihar)",
+          "lokSabhaSeats": 10,
+          "assemblySeats": 59,
+          "description": "Historic Champaran indigo heartland and Gandak basin; sugar mills, dense agrarian population, and acute flood vulnerability."
+        },
+        {
+          "regionId": "mithilanchal",
+          "regionName": "Mithilanchal (North-East Plains)",
+          "lokSabhaSeats": 8,
+          "assemblySeats": 50,
+          "description": "Kosi river floodplains, Maithili cultural core around Darbhanga-Madhubani, and intricate social-caste balancing."
+        },
+        {
+          "regionId": "seemanchal",
+          "regionName": "Seemanchal (Eastern Border Belt)",
+          "lokSabhaSeats": 4,
+          "assemblySeats": 24,
+          "description": "Purnia-Kishanganj corridor bordering Bengal & Nepal; high minority population, chronic erosion, and heavy labor out-migration."
+        },
+        {
+          "regionId": "magadh",
+          "regionName": "Magadh (South-Central Bihar)",
+          "lokSabhaSeats": 10,
+          "assemblySeats": 60,
+          "description": "State capital corridor around Patna and Gaya; ancient administrative centre, educational hubs, and intense Kurmi-Yadav-Dalit competition."
+        },
+        {
+          "regionId": "bhojpur_anga",
+          "regionName": "Bhojpur & Anga (South-West & South-East Bihar)",
+          "lokSabhaSeats": 8,
+          "assemblySeats": 50,
+          "description": "Bhojpuri heartland along the Son river combined with Bhagalpur silk belt; rich agrarian heritage and deep political mobilization."
+        }
+      ]
+    },
+    {
+      "stateName": "Tamil Nadu",
+      "totalSeats": 39,
+      "rulingPartyKey": "aidmk",
+      "oppositionPartyKey": "dmk",
+      "supportPercentages": {
+        "dmk": 31,
+        "aidmk": 26,
+        "pmk": 13,
+        "mdmk": 10,
+        "bjp": 10,
+        "inc": 10,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "dmk": 12,
+        "aidmk": 10,
+        "pmk": 5,
+        "mdmk": 4,
+        "bjp": 4,
+        "inc": 4,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Madhya Pradesh",
+      "totalSeats": 29,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "bjp",
+      "supportPercentages": {
+        "bjp": 72,
+        "inc": 28,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 21,
+        "inc": 8,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Karnataka",
+      "totalSeats": 28,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "bjp",
+      "supportPercentages": {
+        "inc": 64,
+        "bjp": 25,
+        "jdu": 11,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "inc": 18,
+        "bjp": 7,
+        "jdu": 3,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Gujarat",
+      "totalSeats": 26,
+      "rulingPartyKey": "bjp",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "bjp": 77,
+        "inc": 23,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 20,
+        "inc": 6,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Andhra Pradesh",
+      "totalSeats": 25,
+      "rulingPartyKey": "tdp",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "tdp": 80,
+        "bjp": 20,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "tdp": 20,
+        "bjp": 5,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Rajasthan",
+      "totalSeats": 25,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "bjp",
+      "supportPercentages": {
+        "bjp": 64,
+        "inc": 36,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 16,
+        "inc": 9,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Odisha",
+      "totalSeats": 21,
+      "rulingPartyKey": "bjd",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "bjd": 48,
+        "bjp": 43,
+        "inc": 9,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjd": 10,
+        "bjp": 9,
+        "inc": 2,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Kerala",
+      "totalSeats": 20,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "cpim",
+      "supportPercentages": {
+        "inc": 40,
+        "cpim": 40,
+        "mul": 10,
+        "cpi": 5,
+        "others": 5,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "inc": 8,
+        "cpim": 8,
+        "mul": 2,
+        "cpi": 1,
+        "others": 1,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Telangana",
+      "totalSeats": 17,
+      "rulingPartyKey": "tdp",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "tdp": 53,
+        "inc": 35,
+        "bjp": 12,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "tdp": 9,
+        "inc": 6,
+        "bjp": 2,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Jharkhand",
+      "totalSeats": 14,
+      "rulingPartyKey": "bjp",
+      "oppositionPartyKey": "jmm",
+      "supportPercentages": {
+        "bjp": 79,
+        "jmm": 21,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 11,
+        "jmm": 3,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Assam",
+      "totalSeats": 14,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "agp",
+      "supportPercentages": {
+        "inc": 71,
+        "agp": 14,
+        "bjp": 15,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "inc": 9,
+        "agp": 2,
+        "bjp": 2,
+        "others": 1,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Punjab",
+      "totalSeats": 13,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "akali_dal",
+      "supportPercentages": {
+        "inc": 62,
+        "cpim": 15,
+        "akali_dal": 15,
+        "bjp": 8,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "inc": 8,
+        "cpim": 2,
+        "akali_dal": 2,
+        "bjp": 1,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Chhattisgarh",
+      "totalSeats": 11,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "bjp",
+      "supportPercentages": {
+        "bjp": 73,
+        "inc": 27,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 8,
+        "inc": 3,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Haryana",
+      "totalSeats": 10,
+      "rulingPartyKey": "inld",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "inld": 50,
+        "bjp": 50,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "inld": 5,
+        "bjp": 5,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Delhi",
+      "totalSeats": 7,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "bjp",
+      "supportPercentages": {
+        "bjp": 100,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 7,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Jammu & Kashmir",
+      "totalSeats": 6,
+      "rulingPartyKey": "nc",
+      "oppositionPartyKey": "bjp",
+      "supportPercentages": {
+        "nc": 67,
+        "bjp": 33,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "nc": 4,
+        "bjp": 2,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Uttarakhand",
+      "totalSeats": 5,
+      "rulingPartyKey": "bjp",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "bjp": 80,
+        "inc": 20,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 4,
+        "inc": 1,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Himachal Pradesh",
+      "totalSeats": 4,
+      "rulingPartyKey": "bjp",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "bjp": 75,
+        "others": 25,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 3,
+        "others": 1,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Tripura",
+      "totalSeats": 2,
+      "rulingPartyKey": "cpim",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "cpim": 100,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "cpim": 2,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Meghalaya",
+      "totalSeats": 2,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "npp",
+      "supportPercentages": {
+        "inc": 50,
+        "others": 50,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "inc": 1,
+        "others": 1,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Manipur",
+      "totalSeats": 2,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "bjp",
+      "supportPercentages": {
+        "inc": 50,
+        "others": 50,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "inc": 1,
+        "others": 1,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Goa",
+      "totalSeats": 2,
+      "rulingPartyKey": "bjp",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "bjp": 100,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 2,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Arunachal Pradesh",
+      "totalSeats": 2,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "bjp",
+      "supportPercentages": {
+        "bjp": 100,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 2,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Mizoram",
+      "totalSeats": 1,
+      "rulingPartyKey": "mnf",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "mnf": 100,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "mnf": 1,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Nagaland",
+      "totalSeats": 1,
+      "rulingPartyKey": "inc",
+      "oppositionPartyKey": "npf",
+      "supportPercentages": {
+        "inc": 100,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "inc": 1,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Sikkim",
+      "totalSeats": 1,
+      "rulingPartyKey": "sdf",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "sdf": 100,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "sdf": 1,
+        "ydp": 0
+      }
+    },
+    {
+      "stateName": "Union Territories",
+      "totalSeats": 6,
+      "rulingPartyKey": "bjp",
+      "oppositionPartyKey": "inc",
+      "supportPercentages": {
+        "bjp": 50,
+        "inc": 33,
+        "others": 17,
+        "ydp": 0
+      },
+      "initialSeats": {
+        "bjp": 3,
+        "inc": 2,
+        "others": 1,
+        "ydp": 0
+      }
+    }
+  ],
+  "seasons": [
+    {
+      "seasonNumber": 1,
+      "periodName": "Season 1 (Jan - Jun 2001)",
+      "events": [
+        {
+          "eventKey": "2001_s1_ev1_kutch_earthquake",
+          "headline": "Devastating Kutch Earthquake",
+          "category": "DISASTER",
+          "historicalDate": "January 26, 2001",
+          "description": "A massive 7.7 magnitude earthquake strikes Kutch, Gujarat, killing over 20,000 people and devastating infrastructure.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": -12
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Govt Relief Operations",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Agitate Against Inadequate Relief Preparedness",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Judicial Probe into Building Code Violations",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Dispatch YDP Aid Teams Without Public Statements",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2001_s1_ev2_ketan_parekh_scam",
+          "headline": "Stock Market Crash & Ketan Parekh Scam",
+          "category": "FINANCE",
+          "historicalDate": "March 2001",
+          "description": "Stock market collapses following revelations of circular trading, bank fund rigging, and Madhavpura Bank failure.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -8,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 8,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 6,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -10,
+            "morale": -8
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Finance Ministry Regulatory Reforms",
+              "partyContentShift": -2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Lead Nationwide Protests for Small Investors",
+              "partyContentShift": 10,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Resignation of Finance Minister",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Issue Press Release Calling for SEBI Autonomy",
+              "partyContentShift": 1,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 1
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2001_s1_ev3_tehelka_sting",
+          "headline": "Tehelka Defense Procurement Sting Operation",
+          "category": "CORRUPTION",
+          "historicalDate": "March 2001",
+          "description": "Undercover journalists expose bribery in military contracts, triggering high-profile political resignations.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -12,
+              "power": -2
+            },
+            "CENTRIST_SECULAR": {
+              "content": 14,
+              "power": 1
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 8,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 10,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 8,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -15,
+            "morale": -10
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Inquiry Commission Setup",
+              "partyContentShift": -6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 2
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Launch Nationwide Anti-Corruption March",
+              "partyContentShift": 12,
+              "partyPowerShift": 1,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Immediate Dissolution of Lok Sabha",
+              "partyContentShift": 9,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -3
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Call for Institutional Defense Reform",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2001_s1_ev4_agra_summit",
+          "headline": "Agra Peace Summit (Vajpayee - Musharraf)",
+          "category": "POLITICAL",
+          "historicalDate": "July 2001",
+          "description": "High-stakes summit in Agra between PM Vajpayee and President Musharraf ends without a joint declaration over Kashmir.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -3,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -2,
+            "morale": 2
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Back Prime Minister's Firm Stance on Cross-Border Terror",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Protest Failure to Secure Firm Anti-Terror Guarantees",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Criticize Ill-Prepared Diplomatic Strategy",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Commend Continued Dialogue & Peace Process",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 3
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2001_s1_ev5_gsat1_launch",
+          "headline": "ISRO Successfully Launches GSLV-D1 / GSAT-1",
+          "category": "ACHIEVEMENT",
+          "historicalDate": "April 2001",
+          "description": "ISRO achieves milestone with first launch of Geosynchronous Satellite Launch Vehicle from Sriharikota.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 2,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 6,
+            "morale": 12
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Congratulate ISRO Scientists & Prime Minister",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Highlight Need for Higher R&D & Tech Budget",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Credit Previous Administrations for Foundation",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Issue Congratulatory Statement on Space Mission",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "seasonNumber": 2,
+      "periodName": "Season 2 (Jul - Dec 2001)",
+      "events": [
+        {
+          "eventKey": "2001_s2_ev1_enron_dabhol_crisis",
+          "headline": "Enron Dabhol Power Plant Collapse",
+          "category": "FINANCE",
+          "historicalDate": "July 2001",
+          "description": "Dabhol Power Company shuts down operations after power tariff disputes, leaving state utility MSEB in deep debt.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -5,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": -3,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 8,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 5,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -8,
+            "morale": -6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Govt Plan to Restructure Power Contracts",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Lead Workers Protests Against Foreign Power Monopolies",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Blame State Govt Mismanagement & High Tariffs",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Advocate for Renewable Energy Transition Plan",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2001_s2_ev2_simi_uapa_ban",
+          "headline": "Ban on Students Islamic Movement of India (SIMI)",
+          "category": "POLITICAL",
+          "historicalDate": "September 2001",
+          "description": "Union Home Ministry bans SIMI under Unlawful Activities Prevention Act following anti-national activities.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": -4,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": -4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 3,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 8,
+            "morale": 4
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Fully Endorse Ban on Extremist Groups",
+              "partyContentShift": 7,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Strict Safeguards Against Misuse of Law",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Question Procedure & Demand Special Judicial Review",
+              "partyContentShift": -2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Call for Zero Tolerance on Terrorism and Hate Speech",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2001_s2_ev3_post_911_diplomacy",
+          "headline": "Post-9/11 Global Anti-Terror Security Shift",
+          "category": "POLITICAL",
+          "historicalDate": "September 2001",
+          "description": "Following 9/11 attacks in US, India offers full intelligence cooperation, reframing cross-border terror in South Asia.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 7,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": -2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 10,
+            "morale": 6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Govt Alignment with Global Anti-Terror Coalition",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Immediate Military Action Against Terror Camps",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Warn Against Strategic Over-Reliance on Foreign Powers",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Urge Non-Aligned Diplomatic Equilibrium",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2001_s2_ev4_golden_quadrilateral_phase1",
+          "headline": "Golden Quadrilateral Highway Project Acceleration",
+          "category": "ACHIEVEMENT",
+          "historicalDate": "November 2001",
+          "description": "NDA Govt accelerates construction of 5,846 km 4-lane highway network connecting Delhi, Mumbai, Chennai, and Kolkata.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 10,
+              "power": 1
+            },
+            "CENTRIST_SECULAR": {
+              "content": -2,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": -2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 12,
+            "morale": 10
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Commend Landmark Infrastructure Expansion",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Fair Compensation & Rehabilitation for Farmers",
+              "partyContentShift": 7,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Audit Highway Tender Allocations & Cost Overruns",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Propose Feeder Roads Connectivity for Villages",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2001_s2_ev5_parliament_attack",
+          "headline": "Terrorist Attack on Indian Parliament",
+          "category": "DISASTER",
+          "historicalDate": "December 13, 2001",
+          "description": "Armed terrorists attack Parliament Complex in Delhi; security forces neutralize attackers, preventing massive loss.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 2
+            },
+            "CENTRIST_SECULAR": {
+              "content": 5,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 14,
+            "morale": 15
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Stand United Behind Government's Defense Mobilization",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Immediate Retaliatory Military Strike",
+              "partyContentShift": 10,
+              "partyPowerShift": 1,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Security Audit & Home Minister Accountability",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Honor Fallen Security Personnel in National Tribute",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "seasonNumber": 3,
+      "periodName": "Season 3 (Jan - Jun 2002)",
+      "events": [
+        {
+          "eventKey": "2002_s3_ev1_operation_parakram",
+          "headline": "Operation Parakram Military Stand-off",
+          "category": "POLITICAL",
+          "historicalDate": "January 2002",
+          "description": "India deploys nearly 500,000 troops along Pakistan border in massive military mobilization post-Parliament attack.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 8,
+              "power": 1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": -4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 4,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 10,
+            "morale": 8
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Armed Forces Deployment & Strategic Pressure",
+              "partyContentShift": 7,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Swift Decisive Action Rather Than Prolonged Stand-off",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Criticize Economic Burden & Risk of Nuclear Escalation",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -3
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Support Army Readiness While Urging Diplomatic Resolution",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2002_s3_ev2_gujarat_communal_violence",
+          "headline": "Godhra Incident & Gujarat Communal Violence",
+          "category": "DISASTER",
+          "historicalDate": "February 27, 2002",
+          "description": "Sabarmati Express burning in Godhra triggers widespread communal violence across Gujarat state.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -14,
+              "power": -1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 12,
+              "power": 1
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 10,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 10,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 8,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -20,
+            "morale": -15
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Defend State Law & Order Operations and Army Deployment",
+              "partyContentShift": -8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Organize Peace Marches & Immediate Relief Camps",
+              "partyContentShift": 10,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Immediate Resignation of Chief Minister & Army Control",
+              "partyContentShift": 12,
+              "partyPowerShift": 1,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Call for National Harmony & All-Party Delegation Visit",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 3
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2002_s3_ev3_joint_session_pota",
+          "headline": "Historic Joint Sitting of Parliament Passes POTA",
+          "category": "POLITICAL",
+          "historicalDate": "March 26, 2002",
+          "description": "NDA Govt convenes rare Joint Sitting of Parliament (only 3rd in Indian history) to pass POTA after Rajya Sabha rejection.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 9,
+              "power": 2
+            },
+            "CENTRIST_SECULAR": {
+              "content": -4,
+              "power": -1
+            },
+            "LEFT_SOCIALIST": {
+              "content": -5,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": -3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 8,
+            "morale": 4
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Vote YES to Strengthen National Anti-Terror Laws",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Agitate Against Executive Overreach & Civil Right Risks",
+              "partyContentShift": 7,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Vote NO & Stage Parliament Walkout Against Draconian Provisions",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Abstain While Submitting Proposed Amendments",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 1
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2002_s3_ev4_uti_bailout_package",
+          "headline": "Unit Trust of India (UTI US-64) Financial Bailout",
+          "category": "FINANCE",
+          "historicalDate": "July 2002",
+          "description": "Govt announces Rs 14,500 crore bailout package for UTI US-64 scheme to protect millions of small retail investors.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 5,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 2
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Govt Intervention to Protect Small Investors",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Expose Regulatory Lapses & Executive Malfeasance",
+              "partyContentShift": 7,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Oppose Taxpayer Bailout of Financial Mismanagement",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Propose Mandatory Insurance for Public Mutual Funds",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2002_s3_ev5_delhi_metro_trial",
+          "headline": "First Delhi Metro Rail Operational Trial",
+          "category": "ACHIEVEMENT",
+          "historicalDate": "December 2002",
+          "description": "PM Vajpayee inaugurates first section of Delhi Metro (Shahdara to Tis Hazari), revolutionizing urban transit.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 10,
+            "morale": 12
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Praise Technological Marvel & E. Sreedharan's Vision",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Expansion to Tier-2 Cities Nationwide",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Highlight Delays & Land Acquisition Complaints",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Issue Congratulatory Note to Project Engineers",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "seasonNumber": 4,
+      "periodName": "Season 4 (Period 4)",
+      "events": [
+        {
+          "eventKey": "2003_s4_ev1",
+          "headline": "Season 4 Major Policy Directive & Economic Review",
+          "category": "POLITICAL",
+          "historicalDate": "Historical Period S4",
+          "description": "National governance milestones and multi-party parliamentary debates in Season 4.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": -2,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 5
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support National Development Directive",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Allocation for Backward Districts",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Criticize Policy Implementation Gaps",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Issue Balanced Public Statement",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2003_s4_ev2",
+          "headline": "Season 4 Strategic Infrastructure & Technology Milestone",
+          "category": "ACHIEVEMENT",
+          "historicalDate": "Historical Period S4",
+          "description": "National technological milestone and infrastructure expansion phase during Season 4.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 7,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 8,
+            "morale": 10
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Praise Technological Progress & National Achievement",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Fair Wages for Construction Workers",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Audit Allocation Tenders for Transparency",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Congratulate Project Engineers and Workers",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2003_s4_ev3",
+          "headline": "Season 4 Crisis Management & Relief Mission",
+          "category": "DISASTER",
+          "historicalDate": "Historical Period S4",
+          "description": "Environmental and emergency crisis response challenge in Season 4.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": -8
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Central Disaster Relief Operations",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Expose Relief Shortfalls in Affected Regions",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Administrative Accountability & Compensation",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Deploy Volunteer Relief Squads",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 3
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2003_s4_ev4",
+          "headline": "Season 4 Regulatory Exposure & Governance Audit",
+          "category": "CORRUPTION",
+          "historicalDate": "Historical Period S4",
+          "description": "Investigative exposure highlighting institutional accountability in Season 4.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -8,
+              "power": -1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 6,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -12,
+            "morale": -6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support High-Level Judicial Inquiry Commission",
+              "partyContentShift": -3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 2
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Launch Public Integrity Crusade across Capital",
+              "partyContentShift": 10,
+              "partyPowerShift": 1,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Immediate Resignation of Responsible Officials",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Call for Systemic Governance Reform",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2003_s4_ev5",
+          "headline": "Season 4 Regional Assembly Verdicts & Coalition Shift",
+          "category": "POLITICAL",
+          "historicalDate": "Historical Period S4",
+          "description": "Key state assembly election outcomes shifting political momentum in Season 4.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 5,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Welcome Verdict as Validation of Governance Model",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Mobilize Grassroot Cadres for Upcoming State Battles",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Refocus Opposition Strategy on Agrarian Issues",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Analyze Electoral Trends & Prepare State Strategy",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "seasonNumber": 5,
+      "periodName": "Season 5 (Period 5)",
+      "events": [
+        {
+          "eventKey": "2003_s5_ev1",
+          "headline": "Season 5 Major Policy Directive & Economic Review",
+          "category": "FINANCE",
+          "historicalDate": "Historical Period S5",
+          "description": "National governance milestones and multi-party parliamentary debates in Season 5.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": -2,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 5
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support National Development Directive",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Allocation for Backward Districts",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Criticize Policy Implementation Gaps",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Issue Balanced Public Statement",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2003_s5_ev2",
+          "headline": "Season 5 Strategic Infrastructure & Technology Milestone",
+          "category": "ACHIEVEMENT",
+          "historicalDate": "Historical Period S5",
+          "description": "National technological milestone and infrastructure expansion phase during Season 5.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 7,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 8,
+            "morale": 10
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Praise Technological Progress & National Achievement",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Fair Wages for Construction Workers",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Audit Allocation Tenders for Transparency",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Congratulate Project Engineers and Workers",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2003_s5_ev3",
+          "headline": "Season 5 Crisis Management & Relief Mission",
+          "category": "DISASTER",
+          "historicalDate": "Historical Period S5",
+          "description": "Environmental and emergency crisis response challenge in Season 5.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": -8
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Central Disaster Relief Operations",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Expose Relief Shortfalls in Affected Regions",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Administrative Accountability & Compensation",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Deploy Volunteer Relief Squads",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 3
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2003_s5_ev4",
+          "headline": "Season 5 Regulatory Exposure & Governance Audit",
+          "category": "CORRUPTION",
+          "historicalDate": "Historical Period S5",
+          "description": "Investigative exposure highlighting institutional accountability in Season 5.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -8,
+              "power": -1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 6,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -12,
+            "morale": -6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support High-Level Judicial Inquiry Commission",
+              "partyContentShift": -3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 2
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Launch Public Integrity Crusade across Capital",
+              "partyContentShift": 10,
+              "partyPowerShift": 1,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Immediate Resignation of Responsible Officials",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Call for Systemic Governance Reform",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2003_s5_ev5",
+          "headline": "Season 5 Regional Assembly Verdicts & Coalition Shift",
+          "category": "POLITICAL",
+          "historicalDate": "Historical Period S5",
+          "description": "Key state assembly election outcomes shifting political momentum in Season 5.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 5,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Welcome Verdict as Validation of Governance Model",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Mobilize Grassroot Cadres for Upcoming State Battles",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Refocus Opposition Strategy on Agrarian Issues",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Analyze Electoral Trends & Prepare State Strategy",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "seasonNumber": 6,
+      "periodName": "Season 6 (Period 6)",
+      "events": [
+        {
+          "eventKey": "2004_s6_ev1",
+          "headline": "Season 6 Major Policy Directive & Economic Review",
+          "category": "POLITICAL",
+          "historicalDate": "Historical Period S6",
+          "description": "National governance milestones and multi-party parliamentary debates in Season 6.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": -2,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 5
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support National Development Directive",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Allocation for Backward Districts",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Criticize Policy Implementation Gaps",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Issue Balanced Public Statement",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2004_s6_ev2",
+          "headline": "Season 6 Strategic Infrastructure & Technology Milestone",
+          "category": "ACHIEVEMENT",
+          "historicalDate": "Historical Period S6",
+          "description": "National technological milestone and infrastructure expansion phase during Season 6.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 7,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 8,
+            "morale": 10
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Praise Technological Progress & National Achievement",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Fair Wages for Construction Workers",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Audit Allocation Tenders for Transparency",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Congratulate Project Engineers and Workers",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2004_s6_ev3",
+          "headline": "Season 6 Crisis Management & Relief Mission",
+          "category": "DISASTER",
+          "historicalDate": "Historical Period S6",
+          "description": "Environmental and emergency crisis response challenge in Season 6.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": -8
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Central Disaster Relief Operations",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Expose Relief Shortfalls in Affected Regions",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Administrative Accountability & Compensation",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Deploy Volunteer Relief Squads",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 3
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2004_s6_ev4",
+          "headline": "Season 6 Regulatory Exposure & Governance Audit",
+          "category": "CORRUPTION",
+          "historicalDate": "Historical Period S6",
+          "description": "Investigative exposure highlighting institutional accountability in Season 6.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -8,
+              "power": -1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 6,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -12,
+            "morale": -6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support High-Level Judicial Inquiry Commission",
+              "partyContentShift": -3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 2
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Launch Public Integrity Crusade across Capital",
+              "partyContentShift": 10,
+              "partyPowerShift": 1,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Immediate Resignation of Responsible Officials",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Call for Systemic Governance Reform",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2004_s6_ev5",
+          "headline": "Season 6 Regional Assembly Verdicts & Coalition Shift",
+          "category": "POLITICAL",
+          "historicalDate": "Historical Period S6",
+          "description": "Key state assembly election outcomes shifting political momentum in Season 6.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 5,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Welcome Verdict as Validation of Governance Model",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Mobilize Grassroot Cadres for Upcoming State Battles",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Refocus Opposition Strategy on Agrarian Issues",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Analyze Electoral Trends & Prepare State Strategy",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "seasonNumber": 7,
+      "periodName": "Season 7 (Period 7)",
+      "events": [
+        {
+          "eventKey": "2004_s7_ev1",
+          "headline": "Season 7 Major Policy Directive & Economic Review",
+          "category": "FINANCE",
+          "historicalDate": "Historical Period S7",
+          "description": "National governance milestones and multi-party parliamentary debates in Season 7.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": 5
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support National Development Directive",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Allocation for Backward Districts",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Criticize Policy Implementation Gaps",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Issue Balanced Public Statement",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2004_s7_ev2",
+          "headline": "Season 7 Strategic Infrastructure & Technology Milestone",
+          "category": "ACHIEVEMENT",
+          "historicalDate": "Historical Period S7",
+          "description": "National technological milestone and infrastructure expansion phase during Season 7.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 7,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 8,
+            "morale": 10
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Praise Technological Progress & National Achievement",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Fair Wages for Construction Workers",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Audit Allocation Tenders for Transparency",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Congratulate Project Engineers and Workers",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2004_s7_ev3",
+          "headline": "Season 7 Crisis Management & Relief Mission",
+          "category": "DISASTER",
+          "historicalDate": "Historical Period S7",
+          "description": "Environmental and emergency crisis response challenge in Season 7.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": -8
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Central Disaster Relief Operations",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Expose Relief Shortfalls in Affected Regions",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Administrative Accountability & Compensation",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Deploy Volunteer Relief Squads",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 3
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2004_s7_ev4",
+          "headline": "Season 7 Regulatory Exposure & Governance Audit",
+          "category": "CORRUPTION",
+          "historicalDate": "Historical Period S7",
+          "description": "Investigative exposure highlighting institutional accountability in Season 7.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -8,
+              "power": -1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 6,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -12,
+            "morale": -6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support High-Level Judicial Inquiry Commission",
+              "partyContentShift": -3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 2
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Launch Public Integrity Crusade across Capital",
+              "partyContentShift": 10,
+              "partyPowerShift": 1,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Immediate Resignation of Responsible Officials",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Call for Systemic Governance Reform",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2004_s7_ev5",
+          "headline": "Season 7 Regional Assembly Verdicts & Coalition Shift",
+          "category": "POLITICAL",
+          "historicalDate": "Historical Period S7",
+          "description": "Key state assembly election outcomes shifting political momentum in Season 7.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 5,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Welcome Verdict as Validation of Governance Model",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Mobilize Grassroot Cadres for Upcoming State Battles",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Refocus Opposition Strategy on Agrarian Issues",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Analyze Electoral Trends & Prepare State Strategy",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "seasonNumber": 8,
+      "periodName": "Season 8 (Period 8)",
+      "events": [
+        {
+          "eventKey": "2005_s8_ev1",
+          "headline": "Season 8 Major Policy Directive & Economic Review",
+          "category": "POLITICAL",
+          "historicalDate": "Historical Period S8",
+          "description": "National governance milestones and multi-party parliamentary debates in Season 8.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": 5
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support National Development Directive",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Allocation for Backward Districts",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Criticize Policy Implementation Gaps",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Issue Balanced Public Statement",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s8_ev2",
+          "headline": "Season 8 Strategic Infrastructure & Technology Milestone",
+          "category": "ACHIEVEMENT",
+          "historicalDate": "Historical Period S8",
+          "description": "National technological milestone and infrastructure expansion phase during Season 8.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 7,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 8,
+            "morale": 10
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Praise Technological Progress & National Achievement",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Fair Wages for Construction Workers",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Audit Allocation Tenders for Transparency",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Congratulate Project Engineers and Workers",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s8_ev3",
+          "headline": "Season 8 Crisis Management & Relief Mission",
+          "category": "DISASTER",
+          "historicalDate": "Historical Period S8",
+          "description": "Environmental and emergency crisis response challenge in Season 8.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": -8
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Central Disaster Relief Operations",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Expose Relief Shortfalls in Affected Regions",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Administrative Accountability & Compensation",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Deploy Volunteer Relief Squads",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 3
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s8_ev4",
+          "headline": "Season 8 Regulatory Exposure & Governance Audit",
+          "category": "CORRUPTION",
+          "historicalDate": "Historical Period S8",
+          "description": "Investigative exposure highlighting institutional accountability in Season 8.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -8,
+              "power": -1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 6,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -12,
+            "morale": -6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support High-Level Judicial Inquiry Commission",
+              "partyContentShift": -3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 2
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Launch Public Integrity Crusade across Capital",
+              "partyContentShift": 10,
+              "partyPowerShift": 1,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Immediate Resignation of Responsible Officials",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Call for Systemic Governance Reform",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s8_ev5",
+          "headline": "Season 8 Regional Assembly Verdicts & Coalition Shift",
+          "category": "POLITICAL",
+          "historicalDate": "Historical Period S8",
+          "description": "Key state assembly election outcomes shifting political momentum in Season 8.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 5,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Welcome Verdict as Validation of Governance Model",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Mobilize Grassroot Cadres for Upcoming State Battles",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Refocus Opposition Strategy on Agrarian Issues",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Analyze Electoral Trends & Prepare State Strategy",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "seasonNumber": 9,
+      "periodName": "Season 9 (Period 9)",
+      "events": [
+        {
+          "eventKey": "2005_s9_ev1",
+          "headline": "Season 9 Major Policy Directive & Economic Review",
+          "category": "FINANCE",
+          "historicalDate": "Historical Period S9",
+          "description": "National governance milestones and multi-party parliamentary debates in Season 9.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": 5
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support National Development Directive",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Allocation for Backward Districts",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Criticize Policy Implementation Gaps",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Issue Balanced Public Statement",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s9_ev2",
+          "headline": "Season 9 Strategic Infrastructure & Technology Milestone",
+          "category": "ACHIEVEMENT",
+          "historicalDate": "Historical Period S9",
+          "description": "National technological milestone and infrastructure expansion phase during Season 9.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 7,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 8,
+            "morale": 10
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Praise Technological Progress & National Achievement",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Fair Wages for Construction Workers",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Audit Allocation Tenders for Transparency",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Congratulate Project Engineers and Workers",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s9_ev3",
+          "headline": "Season 9 Crisis Management & Relief Mission",
+          "category": "DISASTER",
+          "historicalDate": "Historical Period S9",
+          "description": "Environmental and emergency crisis response challenge in Season 9.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": -8
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Central Disaster Relief Operations",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Expose Relief Shortfalls in Affected Regions",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Administrative Accountability & Compensation",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Deploy Volunteer Relief Squads",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 3
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s9_ev4",
+          "headline": "Season 9 Regulatory Exposure & Governance Audit",
+          "category": "CORRUPTION",
+          "historicalDate": "Historical Period S9",
+          "description": "Investigative exposure highlighting institutional accountability in Season 9.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -8,
+              "power": -1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 6,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -12,
+            "morale": -6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support High-Level Judicial Inquiry Commission",
+              "partyContentShift": -3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 2
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Launch Public Integrity Crusade across Capital",
+              "partyContentShift": 10,
+              "partyPowerShift": 1,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Immediate Resignation of Responsible Officials",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Call for Systemic Governance Reform",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s9_ev5",
+          "headline": "Season 9 Regional Assembly Verdicts & Coalition Shift",
+          "category": "POLITICAL",
+          "historicalDate": "Historical Period S9",
+          "description": "Key state assembly election outcomes shifting political momentum in Season 9.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 5,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Welcome Verdict as Validation of Governance Model",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Mobilize Grassroot Cadres for Upcoming State Battles",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Refocus Opposition Strategy on Agrarian Issues",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Analyze Electoral Trends & Prepare State Strategy",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "seasonNumber": 10,
+      "periodName": "Season 10 (Period 10)",
+      "events": [
+        {
+          "eventKey": "2005_s10_ev1",
+          "headline": "Season 10 Major Policy Directive & Economic Review",
+          "category": "FINANCE",
+          "historicalDate": "Historical Period S10",
+          "description": "National governance milestones and multi-party parliamentary debates in Season 10.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": 5
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support National Development Directive",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Allocation for Backward Districts",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Criticize Policy Implementation Gaps",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Issue Balanced Public Statement",
+              "partyContentShift": 2,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s10_ev2",
+          "headline": "Season 10 Strategic Infrastructure & Technology Milestone",
+          "category": "ACHIEVEMENT",
+          "historicalDate": "Historical Period S10",
+          "description": "National technological milestone and infrastructure expansion phase during Season 10.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 7,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 2,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 8,
+            "morale": 10
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Praise Technological Progress & National Achievement",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Demand Fair Wages for Construction Workers",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Audit Allocation Tenders for Transparency",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 1
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Congratulate Project Engineers and Workers",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s10_ev3",
+          "headline": "Season 10 Crisis Management & Relief Mission",
+          "category": "DISASTER",
+          "historicalDate": "Historical Period S10",
+          "description": "Environmental and emergency crisis response challenge in Season 10.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -4,
+              "power": 0
+            },
+            "CENTRIST_SECULAR": {
+              "content": 3,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 6,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -6,
+            "morale": -8
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support Central Disaster Relief Operations",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Expose Relief Shortfalls in Affected Regions",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 2
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Administrative Accountability & Compensation",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Deploy Volunteer Relief Squads",
+              "partyContentShift": 4,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 3
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s10_ev4",
+          "headline": "Season 10 Regulatory Exposure & Governance Audit",
+          "category": "CORRUPTION",
+          "historicalDate": "Historical Period S10",
+          "description": "Investigative exposure highlighting institutional accountability in Season 10.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": -8,
+              "power": -1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 6,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 8,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 6,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 4,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": -12,
+            "morale": -6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Support High-Level Judicial Inquiry Commission",
+              "partyContentShift": -3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 2,
+                "morale": 2
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Launch Public Integrity Crusade across Capital",
+              "partyContentShift": 10,
+              "partyPowerShift": 1,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Demand Immediate Resignation of Responsible Officials",
+              "partyContentShift": 8,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": -2
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Call for Systemic Governance Reform",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 0,
+                "morale": 2
+              }
+            }
+          ]
+        },
+        {
+          "eventKey": "2005_s10_ev5",
+          "headline": "Season 10 Regional Assembly Verdicts & Coalition Shift",
+          "category": "POLITICAL",
+          "historicalDate": "Historical Period S10",
+          "description": "Key state assembly election outcomes shifting political momentum in Season 10.",
+          "baselineIdeologyEffects": {
+            "NATIONALIST_CONSERVATIVE": {
+              "content": 6,
+              "power": 1
+            },
+            "CENTRIST_SECULAR": {
+              "content": 4,
+              "power": 0
+            },
+            "DEVELOPMENTAL_PROGRESSIVE": {
+              "content": 5,
+              "power": 0
+            },
+            "LEFT_SOCIALIST": {
+              "content": 3,
+              "power": 0
+            },
+            "REGIONAL_SOCIALIST": {
+              "content": 5,
+              "power": 0
+            }
+          },
+          "publicOpinionShift": {
+            "supportForGovt": 4,
+            "morale": 6
+          },
+          "reactions": [
+            {
+              "key": "SUPPORT_GOVT",
+              "label": "Welcome Verdict as Validation of Governance Model",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 3,
+                "morale": 3
+              }
+            },
+            {
+              "key": "AGITATE",
+              "label": "Mobilize Grassroot Cadres for Upcoming State Battles",
+              "partyContentShift": 6,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -2,
+                "morale": 3
+              }
+            },
+            {
+              "key": "OPPOSE",
+              "label": "Refocus Opposition Strategy on Agrarian Issues",
+              "partyContentShift": 5,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": -3,
+                "morale": 0
+              }
+            },
+            {
+              "key": "NEUTRAL",
+              "label": "Analyze Electoral Trends & Prepare State Strategy",
+              "partyContentShift": 3,
+              "partyPowerShift": 0,
+              "publicOpinionShiftModifier": {
+                "supportForGovt": 1,
+                "morale": 2
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "legislativeBills": [
+    {
+      "billKey": "POTA_2002",
+      "title": "Prevention of Terrorism Act (POTA), 2002",
+      "introducedYear": 2002,
+      "category": "SECURITY_LAW",
+      "description": "Special anti-terror law expanding police detention powers and admissibility of confessions.",
+      "ideologyStances": {
+        "NATIONALIST_CONSERVATIVE": "YES",
+        "CENTRIST_SECULAR": "NO",
+        "LEFT_SOCIALIST": "NO",
+        "REGIONAL_SOCIALIST": "NO",
+        "DEVELOPMENTAL_PROGRESSIVE": "NEUTRAL"
+      },
+      "publicOpinionShift": {
+        "IF_PASSED": {
+          "supportForGovt": 8,
+          "morale": 4
+        },
+        "IF_REJECTED": {
+          "supportForGovt": -8,
+          "morale": -4
+        }
+      },
+      "ideologyContentImpact": {
+        "IF_VOTE_YES": {
+          "NATIONALIST_CONSERVATIVE": 8,
+          "CENTRIST_SECULAR": -10,
+          "LEFT_SOCIALIST": -12,
+          "REGIONAL_SOCIALIST": -8,
+          "DEVELOPMENTAL_PROGRESSIVE": 5
+        },
+        "IF_VOTE_NO": {
+          "NATIONALIST_CONSERVATIVE": -10,
+          "CENTRIST_SECULAR": 8,
+          "LEFT_SOCIALIST": 10,
+          "REGIONAL_SOCIALIST": 8,
+          "DEVELOPMENTAL_PROGRESSIVE": 2
+        }
+      }
+    },
+    {
+      "billKey": "FRBM_2003",
+      "title": "Fiscal Responsibility and Budget Management (FRBM) Act, 2003",
+      "introducedYear": 2003,
+      "category": "FINANCE",
+      "description": "Statutory framework mandating reduction of fiscal deficits and ensuring long-term fiscal stability.",
+      "ideologyStances": {
+        "NATIONALIST_CONSERVATIVE": "YES",
+        "CENTRIST_SECULAR": "YES",
+        "LEFT_SOCIALIST": "NO",
+        "REGIONAL_SOCIALIST": "NO",
+        "DEVELOPMENTAL_PROGRESSIVE": "YES"
+      },
+      "publicOpinionShift": {
+        "IF_PASSED": {
+          "supportForGovt": 10,
+          "morale": 8
+        },
+        "IF_REJECTED": {
+          "supportForGovt": -6,
+          "morale": -2
+        }
+      },
+      "ideologyContentImpact": {
+        "IF_VOTE_YES": {
+          "NATIONALIST_CONSERVATIVE": 6,
+          "CENTRIST_SECULAR": 5,
+          "LEFT_SOCIALIST": -8,
+          "REGIONAL_SOCIALIST": -4,
+          "DEVELOPMENTAL_PROGRESSIVE": 8
+        },
+        "IF_VOTE_NO": {
+          "NATIONALIST_CONSERVATIVE": -6,
+          "CENTRIST_SECULAR": -5,
+          "LEFT_SOCIALIST": 6,
+          "REGIONAL_SOCIALIST": 5,
+          "DEVELOPMENTAL_PROGRESSIVE": -4
+        }
+      }
+    },
+    {
+      "billKey": "RTI_2005",
+      "title": "Right to Information (RTI) Act, 2005",
+      "introducedYear": 2005,
+      "category": "CONSTITUTIONAL",
+      "description": "Landmark transparency law guaranteeing citizen access to public records and government files.",
+      "ideologyStances": {
+        "NATIONALIST_CONSERVATIVE": "YES",
+        "CENTRIST_SECULAR": "YES",
+        "LEFT_SOCIALIST": "YES",
+        "REGIONAL_SOCIALIST": "YES",
+        "DEVELOPMENTAL_PROGRESSIVE": "YES"
+      },
+      "publicOpinionShift": {
+        "IF_PASSED": {
+          "supportForGovt": 12,
+          "morale": 15
+        },
+        "IF_REJECTED": {
+          "supportForGovt": -15,
+          "morale": -12
+        }
+      },
+      "ideologyContentImpact": {
+        "IF_VOTE_YES": {
+          "NATIONALIST_CONSERVATIVE": 6,
+          "CENTRIST_SECULAR": 10,
+          "LEFT_SOCIALIST": 8,
+          "REGIONAL_SOCIALIST": 6,
+          "DEVELOPMENTAL_PROGRESSIVE": 10
+        },
+        "IF_VOTE_NO": {
+          "NATIONALIST_CONSERVATIVE": -8,
+          "CENTRIST_SECULAR": -12,
+          "LEFT_SOCIALIST": -10,
+          "REGIONAL_SOCIALIST": -8,
+          "DEVELOPMENTAL_PROGRESSIVE": -12
+        }
+      }
+    }
+  ],
+  "stateElections": [
+    {
+      "stateCode": "UP",
+      "stateName": "Uttar Pradesh",
+      "electionTurn": 15,
+      "electionMonth": "March 2002",
+      "totalAssemblySeats": 403,
+      "totalLokSabhaSeats": 80,
+      "scenarioKey": "uttar_pradesh_2001"
+    },
+    {
+      "stateCode": "MAHARASHTRA",
+      "stateName": "Maharashtra",
+      "electionTurn": 46,
+      "electionMonth": "October 2004",
+      "totalAssemblySeats": 288,
+      "totalLokSabhaSeats": 48,
+      "scenarioKey": "maharashtra_2001"
+    },
+    {
+      "stateCode": "BIHAR",
+      "stateName": "Bihar",
+      "electionTurn": 50,
+      "electionMonth": "February 2005",
+      "totalAssemblySeats": 243,
+      "totalLokSabhaSeats": 40,
+      "scenarioKey": "bihar_2001"
+    },
+    {
+      "stateCode": "ASSAM",
+      "stateName": "Assam",
+      "electionTurn": 5,
+      "electionMonth": "May 2001",
+      "totalAssemblySeats": 126,
+      "totalLokSabhaSeats": 14,
+      "scenarioKey": "assam_2001"
+    },
+    {
+      "stateCode": "KERALA",
+      "stateName": "Kerala",
+      "electionTurn": 5,
+      "electionMonth": "May 2001",
+      "totalAssemblySeats": 140,
+      "totalLokSabhaSeats": 20,
+      "scenarioKey": "kerala_2001"
+    },
+    {
+      "stateCode": "TAMIL_NADU",
+      "stateName": "Tamil Nadu",
+      "electionTurn": 5,
+      "electionMonth": "May 2001",
+      "totalAssemblySeats": 234,
+      "totalLokSabhaSeats": 39,
+      "scenarioKey": "tamil_nadu_2001"
+    },
+    {
+      "stateCode": "WEST_BENGAL",
+      "stateName": "West Bengal",
+      "electionTurn": 5,
+      "electionMonth": "May 2001",
+      "totalAssemblySeats": 294,
+      "totalLokSabhaSeats": 42,
+      "scenarioKey": "west_bengal_2000"
+    },
+    {
+      "stateCode": "PUNJAB",
+      "stateName": "Punjab",
+      "electionTurn": 14,
+      "electionMonth": "February 2002",
+      "totalAssemblySeats": 117,
+      "totalLokSabhaSeats": 13,
+      "scenarioKey": "punjab_2001"
+    },
+    {
+      "stateCode": "GUJARAT",
+      "stateName": "Gujarat",
+      "electionTurn": 24,
+      "electionMonth": "December 2002",
+      "totalAssemblySeats": 182,
+      "totalLokSabhaSeats": 26,
+      "scenarioKey": "gujarat_2001"
+    },
+    {
+      "stateCode": "MADHYA_PRADESH",
+      "stateName": "Madhya Pradesh",
+      "electionTurn": 35,
+      "electionMonth": "November 2003",
+      "totalAssemblySeats": 230,
+      "totalLokSabhaSeats": 29,
+      "scenarioKey": "madhya_pradesh_2001"
+    },
+    {
+      "stateCode": "RAJASTHAN",
+      "stateName": "Rajasthan",
+      "electionTurn": 36,
+      "electionMonth": "December 2003",
+      "totalAssemblySeats": 200,
+      "totalLokSabhaSeats": 25,
+      "scenarioKey": "rajasthan_2001"
+    },
+    {
+      "stateCode": "DELHI",
+      "stateName": "Delhi",
+      "electionTurn": 36,
+      "electionMonth": "December 2003",
+      "totalAssemblySeats": 70,
+      "totalLokSabhaSeats": 7,
+      "scenarioKey": "delhi_2001"
+    },
+    {
+      "stateCode": "ANDHRA_PRADESH",
+      "stateName": "Andhra Pradesh",
+      "electionTurn": 40,
+      "electionMonth": "April 2004",
+      "totalAssemblySeats": 294,
+      "totalLokSabhaSeats": 25,
+      "scenarioKey": "andhra_pradesh_2001"
+    },
+    {
+      "stateCode": "KARNATAKA",
+      "stateName": "Karnataka",
+      "electionTurn": 41,
+      "electionMonth": "May 2004",
+      "totalAssemblySeats": 224,
+      "totalLokSabhaSeats": 28,
+      "scenarioKey": "karnataka_2001"
+    },
+    {
+      "stateCode": "ODISHA",
+      "stateName": "Odisha",
+      "electionTurn": 40,
+      "electionMonth": "April 2004",
+      "totalAssemblySeats": 147,
+      "totalLokSabhaSeats": 21,
+      "scenarioKey": "odisha_2001"
+    },
+    {
+      "stateCode": "JHARKHAND",
+      "stateName": "Jharkhand",
+      "electionTurn": 50,
+      "electionMonth": "February 2005",
+      "totalAssemblySeats": 81,
+      "totalLokSabhaSeats": 14,
+      "scenarioKey": "jharkhand_2001"
+    },
+    {
+      "stateCode": "HARYANA",
+      "stateName": "Haryana",
+      "electionTurn": 50,
+      "electionMonth": "February 2005",
+      "totalAssemblySeats": 90,
+      "totalLokSabhaSeats": 10,
+      "scenarioKey": "haryana_2001"
+    }
+  ],
+  "stateIssues": [
+    {
+      "id": "UP_CASTE_VIOLENCE",
+      "stateCode": "UP",
+      "title": "Caste Violence & Social Justice",
+      "icon": "\u2696\ufe0f",
+      "category": "SOCIAL_JUSTICE",
+      "description": "Escalating inter-caste violence, Dalit atrocities, and friction over representation in state bureaucracy.",
+      "baseImpact": 1.4
+    },
+    {
+      "id": "UP_LAW_ORDER",
+      "stateCode": "UP",
+      "title": "Law & Order Collapse & Mafia Raj",
+      "icon": "\ud83d\ude94",
+      "category": "SECURITY",
+      "description": "Organized extortion gangs, political patronage for crime lords, and rampant highway robberies.",
+      "baseImpact": 1.5
+    },
+    {
+      "id": "UP_AGRARIAN_DISTRESS",
+      "stateCode": "UP",
+      "title": "Sugarcane Arrears & Agrarian Distress",
+      "icon": "\ud83c\udf3e",
+      "category": "AGRICULTURE",
+      "description": "Millions owed to sugarcane growers by defaulting private sugar mills, triggering farmer demonstrations.",
+      "baseImpact": 1.3
+    },
+    {
+      "id": "UP_MANDAL_POLITICS",
+      "stateCode": "UP",
+      "title": "Identity Polarization & Reservation Clashes",
+      "icon": "\ud83d\uddf3\ufe0f",
+      "category": "POLITICAL",
+      "description": "High-voltage electoral mobilization around backward class sub-quotas and upper caste backlash.",
+      "baseImpact": 1.2
+    },
+    {
+      "id": "UP_POWER_CRISIS",
+      "stateCode": "UP",
+      "title": "Chronic Power Deficit & Grid Collapse",
+      "icon": "\u26a1",
+      "category": "INFRASTRUCTURE",
+      "description": "Severe load-shedding of 16+ hours a day in Purvanchal and Bundelkhand, paralyzing local workshops.",
+      "baseImpact": 1.1
+    },
+    {
+      "id": "BIHAR_JUNGLE_RAJ",
+      "stateCode": "BIHAR",
+      "title": "'Jungle Raj' & Lawlessness",
+      "icon": "\ud83d\udea8",
+      "category": "SECURITY",
+      "description": "Kidnapping for ransom operates as a parallel industry with alleged political impunity across Patna and districts.",
+      "baseImpact": 1.6
+    },
+    {
+      "id": "BIHAR_CASTE_POLARIZATION",
+      "stateCode": "BIHAR",
+      "title": "Caste Polarization & Private Senas",
+      "icon": "\u2694\ufe0f",
+      "category": "SOCIAL_JUSTICE",
+      "description": "Feudal private militias and armed agrarian uprisings clash in central Bihar's rural heartland.",
+      "baseImpact": 1.5
+    },
+    {
+      "id": "BIHAR_FLOOD_DISASTER",
+      "stateCode": "BIHAR",
+      "title": "Kosi Flood Devastation & Embankment Breaches",
+      "icon": "\ud83c\udf0a",
+      "category": "DISASTER",
+      "description": "Annual monsoon inundations sweep North Bihar villages amid corruption allegations in embankment contracts.",
+      "baseImpact": 1.3
+    },
+    {
+      "id": "BIHAR_EDUCATION_CRISIS",
+      "stateCode": "BIHAR",
+      "title": "Education Decay & Examination Paper Leaks",
+      "icon": "\ud83d\udcda",
+      "category": "EDUCATION",
+      "description": "Teacher absenteeism, ghost colleges, and widespread cheating scandals erode state degree credibility.",
+      "baseImpact": 1.2
+    },
+    {
+      "id": "BIHAR_INFRA_COLLAPSE",
+      "stateCode": "BIHAR",
+      "title": "Potholed Highways & Healthcare Collapse",
+      "icon": "\ud83c\udfe5",
+      "category": "INFRASTRUCTURE",
+      "description": "Dilapidated National and State highways isolate remote blocks, while primary healthcare centers lack doctors.",
+      "baseImpact": 1.4
+    },
+    {
+      "id": "MH_VIDARBHA_FARMER_CRISIS",
+      "stateCode": "MAHARASHTRA",
+      "title": "Vidarbha Agrarian Crisis & Farmer Suicides",
+      "icon": "\ud83c\udf3e",
+      "category": "AGRICULTURE",
+      "description": "BT Cotton crop failures, spiraling moneylender debts, and unseasonal weather trigger alarming suicide rates.",
+      "baseImpact": 1.6
+    },
+    {
+      "id": "MH_MUMBAI_INFRA_STRAIN",
+      "stateCode": "MAHARASHTRA",
+      "title": "Mumbai Infrastructure Strain & Slum Transit",
+      "icon": "\ud83d\ude86",
+      "category": "URBAN",
+      "description": "Overcrowded local trains, slum rehabilitation standoffs, and seasonal flood vulnerability in the financial capital.",
+      "baseImpact": 1.3
+    },
+    {
+      "id": "MH_COALITION_FRICTION",
+      "stateCode": "MAHARASHTRA",
+      "title": "Coalition Instability & Alliance Friction",
+      "icon": "\ud83e\udd1d",
+      "category": "POLITICAL",
+      "description": "Constant skirmishes between Congress-NCP partners and vocal regional resistance from the Shiv Sena-BJP front.",
+      "baseImpact": 1.2
+    },
+    {
+      "id": "MH_MILL_WORKERS_CRISIS",
+      "stateCode": "MAHARASHTRA",
+      "title": "Girni Kamgar (Mill Workers) Displacement",
+      "icon": "\ud83c\udfed",
+      "category": "LABOR",
+      "description": "Redevelopment of Central Mumbai textile mill lands into luxury complexes leaves thousands of workers unpaid.",
+      "baseImpact": 1.3
+    },
+    {
+      "id": "MH_REGIONAL_IMBALANCE",
+      "stateCode": "MAHARASHTRA",
+      "title": "Development Gap: Western MH vs Marathwada",
+      "icon": "\u2696\ufe0f",
+      "category": "ECONOMY",
+      "description": "Disproportionate allocation of state irrigation and industrial budgets favoring sugar belt baronies.",
+      "baseImpact": 1.1
+    }
+  ]
+}

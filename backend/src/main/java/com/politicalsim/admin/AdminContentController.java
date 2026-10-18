@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import com.politicalsim.content.DefinitionCache;
+import com.politicalsim.content.NationalConfig;
+import com.politicalsim.content.NationalConfigRepository;
 
 
 @RestController
@@ -34,19 +36,31 @@ public class AdminContentController {
     private final NewsDefinitionRepository newsRepository;
     private final LegislativeBillDefinitionRepository billRepository;
     private final com.politicalsim.content.FactionDefinitionRepository factionRepository;
+    private final NationalConfigRepository nationalConfigRepository;
+    private final com.politicalsim.content.NationalEventRepository nationalEventRepository;
+    private final com.politicalsim.content.NationalThemeRepository nationalThemeRepository;
+    private final com.politicalsim.content.StateInfrastructureDefinitionRepository infrastructureRepository;
 
     public AdminContentController(
             ScenarioDefinitionRepository scenarioRepository,
             CardDefinitionRepository cardRepository,
             NewsDefinitionRepository newsRepository,
             LegislativeBillDefinitionRepository billRepository,
-            com.politicalsim.content.FactionDefinitionRepository factionRepository
+            com.politicalsim.content.FactionDefinitionRepository factionRepository,
+            NationalConfigRepository nationalConfigRepository,
+            com.politicalsim.content.NationalEventRepository nationalEventRepository,
+            com.politicalsim.content.NationalThemeRepository nationalThemeRepository,
+            com.politicalsim.content.StateInfrastructureDefinitionRepository infrastructureRepository
     ) {
         this.scenarioRepository = scenarioRepository;
         this.cardRepository = cardRepository;
         this.newsRepository = newsRepository;
         this.billRepository = billRepository;
         this.factionRepository = factionRepository;
+        this.nationalConfigRepository = nationalConfigRepository;
+        this.nationalEventRepository = nationalEventRepository;
+        this.nationalThemeRepository = nationalThemeRepository;
+        this.infrastructureRepository = infrastructureRepository;
     }
 
     @GetMapping("/scenarios")
@@ -229,6 +243,177 @@ public class AdminContentController {
         requireFaction(id);
         DefinitionCache.clearAll();
         factionRepository.deleteById(id);
+        return Map.of("status", "deleted", "id", id);
+    }
+
+    // --- NATIONAL CONFIGS ENDPOINTS ---
+    @GetMapping("/national-configs")
+    public List<NationalConfig> listNationalConfigs() {
+        return nationalConfigRepository.findAll();
+    }
+
+    @GetMapping("/national-configs/{id}")
+    public NationalConfig getNationalConfig(@PathVariable String id) {
+        return nationalConfigRepository.findById(id)
+                .or(() -> {
+                    try {
+                        int era = Integer.parseInt(id);
+                        return nationalConfigRepository.findByEra(era);
+                    } catch (NumberFormatException e) {
+                        return java.util.Optional.empty();
+                    }
+                })
+                .orElseThrow(() -> notFound("National config not found: " + id));
+    }
+
+    @PostMapping("/national-configs")
+    @ResponseStatus(HttpStatus.CREATED)
+    public NationalConfig createNationalConfig(@RequestBody NationalConfig config) {
+        DefinitionCache.clearAll();
+        config.setId(null);
+        return nationalConfigRepository.save(config);
+    }
+
+    @PutMapping("/national-configs/{id}")
+    public NationalConfig updateNationalConfig(@PathVariable String id, @RequestBody NationalConfig config) {
+        NationalConfig existing = nationalConfigRepository.findById(id)
+                .or(() -> {
+                    try {
+                        int era = Integer.parseInt(id);
+                        return nationalConfigRepository.findByEra(era);
+                    } catch (NumberFormatException e) {
+                        return java.util.Optional.empty();
+                    }
+                })
+                .orElseThrow(() -> notFound("National config not found: " + id));
+
+        config.setId(existing.getId());
+        DefinitionCache.clearAll();
+        return nationalConfigRepository.save(config);
+    }
+
+    @DeleteMapping("/national-configs/{id}")
+    public Map<String, String> deleteNationalConfig(@PathVariable String id) {
+        NationalConfig existing = getNationalConfig(id);
+        DefinitionCache.clearAll();
+        nationalConfigRepository.deleteById(existing.getId());
+        return Map.of("status", "deleted", "id", id);
+    }
+
+    // ── NATIONAL EVENTS CRUD ──────────────────────────────────────────────
+    @GetMapping("/national-events")
+    public List<com.politicalsim.content.NationalEvent> listNationalEvents(@RequestParam(required = false) Integer era) {
+        if (era != null) {
+            return nationalEventRepository.findByEra(era);
+        }
+        return nationalEventRepository.findAll();
+    }
+
+    @GetMapping("/national-events/{id}")
+    public com.politicalsim.content.NationalEvent getNationalEvent(@PathVariable String id) {
+        return nationalEventRepository.findById(id)
+                .orElseThrow(() -> notFound("NationalEvent not found: " + id));
+    }
+
+    @PostMapping("/national-events")
+    @ResponseStatus(HttpStatus.CREATED)
+    public com.politicalsim.content.NationalEvent createNationalEvent(@RequestBody com.politicalsim.content.NationalEvent event) {
+        event.setId(null);
+        return nationalEventRepository.save(event);
+    }
+
+    @PutMapping("/national-events/{id}")
+    public com.politicalsim.content.NationalEvent updateNationalEvent(@PathVariable String id, @RequestBody com.politicalsim.content.NationalEvent event) {
+        if (!nationalEventRepository.existsById(id)) {
+            throw notFound("NationalEvent not found: " + id);
+        }
+        event.setId(id);
+        return nationalEventRepository.save(event);
+    }
+
+    @DeleteMapping("/national-events/{id}")
+    public Map<String, String> deleteNationalEvent(@PathVariable String id) {
+        if (!nationalEventRepository.existsById(id)) {
+            throw notFound("NationalEvent not found: " + id);
+        }
+        nationalEventRepository.deleteById(id);
+        return Map.of("status", "deleted", "id", id);
+    }
+
+    // ── NATIONAL THEMES CRUD ──────────────────────────────────────────────
+    @GetMapping("/national-themes")
+    public List<com.politicalsim.content.NationalTheme> listNationalThemes(@RequestParam(required = false) Integer era) {
+        if (era != null) {
+            return nationalThemeRepository.findByActiveErasContaining(era);
+        }
+        return nationalThemeRepository.findAll();
+    }
+
+    @GetMapping("/national-themes/{id}")
+    public com.politicalsim.content.NationalTheme getNationalTheme(@PathVariable String id) {
+        return nationalThemeRepository.findById(id)
+                .orElseThrow(() -> notFound("NationalTheme not found: " + id));
+    }
+
+    @PostMapping("/national-themes")
+    @ResponseStatus(HttpStatus.CREATED)
+    public com.politicalsim.content.NationalTheme createNationalTheme(@RequestBody com.politicalsim.content.NationalTheme theme) {
+        theme.setId(null);
+        return nationalThemeRepository.save(theme);
+    }
+
+    @PutMapping("/national-themes/{id}")
+    public com.politicalsim.content.NationalTheme updateNationalTheme(@PathVariable String id, @RequestBody com.politicalsim.content.NationalTheme theme) {
+        if (!nationalThemeRepository.existsById(id)) {
+            throw notFound("NationalTheme not found: " + id);
+        }
+        theme.setId(id);
+        return nationalThemeRepository.save(theme);
+    }
+
+    @DeleteMapping("/national-themes/{id}")
+    public Map<String, String> deleteNationalTheme(@PathVariable String id) {
+        if (!nationalThemeRepository.existsById(id)) {
+            throw notFound("NationalTheme not found: " + id);
+        }
+        nationalThemeRepository.deleteById(id);
+        return Map.of("status", "deleted", "id", id);
+    }
+
+    // ── STATE INFRASTRUCTURE CRUD ──────────────────────────────────────────
+    @GetMapping("/infrastructure-definitions")
+    public List<com.politicalsim.content.StateInfrastructureDefinition> listInfrastructureDefinitions() {
+        return infrastructureRepository.findAll();
+    }
+
+    @GetMapping("/infrastructure-definitions/{id}")
+    public com.politicalsim.content.StateInfrastructureDefinition getInfrastructureDefinition(@PathVariable String id) {
+        return infrastructureRepository.findById(id)
+                .orElseThrow(() -> notFound("Infrastructure definition not found: " + id));
+    }
+
+    @PostMapping("/infrastructure-definitions")
+    @ResponseStatus(HttpStatus.CREATED)
+    public com.politicalsim.content.StateInfrastructureDefinition createInfrastructureDefinition(@RequestBody com.politicalsim.content.StateInfrastructureDefinition def) {
+        def.setId(null);
+        return infrastructureRepository.save(def);
+    }
+
+    @PutMapping("/infrastructure-definitions/{id}")
+    public com.politicalsim.content.StateInfrastructureDefinition updateInfrastructureDefinition(@PathVariable String id, @RequestBody com.politicalsim.content.StateInfrastructureDefinition def) {
+        if (!infrastructureRepository.existsById(id)) {
+            throw notFound("Infrastructure definition not found: " + id);
+        }
+        def.setId(id);
+        return infrastructureRepository.save(def);
+    }
+
+    @DeleteMapping("/infrastructure-definitions/{id}")
+    public Map<String, String> deleteInfrastructureDefinition(@PathVariable String id) {
+        if (!infrastructureRepository.existsById(id)) {
+            throw notFound("Infrastructure definition not found: " + id);
+        }
+        infrastructureRepository.deleteById(id);
         return Map.of("status", "deleted", "id", id);
     }
 

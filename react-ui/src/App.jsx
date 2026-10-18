@@ -8,6 +8,8 @@ import HowToPlay from './components/Dashboard/HowToPlay';
 import GamePlayBoard from './components/GamePlay/GamePlayBoard';
 import AdminConsole from './components/Admin/AdminConsole';
 
+import NationalHeadquarters from './components/National/NationalHeadquarters';
+
 import Lobby from './components/Dashboard/Lobby';
 import JoinGame from './components/Dashboard/JoinGame';
 import { isAndroidApp } from './utils/platform';
@@ -81,6 +83,9 @@ function App() {
           <GamePlayBoard />
         </div>
       )}
+      <div style={{ display: currentScreen === 'NATIONAL' ? 'block' : 'none' }}>
+        {currentScreen === 'NATIONAL' && <NationalHeadquarters />}
+      </div>
     </DashboardLayout>
   );
 }

@@ -1,0 +1,319 @@
+[
+  {
+    "id": "THEME_JOBLESSNESS",
+    "themeKey": "JOBLESSNESS",
+    "title": "Youth Joblessness & Paper Leaks",
+    "icon": "💼",
+    "category": "ECONOMIC",
+    "description": "Systemic graduate unemployment, paper leaks in recruitment boards, and lack of industrial hiring.",
+    "activeEras": [2001],
+    "streakTargetMin": 3,
+    "streakTargetMax": 6,
+    "actionEffects": {
+      "RALLY": {
+        "label": "Mass Youth Rally",
+        "fundsPct": -0.05,
+        "workersPct": 0.03,
+        "volunteersPct": 0.16,
+        "donorsPct": 0.02,
+        "moraleDelta": 6,
+        "corruptionDelta": 0,
+        "tacticalDescription": "High volunteer mobilization and public spectacle with moderate operational expenditure."
+      },
+      "AGITATION": {
+        "label": "Direct Street Agitation & Gherao",
+        "fundsPct": -0.03,
+        "workersPct": 0.08,
+        "volunteersPct": 0.22,
+        "donorsPct": -0.03,
+        "moraleDelta": 9,
+        "corruptionDelta": 2,
+        "tacticalDescription": "Aggressive confrontation. Maximum student cadre surge; slight friction with police."
+      },
+      "MEDIA_DEBATE": {
+        "label": "Prime-Time Media Debate Blitz",
+        "fundsPct": -0.02,
+        "workersPct": 0.01,
+        "volunteersPct": 0.05,
+        "donorsPct": 0.08,
+        "moraleDelta": 4,
+        "corruptionDelta": -3,
+        "tacticalDescription": "Economical PR battle. Cleanses corruption perception and draws educated urban donors."
+      },
+      "DHARNA": {
+        "label": "Indefinite Sit-in (Dharna)",
+        "fundsPct": -0.04,
+        "workersPct": 0.08,
+        "volunteersPct": 0.08,
+        "donorsPct": 0.03,
+        "moraleDelta": 7,
+        "corruptionDelta": -4,
+        "tacticalDescription": "Disciplined Gandhian sit-in. Builds moral authority and internal cadre discipline."
+      },
+      "BANDH": {
+        "label": "State-wide Commercial Bandh",
+        "fundsPct": -0.06,
+        "workersPct": 0.14,
+        "volunteersPct": 0.10,
+        "donorsPct": -0.08,
+        "moraleDelta": 5,
+        "corruptionDelta": 4,
+        "tacticalDescription": "Total economic shutdown. Massive blue-collar show of strength; business donors push back."
+      }
+    }
+  },
+  {
+    "id": "THEME_CASTE_VIOLENCE",
+    "themeKey": "CASTE_VIOLENCE",
+    "title": "Caste Atrocities & Social Justice",
+    "icon": "⚖️",
+    "category": "SOCIAL_JUSTICE",
+    "description": "Rural violence against marginalized communities, police apathy, and demands for equal dignity.",
+    "activeEras": [2001],
+    "streakTargetMin": 3,
+    "streakTargetMax": 6,
+    "actionEffects": {
+      "RALLY": {
+        "label": "Social Justice Unity March",
+        "fundsPct": -0.04,
+        "workersPct": 0.05,
+        "volunteersPct": 0.14,
+        "donorsPct": 0.01,
+        "moraleDelta": 7,
+        "corruptionDelta": 0,
+        "tacticalDescription": "Unites grassroots communities; expands regional volunteer networks."
+      },
+      "AGITATION": {
+        "label": "Direct Civil Rights Agitation",
+        "fundsPct": -0.02,
+        "workersPct": 0.10,
+        "volunteersPct": 0.18,
+        "donorsPct": -0.02,
+        "moraleDelta": 8,
+        "corruptionDelta": 1,
+        "tacticalDescription": "Confronts feudal oppression directly. Inspires fearless community workers."
+      },
+      "MEDIA_DEBATE": {
+        "label": "Constitutional Rights Media Campaign",
+        "fundsPct": -0.02,
+        "workersPct": 0.02,
+        "volunteersPct": 0.04,
+        "donorsPct": 0.06,
+        "moraleDelta": 5,
+        "corruptionDelta": -2,
+        "tacticalDescription": "Gains intellectual backing, clean legal donations, and human rights stature."
+      },
+      "DHARNA": {
+        "label": "Peaceful Satyagraha at Collectorate",
+        "fundsPct": -0.03,
+        "workersPct": 0.09,
+        "volunteersPct": 0.07,
+        "donorsPct": 0.02,
+        "moraleDelta": 8,
+        "corruptionDelta": -3,
+        "tacticalDescription": "Forces district administration to acknowledge atrocities without violent retaliation."
+      },
+      "BANDH": {
+        "label": "Social Solidarity Commercial Bandh",
+        "fundsPct": -0.05,
+        "workersPct": 0.12,
+        "volunteersPct": 0.09,
+        "donorsPct": -0.06,
+        "moraleDelta": 6,
+        "corruptionDelta": 3,
+        "tacticalDescription": "Massive show of grassroots solidarity; strains ties with conservative merchant lobbies."
+      }
+    }
+  },
+  {
+    "id": "THEME_POOR_INFRASTRUCTURE",
+    "themeKey": "POOR_INFRASTRUCTURE",
+    "title": "Crumbling Infrastructure & Price Rise",
+    "icon": "🏗️",
+    "category": "DEVELOPMENT",
+    "description": "Severe highway pot-holes, chronic power cuts, broken irrigation canals, and surging staple inflation.",
+    "activeEras": [2001],
+    "streakTargetMin": 3,
+    "streakTargetMax": 6,
+    "actionEffects": {
+      "RALLY": {
+        "label": "Civic Dignity Mega Rally",
+        "fundsPct": -0.06,
+        "workersPct": 0.02,
+        "volunteersPct": 0.12,
+        "donorsPct": 0.05,
+        "moraleDelta": 5,
+        "corruptionDelta": -1,
+        "tacticalDescription": "Draws frustrated middle-class families and small business owners into the public square."
+      },
+      "AGITATION": {
+        "label": "Toll Plaza & Electricity Board Gherao",
+        "fundsPct": -0.04,
+        "workersPct": 0.07,
+        "volunteersPct": 0.16,
+        "donorsPct": 0.0,
+        "moraleDelta": 7,
+        "corruptionDelta": 2,
+        "tacticalDescription": "Blocks broken toll roads; captures popular consumer fury against corrupt contractors."
+      },
+      "MEDIA_DEBATE": {
+        "label": "Economic White Paper & Broadcast Blitz",
+        "fundsPct": -0.03,
+        "workersPct": 0.01,
+        "volunteersPct": 0.03,
+        "donorsPct": 0.10,
+        "moraleDelta": 4,
+        "corruptionDelta": -4,
+        "tacticalDescription": "Exposes infrastructure scam audit reports. Significant corporate and trader donor influx."
+      },
+      "DHARNA": {
+        "label": "Citizens' Vigil Against Power Cuts",
+        "fundsPct": -0.03,
+        "workersPct": 0.06,
+        "volunteersPct": 0.08,
+        "donorsPct": 0.04,
+        "moraleDelta": 6,
+        "corruptionDelta": -3,
+        "tacticalDescription": "Peaceful candle-light vigil in city squares. Enhances civic leadership reputation."
+      },
+      "BANDH": {
+        "label": "Chakka Jam / Transport Strike",
+        "fundsPct": -0.05,
+        "workersPct": 0.11,
+        "volunteersPct": 0.08,
+        "donorsPct": -0.05,
+        "moraleDelta": 5,
+        "corruptionDelta": 3,
+        "tacticalDescription": "Truck and transport union stoppage paralyzes supply chains; forces government review."
+      }
+    }
+  },
+  {
+    "id": "THEME_HIGHWAY_INFRA_BLITZ",
+    "themeKey": "HIGHWAY_INFRA_BLITZ",
+    "title": "National Highways & Infrastructure Blitz",
+    "icon": "🛣️",
+    "category": "DEVELOPMENT",
+    "themeType": "GOVERNANCE",
+    "description": "Showcasing Golden Quadrilateral expressways, modern freight corridors, and mega infrastructure delivery.",
+    "activeEras": [2001],
+    "streakTargetMin": 3,
+    "streakTargetMax": 6,
+    "actionEffects": {
+      "INAUGURATION": {
+        "label": "Mega Expressway & Corridor Inauguration",
+        "fundsPct": -0.04,
+        "workersPct": 0.04,
+        "volunteersPct": 0.12,
+        "donorsPct": 0.08,
+        "moraleDelta": 7,
+        "corruptionDelta": -2,
+        "tacticalDescription": "High-visibility government milestone event boosting national governance credibility."
+      },
+      "INVESTOR_SUMMIT": {
+        "label": "Global Industrial Investors Conclave",
+        "fundsPct": 0.08,
+        "workersPct": 0.02,
+        "volunteersPct": 0.06,
+        "donorsPct": 0.15,
+        "moraleDelta": 5,
+        "corruptionDelta": -3,
+        "tacticalDescription": "Attracts domestic and NRI industrial capital directly into party campaign reserves."
+      },
+      "MEDIA_SHOWCASE": {
+        "label": "Progress Bharat Prime-Time Media Showcase",
+        "fundsPct": -0.03,
+        "workersPct": 0.02,
+        "volunteersPct": 0.08,
+        "donorsPct": 0.06,
+        "moraleDelta": 6,
+        "corruptionDelta": -4,
+        "tacticalDescription": "Highlighting transformative capital expenditure against opposition stagnation claims."
+      },
+      "JAN_SAMVAAD": {
+        "label": "Public Works Citizen Townhalls",
+        "fundsPct": -0.02,
+        "workersPct": 0.06,
+        "volunteersPct": 0.10,
+        "donorsPct": 0.03,
+        "moraleDelta": 8,
+        "corruptionDelta": -1,
+        "tacticalDescription": "Engages local panchayats and municipal wards benefiting from new highway corridors."
+      },
+      "CONTRACTOR_CRACKDOWN": {
+        "label": "Contractor Vigilance & Anti-Graft Audit",
+        "fundsPct": -0.02,
+        "workersPct": 0.05,
+        "volunteersPct": 0.07,
+        "donorsPct": -0.02,
+        "moraleDelta": 7,
+        "corruptionDelta": -6,
+        "tacticalDescription": "Exposes corrupt opposition cartels while reinforcing clean administration."
+      }
+    }
+  },
+  {
+    "id": "THEME_WELFARE_DBT_PUSH",
+    "themeKey": "WELFARE_DBT_PUSH",
+    "title": "Direct Benefit Transfer & Kisan Welfare Blitz",
+    "icon": "🌾",
+    "category": "WELFARE",
+    "themeType": "GOVERNANCE",
+    "description": "Direct bank disbursal of agricultural subsidies, free grain security, and rural empowerment delivery.",
+    "activeEras": [2001],
+    "streakTargetMin": 3,
+    "streakTargetMax": 6,
+    "actionEffects": {
+      "DBT_DISBURSAL": {
+        "label": "Kisan Samman DBT Direct Disbursal",
+        "fundsPct": -0.06,
+        "workersPct": 0.08,
+        "volunteersPct": 0.18,
+        "donorsPct": 0.02,
+        "moraleDelta": 9,
+        "corruptionDelta": -4,
+        "tacticalDescription": "Direct subsidy transfers eliminate middlemen; solidifies massive agrarian voting loyalty."
+      },
+      "RATION_CAMP": {
+        "label": "Free Ration & Essential Subsidy Mega-Camps",
+        "fundsPct": -0.05,
+        "workersPct": 0.10,
+        "volunteersPct": 0.15,
+        "donorsPct": -0.01,
+        "moraleDelta": 8,
+        "corruptionDelta": -2,
+        "tacticalDescription": "Tangible public goods distribution that neutralizes opposition price rise complaints."
+      },
+      "POLICY_BROADCAST": {
+        "label": "National Welfare Mission Radio Address",
+        "fundsPct": -0.02,
+        "workersPct": 0.02,
+        "volunteersPct": 0.09,
+        "donorsPct": 0.05,
+        "moraleDelta": 6,
+        "corruptionDelta": -3,
+        "tacticalDescription": "Reach millions of rural households directly via national radio broadcasts."
+      },
+      "PANCHAYAT_OUTREACH": {
+        "label": "Gram Sabha Beneficiary Outreach Campaign",
+        "fundsPct": -0.03,
+        "workersPct": 0.12,
+        "volunteersPct": 0.14,
+        "donorsPct": 0.01,
+        "moraleDelta": 7,
+        "corruptionDelta": -1,
+        "tacticalDescription": "Activates booth-level committees to register every eligible household into government schemes."
+      },
+      "EXPOSE_MIDDLEMEN": {
+        "label": "Crackdown on Opposition Middlemen & Syndicates",
+        "fundsPct": -0.02,
+        "workersPct": 0.04,
+        "volunteersPct": 0.08,
+        "donorsPct": -0.03,
+        "moraleDelta": 8,
+        "corruptionDelta": -5,
+        "tacticalDescription": "Targeted investigations into opposition kickbacks in food and fertilizer procurement."
+      }
+    }
+  }
+]

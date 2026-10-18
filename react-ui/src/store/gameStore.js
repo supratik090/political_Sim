@@ -14,14 +14,60 @@ export const useGameStore = create((set, get) => ({
   },
 
   // Application Routing State
-  currentScreen: 'HOME', // 'HOME', 'GAME', 'ADMIN'
+  currentScreen: 'HOME', // 'HOME', 'GAME', 'ADMIN', 'NATIONAL'
   setScreen: (screen) => set({ currentScreen: screen }),
   activeGameView: 'ACTION', // 'ACTION', 'INFO', 'HINTS'
   setActiveGameView: (view) => set({ activeGameView: view }),
 
+  // National Politics Mode Navigation
+  activeNationalTab: 'intelligence', // 'intelligence', 'operations', 'hints'
+  setActiveNationalTab: (tab) => set({ activeNationalTab: tab }),
+  nationalView: 'HEADQUARTERS', // 'HEADQUARTERS', 'CREATE_GAME', 'WAR_ROOM'
+  setNationalView: (view) => set({ nationalView: view }),
+
   // Game Session State
   activeGameId: null,
   setActiveGame: (id) => set({ activeGameId: id }),
+
+  // National Politics Mode Game State (Scoped per game ID)
+  activeNationalGame: (() => {
+    try {
+      const activeGameId = localStorage.getItem('political_sim_active_national_game_id');
+      if (activeGameId) {
+        const gameById = localStorage.getItem(`political_sim_national_game_${activeGameId}`);
+        if (gameById) return JSON.parse(gameById);
+      }
+      return JSON.parse(localStorage.getItem('political_sim_national_game_cache') || 'null');
+    } catch (e) {
+      return null;
+    }
+  })(),
+  setActiveNationalGame: (gameData) => {
+    if (!gameData) {
+      localStorage.removeItem('political_sim_active_national_game_id');
+      localStorage.removeItem('political_sim_national_game_cache');
+      set({ activeNationalGame: null });
+      return;
+    }
+    const gameId = gameData.id || gameData._id;
+    if (gameId) {
+      localStorage.setItem(`political_sim_national_game_${gameId}`, JSON.stringify(gameData));
+      localStorage.setItem('political_sim_active_national_game_id', gameId);
+    }
+    localStorage.setItem('political_sim_national_game_cache', JSON.stringify(gameData));
+    set({ activeNationalGame: gameData });
+  },
+  clearActiveNationalGame: (gameId) => {
+    if (gameId) {
+      localStorage.removeItem(`political_sim_national_game_${gameId}`);
+    }
+    const currentActiveId = localStorage.getItem('political_sim_active_national_game_id');
+    if (!gameId || currentActiveId === gameId) {
+      localStorage.removeItem('political_sim_active_national_game_id');
+      localStorage.removeItem('political_sim_national_game_cache');
+    }
+    set({ activeNationalGame: null });
+  },
 
   // Turn State
   turnData: null,          // Fetched once at the start of the turn

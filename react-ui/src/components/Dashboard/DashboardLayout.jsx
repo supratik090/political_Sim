@@ -6,7 +6,21 @@ import { generateTurnHints } from '../../utils/hintsEngine';
 const ADMIN_USERNAME = 'AdminUserFoo';
 
 export default function DashboardLayout({ children }) {
-  const { user, logout, currentScreen, setScreen, turnData, activeGameId, timeLeft, activeGameView, setActiveGameView } = useGameStore();
+  const {
+    user,
+    logout,
+    currentScreen,
+    setScreen,
+    turnData,
+    activeGameId,
+    timeLeft,
+    activeGameView,
+    setActiveGameView,
+    activeNationalGame,
+    activeNationalTab,
+    setActiveNationalTab,
+    setNationalView
+  } = useGameStore();
   const isAdmin = user?.name === ADMIN_USERNAME;
   const isAndroid = isAndroidApp();
   const formatTime = (secs) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`;
@@ -112,74 +126,157 @@ export default function DashboardLayout({ children }) {
       </main>
 
       {/* ── Android Bottom Tab Bar (mobile only via CSS) ── */}
+      {/* ── Android Bottom Tab Bar (mobile & web) ── */}
       <nav className="android-bottom-nav" role="navigation" aria-label="Main navigation">
-        <button
-          className={`android-bottom-nav-item ${currentScreen === 'HOME' ? 'active' : ''}`}
-          onClick={() => setScreen('HOME')}
-        >
-          <span className="nav-icon">🏠</span>
-          Home
-        </button>
-        {(activeGameId || turnData) && (
-          <button
-            className={`android-bottom-nav-item ${currentScreen === 'GAME' && activeGameView !== 'HINTS' ? 'active' : ''}`}
-            onClick={() => {
-              setScreen('GAME');
-              if (activeGameView === 'HINTS') setActiveGameView('ACTION');
-            }}
-          >
-            <span className="nav-icon">🎮</span>
-            Campaign
-          </button>
-        )}
-        <button
-          className={`android-bottom-nav-item ${currentScreen === 'HOW_TO_PLAY' ? 'active' : ''}`}
-          onClick={() => setScreen('HOW_TO_PLAY')}
-        >
-          <span className="nav-icon">📖</span>
-          Rules
-        </button>
-        {isAdmin && (
-          <button
-            className={`android-bottom-nav-item ${currentScreen === 'ADMIN' ? 'active' : ''}`}
-            onClick={() => setScreen('ADMIN')}
-          >
-            <span className="nav-icon">🛠️</span>
-            Admin
-          </button>
-        )}
-        <button
-          className={`android-bottom-nav-item ${currentScreen === 'GAME' && activeGameView === 'HINTS' ? 'active' : ''}`}
-          onClick={() => {
-            if (activeGameId || turnData) {
-              setScreen('GAME');
-            }
-            setActiveGameView('HINTS');
-          }}
-          style={{ position: 'relative' }}
-        >
-          <span className="nav-icon" style={{ position: 'relative', display: 'inline-block' }}>
-            💡
-            {hintsCount > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: '-4px',
-                right: '-10px',
-                backgroundColor: '#ef4444',
-                color: '#ffffff',
-                fontSize: '10px',
-                fontWeight: '900',
-                padding: '1px 5px',
-                borderRadius: '8px',
-                lineHeight: '1.2',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
-              }}>
-                {hintsCount}
+        {currentScreen === 'NATIONAL' ? (
+          /* National Game Navigation: Home, Intelligence, Operations, Hints (Rules & Admin removed) */
+          <>
+            <button
+              className={`android-bottom-nav-item ${currentScreen === 'HOME' ? 'active' : ''}`}
+              onClick={() => {
+                setScreen('HOME');
+                if (setNationalView) setNationalView('HEADQUARTERS');
+              }}
+            >
+              <span className="nav-icon">🏠</span>
+              Home
+            </button>
+            <button
+              className={`android-bottom-nav-item ${currentScreen === 'NATIONAL' && (activeNationalTab === 'intelligence' || !activeNationalTab) ? 'active' : ''}`}
+              onClick={() => {
+                setScreen('NATIONAL');
+                setNationalView('WAR_ROOM');
+                setActiveNationalTab('intelligence');
+              }}
+            >
+              <span className="nav-icon">🏛️</span>
+              Intelligence
+            </button>
+            <button
+              className={`android-bottom-nav-item ${currentScreen === 'NATIONAL' && activeNationalTab === 'operations' ? 'active' : ''}`}
+              onClick={() => {
+                setScreen('NATIONAL');
+                setNationalView('WAR_ROOM');
+                setActiveNationalTab('operations');
+              }}
+            >
+              <span className="nav-icon">⚡</span>
+              Operations
+            </button>
+            <button
+              className={`android-bottom-nav-item ${currentScreen === 'NATIONAL' && activeNationalTab === 'hints' ? 'active' : ''}`}
+              onClick={() => {
+                setScreen('NATIONAL');
+                setNationalView('WAR_ROOM');
+                setActiveNationalTab('hints');
+              }}
+              style={{ position: 'relative' }}
+            >
+              <span className="nav-icon" style={{ position: 'relative', display: 'inline-block' }}>
+                💡
+                <span style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-10px',
+                  backgroundColor: '#ef4444',
+                  color: '#ffffff',
+                  fontSize: '10px',
+                  fontWeight: '900',
+                  padding: '1px 5px',
+                  borderRadius: '8px',
+                  lineHeight: '1.2',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                }}>
+                  4
+                </span>
               </span>
+              Hints
+            </button>
+          </>
+        ) : (
+          /* Standard / State Game Navigation */
+          <>
+            <button
+              className={`android-bottom-nav-item ${currentScreen === 'HOME' ? 'active' : ''}`}
+              onClick={() => setScreen('HOME')}
+            >
+              <span className="nav-icon">🏠</span>
+              Home
+            </button>
+            {(activeGameId || turnData) && (
+              <button
+                className={`android-bottom-nav-item ${currentScreen === 'GAME' && activeGameView !== 'HINTS' ? 'active' : ''}`}
+                onClick={() => {
+                  setScreen('GAME');
+                  if (activeGameView === 'HINTS') setActiveGameView('ACTION');
+                }}
+              >
+                <span className="nav-icon">🎮</span>
+                Campaign
+              </button>
             )}
-          </span>
-          Hints {hintsCount > 0 ? `(${hintsCount})` : ''}
-        </button>
+            {activeNationalGame && !activeGameId && !turnData && (
+              <button
+                className={`android-bottom-nav-item ${currentScreen === 'NATIONAL' ? 'active' : ''}`}
+                onClick={() => {
+                  if (setNationalView) setNationalView('HEADQUARTERS');
+                  setScreen('NATIONAL');
+                }}
+              >
+                <span className="nav-icon">🏛️</span>
+                National
+              </button>
+            )}
+            <button
+              className={`android-bottom-nav-item ${currentScreen === 'HOW_TO_PLAY' ? 'active' : ''}`}
+              onClick={() => setScreen('HOW_TO_PLAY')}
+            >
+              <span className="nav-icon">📖</span>
+              Rules
+            </button>
+            {isAdmin && (
+              <button
+                className={`android-bottom-nav-item ${currentScreen === 'ADMIN' ? 'active' : ''}`}
+                onClick={() => setScreen('ADMIN')}
+              >
+                <span className="nav-icon">🛠️</span>
+                Admin
+              </button>
+            )}
+            <button
+              className={`android-bottom-nav-item ${currentScreen === 'GAME' && activeGameView === 'HINTS' ? 'active' : ''}`}
+              onClick={() => {
+                if (activeGameId || turnData) {
+                  setScreen('GAME');
+                }
+                setActiveGameView('HINTS');
+              }}
+              style={{ position: 'relative' }}
+            >
+              <span className="nav-icon" style={{ position: 'relative', display: 'inline-block' }}>
+                💡
+                {hintsCount > 0 && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '-4px',
+                    right: '-10px',
+                    backgroundColor: '#ef4444',
+                    color: '#ffffff',
+                    fontSize: '10px',
+                    fontWeight: '900',
+                    padding: '1px 5px',
+                    borderRadius: '8px',
+                    lineHeight: '1.2',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                  }}>
+                    {hintsCount}
+                  </span>
+                )}
+              </span>
+              Hints {hintsCount > 0 ? `(${hintsCount})` : ''}
+            </button>
+          </>
+        )}
       </nav>
       
     </div>

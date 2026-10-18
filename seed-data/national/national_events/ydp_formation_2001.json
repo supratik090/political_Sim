@@ -1,0 +1,167 @@
+[
+  {
+    "id": "EVENT_2001_YDP_FORMATION",
+    "eventKey": "YDP_FORMATION_JOBLESSNESS",
+    "title": "Rise of Youth Development Party (YDP) & The Joblessness Crisis",
+    "type": "POLITICAL_SHAKEUP",
+    "era": 2001,
+    "season": 1,
+    "icon": "🎓",
+    "summary": "Surging graduate unemployment and recruitment exam paper leaks trigger nationwide student unrest. A new youth force, the Youth Development Party (YDP), forms to challenge the political establishment.",
+    "narrative": "Frustrated with systemic lack of government recruitment, recruitment exam delays, and agricultural stagnation, youth across major cities have rallied behind the newly launched Youth Development Party (YDP). Both ruling coalitions and traditional opposition fronts are pressured to respond before student unrest boils over into street clashes.",
+    "contextualEffects": {
+      "governmentStanding": {
+        "rulingCoalition": {
+          "moraleDelta": -4,
+          "corruptionDelta": 2,
+          "description": "As the governing power, the public and student unions hold your administration directly accountable for employment promises."
+        },
+        "opposition": {
+          "moraleDelta": 2,
+          "volunteersPct": 0.05,
+          "description": "Opposition ranks sense blood in the water and exploit student outrage to corner the ruling benches."
+        }
+      },
+      "ideologyAffinity": {
+        "DEVELOPMENT_FIRST": { "moraleDelta": 3, "note": "Natural alignment with industrial job creation and private sector expansion." },
+        "WELFARE_POPULIST": { "moraleDelta": 2, "volunteersPct": 0.04, "note": "Demands state unemployment allowances and public sector recruitment." },
+        "REGIONAL_PRIDE": { "moraleDelta": 0, "note": "Pressured to demand domicile reservation for local state youth in all jobs." },
+        "IDENTITY_POLITICS": { "moraleDelta": -2, "note": "Class and student solidarity threatens traditional caste vote banks." },
+        "ANTI_CORRUPTION": { "moraleDelta": 4, "corruptionDelta": -3, "note": "Prime opportunity to attack recruitment kickbacks and leaked papers." },
+        "UNITY_PLATFORM": { "moraleDelta": 1, "note": "Advocates national youth council and tripartite consensus." }
+      }
+    },
+    "rulingReactionOptions": [
+      {
+        "optionId": "RULING_OPT_CRACKDOWN",
+        "label": "Deploy State Police to Clear Campus Dharnas & Ban Strikes",
+        "stance": "CRACKDOWN",
+        "roleEligibility": "RULING",
+        "description": "Use executive authority and law enforcement to dismantle unauthorized student dharnas and protect commercial activity.",
+        "effects": {
+          "fundsPct": 0.04,
+          "workersPct": 0.02,
+          "volunteersPct": -0.12,
+          "donorsPct": 0.10,
+          "moraleDelta": -4,
+          "corruptionDelta": 3
+        },
+        "tacticalSummary": "Reassures law-and-order commercial donors (+10% donors, +4% funds), but alienates youth (-12% volunteers, -4 morale)."
+      },
+      {
+        "optionId": "RULING_OPT_FAST_TRACK_RECRUITMENT",
+        "label": "Enact Fast-Track Public Sector Recruitment & Apprenticeship Package",
+        "stance": "CO_OPT",
+        "roleEligibility": "RULING",
+        "description": "Announce emergency fiscal sanction for 200,000 public sector vacancies and a national youth internship stipend.",
+        "effects": {
+          "fundsPct": -0.10,
+          "workersPct": 0.06,
+          "volunteersPct": 0.18,
+          "donorsPct": -0.02,
+          "moraleDelta": 8,
+          "corruptionDelta": 1
+        },
+        "tacticalSummary": "Heavy financial drain on treasury (-10% funds), but absorbs student anger and nets massive youth volunteers (+18%)."
+      },
+      {
+        "optionId": "RULING_OPT_COALITION_MINISTERIAL_OFFER",
+        "label": "Co-opt YDP Leadership with Ministerial Portfolios in Ruling Front",
+        "stance": "ALLIANCE",
+        "roleEligibility": "RULING",
+        "description": "Offer YDP leadership berths in the Ministry of Youth Affairs and state advisory boards to defuse the agitation from within.",
+        "effects": {
+          "fundsPct": -0.04,
+          "workersPct": 0.04,
+          "volunteersPct": 0.12,
+          "donorsPct": 0.0,
+          "moraleDelta": 5,
+          "corruptionDelta": 2
+        },
+        "tacticalSummary": "Clever co-option (-4% funds); secures student leadership without conceding major ideological ground (+12% volunteers)."
+      },
+      {
+        "optionId": "RULING_OPT_DEFLECT_OPPOSITION",
+        "label": "Blame Previous Regimes & Highlight Long-Term Infrastructure Growth",
+        "stance": "DEFLECT",
+        "roleEligibility": "RULING",
+        "description": "Launch aggressive government PR highlighting national highway construction, claiming current unemployment is a legacy of past decades.",
+        "effects": {
+          "fundsPct": -0.02,
+          "workersPct": 0.0,
+          "volunteersPct": -0.05,
+          "donorsPct": 0.05,
+          "moraleDelta": 2,
+          "corruptionDelta": 0
+        },
+        "tacticalSummary": "Low-cost media spin (-2% funds); maintains party discipline but fails to pacify student anger (-5% volunteers)."
+      }
+    ],
+    "oppositionReactionOptions": [
+      {
+        "optionId": "OPP_OPT_MASS_PARLIAMENT_MARCH",
+        "label": "Mobilize Student Cadre to Lead 'Gherao Parliament' with YDP",
+        "stance": "AGITATION",
+        "roleEligibility": "OPPOSITION",
+        "description": "Throw your party's ground workforce into organizing a massive youth march on Parliament, demanding the Prime Minister's resignation.",
+        "effects": {
+          "fundsPct": -0.05,
+          "workersPct": 0.08,
+          "volunteersPct": 0.22,
+          "donorsPct": -0.02,
+          "moraleDelta": 12,
+          "corruptionDelta": 1
+        },
+        "tacticalSummary": "High energy street protest (-5% funds); surges youth volunteer base (+22%) and fuels national fighting spirit (+12 morale)."
+      },
+      {
+        "optionId": "OPP_OPT_PARLIAMENTARY_CENSURE",
+        "label": "Move Lok Sabha Adjournment Motion on Recruitment Exam Paper Leaks",
+        "stance": "PARLIAMENTARY",
+        "roleEligibility": "OPPOSITION",
+        "description": "Force a high-decibel debate on the floor of the house, demanding an impartial CBI probe into recruitment mafia kickbacks.",
+        "effects": {
+          "fundsPct": -0.02,
+          "workersPct": 0.02,
+          "volunteersPct": 0.06,
+          "donorsPct": 0.08,
+          "moraleDelta": 6,
+          "corruptionDelta": -2
+        },
+        "tacticalSummary": "Puts government on defense, draws media spotlight and online donations (+8% donors), and cleanses corruption (-2)."
+      },
+      {
+        "optionId": "OPP_OPT_INVITE_YDP_FRONT",
+        "label": "Extend Formal Coalition Invitation to YDP for Anti-Incumbent Bloc",
+        "stance": "ALLIANCE",
+        "roleEligibility": "OPPOSITION",
+        "description": "Invite YDP leadership to join your opposition front, promising key cabinet portfolios and a joint minimum youth charter.",
+        "effects": {
+          "fundsPct": -0.03,
+          "workersPct": 0.06,
+          "volunteersPct": 0.15,
+          "donorsPct": 0.0,
+          "moraleDelta": 6,
+          "corruptionDelta": 0
+        },
+        "tacticalSummary": "Expands your coalition weight (-3% funds); brings in fresh young cadres (+15% volunteers, +6% workers)."
+      },
+      {
+        "optionId": "OPP_OPT_DISTANCE_MODERATE",
+        "label": "Distance from Radical Agitations; Pitch Moderate Private-Led Blueprint",
+        "stance": "MODERATE",
+        "roleEligibility": "OPPOSITION",
+        "description": "Criticize both government inaction and student militancy, presenting yourself as a steady, business-friendly alternative.",
+        "effects": {
+          "fundsPct": 0.02,
+          "workersPct": -0.02,
+          "volunteersPct": -0.06,
+          "donorsPct": 0.10,
+          "moraleDelta": -2,
+          "corruptionDelta": 0
+        },
+        "tacticalSummary": "Attracts cautious institutional donors (+10% donors), but dampens grassroots enthusiasm (-6% volunteers)."
+      }
+    ]
+  }
+]

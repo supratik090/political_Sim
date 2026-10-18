@@ -716,52 +716,64 @@ input[type="range"]::-moz-range-thumb {
     border-left: none;
     border-top: 2px solid var(--party-primary-color, var(--primary-dark));
   }
+}
 
-  /* ── Android Bottom Tab Bar ── */
-  .android-bottom-nav {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--primary-dark);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
-    z-index: 200;
-    padding-bottom: var(--safe-bottom);
-  }
-  .android-bottom-nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 6px 2px 8px;
-    min-height: 52px;
-    color: rgba(255, 255, 255, 0.45);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    gap: 2px;
-    cursor: pointer;
-    transition: color 0.15s;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    border: none;
-    background: transparent;
-    border-radius: 0;
-    box-shadow: none;
-  }
-  .android-bottom-nav-item::after { display: none; }
-  .android-bottom-nav-item:active { transform: none; opacity: 0.7; }
-  .android-bottom-nav-item.active { color: var(--selected-highlight); }
-  .android-bottom-nav-item .nav-icon { font-size: 18px; line-height: 1; }
+/* ====================================================
+   BOTTOM NAVIGATION BAR — Universal for Mobile & Web
+   ==================================================== */
+.android-bottom-nav {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #111827;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  padding-bottom: var(--safe-bottom, 0px);
+}
 
-  /* Push main content above tab bar */
-  .dashboard-container {
-    padding-bottom: calc(64px + var(--safe-bottom));
-  }
+.android-bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  min-height: 54px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  gap: 3px;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.android-bottom-nav-item:hover {
+  color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.android-bottom-nav-item::after { display: none; }
+.android-bottom-nav-item:active { transform: scale(0.96); opacity: 0.8; }
+.android-bottom-nav-item.active {
+  color: var(--selected-highlight, #38bdf8);
+  background-color: rgba(56, 189, 248, 0.08);
+}
+.android-bottom-nav-item .nav-icon { font-size: 20px; line-height: 1; }
+
+/* Reserve space at bottom of container for tab bar on all screen sizes */
+.dashboard-container {
+  padding-bottom: calc(70px + var(--safe-bottom, 0px));
 }
 
 /* ====================================================

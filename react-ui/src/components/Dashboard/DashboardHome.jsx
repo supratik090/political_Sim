@@ -28,7 +28,8 @@ function invalidateCache(userId) {
 }
 
 export default function DashboardHome() {
-  const { user, setScreen, setActiveGame, currentScreen, activeGameId } = useGameStore();
+  const { user, setScreen, setActiveGame, currentScreen, activeGameId, setNationalView } = useGameStore();
+  const [selectedMode, setSelectedMode] = useState(null); // null (Mode Selection), 'STATE', 'NATIONAL'
   const [view, setView] = useState('TABLE'); // TABLE, CREATE, LOAD
   const [games, setGames] = useState([]);
   const [scenarios, setScenarios] = useState([]);
@@ -85,6 +86,7 @@ export default function DashboardHome() {
 
   useEffect(() => {
     if (currentScreen === 'HOME') {
+      setSelectedMode(null);
       loadDashboardData();
     }
   }, [user, currentScreen]);
@@ -390,12 +392,22 @@ export default function DashboardHome() {
           <div className="create-party-grid">
             {['Government', 'Opposition', 'Third Party'].map((role, idx) => (
               <div key={idx} style={{ border: '1px solid var(--primary-border)', padding: '15px', borderRadius: '8px' }}>
-                <h4>Party {idx + 1} ({role})</h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <h4 style={{ margin: '0 0 6px 0' }}>Party {idx + 1} ({role})</h4>
+                  <span style={{ fontSize: '12px' }} title="Party name fixed by scenario">🔒</span>
+                </div>
                 <input 
                   type="text" 
                   value={partyConfigs[idx].name} 
-                  onChange={(e) => updatePartyConfig(idx, 'name', e.target.value)}
-                  style={{ marginBottom: '10px' }} 
+                  readOnly
+                  style={{ 
+                    marginBottom: '10px',
+                    backgroundColor: 'rgba(0,0,0,0.05)',
+                    cursor: 'not-allowed',
+                    color: 'var(--text-secondary)',
+                    border: '1px solid rgba(101,148,177,0.2)',
+                    fontWeight: 'bold'
+                  }} 
                 />
                 <select 
                   value={partyConfigs[idx].controllerType}
@@ -926,34 +938,304 @@ export default function DashboardHome() {
     </div>
   );
 
-  return (
-    <div>
+  const renderModeSelection = () => (
+    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '5px 0 20px 0' }}>
       <div style={{
-        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-        padding: '30px',
-        borderRadius: '16px',
-        border: '1px solid rgba(255,255,255,0.08)',
-        marginBottom: '25px',
         textAlign: 'center',
-        color: '#ffffff',
-        boxShadow: '0 12px 30px -10px rgba(15,23,42,0.3)',
-        position: 'relative',
-        overflow: 'hidden'
+        marginBottom: '20px',
+        padding: '14px 20px',
+        background: 'rgba(15,23,42,0.85)',
+        borderRadius: '12px',
+        border: '1px solid rgba(245,158,11,0.3)',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
       }}>
-        <div style={{
-          position: 'absolute',
-          top: '-50%',
-          left: '-20%',
-          width: '300px',
-          height: '300px',
-          background: 'radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%)',
-          borderRadius: '50%'
-        }} />
-        <h1 style={{ fontSize: '28px', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: '#ffffff', textTransform: 'uppercase' }}>
-          🏛️ Statecraft Dashboard
-        </h1>
+        <h2 style={{
+          fontSize: '24px',
+          fontWeight: 900,
+          color: '#F59E0B',
+          margin: '0 0 4px 0',
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
+          textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+        }}>
+          Select Game Mode
+        </h2>
+        <p style={{
+          fontSize: '14px',
+          color: '#FFFFFF',
+          margin: 0,
+          fontWeight: 700,
+          lineHeight: 1.4
+        }}>
+          Choose your arena — dominate state politics or command national coalitions.
+        </p>
       </div>
 
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '12px',
+        alignItems: 'stretch'
+      }}>
+        {/* Card 1: State Politics Mode */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '16px',
+          border: '1px solid rgba(16,185,129,0.4)',
+          background: 'linear-gradient(180deg, #1E293B 0%, #151D2A 100%)',
+          borderRadius: '14px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <div style={{
+                fontSize: '22px',
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                background: 'rgba(16,185,129,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid rgba(16,185,129,0.3)',
+                flexShrink: 0
+              }}>
+                🗺️
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: '#F8FAFC', lineHeight: 1.2 }}>
+                  State Mode
+                </h3>
+                <span style={{ fontSize: '10px', fontWeight: 800, color: '#34D399', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  BE STATE POWER CENTER
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ background: '#28354A', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 10px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#F8FAFC', marginBottom: '2px' }}>
+                  👑 CM & Assembly Power
+                </div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', lineHeight: 1.3 }}>
+                  Win assembly seats, form state govt & claim Chief Ministership.
+                </div>
+              </div>
+
+              <div style={{ background: '#28354A', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 10px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#F8FAFC', marginBottom: '2px' }}>
+                  🃏 Tactical Action Cards
+                </div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', lineHeight: 1.3 }}>
+                  Deploy rallies, media blitzes, agitations & party building.
+                </div>
+              </div>
+
+              <div style={{ background: '#28354A', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 10px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#F8FAFC', marginBottom: '2px' }}>
+                  🏛️ Governance & Projects
+                </div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', lineHeight: 1.3 }}>
+                  Build public institutions & boost state governance ratings.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setSelectedMode('STATE')}
+            style={{
+              width: '100%',
+              padding: '11px',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              background: 'linear-gradient(135deg, #0F766E 0%, #10B981 100%)',
+              color: '#ffffff',
+              border: 'none',
+              boxShadow: '0 4px 14px rgba(16,185,129,0.4)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.03em'
+            }}
+          >
+            🚀 Launch State Mode
+          </button>
+        </div>
+
+        {/* Card 2: National Politics Mode */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '16px',
+          border: '1px solid rgba(155,93,229,0.4)',
+          background: 'linear-gradient(180deg, #1E293B 0%, #151D2A 100%)',
+          borderRadius: '14px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+              <div style={{
+                fontSize: '22px',
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                background: 'rgba(155,93,229,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid rgba(155,93,229,0.3)',
+                flexShrink: 0
+              }}>
+                🏛️
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: '#F8FAFC', lineHeight: 1.2 }}>
+                  National Mode
+                </h3>
+                <span style={{ fontSize: '10px', fontWeight: 800, color: '#C084FC', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  LOK SABHA & COALITIONS
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ background: '#28354A', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 10px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#F8FAFC', marginBottom: '2px' }}>
+                  👑 PM National Power
+                </div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', lineHeight: 1.3 }}>
+                  Win Lok Sabha majority seats and become Prime Minister.
+                </div>
+              </div>
+
+              <div style={{ background: '#28354A', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 10px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#F8FAFC', marginBottom: '2px' }}>
+                  🐘 Build your Support
+                </div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', lineHeight: 1.3 }}>
+                  Build your base, take control of states with allies, and build support.
+                </div>
+              </div>
+
+              <div style={{ background: '#28354A', border: '1px solid rgba(255,255,255,0.1)', padding: '8px 10px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '800', color: '#F8FAFC', marginBottom: '2px' }}>
+                  🤝 Coalition Warfare
+                </div>
+                <div style={{ fontSize: '11px', color: '#CBD5E1', lineHeight: 1.3 }}>
+                  Form alliances, build and manage coalition.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              if (setNationalView) setNationalView('HEADQUARTERS');
+              setScreen('NATIONAL');
+            }}
+            style={{
+              width: '100%',
+              padding: '11px',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              background: 'linear-gradient(135deg, #6C3AB5 0%, #9B5DE5 100%)',
+              color: '#ffffff',
+              border: 'none',
+              boxShadow: '0 4px 14px rgba(155,93,229,0.4)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.03em'
+            }}
+          >
+            🚀 Launch National Mode
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderNationalModeView = () => (
+    <div style={{
+      maxWidth: '850px',
+      margin: '0 auto',
+      padding: '24px',
+      background: 'linear-gradient(180deg, #1E293B 0%, #151D2A 100%)',
+      border: '1px solid rgba(155,93,229,0.4)',
+      borderRadius: '16px',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.4)'
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <h2 style={{ fontSize: '22px', color: '#F8FAFC', margin: '0 0 8px 0', fontWeight: 900, textTransform: 'uppercase' }}>
+          🏛️ STATECRAFT: National Politics Mode
+        </h2>
+        <p style={{ fontSize: '13px', color: '#CBD5E1', maxWidth: '620px', margin: '0 auto', lineHeight: 1.5 }}>
+          Lead your party across 30 Indian states and 543 Lok Sabha seats. Form coalitions with NDA, INC, or Left, navigate strategic monthly turns per era, call confidence votes, and win the Prime Ministership.
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+        <div style={{ background: '#28354A', border: '1px solid rgba(255,255,255,0.1)', padding: '14px', borderRadius: '12px', textAlign: 'center' }}>
+          <div style={{ fontSize: '24px', marginBottom: '6px' }}>👑</div>
+          <h4 style={{ margin: '0 0 4px 0', color: '#F8FAFC', fontSize: '14px', fontWeight: 800 }}>PM National Power</h4>
+          <p style={{ margin: 0, fontSize: '11px', color: '#CBD5E1', lineHeight: 1.3 }}>
+            Win Lok Sabha majority seats and become Prime Minister.
+          </p>
+        </div>
+
+        <div style={{ background: '#28354A', border: '1px solid rgba(255,255,255,0.1)', padding: '14px', borderRadius: '12px', textAlign: 'center' }}>
+          <div style={{ fontSize: '24px', marginBottom: '6px' }}>🐘</div>
+          <h4 style={{ margin: '0 0 4px 0', color: '#F8FAFC', fontSize: '14px', fontWeight: 800 }}>Build your Support</h4>
+          <p style={{ margin: 0, fontSize: '11px', color: '#CBD5E1', lineHeight: 1.3 }}>
+            Build your base, take control of states with allies, and build support.
+          </p>
+        </div>
+
+        <div style={{ background: '#28354A', border: '1px solid rgba(255,255,255,0.1)', padding: '14px', borderRadius: '12px', textAlign: 'center' }}>
+          <div style={{ fontSize: '24px', marginBottom: '6px' }}>🤝</div>
+          <h4 style={{ margin: '0 0 4px 0', color: '#F8FAFC', fontSize: '14px', fontWeight: 800 }}>Coalition Politics</h4>
+          <p style={{ margin: 0, fontSize: '11px', color: '#CBD5E1', lineHeight: 1.3 }}>
+            Form alliances, build and manage coalition.
+          </p>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '15px' }}>
+        <button 
+          onClick={() => {
+            if (setNationalView) setNationalView('HEADQUARTERS');
+            setScreen('NATIONAL');
+          }}
+          style={{ 
+            padding: '12px 28px', 
+            fontSize: '14px', 
+            fontWeight: 'bold', 
+            background: 'linear-gradient(135deg, #6C3AB5 0%, #9B5DE5 100%)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            boxShadow: '0 6px 20px rgba(155,93,229,0.4)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em'
+          }}
+        >
+          🚀 Launch National Politics Mode
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div>
       {loading && scenarios.length === 0 ? (
         <div className="unified-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', gap: '15px' }}>
           <div className="loading-spinner" style={{
@@ -974,6 +1256,10 @@ export default function DashboardHome() {
             }
           `}</style>
         </div>
+      ) : selectedMode === null ? (
+        renderModeSelection()
+      ) : selectedMode === 'NATIONAL' ? (
+        renderNationalModeView()
       ) : (
         renderDashboardGrid()
       )}
