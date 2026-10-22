@@ -16,6 +16,9 @@ import com.politicalsim.party.BuildingProject;
 import com.politicalsim.party.PostsConfig;
 import com.politicalsim.publicmood.PublicState;
 
+import com.politicalsim.api.v2.NewsFeedbackResponse;
+import com.politicalsim.api.v2.CardFeedbackResponse;
+import com.politicalsim.api.v2.TurnFeedbackCacheResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -1951,13 +1954,29 @@ public class RoundResolutionEngine {
     }
 
     private List<NewsDefinition> getCurrentNews(GameSession session) {
+        if (session.getCurrentDate() == null) {
+            if (session.getGameIssues() != null) {
+                return session.getGameIssues().stream()
+                        .filter(NewsDefinition.class::isInstance)
+                        .map(NewsDefinition.class::cast)
+                        .toList();
+            }
+            return Collections.emptyList();
+        }
         String monthTag = session.getCurrentDate().getYear() + "-" + String.format("%02d", session.getCurrentDate().getMonthValue());
-        return getNewsForScenario(session.getScenarioKey()).stream()
+        List<NewsDefinition> news = getNewsForScenario(session.getScenarioKey()).stream()
                 .filter(NewsDefinition::isActive)
-                .filter(news -> news.getMonthTags().contains(monthTag)
-                        || news.getMonthTags().contains(session.getCurrentDate().getMonth().name().toLowerCase()))
+                .filter(n -> n.getMonthTags().contains(monthTag)
+                        || n.getMonthTags().contains(session.getCurrentDate().getMonth().name().toLowerCase()))
                 .limit(1)
                 .toList();
+        if (news.isEmpty() && session.getGameIssues() != null && !session.getGameIssues().isEmpty()) {
+            return session.getGameIssues().stream()
+                    .filter(NewsDefinition.class::isInstance)
+                    .map(NewsDefinition.class::cast)
+                    .toList();
+        }
+        return news;
     }
 
 
@@ -2894,6 +2913,306 @@ public class RoundResolutionEngine {
                 }
             }
         }
+    }
+
+    public NewsFeedbackResponse evaluateNewsFeedback(GameSession session, String partyId, String newsKey, String reactionKey) {
+        NewsFeedbackResponse response = new NewsFeedbackResponse();
+        response.setNewsKey(newsKey);
+        response.setReactionKey(reactionKey);
+
+        List<NewsDefinition> newsItems = getCurrentNews(session);
+        NewsDefinition news = findNews(newsItems, newsKey);
+        NewsReactionDefinition reaction = findReaction(newsItems, newsKey, reactionKey);
+        PartyState actor = findParty(session, partyId);
+
+        if (reaction == null || actor == null) {
+            response.setHeadline("STATEMENT RECORDED");
+            response.setNarrative("Standard press release dispatched.");
+            response.setNetDeltas(Map.of("coins", 1, "partyMorale", 0, "mediaImage", 0, "corruptionScore", 0, "publicSupport", 0));
+            response.setCoinAward(1);
+            return response;
+        }
+
+        boolean isTriple = session.getTripleImpactTurn() == session.getTurnNumber();
+        response.setTripleMultiplier(isTriple);
+
+        Map<String, Object> baseEffects = partyEffect(reaction.getEffects(), "playerParty");
+        int coinAward = Math.max(0, Math.min(10, 2 + reaction.getWeight()));
+        response.setCoinAward(coinAward);
+
+        int chance = intValue(reaction.getRisk().get("chance"));
+        response.setRiskChance(chance);
+
+        boolean backfired = false;
+        Map<String, Object> riskEffects = Map.of();
+        if (chance > 0) {
+            backfired = riskHit(session, "news:" + actor.getId() + ":" + reaction.getReactionKey(), chance);
+            if (backfired) {
+                riskEffects = riskEffect(reaction.getRisk(), "playerParty");
+            }
+        }
+        response.setRollHit(backfired);
+        response.setBackfired(backfired);
+
+        int deltaCoins = intValue(baseEffects.get("coins")) + intValue(riskEffects.get("coins")) + coinAward;
+        int deltaMorale = intValue(baseEffects.get("partyMorale")) + intValue(riskEffects.get("partyMorale"));
+        int deltaMedia = intValue(baseEffects.get("mediaImage")) + intValue(riskEffects.get("mediaImage"));
+        int deltaCorruption = intValue(baseEffects.get("corruptionScore")) + intValue(riskEffects.get("corruptionScore"));
+        int deltaSupport = intValue(baseEffects.get("publicSupport")) + intValue(riskEffects.get("publicSupport"));
+
+        if (isTriple) {
+            deltaCoins *= 3;
+            deltaMorale *= 3;
+            deltaMedia *= 3;
+            deltaCorruption *= 3;
+            deltaSupport *= 3;
+        }
+
+        Map<String, Integer> netDeltas = new LinkedHashMap<>();
+        netDeltas.put("coins", deltaCoins);
+        netDeltas.put("partyMorale", deltaMorale);
+        netDeltas.put("mediaImage", deltaMedia);
+        netDeltas.put("corruptionScore", deltaCorruption);
+        netDeltas.put("publicSupport", deltaSupport);
+        response.setNetDeltas(netDeltas);
+
+        int crisisDelta = 0;
+        if (session.getActiveCrisisKey() != null && news != null && news.getCrisisTriggerKey() != null) {
+            PartyState gov = session.getGovernmentParty();
+            if (gov != null && actor.getId().equals(gov.getId())) {
+                String rKey = reaction.getReactionKey();
+                if (rKey != null) {
+                    if (rKey.contains("no_comment")) {
+                        crisisDelta = 1;
+                    } else if (rKey.contains("relief") || rKey.contains("suspend") || rKey.contains("disbursement") || rKey.contains("reform")) {
+                        crisisDelta = -1;
+                    }
+                }
+            }
+        }
+        response.setCrisisDurationDelta(crisisDelta);
+
+        if (backfired) {
+            response.setHeadline("🚨 PRESS BACKLASH");
+            Object badOutcome = reaction.getRisk().get("badOutcome");
+            response.setNarrative(badOutcome != null && !badOutcome.toString().isBlank()
+                ? badOutcome.toString()
+                : "The reaction drew sharp editorial criticism and alienated key voter segments.");
+        } else {
+            response.setHeadline(isTriple ? "🔥 CRITICAL PUBLIC RESONANCE (3x)" : "🎉 PUBLIC RESONANCE");
+            response.setNarrative("Your official statement framed the narrative effectively and rallied voter confidence.");
+        }
+
+        return response;
+    }
+
+    public CardFeedbackResponse evaluateCardFeedback(GameSession session, String partyId, String cardKey, String targetPartyId) {
+        CardFeedbackResponse response = new CardFeedbackResponse();
+        response.setCardKey(cardKey);
+        response.setTargetPartyId(targetPartyId);
+
+        PartyState actor = findParty(session, partyId);
+        if (actor == null) {
+            response.setHeadline("CARD PLAYED");
+            response.setNarrative("Card deployed.");
+            return response;
+        }
+
+        PartyState opponent = (targetPartyId != null && !targetPartyId.isBlank()) ? findParty(session, targetPartyId) : null;
+        CardDefinition card = findCard(session, cardKey, actor.getRole());
+        if (card == null) {
+            response.setHeadline("CARD PLAYED");
+            response.setNarrative("Card deployed.");
+            return response;
+        }
+
+        int cost = card.getCost();
+        if (session.getActiveCrisisKey() != null) {
+            if ("drought_crisis".equals(session.getActiveCrisisKey())) {
+                if ("positive_service".equals(card.getCategory()) || card.getCardKey().contains("farmer") || card.getCardKey().contains("rural") || card.getCardKey().contains("welfare")) {
+                    cost += 5;
+                }
+            } else if ("industrial_strike".equals(session.getActiveCrisisKey())) {
+                cost += 2;
+            }
+        }
+        response.setCost(cost);
+
+        String secretMetric = session.getSecretMetric();
+        String mappedKey = null;
+        if ("COINS".equalsIgnoreCase(secretMetric)) mappedKey = "coins";
+        else if ("MORALE".equalsIgnoreCase(secretMetric)) mappedKey = "partyMorale";
+        else if ("MEDIA_IMAGE".equalsIgnoreCase(secretMetric)) mappedKey = "mediaImage";
+        else if ("CORRUPTION".equalsIgnoreCase(secretMetric)) mappedKey = "corruptionScore";
+        else if ("PUBLIC_SUPPORT".equalsIgnoreCase(secretMetric)) mappedKey = "publicSupport";
+
+        boolean hasPositiveSecretMetric = false;
+        Map<String, Object> rawSelfEffects = partyEffect(card.getVisibleEffects(), "selfParty");
+        if (mappedKey != null && rawSelfEffects != null) {
+            int val = intValue(rawSelfEffects.get(mappedKey));
+            if ("corruptionScore".equals(mappedKey)) {
+                if (val < 0) hasPositiveSecretMetric = true;
+            } else {
+                if (val > 0) hasPositiveSecretMetric = true;
+            }
+        }
+
+        boolean hasOppositionTarget = (opponent != null);
+        boolean shouldTriple = hasPositiveSecretMetric || hasOppositionTarget;
+        response.setTripleMultiplier(shouldTriple);
+        String reason = null;
+        if (shouldTriple) {
+            reason = hasPositiveSecretMetric && hasOppositionTarget
+                ? "matching the round's secret boost and targeting opposition"
+                : (hasPositiveSecretMetric ? "matching the round's secret boost" : "targeting opposition");
+            response.setTripleReason(reason);
+        }
+
+        Map<String, Object> selfEffects = new LinkedHashMap<>(partyEffect(card.getVisibleEffects(), "selfParty"));
+        if (shouldTriple) {
+            selfEffects = tripleCardEffects(selfEffects, false);
+        }
+
+        int deltaCoins = -cost;
+        if (selfEffects.containsKey("coins")) {
+            int effectCoins = intValue(selfEffects.get("coins"));
+            if (effectCoins < 0) {
+                int extraLoss = effectCoins + cost;
+                if (extraLoss < 0) deltaCoins += extraLoss;
+            } else {
+                deltaCoins += effectCoins;
+            }
+        }
+        int deltaMorale = intValue(selfEffects.get("partyMorale"));
+        int deltaMedia = intValue(selfEffects.get("mediaImage"));
+        int deltaCorruption = intValue(selfEffects.get("corruptionScore"));
+        int deltaSupport = intValue(selfEffects.get("publicSupport"));
+
+        Map<String, Integer> oppDeltas = new LinkedHashMap<>();
+        if (opponent != null) {
+            Map<String, Object> oppEffects = partyEffect(card.getVisibleEffects(), "opponentParty");
+            if (oppEffects != null && !oppEffects.isEmpty()) {
+                if (shouldTriple) {
+                    oppEffects = tripleCardEffects(oppEffects, true);
+                }
+                oppDeltas.put("coins", intValue(oppEffects.get("coins")));
+                oppDeltas.put("partyMorale", intValue(oppEffects.get("partyMorale")));
+                oppDeltas.put("mediaImage", intValue(oppEffects.get("mediaImage")));
+                oppDeltas.put("corruptionScore", intValue(oppEffects.get("corruptionScore")));
+                oppDeltas.put("publicSupport", intValue(oppEffects.get("publicSupport")));
+            }
+        }
+
+        int chance = intValue(card.getRiskRoll().get("chance"));
+        response.setRiskChance(chance);
+        boolean backfired = false;
+        if (chance > 0) {
+            backfired = riskHit(session, "card:" + actor.getId() + ":" + card.getCardKey(), chance);
+            if (backfired) {
+                Map<String, Object> selfRisk = riskEffect(card.getRiskRoll(), "selfParty");
+                deltaCoins += intValue(selfRisk.get("coins"));
+                deltaMorale += intValue(selfRisk.get("partyMorale"));
+                deltaMedia += intValue(selfRisk.get("mediaImage"));
+                deltaCorruption += intValue(selfRisk.get("corruptionScore"));
+                deltaSupport += intValue(selfRisk.get("publicSupport"));
+
+                if (opponent != null) {
+                    Map<String, Object> oppRisk = riskEffect(card.getRiskRoll(), "opponentParty");
+                    oppDeltas.put("coins", oppDeltas.getOrDefault("coins", 0) + intValue(oppRisk.get("coins")));
+                    oppDeltas.put("partyMorale", oppDeltas.getOrDefault("partyMorale", 0) + intValue(oppRisk.get("partyMorale")));
+                    oppDeltas.put("mediaImage", oppDeltas.getOrDefault("mediaImage", 0) + intValue(oppRisk.get("mediaImage")));
+                    oppDeltas.put("corruptionScore", oppDeltas.getOrDefault("corruptionScore", 0) + intValue(oppRisk.get("corruptionScore")));
+                    oppDeltas.put("publicSupport", oppDeltas.getOrDefault("publicSupport", 0) + intValue(oppRisk.get("publicSupport")));
+                }
+            }
+        }
+        response.setRollHit(backfired);
+        response.setBackfired(backfired);
+
+        Map<String, Integer> selfDeltas = new LinkedHashMap<>();
+        selfDeltas.put("coins", deltaCoins);
+        selfDeltas.put("partyMorale", deltaMorale);
+        selfDeltas.put("mediaImage", deltaMedia);
+        selfDeltas.put("corruptionScore", deltaCorruption);
+        selfDeltas.put("publicSupport", deltaSupport);
+        response.setSelfDeltas(selfDeltas);
+        response.setOpponentDeltas(oppDeltas);
+
+        int crisisDurationDelta = 0;
+        if (session.getActiveCrisisKey() != null) {
+            if ("drought_crisis".equals(session.getActiveCrisisKey()) && "positive_service".equals(card.getCategory())) {
+                crisisDurationDelta = -1;
+            } else if ("industrial_strike".equals(session.getActiveCrisisKey()) && "governance".equals(card.getCategory())) {
+                crisisDurationDelta = -1;
+            } else if ("scam_panic".equals(session.getActiveCrisisKey()) && ("defensive_counter".equals(card.getCategory()) || card.getCardKey().contains("reform"))) {
+                crisisDurationDelta = -1;
+            }
+        }
+        response.setCrisisDurationDelta(crisisDurationDelta);
+
+        if (backfired) {
+            response.setHeadline("🚨 TACTICAL BACKLASH");
+            Object badOutcome = card.getRiskRoll().get("badOutcome");
+            response.setNarrative(badOutcome != null && !badOutcome.toString().isBlank()
+                ? badOutcome.toString()
+                : "Campaign initiative encountered unforeseen public friction and backlash.");
+        } else if (shouldTriple) {
+            response.setHeadline("🔥 CRITICAL IMPACT (3x)");
+            response.setNarrative("Tactical play amplified by " + reason + "! Opponent pressure and voter momentum surging.");
+        } else {
+            response.setHeadline("⚡ TACTICAL HIT");
+            response.setNarrative("Campaign card deployed with precision. Operations executed effectively.");
+        }
+
+        return response;
+    }
+
+    public TurnFeedbackCacheResponse evaluateTurnFeedbackCache(GameSession session, String partyId) {
+        TurnFeedbackCacheResponse cache = new TurnFeedbackCacheResponse(session.getTurnNumber(), partyId);
+
+        // 1. Precompute feedback for all current news options
+        List<NewsDefinition> newsItems = getCurrentNews(session);
+        for (NewsDefinition news : newsItems) {
+            String newsKey = news.getNewsKey();
+            if (news.getReactionOptions() != null) {
+                for (NewsReactionDefinition opt : news.getReactionOptions()) {
+                    String optKey = opt.getReactionKey();
+                    NewsFeedbackResponse fb = evaluateNewsFeedback(session, partyId, newsKey, optKey);
+                    cache.getNews().put(newsKey + ":" + optKey, fb);
+                }
+            }
+        }
+
+        // 2. Precompute feedback for all available cards
+        PartyState actor = findParty(session, partyId);
+        if (actor != null) {
+            List<CardDefinition> cards = getCardsForSession(session).stream()
+                    .filter(CardDefinition::isActive)
+                    .filter(c -> c.getRoleAllowed() != null && c.getRoleAllowed().contains(actor.getRole().name()))
+                    .toList();
+
+            List<PartyState> opponents = (session.getParties() != null)
+                    ? session.getParties().stream().filter(p -> !p.getId().equals(partyId)).toList()
+                    : Collections.emptyList();
+
+            for (CardDefinition card : cards) {
+                String cardKey = card.getCardKey();
+                boolean requiresTarget = card.getTarget() != null && Boolean.TRUE.equals(card.getTarget().get("opponentParty"));
+
+                if (requiresTarget) {
+                    for (PartyState opp : opponents) {
+                        CardFeedbackResponse fb = evaluateCardFeedback(session, partyId, cardKey, opp.getId());
+                        cache.getCards().put(cardKey + ":" + opp.getId(), fb);
+                    }
+                } else {
+                    CardFeedbackResponse fb = evaluateCardFeedback(session, partyId, cardKey, null);
+                    cache.getCards().put(cardKey + ":none", fb);
+                    cache.getCards().put(cardKey + ":", fb);
+                }
+            }
+        }
+
+        return cache;
     }
 }
 

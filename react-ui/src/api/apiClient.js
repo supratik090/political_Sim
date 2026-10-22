@@ -8,14 +8,27 @@ class ApiHttpError extends Error {
 }
 
 export function getApiBaseUrl() {
-  if (typeof window !== 'undefined' && window.localStorage.getItem('CUSTOM_API_URL')) {
-    return window.localStorage.getItem('CUSTOM_API_URL').replace(/\/+$/, '');
+  if (typeof window !== 'undefined') {
+    // 1. Explicit user override from Settings / Auth screen
+    const customUrl = window.localStorage.getItem('CUSTOM_API_URL');
+    if (customUrl && customUrl.trim() !== '') {
+      return customUrl.trim().replace(/\/+$/, '');
+    }
+
+    // 2. If launched from localhost / 127.0.0.1, automatically target local backend
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isLocalhost) {
+      return 'http://localhost:7810';
+    }
   }
+
+  // 3. Environment variable (e.g. Cloud Run in production)
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && envUrl.trim() !== '') {
     return envUrl.trim().replace(/\/+$/, '');
   }
-  return 'http://localhost:7800';
+
+  return 'http://localhost:7810';
 }
 
 function buildUrl(baseUrl, path, params = {}) {
@@ -143,6 +156,19 @@ export const buyRecoveryPack = (gameId, partyId) =>
   apiPost(`/api/games/${gameId}/parties/${partyId}/buy-recovery-pack`);
 
 export const fetchBillsForGameplay = (scenarioKey) => apiGet(`/api/games/bills/scenario/${scenarioKey}`);
+
+// V2 Feedback API bindings (Backward-compatible versioned endpoints)
+export const fetchNewsFeedback = (gameId, payload) =>
+  apiPost(`/api/v2/games/${gameId}/feedback/news`, payload);
+
+export const fetchBatchNewsFeedback = (gameId, payload) =>
+  apiPost(`/api/v2/games/${gameId}/feedback/news/batch`, payload);
+
+export const fetchCardFeedback = (gameId, payload) =>
+  apiPost(`/api/v2/games/${gameId}/feedback/card`, payload);
+
+export const fetchTurnFeedbackCache = (gameId, partyId) =>
+  apiGet(`/api/v2/games/${gameId}/feedback/turn-cache`, partyId ? { partyId } : {});
 
 // Admin API bindings
 export const fetchScenarios = () => apiGet('/api/admin/scenarios');

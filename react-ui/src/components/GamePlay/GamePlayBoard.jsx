@@ -438,8 +438,8 @@ useEffect(() => {
     setLoading(true);
     setError('');
     try {
-      const storageKey = `political_sim_party_management_${activeGameId}_${turnData.turnNumber || 0}`;
-      const saved = localStorage.getItem(storageKey);
+      const storageKey = `political_sim_party_management_${activeGameId}_turn_${turnData.turnNumber || 0}`;
+      const saved = localStorage.getItem(storageKey) || localStorage.getItem(`political_sim_party_management_${activeGameId}_${turnData.turnNumber || 0}`);
       let factionAllocs = {};
       let factionCrisisChoice = null;
       if (saved) {
@@ -448,8 +448,12 @@ useEffect(() => {
           factionCrisisChoice = parsed.factionCrisisChoice || null;
           const savedFactions = parsed.factions || [];
 
-          // Count patronage points used (patronage field delta from base 0)
-          const patronageUsed = savedFactions.reduce((sum, f) => sum + (f.patronage || 0), 0);
+          // Count patronage points used THIS turn (delta from baseline)
+          const patronageUsed = savedFactions.reduce((sum, f) => {
+            const originalF = (activeParty?.factions || []).find(pf => (pf.key || pf.id) === (f.id || f.key));
+            const diff = (f.patronage || 0) - (originalF?.patronage || 0);
+            return sum + Math.max(0, diff);
+          }, 0);
 
           // Build postAssignments: { postKey -> factionId } for all posts that were assigned this turn
           const postAssignments = parsed.assignedPostKeys || {};
@@ -1077,6 +1081,7 @@ useEffect(() => {
         activeParty={activeParty}
         partyColor={playerPartyColor}
         projectDefs={projectDefs}
+        scenarioBills={scenarioBills}
       />
 
 

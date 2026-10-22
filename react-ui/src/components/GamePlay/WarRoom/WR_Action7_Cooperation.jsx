@@ -5,7 +5,13 @@ import { createCooperationOffer, respondToCooperationOffer, bribeFaction, fetchB
  * WR_Action7_Cooperation — Diplomatic Cooperation (War Room Aesthetic)
  * Plays with playing-card style party buttons, counter chips, and dark tactical styling.
  */
-export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_DEFS = {}, onActionComplete }) {
+export default function WR_Action7_Cooperation({
+  turnData,
+  projectDefs: PROJECT_DEFS = {},
+  onActionComplete,
+  coopDone = false,
+  onToggleCoopDone,
+}) {
   const activePartyId = turnData?.activeHumanPartyId;
   const activeParty = turnData?.parties?.find(p => p.id === activePartyId);
   const otherParties = (turnData?.parties || []).filter(p => p.id !== activePartyId);
@@ -90,7 +96,8 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
     setErrorMsg('');
     try {
       const updatedData = await respondToCooperationOffer(turnData.gameId, offerId, accept);
-      onActionComplete(updatedData);
+      if (onToggleCoopDone) onToggleCoopDone(true);
+      if (onActionComplete) onActionComplete(updatedData);
       setFeedback({
         status: accept ? 'SUCCESS' : 'REJECTED',
         title: accept ? 'DEAL ACCEPTED' : 'DEAL REJECTED',
@@ -142,7 +149,8 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
 
     try {
       const updatedData = await createCooperationOffer(turnData.gameId, payload);
-      onActionComplete(updatedData);
+      if (onToggleCoopDone) onToggleCoopDone(true);
+      if (onActionComplete) onActionComplete(updatedData);
 
       const newOffers = updatedData.cooperationOffers || [];
       const created = newOffers[newOffers.length - 1];
@@ -195,7 +203,8 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
 
     try {
       const updatedData = await bribeFaction(turnData.gameId, recipientId, selectedFactionKey, bribeCoins);
-      onActionComplete(updatedData);
+      if (onToggleCoopDone) onToggleCoopDone(true);
+      if (onActionComplete) onActionComplete(updatedData);
 
       const commentary = updatedData.lastRoundCommentary || [];
       const latestMsg = commentary[commentary.length - 1] || 'Bribe processed.';
@@ -230,46 +239,43 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
       background: 'rgba(255,255,255,0.03)',
       border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: '10px',
-      padding: '8px 10px',
+      padding: '6px 8px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '6px'
+      gap: '4px',
+      minWidth: 0,
+      boxSizing: 'border-box',
     }}>
-      <span style={{ fontSize: '11px', color: '#7D8590', fontWeight: 700, textTransform: 'uppercase' }}>{label}</span>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+      <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        {label}
+      </span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
         <button
           type="button"
           onClick={() => setter(Math.max(min, value - step))}
           style={{
-            width: '32px', height: '32px', borderRadius: '6px',
+            width: '28px', height: '28px', borderRadius: '6px',
             background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-            color: '#E6EDF3', fontSize: '14px', fontWeight: 900, cursor: 'pointer',
-            touchAction: 'manipulation'
+            color: '#E6EDF3', fontSize: '13px', fontWeight: 900, cursor: 'pointer',
+            touchAction: 'manipulation', padding: 0, flexShrink: 0,
           }}
         >-</button>
-        <span style={{ fontSize: '15px', fontWeight: 900, color: '#38BDF8', minWidth: '36px', textAlign: 'center' }}>
+        <span style={{ fontSize: '14px', fontWeight: 900, color: '#38BDF8', minWidth: '24px', textAlign: 'center' }}>
           {value}
         </span>
         <button
           type="button"
           onClick={() => setter(Math.min(max, value + step))}
           style={{
-            width: '32px', height: '32px', borderRadius: '6px',
+            width: '28px', height: '28px', borderRadius: '6px',
             background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-            color: '#E6EDF3', fontSize: '14px', fontWeight: 900, cursor: 'pointer',
-            touchAction: 'manipulation'
+            color: '#E6EDF3', fontSize: '13px', fontWeight: 900, cursor: 'pointer',
+            touchAction: 'manipulation', padding: 0, flexShrink: 0,
           }}
         >+</button>
       </div>
     </div>
   );
-
-  useEffect(() => {
-    if (feedback) {
-      const timer = setTimeout(() => setFeedback(null), 6000);
-      return () => clearTimeout(timer);
-    }
-  }, [feedback]);
 
   return (
     <div style={{
@@ -277,62 +283,10 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
       color: '#E6EDF3',
       fontFamily: 'Montserrat, system-ui, -apple-system, sans-serif'
     }}>
-      {/* Toast Notification Banner (Floating top-right) */}
-      {feedback && (
-        <div style={{
-          position: 'fixed', top: '20px', right: '20px', zIndex: 99999,
-          maxWidth: '400px', width: 'calc(100vw - 40px)',
-          background: 'linear-gradient(145deg, #1e293b, #0f172a)',
-          border: `2px solid ${(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? '#22c55e' : '#ef4444'}`,
-          borderRadius: '16px', padding: '16px 20px',
-          boxShadow: `0 16px 36px rgba(0,0,0,0.6), 0 0 20px ${(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
-          display: 'flex', flexDirection: 'column', gap: '10px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '24px' }}>
-                {(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? '✅' : '❌'}
-              </span>
-              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.02em' }}>
-                {feedback.title}
-              </h3>
-            </div>
-            <button
-              onClick={() => setFeedback(null)}
-              style={{
-                background: 'rgba(255,255,255,0.1)', border: 'none', color: '#94a3b8',
-                width: '26px', height: '26px', borderRadius: '50%', fontSize: '14px',
-                fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}
-            >
-              ✕
-            </button>
-          </div>
-          <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8', lineHeight: 1.4, paddingLeft: '34px' }}>
-            {feedback.message}
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
-            <button
-              onClick={() => setFeedback(null)}
-              style={{
-                padding: '8px 16px', background: '#38BDF8', color: '#0f172a',
-                border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: 900,
-                cursor: 'pointer', touchAction: 'manipulation'
-              }}
-            >
-              UNDERSTOOD
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div style={{ marginBottom: '16px' }}>
         <div style={{ fontSize: '15px', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#34D399', display: 'flex', alignItems: 'center', gap: '8px' }}>
           🤝 DIPLOMATIC COOPERATION
-        </div>
-        <div style={{ fontSize: '12px', color: '#7D8590', marginTop: '2px' }}>
-          Form treaties, trade assets, lobby legislation, or bribe rival factions.
         </div>
       </div>
 
@@ -501,7 +455,7 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
                 <div style={{ fontSize: '12px', fontWeight: 800, color: '#4ADE80', textTransform: 'uppercase', marginBottom: '8px' }}>
                   🎁 WHAT YOU OFFER (GIVE)
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(95px, 1fr))', gap: '6px' }}>
                   {renderCounterControl('Coins', offeredCoins, setOfferedCoins, 0, activeParty?.stats?.coins || 999, 10)}
                   {renderCounterControl('Morale', offeredMorale, setOfferedMorale, 0, 100, 5)}
                   {renderCounterControl('Support %', offeredSupport, setOfferedSupport, 0, 100, 5)}
@@ -512,7 +466,7 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
                 <div style={{ fontSize: '12px', fontWeight: 800, color: '#F87171', textTransform: 'uppercase', marginBottom: '8px' }}>
                   🤲 WHAT YOU REQUEST (TAKE)
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(95px, 1fr))', gap: '6px' }}>
                   {renderCounterControl('Coins', requestedCoins, setRequestedCoins, 0, recipientParty?.stats?.coins || 999, 10)}
                   {renderCounterControl('Morale', requestedMorale, setRequestedMorale, 0, 100, 5)}
                   {renderCounterControl('Support %', requestedSupport, setRequestedSupport, 0, 100, 5)}
@@ -732,45 +686,11 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
                 <div style={{ fontSize: '12px', fontWeight: 800, color: '#4ADE80', textTransform: 'uppercase', marginBottom: '8px' }}>
                   🎁 COMPENSATION OFFERED FOR VOTE PLEDGE
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(95px, 1fr))', gap: '6px' }}>
                   {renderCounterControl('Coins Offered', offeredCoins, setOfferedCoins, 0, activeParty?.stats?.coins || 999, 10)}
                   {renderCounterControl('Morale Offered', offeredMorale, setOfferedMorale, 0, 100, 5)}
                   {renderCounterControl('Media Offered', offeredMedia, setOfferedMedia, 0, 100, 5)}
                 </div>
-
-                {/* Optional Completed Buildings offered for Lobbying */}
-                {myCompletedProjects.length > 0 && (
-                  <div style={{ marginTop: '10px' }}>
-                    <span style={{ fontSize: '11px', color: '#7D8590', fontWeight: 800, display: 'block', marginBottom: '6px' }}>
-                      Offer Completed Buildings for Vote Pledge:
-                    </span>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '100px', overflowY: 'auto' }}>
-                      {myCompletedProjects.map(proj => {
-                        const pDef = PROJECT_DEFS[proj.projectKey] || {};
-                        const isChecked = offeredBuildingKeys.includes(proj.projectKey);
-                        return (
-                          <label
-                            key={proj.id}
-                            style={{
-                              display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px',
-                              borderRadius: '6px', background: isChecked ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.04)',
-                              border: `1px solid ${isChecked ? '#4ADE80' : 'rgba(255,255,255,0.08)'}`,
-                              fontSize: '12px', cursor: 'pointer'
-                            }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => toggleBuildingSelection(proj.projectKey, 'OFFER')}
-                              style={{ accentColor: '#4ADE80' }}
-                            />
-                            <span>🏗️ {pDef.name || proj.projectKey}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -817,6 +737,7 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
 
           {/* SUBMIT BUTTON */}
           <button
+            id="wr-coop-submit-btn"
             type="button"
             onClick={offerType === 'SABOTAGE' ? handleBribe : handlePropose}
             disabled={loading || !recipientId || (offerType === 'NON_AGGRESSION' && !!existingPactWithRecipient)}
@@ -834,8 +755,130 @@ export default function WR_Action7_Cooperation({ turnData, projectDefs: PROJECT_
           >
             {loading ? '⏳ PROCESSING...' : (offerType === 'NON_AGGRESSION' && !!existingPactWithRecipient) ? '🚫 PACT ALREADY ACTIVE' : offerType === 'SABOTAGE' ? '⚡ EXECUTE SABOTAGE' : '🤝 DISPATCH DIPLOMATIC TERMS'}
           </button>
+
+          {/* Offer Result Feedback (Below Submit Button) */}
+          {feedback && (
+            <div
+              id="wr-coop-feedback-result"
+              style={{
+                marginTop: '14px',
+                padding: '12px 14px',
+                borderRadius: '10px',
+                background: (feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS')
+                  ? 'rgba(34,197,94,0.15)'
+                  : 'rgba(239,68,68,0.15)',
+                border: `1.5px solid ${(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? '#22c55e' : '#ef4444'}`,
+                boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '18px' }}>{(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? '✅' : '❌'}</span>
+                  <div style={{ fontSize: '13px', fontWeight: 900, color: '#ffffff' }}>{feedback.title}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFeedback(null)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#94A3B8',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    padding: '2px 6px'
+                  }}
+                >✕</button>
+              </div>
+              <p style={{ margin: 0, fontSize: '12px', color: '#E2E8F0', lineHeight: 1.4 }}>{feedback.message}</p>
+            </div>
+          )}
         </div>
       )}
+
+      {/* Global/Fallback Result Feedback (if no recipient card currently open) */}
+      {!recipientId && feedback && (
+        <div
+          id="wr-coop-feedback-result-global"
+          style={{
+            marginTop: '16px',
+            padding: '12px 14px',
+            borderRadius: '10px',
+            background: (feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS')
+              ? 'rgba(34,197,94,0.15)'
+              : 'rgba(239,68,68,0.15)',
+            border: `1.5px solid ${(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? '#22c55e' : '#ef4444'}`,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '18px' }}>{(feedback.status === 'SUCCESS' || feedback.status === 'BRIBE_SUCCESS') ? '✅' : '❌'}</span>
+              <div style={{ fontSize: '13px', fontWeight: 900, color: '#ffffff' }}>{feedback.title}</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFeedback(null)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#94A3B8',
+                fontSize: '14px',
+                cursor: 'pointer',
+                padding: '2px 6px'
+              }}
+            >✕</button>
+          </div>
+          <p style={{ margin: 0, fontSize: '12px', color: '#E2E8F0', lineHeight: 1.4 }}>{feedback.message}</p>
+        </div>
+      )}
+
+      {/* Diplomatic Review / Opt-out Block (Moved to Bottom of Section) */}
+      <div
+        id="wr-coop-bottom-review"
+        style={{
+          marginTop: '20px',
+          padding: '12px 14px',
+          background: coopDone ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.04)',
+          border: `1.5px solid ${coopDone ? 'rgba(74,222,128,0.45)' : 'rgba(255,255,255,0.1)'}`,
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '10px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '18px' }}>{coopDone ? '✅' : '🤝'}</span>
+          <span style={{ fontSize: '12px', fontWeight: 800, color: coopDone ? '#4ADE80' : '#E2E8F0' }}>
+            {coopDone ? 'Diplomatic Review Complete' : 'Diplomatic Actions'}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => { if (onToggleCoopDone) onToggleCoopDone(!coopDone); }}
+          style={{
+            padding: '7px 14px',
+            borderRadius: '8px',
+            fontSize: '11px',
+            fontWeight: 800,
+            cursor: 'pointer',
+            border: coopDone ? '1px solid rgba(74,222,128,0.5)' : 'none',
+            background: coopDone ? 'rgba(34,197,94,0.2)' : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+            color: '#ffffff',
+            touchAction: 'manipulation',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {coopDone ? '✓ Reviewed (Click to Change)' : 'Mark Reviewed / Opt Out'}
+        </button>
+      </div>
     </div>
   );
 }

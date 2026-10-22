@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { formatBillName } from './gameUtils';
 
 // Rolling number animation component
 function RollingNumber({ value, prefix = '', suffix = '' }) {
@@ -152,7 +153,8 @@ export default function RoundResolutionModal({
   turnData,
   activeParty,
   partyColor = '#6594b1',
-  projectDefs = {}
+  projectDefs = {},
+  scenarioBills = []
 }) {
   if (!isOpen || !turnData || !activeParty) return null;
 
@@ -194,7 +196,8 @@ export default function RoundResolutionModal({
 
   // Legislative Vote Info
   const lastResolvedBillKey = turnData.lastResolvedBillKey;
-  const lastResolvedBill = turnData.bills?.find(b => b.billKey === lastResolvedBillKey);
+  const lastResolvedBill = turnData.bills?.find(b => b.billKey === lastResolvedBillKey) || scenarioBills.find(b => b.billKey === lastResolvedBillKey);
+  const resolvedBillName = formatBillName(lastResolvedBillKey, lastResolvedBill, scenarioBills);
   const voteHappenedLastRound = lastResolvedBill && lastResolvedBill.turnResolved === lastTurnNum;
 
   // Classify Success (Jackpot) and Failure (Bust)
@@ -477,8 +480,9 @@ export default function RoundResolutionModal({
                 padding: '12px',
                 boxShadow: passed ? '0 0 10px rgba(52, 211, 153, 0.15)' : '0 0 10px rgba(239, 68, 68, 0.15)'
               }}>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  🗳️ Legislative Vote: {lastResolvedBillKey}
+                <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', letterSpacing: '0.02em', color: '#475569', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🗳️ Legislative Vote:</span>
+                  <span style={{ color: '#0f172a', fontWeight: 900 }}>{resolvedBillName}</span>
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{

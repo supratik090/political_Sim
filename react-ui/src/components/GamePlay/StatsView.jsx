@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { getPartyColor, checkDefeatWarnings, renderStatDelta, getFactionDisplayName } from './gameUtils';
+import { getPartyColor, checkDefeatWarnings, renderStatDelta, getFactionDisplayName, formatBillName } from './gameUtils';
 import { getPartyThemeByName } from '../../constants/partyThemes';
 import { getPostByKey, getPostByName } from './postsConfig';
 
@@ -310,7 +310,7 @@ export default function StatsView({
               🗳️ Last Turn Legislative Vote Tally
             </h4>
             <p style={{ margin: '0 0 15px 0', fontSize: '12px', color: '#6b7280', lineHeight: 1.4 }}>
-              Vote results for bill: <strong>{scenarioBills?.find(b => b.billKey === turnData.lastResolvedBillKey)?.name || turnData.lastResolvedBillKey}</strong>.
+              Vote results for bill: <strong>{formatBillName(turnData.lastResolvedBillKey, null, scenarioBills)}</strong>.
             </p>
 
             {(() => {
@@ -1224,7 +1224,7 @@ export default function StatsView({
                     return (
                       <div key={b.billKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '12px', background: '#fff' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <span style={{ fontWeight: '600' }}>📋 {def?.name || b.billKey}</span>
+                          <span style={{ fontWeight: '600' }}>📋 {formatBillName(b.billKey, def, scenarioBills)}</span>
                           <span style={{ fontSize: '11px', color: '#64748b' }}>Proposed by: <strong>{proposerName}</strong></span>
                         </div>
                         <span style={{ background: '#3b82f6', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>PENDING VOTE (Turn {b.turnProposed})</span>
@@ -1239,7 +1239,7 @@ export default function StatsView({
                     return (
                       <div key={b.billKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid #bbf7d0', borderRadius: '6px', fontSize: '12px', background: '#f0fdf4' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <span style={{ fontWeight: '600', color: '#166534' }}>✅ {def?.name || b.billKey}</span>
+                          <span style={{ fontWeight: '600', color: '#166534' }}>✅ {formatBillName(b.billKey, def, scenarioBills)}</span>
                           <span style={{ fontSize: '11px', color: '#166534', opacity: 0.8 }}>Proposed by: <strong>{proposerName}</strong></span>
                         </div>
                         <span style={{ background: '#22c55e', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>PASSED (Turn {b.turnResolved})</span>
@@ -1254,7 +1254,7 @@ export default function StatsView({
                     return (
                       <div key={b.billKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '12px', background: '#fef2f2' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <span style={{ fontWeight: '600', color: '#9f1239' }}>❌ {def?.name || b.billKey}</span>
+                          <span style={{ fontWeight: '600', color: '#9f1239' }}>❌ {formatBillName(b.billKey, def, scenarioBills)}</span>
                           <span style={{ fontSize: '11px', color: '#9f1239', opacity: 0.8 }}>Proposed by: <strong>{proposerName}</strong></span>
                         </div>
                         <span style={{ background: '#ef4444', color: '#fff', fontSize: '10px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>FAILED (Turn {b.turnResolved})</span>

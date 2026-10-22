@@ -491,7 +491,7 @@
   background: rgba(16,185,129,0.04);
 }
 
-/* ── Card carousel item ── */
+/* ── Card carousel item (legacy, kept for safety) ── */
 .wr-play-card {
   width: 148px;
   height: 218px;
@@ -514,6 +514,40 @@
   transform: scale(1.06) translateY(-6px);
 }
 .wr-play-card-unselected { opacity: 0.75; }
+
+/* ── Card v2 — compact mobile-first (130×155px, auto-lock flow) ── */
+.wr-card-v2 {
+  width: 130px;
+  height: 155px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 10px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.10);
+  transition: transform 0.18s cubic-bezier(0.4,0,0.2,1), box-shadow 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  flex-shrink: 0;
+  scroll-snap-align: center;
+}
+.wr-card-v2:active { transform: scale(0.94) !important; }
+.wr-card-v2-selected {
+  border-color: #F59E0B;
+  transform: scale(1.05) translateY(-4px);
+  box-shadow: 0 6px 18px rgba(245,158,11,0.35);
+}
+.wr-card-v2-idle { opacity: 0.82; }
+.wr-card-v2-idle:hover { opacity: 1; transform: translateY(-2px); }
+
+/* ── Spin animation (used by calculating state) ── */
+@keyframes wr-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 
 /* ── Mobile End Turn Footer position at bottom of options ── */
 @media (max-width: 768px) {

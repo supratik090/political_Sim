@@ -357,3 +357,34 @@ export const getFactionDisplayName = (partyName, factionKey) => {
   // Capitalize word otherwise
   return factionKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 };
+
+/**
+ * Returns clean human-readable bill title (e.g. "Unemployed Youth Allowance Act"),
+ * never raw keys or screaming snake case like BILL_UNEMPLOYED_YOUTH_BHATTA.
+ */
+export function formatBillName(billKey, billDef = null, scenarioBills = []) {
+  if (billDef && (billDef.name || billDef.title)) {
+    return billDef.name || billDef.title;
+  }
+  if (Array.isArray(scenarioBills) && billKey) {
+    const normKey = billKey.toLowerCase();
+    const found = scenarioBills.find(b => (b.billKey || b.id || '').toLowerCase() === normKey);
+    if (found && (found.name || found.title)) return found.name || found.title;
+  }
+  if (!billKey) return 'Legislative Bill';
+
+  // Remove bill_ or bill- prefix
+  let clean = billKey.replace(/^bill[_-]/i, '');
+  // Replace underscores and dashes with spaces
+  clean = clean.replace(/[_-]/g, ' ');
+  // Capitalize words
+  clean = clean.split(' ')
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ');
+
+  if (!clean.toLowerCase().endsWith('bill') && !clean.toLowerCase().endsWith('act') && !clean.toLowerCase().endsWith('scheme')) {
+    return `${clean} Bill`;
+  }
+  return clean;
+}

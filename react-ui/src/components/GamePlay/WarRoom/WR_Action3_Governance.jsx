@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { getFactionDisplayName } from '../gameUtils';
 import { getPostByKey, getPostByName } from '../postsConfig';
 import { lockPartyManagement } from '../../../api/apiClient';
@@ -263,15 +264,6 @@ export default function WR_Action3_Governance({
   const confirmBtnRef = useRef(null);
   const allCardsAssigned = deck.length === 0 && !isLocked;
 
-  useEffect(() => {
-    if (allCardsAssigned) {
-      const timer = setTimeout(() => {
-        confirmBtnRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [allCardsAssigned]);
-
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [detailFactionId, setDetailFactionId] = useState(null);
 
@@ -280,6 +272,66 @@ export default function WR_Action3_Governance({
       localStorage.setItem(storageKey, JSON.stringify({ factions, deck, history, factionCrisisChoice, assignedPostKeys, isLocked }));
     }
   }, [factions, deck, history, factionCrisisChoice, assignedPostKeys, isLocked, storageKey]);
+
+  // Sync completion with parent when allocations are locked
+  useEffect(() => {
+    if (isLocked && setSelectedIssueOptionKey) {
+      setSelectedIssueOptionKey('mock_done');
+    }
+  }, [isLocked, setSelectedIssueOptionKey]);
+
+  // Check if already locked on backend
+  useEffect(() => {
+    if ((partyMgmtState?.locked || activeParty?.partyManagementLocked) && !isLocked) {
+      setIsLocked(true);
+      if (setSelectedIssueOptionKey) {
+        setSelectedIssueOptionKey('mock_done');
+      }
+    }
+  }, [partyMgmtState, activeParty, isLocked, setSelectedIssueOptionKey]);
+
+  const prevTurnRef = useRef(turnNumber);
+  const prevSessionRef = useRef(gameSessionId);
+
+  // Sync state when turn changes or session changes
+  useEffect(() => {
+    const isNewTurn = prevTurnRef.current !== turnNumber || prevSessionRef.current !== gameSessionId;
+    if (isNewTurn) {
+      prevTurnRef.current = turnNumber;
+      prevSessionRef.current = gameSessionId;
+
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.factions) setFactions(parsed.factions);
+          if (parsed.deck) setDeck(parsed.deck);
+          if (parsed.assignedPostKeys) setAssignedPostKeys(parsed.assignedPostKeys);
+          if (parsed.history) setHistory(parsed.history);
+          if (parsed.factionCrisisChoice !== undefined) setFactionCrisisChoice(parsed.factionCrisisChoice);
+          if (parsed.isLocked !== undefined) setIsLocked(parsed.isLocked);
+          return;
+        } catch (e) {
+          console.error("Failed to parse stored state for turn", e);
+        }
+      }
+
+      setFactions(initialFactions);
+      setDeck(buildDeckFromBackendState());
+      setAssignedPostKeys({});
+      setHistory([]);
+      setFactionCrisisChoice(null);
+      setIsLocked(false);
+    }
+  }, [turnNumber, gameSessionId, storageKey, initialFactions]);
+
+  // Keep fresh if untouched and not locked
+  useEffect(() => {
+    if (history.length === 0 && !isLocked && !localStorage.getItem(storageKey)) {
+      setFactions(initialFactions);
+      setDeck(buildDeckFromBackendState());
+    }
+  }, [partyMgmtState, activeParty]);
 
   const handleLock = useCallback(async () => {
     if (isLocked || isLocking) return;
@@ -290,7 +342,10 @@ export default function WR_Action3_Governance({
       const gameId = turnData?.gameId;
       if (!partyId || !gameId) throw new Error('Missing game or party ID');
 
-      const patronageUsed = factions.reduce((sum, f) => sum + (f.patronage || 0), 0);
+      // Only count patronage used THIS turn (delta from turn's initial patronage)
+      const initialPatronageTotal = initialFactions.reduce((sum, f) => sum + (f.patronage || 0), 0);
+      const currentPatronageTotal = factions.reduce((sum, f) => sum + (f.patronage || 0), 0);
+      const patronageUsed = Math.max(0, currentPatronageTotal - initialPatronageTotal);
       const postAssignments = assignedPostKeys;
       const factionsPayload = factions.map(f => ({
         key: f.id,
@@ -314,7 +369,7 @@ export default function WR_Action3_Governance({
     } finally {
       setIsLocking(false);
     }
-  }, [isLocked, isLocking, factions, assignedPostKeys, activeParty, turnData, setSelectedIssueOptionKey]);
+  }, [isLocked, isLocking, factions, initialFactions, assignedPostKeys, activeParty, turnData, setSelectedIssueOptionKey]);
 
   useEffect(() => {
     if (activeParty?.activeFactionCrisisKey && !factionCrisisChoice) {
@@ -463,9 +518,28 @@ export default function WR_Action3_Governance({
                 WebkitTapHighlightColor: 'transparent',
               }}
             >
-              <div style={{ fontSize: '11px', fontWeight: 900, color: '#e2e8f0', marginBottom: '2px', lineHeight: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 900, color: '#e2e8f0', marginBottom: '3px', lineHeight: 1.2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                 <span>{f.name}</span>
-                <span style={{ fontSize: '9px', opacity: 0.6 }}>ℹ️</span>
+                <span
+                  title="Faction Info"
+                  style={{
+                    fontSize: '10px',
+                    fontWeight: 900,
+                    width: '15px',
+                    height: '15px',
+                    borderRadius: '50%',
+                    background: 'rgba(56,189,248,0.25)',
+                    color: '#38BDF8',
+                    border: '1px solid rgba(56,189,248,0.5)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    lineHeight: 1,
+                    flexShrink: 0,
+                  }}
+                >
+                  i
+                </span>
               </div>
               <div style={{
                 fontSize: '13px', fontWeight: 900,
@@ -625,23 +699,32 @@ export default function WR_Action3_Governance({
               {topCard.desc}
             </div>
 
-            {/* ── Divider with label ── */}
+            {/* ── Assign to Faction Header (Prominent & Visible) ── */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: '10px',
-              marginBottom: '12px',
+              margin: '14px 0 10px 0',
             }}>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-              <span style={{
-                fontSize: '9px', fontWeight: 900, color: '#64748B',
-                textTransform: 'uppercase', letterSpacing: '0.08em',
-                whiteSpace: 'nowrap',
+              <div style={{ flex: 1, height: '1px', background: 'rgba(56,189,248,0.25)' }} />
+              <div style={{
+                fontSize: '11px',
+                fontWeight: 900,
+                color: '#38BDF8',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '3px 12px',
+                background: 'rgba(56,189,248,0.1)',
+                border: '1px solid rgba(56,189,248,0.3)',
+                borderRadius: '12px',
               }}>
-                Assign to Faction
-              </span>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+                <span>🎯</span> ASSIGN TO FACTION
+              </div>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(56,189,248,0.25)' }} />
             </div>
 
-            {/* ── Faction Allocation Buttons ── */}
+            {/* ── Faction Allocation Buttons (Only Name & % Loyalty) ── */}
             <div style={{
               display: 'flex',
               flexDirection: 'column',
@@ -649,75 +732,75 @@ export default function WR_Action3_Governance({
             }}>
               {activeFactions.map(f => {
                 const isFrozen = f.frozenTurnsRemaining > 0;
-                const postList = Array.isArray(f.post) ? f.post : (f.post && f.post !== 'None' ? [f.post] : []);
-                const projectCount = f.projects?.length || 0;
 
                 return (
                   <button
                     key={f.id}
                     type="button"
-                    onClick={() => !isFrozen && handleAllocate(f.id)}
-                    disabled={isFrozen}
+                    onClick={() => handleAllocate(f.id)}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'space-between',
                       gap: '12px',
                       width: '100%',
-                      padding: '10px 14px',
-                      background: isFrozen
-                        ? 'rgba(30,41,59,0.4)'
-                        : `linear-gradient(135deg, rgba(30,41,59,0.6), rgba(15,23,42,0.7))`,
-                      border: `1.5px solid ${isFrozen ? 'rgba(255,255,255,0.06)' : `${f.accentColor}50`}`,
+                      padding: '12px 14px',
+                      background: 'linear-gradient(135deg, rgba(30,41,59,0.7), rgba(15,23,42,0.85))',
+                      border: `1.5px solid ${f.accentColor}50`,
                       borderRadius: '12px',
-                      cursor: isFrozen ? 'not-allowed' : 'pointer',
+                      cursor: 'pointer',
                       touchAction: 'manipulation',
-                      opacity: isFrozen ? 0.45 : 1,
-                      transition: 'all 0.2s ease',
+                      opacity: 1,
+                      transition: 'all 0.15s ease',
                       textAlign: 'left',
                       WebkitTapHighlightColor: 'transparent',
                     }}
                   >
-                    {/* Faction Avatar */}
-                    <div style={{
-                      width: '38px', height: '38px',
-                      borderRadius: '10px',
-                      background: `${f.accentColor}22`,
-                      border: `1.5px solid ${f.accentColor}55`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '16px', fontWeight: 900,
-                      color: f.accentColor,
-                      flexShrink: 0,
-                    }}>
-                      {f.name.charAt(0)}
+                    {/* Faction Avatar & Name */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                      <div style={{
+                        width: '36px', height: '36px',
+                        borderRadius: '10px',
+                        background: `${f.accentColor}22`,
+                        border: `1.5px solid ${f.accentColor}55`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '15px', fontWeight: 900,
+                        color: f.accentColor,
+                        flexShrink: 0,
+                      }}>
+                        {f.name.charAt(0)}
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, overflow: 'hidden' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 900, color: '#F1F5F9', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {f.name}
+                        </div>
+                        {isFrozen && (
+                          <span style={{
+                            fontSize: '9px',
+                            fontWeight: 800,
+                            color: '#F59E0B',
+                            background: 'rgba(245, 158, 11, 0.15)',
+                            border: '1px solid rgba(245, 158, 11, 0.3)',
+                            padding: '1px 5px',
+                            borderRadius: '4px',
+                            flexShrink: 0,
+                          }}>
+                            ❄️ Sabotaged ({f.frozenTurnsRemaining}t)
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Faction Info & Assets Breakdown */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '13px', fontWeight: 900, color: '#E2E8F0', lineHeight: 1.2 }}>
-                        {f.name}
-                      </div>
-                      <div style={{ fontSize: '11px', fontWeight: 800, color: '#94a3b8', marginTop: '4px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                          <span style={{ fontSize: '14px' }}>🛡️</span> Patronage: <strong style={{ fontSize: '13px', color: '#93C5FD' }}>{f.patronage || 0}</strong>
-                        </span>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                          <span style={{ fontSize: '14px' }}>💼</span> Posts: <strong style={{ fontSize: '12px', color: '#E9D5FF' }}>{postList.length > 0 ? postList.join(', ') : 'None'}</strong>
-                        </span>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                          <span style={{ fontSize: '14px' }}>🏗️</span> Buildings: <strong style={{ fontSize: '13px', color: '#99F6E4' }}>{projectCount}</strong>
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Loyalty Badge */}
+                    {/* % Loyalty Badge */}
                     <div style={{
-                      padding: '4px 10px',
+                      padding: '4px 12px',
                       borderRadius: '20px',
-                      background: `${f.accentColor}18`,
-                      border: `1px solid ${f.accentColor}40`,
-                      fontSize: '11px',
+                      background: `${f.accentColor}20`,
+                      border: `1.5px solid ${f.accentColor}60`,
+                      fontSize: '13px',
                       fontWeight: 900,
-                      color: f.accentColor,
+                      color: f.loyalty >= 70 ? '#4ADE80' : f.loyalty >= 40 ? '#FBBF24' : '#F87171',
                       flexShrink: 0,
                       whiteSpace: 'nowrap',
                     }}>
@@ -860,284 +943,314 @@ export default function WR_Action3_Governance({
         </button>
       )}
 
-      {/* ── FACTION DETAILS MODAL ── */}
-      {detailFaction && (
+      {/* ── FACTION DETAILS MODAL (Portal to document.body for true viewport positioning) ── */}
+      {detailFaction && typeof document !== 'undefined' && createPortal(
         <div
           style={{
             position: 'fixed',
             top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0, 0, 0, 0.8)',
+            background: 'rgba(0, 0, 0, 0.85)',
             backdropFilter: 'blur(8px)',
-            zIndex: 9999,
+            WebkitBackdropFilter: 'blur(8px)',
+            zIndex: 999999,
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'center',
-            padding: '16px',
-            animation: 'wr-slide-in 0.25s ease-out',
+            padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 12px 20px 12px',
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
           }}
           onClick={() => setDetailFactionId(null)}
         >
           <div
             style={{
               width: '100%',
-              maxWidth: '460px',
-              maxHeight: '85vh',
-              overflowY: 'auto',
+              maxWidth: '480px',
+              maxHeight: 'calc(100vh - 40px)',
+              display: 'flex',
+              flexDirection: 'column',
               background: 'linear-gradient(160deg, #1e293b 0%, #0f172a 100%)',
               border: `2px solid ${detailFaction.accentColor}`,
-              borderRadius: '20px',
-              padding: '20px',
-              boxShadow: `0 20px 50px rgba(0,0,0,0.7), 0 0 30px ${detailFaction.accentColor}33`,
+              borderRadius: '18px',
+              boxShadow: `0 20px 50px rgba(0,0,0,0.85), 0 0 30px ${detailFaction.accentColor}33`,
               position: 'relative',
+              overflow: 'hidden',
+              margin: 'auto 0',
             }}
             onClick={e => e.stopPropagation()}
           >
-            {/* Close Button */}
-            <button
-              type="button"
-              onClick={() => setDetailFactionId(null)}
-              style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: '#ffffff',
-                fontSize: '16px',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                touchAction: 'manipulation',
-              }}
-            >
-              ✕
-            </button>
+            {/* Sticky Header with Faction Details & Close Button */}
+            <div style={{
+              padding: '14px 16px',
+              background: 'rgba(15,23,42,0.95)',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+              flexShrink: 0,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '12px',
+                  background: `${detailFaction.accentColor}25`,
+                  border: `2px solid ${detailFaction.accentColor}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
+                  fontWeight: 900,
+                  color: detailFaction.accentColor,
+                  flexShrink: 0,
+                }}>
+                  {detailFaction.name.charAt(0)}
+                </div>
+                <div>
+                  <div style={{ fontSize: '16px', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>
+                    {detailFaction.name}
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                    Power Share: <strong>{detailFaction.influence}%</strong> · Loyalty:{' '}
+                    <strong style={{
+                      color: detailFaction.loyalty >= 70 ? '#4ADE80' : detailFaction.loyalty >= 40 ? '#FBBF24' : '#F87171'
+                    }}>
+                      {detailFaction.loyalty}%
+                    </strong>
+                  </div>
+                </div>
+              </div>
 
-            {/* Modal Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <div style={{
-                width: '46px',
-                height: '46px',
-                borderRadius: '14px',
-                background: `${detailFaction.accentColor}25`,
-                border: `2px solid ${detailFaction.accentColor}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px',
-                fontWeight: 900,
-                color: detailFaction.accentColor,
-              }}>
-                {detailFaction.name.charAt(0)}
-              </div>
-              <div>
-                <div style={{ fontSize: '18px', fontWeight: 900, color: '#ffffff' }}>
-                  {detailFaction.name}
-                </div>
-                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
-                  Power Share: <strong>{detailFaction.influence}%</strong> · Loyalty:{' '}
-                  <strong style={{
-                    color: detailFaction.loyalty >= 70 ? '#4ADE80' : detailFaction.loyalty >= 40 ? '#FBBF24' : '#F87171'
-                  }}>
-                    {detailFaction.loyalty}%
-                  </strong>
-                </div>
-              </div>
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setDetailFactionId(null)}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  color: '#ffffff',
+                  fontSize: '16px',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  touchAction: 'manipulation',
+                  flexShrink: 0,
+                }}
+              >
+                ✕
+              </button>
             </div>
 
-            {/* ── SECTION 1: LEADERSHIP POSTS ── */}
-            <div style={{ marginBottom: '18px' }}>
-              <div style={{
-                fontSize: '11px', fontWeight: 900, color: '#A855F7',
-                textTransform: 'uppercase', letterSpacing: '0.06em',
-                marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px'
-              }}>
-                <span>💼 Leadership Posts</span>
-                <span style={{
-                  padding: '2px 7px', borderRadius: '10px',
-                  background: 'rgba(168,85,247,0.15)', fontSize: '9px'
+            {/* Scrollable Content */}
+            <div style={{
+              padding: '16px',
+              overflowY: 'auto',
+              flex: 1,
+              WebkitOverflowScrolling: 'touch',
+            }}>
+              {/* ── SECTION 1: LEADERSHIP POSTS ── */}
+              <div style={{ marginBottom: '18px' }}>
+                <div style={{
+                  fontSize: '11px', fontWeight: 900, color: '#A855F7',
+                  textTransform: 'uppercase', letterSpacing: '0.06em',
+                  marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px'
                 }}>
-                  {Array.isArray(detailFaction.post) ? detailFaction.post.length : (detailFaction.post && detailFaction.post !== 'None' ? 1 : 0)}
-                </span>
-              </div>
+                  <span>💼 Leadership Posts</span>
+                  <span style={{
+                    padding: '2px 7px', borderRadius: '10px',
+                    background: 'rgba(168,85,247,0.15)', fontSize: '9px'
+                  }}>
+                    {Array.isArray(detailFaction.post) ? detailFaction.post.length : (detailFaction.post && detailFaction.post !== 'None' ? 1 : 0)}
+                  </span>
+                </div>
 
-              {(() => {
-                const rawPosts = detailFaction.post;
-                const postList = Array.isArray(rawPosts) ? rawPosts : (rawPosts && rawPosts !== 'None' ? [rawPosts] : []);
-                if (postList.length === 0) {
+                {(() => {
+                  const rawPosts = detailFaction.post;
+                  const postList = Array.isArray(rawPosts) ? rawPosts : (rawPosts && rawPosts !== 'None' ? [rawPosts] : []);
+                  if (postList.length === 0) {
+                    return (
+                      <div style={{ fontSize: '11px', color: '#64748B', fontStyle: 'italic', padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+                        No leadership posts assigned to this faction.
+                      </div>
+                    );
+                  }
                   return (
-                    <div style={{ fontSize: '11px', color: '#64748B', fontStyle: 'italic', padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-                      No leadership posts assigned to this faction.
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {postList.map((pKey, idx) => {
+                        const def = getPostByKey(pKey) || getPostByName(pKey);
+                        return (
+                          <div key={idx} style={{
+                            background: 'linear-gradient(135deg, rgba(88,28,135,0.25), rgba(30,41,59,0.5))',
+                            border: '1px solid rgba(168,85,247,0.3)',
+                            borderRadius: '10px',
+                            padding: '10px 12px',
+                          }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                              <span style={{ fontSize: '13px', fontWeight: 900, color: '#E9D5FF' }}>
+                                {def?.icon || '💼'} {def?.name || pKey}
+                              </span>
+                              <span style={{ fontSize: '10px', fontWeight: 800, color: '#A855F7', background: 'rgba(168,85,247,0.2)', padding: '2px 6px', borderRadius: '6px' }}>
+                                +{def?.loyaltyBoost || 10} Loyalty
+                              </span>
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#cbd5e1', lineHeight: 1.4, marginBottom: '6px' }}>
+                              {def?.desc || 'Assigns a key leadership position in the party.'}
+                            </div>
+                            {/* Yield Badges */}
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                              {(def?.coinBonus > 0 || !def) && (
+                                <span style={{ fontSize: '9px', fontWeight: 800, color: '#FBBF24', background: 'rgba(245,158,11,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                                  🪙 +{def?.coinBonus || 8} Coins/turn
+                                </span>
+                              )}
+                              {(def?.moraleBonus > 0 || !def) && (
+                                <span style={{ fontSize: '9px', fontWeight: 800, color: '#38BDF8', background: 'rgba(56,189,248,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                                   +{def?.moraleBonus || 6} Morale/turn
+                                </span>
+                              )}
+                              {def?.mediaBonus > 0 && (
+                                <span style={{ fontSize: '9px', fontWeight: 800, color: '#EC4899', background: 'rgba(236,72,153,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                                  📺 +{def.mediaBonus} Media Image/turn
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   );
-                }
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {postList.map((pKey, idx) => {
-                      const def = getPostByKey(pKey) || getPostByName(pKey);
-                      return (
-                        <div key={idx} style={{
-                          background: 'linear-gradient(135deg, rgba(88,28,135,0.25), rgba(30,41,59,0.5))',
-                          border: '1px solid rgba(168,85,247,0.3)',
-                          borderRadius: '10px',
-                          padding: '10px 12px',
-                        }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                            <span style={{ fontSize: '13px', fontWeight: 900, color: '#E9D5FF' }}>
-                              {def?.icon || '💼'} {def?.name || pKey}
-                            </span>
-                            <span style={{ fontSize: '10px', fontWeight: 800, color: '#A855F7', background: 'rgba(168,85,247,0.2)', padding: '2px 6px', borderRadius: '6px' }}>
-                              +{def?.loyaltyBoost || 10} Loyalty
-                            </span>
-                          </div>
-                          <div style={{ fontSize: '11px', color: '#cbd5e1', lineHeight: 1.4, marginBottom: '6px' }}>
-                            {def?.desc || 'Assigns a key leadership position in the party.'}
-                          </div>
-                          {/* Yield Badges */}
-                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                            {(def?.coinBonus > 0 || !def) && (
-                              <span style={{ fontSize: '9px', fontWeight: 800, color: '#FBBF24', background: 'rgba(245,158,11,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
-                                🪙 +{def?.coinBonus || 8} Coins/turn
-                              </span>
-                            )}
-                            {(def?.moraleBonus > 0 || !def) && (
-                              <span style={{ fontSize: '9px', fontWeight: 800, color: '#38BDF8', background: 'rgba(56,189,248,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
-                                 +{def?.moraleBonus || 6} Morale/turn
-                              </span>
-                            )}
-                            {def?.mediaBonus > 0 && (
-                              <span style={{ fontSize: '9px', fontWeight: 800, color: '#EC4899', background: 'rgba(236,72,153,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
-                                📺 +{def.mediaBonus} Media Image/turn
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-            </div>
-
-            {/* ── SECTION 2: PARTY BUILDINGS & PROJECTS ── */}
-            <div style={{ marginBottom: '18px' }}>
-              <div style={{
-                fontSize: '11px', fontWeight: 900, color: '#14B8A6',
-                textTransform: 'uppercase', letterSpacing: '0.06em',
-                marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px'
-              }}>
-                <span>🏗️ Party Buildings & Projects</span>
-                <span style={{
-                  padding: '2px 7px', borderRadius: '10px',
-                  background: 'rgba(20,184,166,0.15)', fontSize: '9px'
-                }}>
-                  {detailFaction.projects?.length || 0}
-                </span>
+                })()}
               </div>
 
-              {(!detailFaction.projects || detailFaction.projects.length === 0) ? (
-                <div style={{ fontSize: '11px', color: '#64748B', fontStyle: 'italic', padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-                  No party buildings or projects assigned to this faction.
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {detailFaction.projects.map((proj, idx) => (
-                    <div key={idx} style={{
-                      background: 'linear-gradient(135deg, rgba(17,94,89,0.25), rgba(30,41,59,0.5))',
-                      border: '1px solid rgba(20,184,166,0.3)',
-                      borderRadius: '10px',
-                      padding: '10px 12px',
-                    }}>
-                      <div style={{ fontSize: '13px', fontWeight: 900, color: '#99F6E4', marginBottom: '4px' }}>
-                        {proj.icon || '🏗️'} {proj.name}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#cbd5e1', lineHeight: 1.4 }}>
-                        {proj.desc || proj.yieldDesc || 'Completed party infrastructure.'}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* ── SECTION 3: PATRONAGE POINTS ── */}
-            <div style={{ marginBottom: '18px' }}>
-              <div style={{
-                fontSize: '11px', fontWeight: 900, color: '#3B82F6',
-                textTransform: 'uppercase', letterSpacing: '0.06em',
-                marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px'
-              }}>
-                <span>🛡️ Patronage Allocation</span>
-                <span style={{
-                  padding: '2px 7px', borderRadius: '10px',
-                  background: 'rgba(59,130,246,0.15)', fontSize: '9px'
-                }}>
-                  {detailFaction.patronage || 0} Points
-                </span>
-              </div>
-
-              {detailFaction.patronage > 0 ? (
+              {/* ── SECTION 2: PARTY BUILDINGS & PROJECTS ── */}
+              <div style={{ marginBottom: '18px' }}>
                 <div style={{
-                  background: 'linear-gradient(135deg, rgba(30,58,138,0.25), rgba(30,41,59,0.5))',
-                  border: '1px solid rgba(59,130,246,0.3)',
-                  borderRadius: '10px',
-                  padding: '10px 12px',
+                  fontSize: '11px', fontWeight: 900, color: '#14B8A6',
+                  textTransform: 'uppercase', letterSpacing: '0.06em',
+                  marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px'
                 }}>
-                  <div style={{ fontSize: '12px', fontWeight: 800, color: '#93C5FD', marginBottom: '6px' }}>
-                    🛡️ {detailFaction.patronage} Patronage Point{detailFaction.patronage > 1 ? 's' : ''} Allocated
-                  </div>
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '9px', fontWeight: 800, color: '#4ADE80', background: 'rgba(74,222,128,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
-                      +{detailFaction.patronage * 5}% Loyalty
-                    </span>
-                    <span style={{ fontSize: '9px', fontWeight: 800, color: '#FBBF24', background: 'rgba(245,158,11,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
-                      🪙 +{detailFaction.patronage * 2} Coins/turn
-                    </span>
-                    <span style={{ fontSize: '9px', fontWeight: 800, color: '#38BDF8', background: 'rgba(56,189,248,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
-                       +{detailFaction.patronage * 1} Morale/turn
-                    </span>
-                    <span style={{ fontSize: '9px', fontWeight: 800, color: '#A7F3D0', background: 'rgba(167,243,208,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
-                      📉 -{detailFaction.patronage * 1} Corruption
-                    </span>
-                    <span style={{ fontSize: '9px', fontWeight: 800, color: '#EC4899', background: 'rgba(236,72,153,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
-                      📺 +{detailFaction.patronage * 1} Media Image
-                    </span>
-                  </div>
+                  <span>🏗️ Party Buildings & Projects</span>
+                  <span style={{
+                    padding: '2px 7px', borderRadius: '10px',
+                    background: 'rgba(20,184,166,0.15)', fontSize: '9px'
+                  }}>
+                    {detailFaction.projects?.length || 0}
+                  </span>
                 </div>
-              ) : (
-                <div style={{ fontSize: '11px', color: '#64748B', fontStyle: 'italic', padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-                  No patronage points allocated to this faction.
+
+                {(!detailFaction.projects || detailFaction.projects.length === 0) ? (
+                  <div style={{ fontSize: '11px', color: '#64748B', fontStyle: 'italic', padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+                    No party buildings or projects assigned to this faction.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {detailFaction.projects.map((proj, idx) => (
+                      <div key={idx} style={{
+                        background: 'linear-gradient(135deg, rgba(17,94,89,0.25), rgba(30,41,59,0.5))',
+                        border: '1px solid rgba(20,184,166,0.3)',
+                        borderRadius: '10px',
+                        padding: '10px 12px',
+                      }}>
+                        <div style={{ fontSize: '13px', fontWeight: 900, color: '#99F6E4', marginBottom: '4px' }}>
+                          {proj.icon || '🏗️'} {proj.name}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#cbd5e1', lineHeight: 1.4 }}>
+                          {proj.desc || proj.yieldDesc || 'Completed party infrastructure.'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ── SECTION 3: PATRONAGE POINTS ── */}
+              <div style={{ marginBottom: '18px' }}>
+                <div style={{
+                  fontSize: '11px', fontWeight: 900, color: '#3B82F6',
+                  textTransform: 'uppercase', letterSpacing: '0.06em',
+                  marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px'
+                }}>
+                  <span>🛡️ Patronage Allocation</span>
+                  <span style={{
+                    padding: '2px 7px', borderRadius: '10px',
+                    background: 'rgba(59,130,246,0.15)', fontSize: '9px'
+                  }}>
+                    {detailFaction.patronage || 0} Points
+                  </span>
                 </div>
-              )}
+
+                {detailFaction.patronage > 0 ? (
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(30,58,138,0.25), rgba(30,41,59,0.5))',
+                    border: '1px solid rgba(59,130,246,0.3)',
+                    borderRadius: '10px',
+                    padding: '10px 12px',
+                  }}>
+                    <div style={{ fontSize: '12px', fontWeight: 800, color: '#93C5FD', marginBottom: '6px' }}>
+                      🛡️ {detailFaction.patronage} Patronage Point{detailFaction.patronage > 1 ? 's' : ''} Allocated
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#4ADE80', background: 'rgba(74,222,128,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                        +{detailFaction.patronage * 5}% Loyalty
+                      </span>
+                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#FBBF24', background: 'rgba(245,158,11,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                        🪙 +{detailFaction.patronage * 2} Coins/turn
+                      </span>
+                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#38BDF8', background: 'rgba(56,189,248,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                         +{detailFaction.patronage * 1} Morale/turn
+                      </span>
+                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#A7F3D0', background: 'rgba(167,243,208,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                        📉 -{detailFaction.patronage * 1} Corruption
+                      </span>
+                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#EC4899', background: 'rgba(236,72,153,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+                        📺 +{detailFaction.patronage * 1} Media Image
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '11px', color: '#64748B', fontStyle: 'italic', padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
+                    No patronage points allocated to this faction.
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Close Modal Button */}
-            <button
-              type="button"
-              onClick={() => setDetailFactionId(null)}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'linear-gradient(135deg, #334155, #1E293B)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '10px',
-                color: '#ffffff',
-                fontSize: '12px',
-                fontWeight: 900,
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                touchAction: 'manipulation',
-              }}
-            >
-              Close Details
-            </button>
+            {/* Footer with Close Button */}
+            <div style={{
+              padding: '12px 16px 14px 16px',
+              borderTop: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(15,23,42,0.95)',
+              flexShrink: 0,
+            }}>
+              <button
+                type="button"
+                onClick={() => setDetailFactionId(null)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'linear-gradient(135deg, #334155, #1E293B)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '10px',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: 900,
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  touchAction: 'manipulation',
+                }}
+              >
+                Close Details
+              </button>
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

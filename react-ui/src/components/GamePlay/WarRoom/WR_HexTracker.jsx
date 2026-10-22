@@ -26,7 +26,7 @@ export default function WR_HexTracker({ doneMap = {}, activeHex = 'card', onHexC
   const totalHexes = HEXES.length;
 
   return (
-    <div style={{
+    <div className="wr-hex-tracker-guide" style={{
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',

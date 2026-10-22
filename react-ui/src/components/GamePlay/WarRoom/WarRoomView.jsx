@@ -5,7 +5,6 @@ import { cardRequiresTarget } from '../gameUtils';
 import './warroom.css';
 
 import WR_Header       from './WR_Header';
-import WR_HexTracker   from './WR_HexTracker';
 import WR_TabBar       from './WR_TabBar';
 import WR_Action1_Card from './WR_Action1_Card';
 import WR_Action2_News from './WR_Action2_News';
@@ -15,29 +14,24 @@ import WR_Action5_Reward from './WR_Action5_Reward';
 import WR_Action6_PartyBuilding from './WR_Action6_PartyBuilding';
 import WR_Action7_Cooperation   from './WR_Action7_Cooperation';
 import WR_Action8_Assembly      from './WR_Action8_Assembly';
+import WR_Action_Media          from './WR_Action_Media';
+import WarRoomSpotlightGuide    from './WarRoomSpotlightGuide';
+import { calculateTurnLiveDeltas } from '../../../utils/instantFeedbackEngine';
+import { preloadTurnFeedback } from '../../../utils/turnFeedbackCache';
 
 const TAB_POLITICS   = 'politics';
 const TAB_GOVERNANCE = 'governance';
 const TAB_ECONOMY    = 'economy';
 
-// Hex navigation — sequential order, tab mapping, and section ID mapping
-const HEX_ORDER = ['card', 'news', 'assembly', 'governance', 'cooperation', 'bid', 'reward', 'building'];
-
-const HEX_TAB_MAP = {
-  card: 'politics', news: 'politics', assembly: 'politics',
-  governance: 'governance', cooperation: 'governance',
-  bid: 'economy', reward: 'economy', building: 'economy',
-};
-
-const HEX_SECTION_MAP = {
-  card: 'wr-section-1', news: 'wr-section-2', assembly: 'wr-section-8',
-  governance: 'wr-section-3', cooperation: 'wr-section-7',
-  bid: 'wr-section-4', reward: 'wr-section-5', building: 'wr-section-6',
-};
-
-const ACCORDION_TO_HEX = {
-  1: 'card', 2: 'news', 3: 'governance', 4: 'bid', 5: 'reward',
-  6: 'building', 7: 'cooperation', 8: 'assembly',
+const ACCORDION_TO_TAB = {
+  1: TAB_POLITICS,
+  2: TAB_POLITICS,
+  8: TAB_POLITICS,
+  3: TAB_GOVERNANCE,
+  7: TAB_GOVERNANCE,
+  4: TAB_ECONOMY,
+  5: TAB_ECONOMY,
+  6: TAB_ECONOMY,
 };
 
 /**
@@ -96,11 +90,49 @@ export default function WarRoomView({
   scenarioEvents = [],
   activeAccordion = 1,
   setActiveAccordion = () => {},
+  selectedMediaTopicKey,
+  setSelectedMediaTopicKey,
+  selectedMediaChannels,
+  setSelectedMediaChannels,
 }) {
   const [activeTab, setActiveTab] = useState(TAB_POLITICS);
-  const [activeHex, setActiveHex] = useState('card');
+  const [runGuide, setRunGuide] = useState(false);
+  const [tourKey, setTourKey] = useState(0);
   const nudgeTimerRef = useRef(null);
-  const activeHexRef = useRef('card');
+
+  // Auto-play Spotlight Guide on first load
+  useEffect(() => {
+    try {
+      const seen = localStorage.getItem('hasSeenWarRoomGuide_v1');
+      if (!seen && turnData && !loading) {
+        const timer = setTimeout(() => {
+          setRunGuide(true);
+        }, 800);
+        return () => clearTimeout(timer);
+      }
+    } catch (e) {
+      // Ignore localStorage restrictions
+    }
+  }, [turnData, loading]);
+
+  // Preload turn feedback cache for 0ms instant feedback
+  useEffect(() => {
+    const gameId = turnData?.gameId || turnData?.id || turnData?.scenarioId;
+    const partyId = activeParty?.id;
+    const turnNumber = turnData?.turnNumber || 0;
+    if (gameId && partyId) {
+      preloadTurnFeedback(gameId, partyId, turnNumber);
+    }
+  }, [turnData?.gameId, turnData?.id, turnData?.scenarioId, turnData?.turnNumber, activeParty?.id]);
+
+  const handleOpenGuide = useCallback(() => {
+    setActiveTab(TAB_POLITICS);
+    setRunGuide(false);
+    setTourKey(prev => prev + 1);
+    setTimeout(() => {
+      setRunGuide(true);
+    }, 150);
+  }, []);
 
   // ── Multiplayer identity ──
   const { user } = useGameStore();
@@ -112,48 +144,139 @@ export default function WarRoomView({
     : activeParty;
   const isMyTurn = !isMultiplayer || (myParty?.id === turnData?.activeHumanPartyId);
 
+  const gameSessionId = turnData?.gameId || turnData?.id || turnData?.scenarioId || 'default_session';
+  const turnNumber = turnData?.turnNumber || 0;
+  const cardLockStorageKey = `political_sim_card_locked_${gameSessionId}_turn_${turnNumber}`;
+  const isCardLocked = typeof window !== 'undefined' && localStorage.getItem(cardLockStorageKey) === 'true';
+
+  // Restore persisted card and target if not yet in state
+  useEffect(() => {
+    const cardStorageKey = `political_sim_card_selected_${gameSessionId}_turn_${turnNumber}`;
+    const targetStorageKey = `political_sim_card_target_${gameSessionId}_turn_${turnNumber}`;
+    if (!selectedCard) {
+      try {
+        const saved = localStorage.getItem(cardStorageKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.cardKey) {
+            setSelectedCard(parsed);
+          }
+        }
+      } catch (_) {}
+    }
+    if (!targetPartyId) {
+      try {
+        const savedTarget = localStorage.getItem(targetStorageKey);
+        if (savedTarget) {
+          setTargetPartyId(savedTarget);
+        }
+      } catch (_) {}
+    }
+  }, [gameSessionId, turnNumber, selectedCard, targetPartyId, setSelectedCard, setTargetPartyId]);
+
   // ── Completion checks (guarded against undefined/null props) ──
-  const isCardCompleted = selectedCard !== null && selectedCard !== undefined && (!cardRequiresTarget(selectedCard) || targetPartyId !== '');
+  const isCardCompleted = isCardLocked || (selectedCard !== null && selectedCard !== undefined && (!cardRequiresTarget(selectedCard) || targetPartyId !== ''));
   const newsItems       = turnData?.currentNews || [];
   const safeNewsReactions = selectedNewsReactions || {};
-  const isNewsCompleted = newsItems.length === 0 || newsItems.every(n => n && (safeNewsReactions[n.newsKey || n.issueKey] !== undefined));
-  const isSection3Completed = turnData?.activeEventKey
-    ? (selectedEventOptionKey !== '' && selectedEventOptionKey !== null && selectedEventOptionKey !== undefined)
-    : (selectedIssueOptionKey === 'mock_done');
+  const newsLockStorageKey = `political_sim_news_locked_${gameSessionId}_turn_${turnNumber}`;
+  const isNewsLocked = typeof window !== 'undefined' && localStorage.getItem(newsLockStorageKey) === 'true';
+  const isNewsCompleted = isNewsLocked || newsItems.length === 0 || newsItems.every(n => n && (safeNewsReactions[n.newsKey || n.issueKey] !== undefined));
+  const isEventCompleted = !turnData?.activeEventKey || (selectedEventOptionKey !== '' && selectedEventOptionKey !== null && selectedEventOptionKey !== undefined);
+  const isLegislativeCompleted = (!turnData?.proposedBillKeyThisTurn || (billVote !== '' && billVote !== null && billVote !== undefined)) && isEventCompleted;
+
+  // Governance completion checks
+  const hasFactionCrisis = !!activeParty?.activeFactionCrisisKey;
+  const isCrisisResolved = !hasFactionCrisis || (selectedIssueOptionKey === 'crisis_resolved' || selectedIssueOptionKey === 'mock_done');
+  const partyMgmtStorageKey = `political_sim_party_management_${gameSessionId}_turn_${turnNumber}`;
+  const isPartyMgmtLocked = activeParty?.partyManagementLocked ||
+    turnData?.partyManagementState?.locked ||
+    (typeof window !== 'undefined' && JSON.parse(localStorage.getItem(partyMgmtStorageKey) || '{}')?.isLocked === true) ||
+    selectedIssueOptionKey === 'mock_done';
+  const isSection3Completed = isCrisisResolved && isPartyMgmtLocked;
+
+  const mediaLockStorageKey = `political_sim_media_locked_${gameSessionId}_turn_${turnNumber}`;
+  const mediaSelectionStorageKey = `political_sim_media_selection_${gameSessionId}_turn_${turnNumber}`;
+  const isMediaLocked = typeof window !== 'undefined' && localStorage.getItem(mediaLockStorageKey) === 'true';
+  const isMediaSelected = typeof window !== 'undefined' && !!localStorage.getItem(mediaSelectionStorageKey);
+  const isMediaCompleted = isMediaLocked || isMediaSelected || (selectedMediaTopicKey !== '' && selectedMediaTopicKey !== null && selectedMediaTopicKey !== undefined);
+
+  const coopStorageKey = `political_sim_coop_done_${gameSessionId}_turn_${turnNumber}`;
+  const [coopDone, setCoopDone] = useState(() => {
+    try {
+      return localStorage.getItem(coopStorageKey) === 'true';
+    } catch (_) {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      setCoopDone(localStorage.getItem(coopStorageKey) === 'true');
+    } catch (_) {}
+  }, [coopStorageKey]);
+
+  const isCoopCompleted = coopDone || (typeof window !== 'undefined' && localStorage.getItem(coopStorageKey) === 'true');
+
+  const governanceDone = isSection3Completed && isMediaCompleted && isCoopCompleted;
+  const governancePending = !governanceDone;
+
+  // Economy completion checks
   const isBidCompleted  = bidConfirmed;
   const hasRewards      = turnData?.activePlayerHeldRewards && turnData.activePlayerHeldRewards.length > 0;
   const selectedReward  = hasRewards ? (turnData?.activePlayerHeldRewards || []).find(r => r && r.rewardKey === selectedRewardKey) : null;
   const isRewardCompleted = !hasRewards || selectedRewardKey === '' || (rewardConfirmed && (!selectedReward?.requiresTarget || rewardTargetPartyId !== ''));
   const hasPartyBuildingDrafts   = Object.values(fundingContributions || {}).some(v => v > 0);
   const isPartyBuildingCompleted = !hasPartyBuildingDrafts || partyBuildingConfirmed;
-  const isLegislativeCompleted   = !turnData?.proposedBillKeyThisTurn || (billVote !== '' && billVote !== null && billVote !== undefined);
-
-  const allActionsReady = isCardCompleted && isNewsCompleted && isSection3Completed && isBidCompleted && isRewardCompleted && isPartyBuildingCompleted && isLegislativeCompleted;
 
   // Tab-level completion for WR_TabBar
   const politicsDone    = isCardCompleted && isNewsCompleted && isLegislativeCompleted;
-  const governanceDone  = isSection3Completed;
   const economyDone     = isBidCompleted && isRewardCompleted && isPartyBuildingCompleted;
-  const politicsPending   = !isCardCompleted || !isNewsCompleted || (!!turnData?.proposedBillKeyThisTurn && !isLegislativeCompleted);
-  const governancePending = !isSection3Completed;
-  const economyPending    = !isBidCompleted;
+  const politicsPending   = !politicsDone;
+  const economyPending    = !economyDone;
 
-  // Hex map — 8 hexes
-  const doneMap = {
-    card:        isCardCompleted,
-    news:        isNewsCompleted,
-    assembly:    isLegislativeCompleted,
-    governance:  isSection3Completed,
-    cooperation: true,              // optional — always mark done
-    bid:         isBidCompleted,
-    reward:      isRewardCompleted,
-    building:    isPartyBuildingCompleted,
-  };
+  const allActionsReady = politicsDone && governanceDone && economyDone;
 
-  const doneCount = Object.values(doneMap).filter(Boolean).length;
+  const isCurrentTabReady =
+    (activeTab === TAB_POLITICS && politicsDone) ||
+    (activeTab === TAB_GOVERNANCE && governanceDone) ||
+    (activeTab === TAB_ECONOMY && economyDone);
 
-  // ── Keep activeHex ref in sync ──
-  useEffect(() => { activeHexRef.current = activeHex; }, [activeHex]);
+  const isNextButtonActive = isCurrentTabReady || allActionsReady;
+
+  // Determine the primary pending action and which tab/section it belongs to
+  // Order: Card → News → Assembly → Governance (Party/Crisis → Media → Diplomacy) → Economy (Bid → Rewards → Party Building)
+  let pendingAction = null;
+  if (!isCardCompleted) {
+    if (!selectedCard && !isCardLocked) {
+      pendingAction = { message: 'Select your monthly Campaign Card', tab: TAB_POLITICS, section: 'wr-section-1' };
+    } else {
+      pendingAction = { message: 'Select an opponent target for your card', tab: TAB_POLITICS, section: 'wr-section-1' };
+    }
+  } else if (!isNewsCompleted) {
+    pendingAction = { message: 'Respond to Breaking News', tab: TAB_POLITICS, section: 'wr-section-2' };
+  } else if (!isLegislativeCompleted) {
+    if (turnData?.activeEventKey && !isEventCompleted) {
+      pendingAction = { message: 'Respond to Active Scenario Event', tab: TAB_POLITICS, section: 'wr-section-8' };
+    } else {
+      pendingAction = { message: 'Cast your Assembly Vote', tab: TAB_POLITICS, section: 'wr-section-8' };
+    }
+  } else if (!isSection3Completed) {
+    pendingAction = {
+      message: hasFactionCrisis ? 'Resolve internal Faction Crisis' : 'Confirm & Lock Party Allocations',
+      tab: TAB_GOVERNANCE,
+      section: 'wr-section-3'
+    };
+  } else if (!isMediaCompleted) {
+    pendingAction = { message: 'Set Media & Narrative strategy', tab: TAB_GOVERNANCE, section: 'wr-section-media' };
+  } else if (!isCoopCompleted) {
+    pendingAction = { message: 'Review Diplomatic Cooperation', tab: TAB_GOVERNANCE, section: 'wr-section-7' };
+  } else if (!isBidCompleted) {
+    pendingAction = { message: 'Set and lock your Monthly Bid', tab: TAB_ECONOMY, section: 'wr-section-4' };
+  } else if (!isRewardCompleted) {
+    pendingAction = { message: 'Confirm your reward deployment target', tab: TAB_ECONOMY, section: 'wr-section-5' };
+  } else if (!isPartyBuildingCompleted) {
+    pendingAction = { message: 'Confirm your party building contributions', tab: TAB_ECONOMY, section: 'wr-section-6' };
+  }
 
   // ── Nudge timer helpers ──
   const clearNudgeTimer = useCallback(() => {
@@ -167,66 +290,14 @@ export default function WarRoomView({
     clearNudgeTimer();
   }, [clearNudgeTimer]);
 
-  const navigateToHex = useCallback((hexKey) => {
-    clearNudgeTimer();
-    setActiveHex(hexKey);
-    const targetTab = HEX_TAB_MAP[hexKey];
-    setActiveTab(targetTab);
-    // Scroll to the section immediately after the tab switch renders
-    setTimeout(() => {
-      const el = document.getElementById(HEX_SECTION_MAP[hexKey]);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Brief highlight flash on the target section
-        el.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
-        el.style.borderColor = '#38bdf8';
-        el.style.boxShadow = '0 0 20px rgba(56, 189, 248, 0.35)';
-        setTimeout(() => {
-          el.style.borderColor = 'rgba(255,255,255,0.08)';
-          el.style.boxShadow = '0 4px 16px rgba(0,0,0,0.2)';
-        }, 1500);
-      }
-    }, 50);
-  }, [clearNudgeTimer]);
-
-  // ── Auto-advance: immediately scroll to the next action card/section when current action is completed ──
-  const isActiveHexDone = !!doneMap[activeHex];
-
-  useEffect(() => {
-    if (isActiveHexDone) {
-      const currentIdx = HEX_ORDER.indexOf(activeHex);
-      if (currentIdx < HEX_ORDER.length - 1) {
-        navigateToHex(HEX_ORDER[currentIdx + 1]);
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeHex, isActiveHexDone]);
-
-  // ── Hex click handler ──
-  const handleHexClick = useCallback((hexKey) => {
-    navigateToHex(hexKey);
-  }, [navigateToHex]);
-
-  // Sync tab, activeHex & scroll to section when navigated from Hint
+  // Sync tab & scroll to section when navigated from Hint
   useEffect(() => {
     if (!activeAccordion) return;
 
     clearNudgeTimer();
 
-    let targetTab = TAB_POLITICS;
-    if (activeAccordion === 1 || activeAccordion === 2 || activeAccordion === 8) {
-      targetTab = TAB_POLITICS;
-    } else if (activeAccordion === 3 || activeAccordion === 7) {
-      targetTab = TAB_GOVERNANCE;
-    } else if (activeAccordion === 4 || activeAccordion === 5 || activeAccordion === 6) {
-      targetTab = TAB_ECONOMY;
-    }
-
+    const targetTab = ACCORDION_TO_TAB[activeAccordion] || TAB_POLITICS;
     setActiveTab(targetTab);
-
-    // Also sync the active hex
-    const hexKey = ACCORDION_TO_HEX[activeAccordion];
-    if (hexKey) setActiveHex(hexKey);
 
     const timer = setTimeout(() => {
       const el = document.getElementById(`wr-section-${activeAccordion}`);
@@ -277,6 +348,15 @@ export default function WarRoomView({
     );
   }
 
+  const liveDeltas = calculateTurnLiveDeltas(
+    turnData,
+    activeParty?.id,
+    selectedCard,
+    targetPartyId,
+    selectedNewsReactions,
+    bidAmount
+  );
+
   return (
     <div className="wr-root" style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
       {/* ── TOP CHROME ── */}
@@ -286,12 +366,8 @@ export default function WarRoomView({
         handleSkipTurn={handleSkipTurn}
         loading={loading}
         isMyTurn={isMyTurn}
-      />
-
-      <WR_HexTracker
-        doneMap={doneMap}
-        activeHex={activeHex}
-        onHexClick={handleHexClick}
+        onOpenGuide={handleOpenGuide}
+        liveDeltas={liveDeltas}
       />
 
       <WR_TabBar
@@ -356,6 +432,8 @@ export default function WarRoomView({
                 scenarioEvents={scenarioEvents}
               />
             </div>
+
+
           </>
         )}
 
@@ -376,14 +454,43 @@ export default function WarRoomView({
               />
             </div>
 
+            {/* Action 9 — Media & Narrative Management */}
+            <div id="wr-section-media" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+              <WR_Action_Media
+                turnData={turnData}
+                activeParty={activeParty}
+                selectedMediaTopicKey={selectedMediaTopicKey}
+                setSelectedMediaTopicKey={setSelectedMediaTopicKey}
+                selectedMediaChannels={selectedMediaChannels}
+                setSelectedMediaChannels={setSelectedMediaChannels}
+              />
+            </div>
+
             {/* Action 7 — Cooperation (optional) */}
             <div id="wr-section-7" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
               <WR_Action7_Cooperation
                 turnData={turnData}
                 projectDefs={projectDefs}
-                onActionComplete={handleCooperationUpdate}
+                onActionComplete={(data) => {
+                  setCoopDone(true);
+                  try {
+                    localStorage.setItem(coopStorageKey, 'true');
+                  } catch (_) {}
+                  if (typeof handleCooperationUpdate === 'function') {
+                    handleCooperationUpdate(data);
+                  }
+                }}
+                coopDone={isCoopCompleted}
+                onToggleCoopDone={(val) => {
+                  setCoopDone(val);
+                  try {
+                    localStorage.setItem(coopStorageKey, val ? 'true' : 'false');
+                  } catch (_) {}
+                }}
               />
             </div>
+
+
           </>
         )}
 
@@ -402,18 +509,20 @@ export default function WarRoomView({
               />
             </div>
 
-            {/* Action 5 — Rewards */}
-            <div id="wr-section-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-              <WR_Action5_Reward
-                turnData={turnData}
-                selectedRewardKey={selectedRewardKey}
-                setSelectedRewardKey={setSelectedRewardKey}
-                rewardTargetPartyId={rewardTargetPartyId}
-                setRewardTargetPartyId={setRewardTargetPartyId}
-                rewardConfirmed={rewardConfirmed}
-                setRewardConfirmed={setRewardConfirmed}
-              />
-            </div>
+            {/* Action 5 — Rewards (only shown when player has won a bid and holds rewards) */}
+            {hasRewards && (
+              <div id="wr-section-5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                <WR_Action5_Reward
+                  turnData={turnData}
+                  selectedRewardKey={selectedRewardKey}
+                  setSelectedRewardKey={setSelectedRewardKey}
+                  rewardTargetPartyId={rewardTargetPartyId}
+                  setRewardTargetPartyId={setRewardTargetPartyId}
+                  rewardConfirmed={rewardConfirmed}
+                  setRewardConfirmed={setRewardConfirmed}
+                />
+              </div>
+            )}
 
             {/* Action 6 — Party Building (optional) */}
             <div id="wr-section-6" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 12px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
@@ -436,58 +545,69 @@ export default function WarRoomView({
           </>
         )}
 
-        {/* ── END TURN FOOTER (AT BOTTOM OF OPTIONS) ── */}
-        <div className="wr-end-turn-footer">
-          {/* Status caption */}
-          <div style={{
-            textAlign: 'center',
-            marginBottom: '10px',
-            fontSize: '13px',
-            fontWeight: 700,
-            color: allActionsReady ? '#4ADE80' : '#7D8590',
-            transition: 'color 0.3s ease',
-          }}>
-            {allActionsReady
-              ? '🎉 All decisions locked — ready to submit!'
-              : `${doneCount} of 8 actions complete`}
-          </div>
-
-          {/* End Turn button */}
+        {/* ── SINGLE NEXT / END TURN BUTTON ── */}
+        <div className="wr-end-turn-footer wr-end-turn-guide">
           <button
-            onClick={handleAdvanceTurn}
-            disabled={!allActionsReady || loading || !isMyTurn}
+            onClick={() => {
+              if (allActionsReady && isMyTurn && !loading) {
+                handleAdvanceTurn();
+              } else if (activeTab === TAB_POLITICS && politicsDone) {
+                setActiveTab(TAB_GOVERNANCE);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              } else if (activeTab === TAB_GOVERNANCE && governanceDone) {
+                setActiveTab(TAB_ECONOMY);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              } else if (pendingAction) {
+                setActiveTab(pendingAction.tab);
+                setTimeout(() => {
+                  const el = document.getElementById(pendingAction.section);
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+              }
+            }}
+            disabled={loading}
             style={{
-              width: '100%',
-              minHeight: '56px',
-              fontSize: '17px',
-              fontWeight: 900,
-              letterSpacing: '0.04em',
+              width:        '100%',
+              minHeight:    '54px',
+              fontSize:     '15px',
+              fontWeight:   900,
+              letterSpacing:'0.04em',
               borderRadius: '16px',
-              border: 'none',
-              background: allActionsReady && isMyTurn
-                ? 'linear-gradient(135deg,#16A34A 0%,#15803d 100%)'
-                : 'rgba(255,255,255,0.06)',
-              color: allActionsReady && isMyTurn ? '#ffffff' : '#4B5563',
-              boxShadow: allActionsReady && isMyTurn ? '0 0 24px rgba(22,163,74,0.5)' : 'none',
-              animation: allActionsReady && isMyTurn ? 'wr-pulse-green 2s ease-in-out infinite' : 'none',
-              cursor: allActionsReady && isMyTurn && !loading ? 'pointer' : 'not-allowed',
-              transition: 'background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease',
-              touchAction: 'manipulation',
+              border:       isNextButtonActive && isMyTurn ? 'none' : '1.5px solid rgba(255,255,255,0.16)',
+              cursor:       loading ? 'wait' : 'pointer',
+              touchAction:  'manipulation',
               WebkitTapHighlightColor: 'transparent',
-              fontFamily: 'Montserrat,system-ui,sans-serif',
+              fontFamily:   'Montserrat,system-ui,sans-serif',
+              transition:   'all 0.3s ease',
+              background: isNextButtonActive && isMyTurn
+                ? 'linear-gradient(135deg, #16A34A 0%, #15803d 100%)'
+                : 'rgba(255,255,255,0.08)',
+              color:     isNextButtonActive && isMyTurn ? '#ffffff' : '#CBD5E1',
+              boxShadow: isNextButtonActive && isMyTurn ? '0 0 24px rgba(22,163,74,0.5)' : 'none',
+              animation: isNextButtonActive && isMyTurn ? 'wr-pulse-green 2s ease-in-out infinite' : 'none',
             }}
           >
-            {loading ? '⏳ Submitting…' : '⚔️  END TURN — SUBMIT DECISIONS  →'}
+            {loading
+              ? '⏳ Submitting…'
+              : allActionsReady
+                ? '⚔️  End Turn →'
+                : activeTab === TAB_POLITICS && politicsDone
+                  ? 'Next: Governance →'
+                  : activeTab === TAB_GOVERNANCE && governanceDone
+                    ? 'Next: Economy →'
+                    : 'Next →'}
           </button>
-
-          {/* Multiplayer waiting hint */}
-          {isMultiplayer && isMyTurn && !allActionsReady && (
-            <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '11px', color: '#4B5563' }}>
-              Complete all required actions to submit your turn
-            </div>
-          )}
         </div>
       </div>
+
+      {/* ── INTERACTIVE SPOTLIGHT GUIDE ── */}
+      <WarRoomSpotlightGuide
+        key={tourKey}
+        run={runGuide}
+        setRun={setRunGuide}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
     </div>
   );
 }

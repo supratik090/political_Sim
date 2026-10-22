@@ -53,7 +53,7 @@ export default function WR_TabBar({
   };
 
   return (
-    <div style={{
+    <div className="wr-tab-bar-guide wr-tab-bar" style={{
       display: 'flex',
       background: '#0D1117',
       borderRadius: '14px',
@@ -115,22 +115,34 @@ export default function WR_TabBar({
             }}
           >
             {/* Large icon */}
-            <span style={{ fontSize: '22px', lineHeight: 1 }}>{tab.icon}</span>
+            <span style={{ fontSize: '20px', lineHeight: 1 }}>{tab.icon}</span>
 
             {/* Label */}
-            <span style={{ fontSize: '11px', letterSpacing: '0.04em' }}>{tab.label}</span>
+            <span style={{ fontSize: '12px', fontWeight: isActive ? 900 : 700, letterSpacing: '0.04em' }}>{tab.label}</span>
 
-            {/* Completion badge — bottom right */}
+            {/* Completion badge pill */}
             <span style={{
-              position: 'absolute',
-              bottom: '6px',
-              right: '8px',
-              fontSize: '11px',
-              fontWeight: 900,
-              color: statusColor,
-              lineHeight: 1,
+              fontSize: '10px',
+              fontWeight: 800,
+              padding: '2px 8px',
+              borderRadius: '10px',
+              letterSpacing: '0.03em',
+              textTransform: 'none',
+              background: isDone
+                ? 'rgba(34,197,94,0.2)'
+                : isPending
+                  ? 'rgba(245,158,11,0.25)'
+                  : 'rgba(255,255,255,0.06)',
+              border: isDone
+                ? '1px solid rgba(74,222,128,0.5)'
+                : isPending
+                  ? '1px solid #F59E0B'
+                  : '1px solid rgba(255,255,255,0.1)',
+              color: isDone ? '#4ADE80' : isPending ? '#FCD34D' : '#94A3B8',
+              lineHeight: 1.2,
+              marginTop: '2px',
             }}>
-              {statusIndicator}
+              {isDone ? '✓ Ready' : isPending ? '● Action' : 'Optional'}
             </span>
 
             {/* Divider between tabs (not after last) */}
