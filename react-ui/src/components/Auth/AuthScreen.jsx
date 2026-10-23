@@ -474,10 +474,10 @@ export default function AuthScreen() {
               </button>
               <button 
                 type="button"
-                onClick={() => setCustomUrlInput('https://political-sim.onrender.com')}
+                onClick={() => setCustomUrlInput('https://political-sim-279311597920.asia-south1.run.app')}
                 style={{ textAlign: 'left', padding: '8px 12px', fontSize: '12px', background: 'rgba(0,0,0,0.03)', border: '1px solid var(--card-border)', borderRadius: '8px', cursor: 'pointer' }}
               >
-                ☁️ <strong>Render Cloud Server:</strong> https://political-sim.onrender.com
+                ☁️ <strong>Cloud Run Server:</strong> https://political-sim-279311597920.asia-south1.run.app
               </button>
             </div>
 
@@ -485,7 +485,7 @@ export default function AuthScreen() {
               type="text" 
               value={customUrlInput}
               onChange={(e) => setCustomUrlInput(e.target.value)}
-              placeholder="http://192.168.29.219:7810"
+              placeholder="https://political-sim-279311597920.asia-south1.run.app"
               style={{ width: '100%', padding: '10px 12px', fontSize: '13px', borderRadius: '8px', border: '1.5px solid var(--card-border)', marginBottom: '20px' }}
             />
 

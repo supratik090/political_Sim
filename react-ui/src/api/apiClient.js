@@ -1,3 +1,5 @@
+import { isAndroidApp } from '../utils/platform';
+
 class ApiHttpError extends Error {
   constructor(message, status) {
     super(message);
@@ -14,21 +16,26 @@ export function getApiBaseUrl() {
     if (customUrl && customUrl.trim() !== '') {
       return customUrl.trim().replace(/\/+$/, '');
     }
-
-    // 2. If launched from localhost / 127.0.0.1, automatically target local backend
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    if (isLocalhost) {
-      return 'http://localhost:7810';
-    }
   }
 
-  // 3. Environment variable (e.g. Cloud Run in production)
+  // 2. Build-time environment variable (e.g. Cloud Run in .env, .env.android, .env.production)
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && envUrl.trim() !== '') {
     return envUrl.trim().replace(/\/+$/, '');
   }
 
-  return 'http://localhost:7810';
+  // 3. Fallback for local browser dev (outside Android Capacitor webview)
+  if (typeof window !== 'undefined' && !isAndroidApp()) {
+    const isLocalBrowser =
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+      window.location.port !== '';
+    if (isLocalBrowser) {
+      return 'http://localhost:7810';
+    }
+  }
+
+  // 4. Default fallback: Cloud Run URL
+  return 'https://political-sim-279311597920.asia-south1.run.app';
 }
 
 function buildUrl(baseUrl, path, params = {}) {
