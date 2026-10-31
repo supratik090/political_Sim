@@ -3,7 +3,7 @@
   "appName": "Statecraft",
   "webDir": "dist",
   "android": {
-    "backgroundColor": "#E6E6FA",
+    "backgroundColor": "#FFF8EC",
     "allowMixedContent": true,
     "captureInput": true,
     "webContentsDebuggingEnabled": false,

@@ -553,16 +553,10 @@ export default function WarRoomView({
                 handleAdvanceTurn();
               } else if (activeTab === TAB_POLITICS && politicsDone) {
                 setActiveTab(TAB_GOVERNANCE);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
               } else if (activeTab === TAB_GOVERNANCE && governanceDone) {
                 setActiveTab(TAB_ECONOMY);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
               } else if (pendingAction) {
                 setActiveTab(pendingAction.tab);
-                setTimeout(() => {
-                  const el = document.getElementById(pendingAction.section);
-                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 100);
               }
             }}
             disabled={loading}

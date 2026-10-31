@@ -97,6 +97,73 @@ function hexToRgbStr(hex) {
   return isNaN(r) || isNaN(g) || isNaN(b) ? '101, 148, 177' : `${r}, ${g}, ${b}`;
 }
 
+export class StatsViewErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("StatsView render error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          padding: '24px',
+          margin: '20px 0',
+          background: 'rgba(239, 68, 68, 0.08)',
+          border: '2px solid #ef4444',
+          borderRadius: '12px',
+          color: '#1e293b'
+        }}>
+          <h3 style={{ margin: '0 0 10px 0', color: '#dc2626', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            ⚠️ Intelligence View Error
+          </h3>
+          <p style={{ margin: '0 0 12px 0', fontSize: '13px', lineHeight: 1.5 }}>
+            {this.state.error?.message || 'An unexpected error occurred while rendering the Intelligence view.'}
+          </p>
+          <pre style={{
+            fontSize: '11px',
+            background: '#ffffff',
+            padding: '12px',
+            borderRadius: '6px',
+            overflowX: 'auto',
+            maxHeight: '160px',
+            color: '#b91c1c',
+            border: '1px solid #fca5a5'
+          }}>
+            {this.state.error?.stack || String(this.state.error)}
+          </pre>
+          <div style={{ marginTop: '14px', display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => this.setState({ hasError: false, error: null })}
+              style={{
+                padding: '8px 16px',
+                background: '#2563eb',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '13px'
+              }}
+            >
+              🔄 Retry Intelligence
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function GamePlayBoard() {
   const { user, activeGameId, turnData, setTurnData, setTimeLeft, activeGameView, setActiveGameView } = useGameStore();
   const activeView = activeGameView || 'INFO';
@@ -122,8 +189,12 @@ export default function GamePlayBoard() {
   useEffect(() => {
     fetchBuildingProjects()
       .then(data => {
-        const formatted = formatProjectDefinitions(data);
-        setProjectDefs(formatted);
+        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+          const formatted = formatProjectDefinitions(data);
+          if (Object.keys(formatted).length > 0) {
+            setProjectDefs(formatted);
+          }
+        }
       })
       .catch(err => console.error("Failed to load building projects from backend, using fallbacks:", err));
 
@@ -165,10 +236,12 @@ export default function GamePlayBoard() {
       const turnNum = turnData.turnNumber;
       historyData[turnNum] = historyData[turnNum] || {};
 
-      turnData.parties.forEach(party => {
-        if (party.factions) {
+      (turnData.parties || []).forEach(party => {
+        if (Array.isArray(party?.factions)) {
           party.factions.forEach(f => {
-            historyData[turnNum][f.key] = f.loyalty;
+            if (f && f.key) {
+              historyData[turnNum][f.key] = f.loyalty;
+            }
           });
         }
       });
@@ -951,16 +1024,18 @@ useEffect(() => {
           )}
 
           {activeView === 'INFO' && turnData && (
-            <StatsView
-              turnData={turnData}
-              commentaryExpanded={commentaryExpanded}
-              setCommentaryExpanded={setCommentaryExpanded}
-              commentaryFilter={commentaryFilter}
-              setCommentaryFilter={setCommentaryFilter}
-              projectDefs={projectDefs}
-              onOpenResolutionReport={() => setShowResolutionReport(true)}
-              scenarioBills={scenarioBills}
-            />
+            <StatsViewErrorBoundary>
+              <StatsView
+                turnData={turnData}
+                commentaryExpanded={commentaryExpanded}
+                setCommentaryExpanded={setCommentaryExpanded}
+                commentaryFilter={commentaryFilter}
+                setCommentaryFilter={setCommentaryFilter}
+                projectDefs={projectDefs}
+                onOpenResolutionReport={() => setShowResolutionReport(true)}
+                scenarioBills={scenarioBills}
+              />
+            </StatsViewErrorBoundary>
           )}
 
           {activeView === 'HINTS' && turnData && (

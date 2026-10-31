@@ -158,12 +158,6 @@ export default function WR_Action1_Card({
         if (card) localStorage.setItem(cardStorageKey,     JSON.stringify(card));
         localStorage.setItem(targetStorageKey, target || '');
       } catch (_) {}
-
-      // Auto-scroll to next section after result settles (2s read time)
-      setTimeout(() => {
-        const el = document.getElementById('wr-section-2');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 2000);
     } catch (err) {
       console.error('Auto-lock failed:', err);
       setFeedbackState('idle');
@@ -209,8 +203,8 @@ export default function WR_Action1_Card({
     <div style={{ padding: '14px 16px 0' }}>
 
       {/* ── Section header ── */}
-      <div style={{ fontSize: '15px', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#F59E0B', marginBottom: '12px' }}>
-        🃏 Play Your Card
+      <div style={{ fontSize: '15px', fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#FF9933', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        ⭐ PLAY YOUR CARD
       </div>
 
       {/* ── Freeze warning ── */}
@@ -233,9 +227,9 @@ export default function WR_Action1_Card({
                 padding:     '4px 10px',
                 minHeight:   '28px',
                 fontSize:    '11px',
-                background:  isActive ? cat.color : 'rgba(255,255,255,0.05)',
-                borderColor: isActive ? cat.color : 'rgba(255,255,255,0.12)',
-                color:       isActive ? '#ffffff' : '#8B949E',
+                background:  isActive ? cat.color : 'rgba(255,255,255,0.08)',
+                borderColor: isActive ? cat.color : 'rgba(255,255,255,0.18)',
+                color:       isActive ? '#ffffff' : '#CBD5E1',
                 boxShadow:   isActive ? `0 0 8px ${cat.color}60` : 'none',
                 transform:   isActive ? 'scale(1.03)' : 'scale(1)',
                 fontFamily:  'Montserrat, system-ui, sans-serif',
@@ -252,11 +246,11 @@ export default function WR_Action1_Card({
         <div style={{
           textAlign:     'center',
           padding:       '6px 0 10px',
-          color:         '#F59E0B',
+          color:         '#FF9933',
           fontSize:      '12px',
           fontWeight:    700,
           letterSpacing: '0.04em',
-          opacity:       0.8,
+          opacity:       0.9,
         }}>
           👆 Tap a card to play it
         </div>

@@ -312,12 +312,15 @@ export function generateTurnHints(turnData, localDecisions = {}, scenarioBills =
   const currentNews = turnData.currentNews || turnData.events || [];
   if (currentNews.length > 0) {
     const newsItem = currentNews[0];
-    const rawOptions = newsItem.reactionOptions || newsItem.options || [];
+    const rawOptions = Array.isArray(newsItem?.reactionOptions) 
+      ? newsItem.reactionOptions 
+      : (Array.isArray(newsItem?.options) ? newsItem.options : []);
     if (rawOptions.length > 0) {
       let bestOption = null;
       let bestScore = -9999;
 
       rawOptions.forEach(opt => {
+        if (!opt) return;
         const rawEffects = opt.effects || {};
         const eff = rawEffects.playerParty || rawEffects;
         let score = (eff.publicSupport || 0) * 3 + (eff.partyMorale || 0) * 2 + (eff.coins || 0) - (eff.corruptionScore || 0) * 2;

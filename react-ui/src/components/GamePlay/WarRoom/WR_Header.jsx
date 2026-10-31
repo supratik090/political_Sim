@@ -12,7 +12,7 @@ export default function WR_Header({ turnData, activeParty, handleSkipTurn, loadi
 
   return (
     <div className="wr-header-guide" style={{
-      background: 'linear-gradient(135deg, #2D1558 0%, #151D2A 100%)',
+      background: '#0B2A6F',
       padding: '14px 16px',
       display: 'flex',
       flexDirection: 'column',
@@ -20,7 +20,7 @@ export default function WR_Header({ turnData, activeParty, handleSkipTurn, loadi
       borderRadius: '14px',
       border: '1px solid rgba(255,255,255,0.15)',
       marginBottom: '14px',
-      boxShadow: '0 4px 14px rgba(0,0,0,0.25)'
+      boxShadow: '0 4px 14px rgba(11,42,111,0.3)'
     }}>
       {/* Row 1: Avatar + Title + Guide Button */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -72,27 +72,27 @@ export default function WR_Header({ turnData, activeParty, handleSkipTurn, loadi
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              background: 'linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(217,119,6,0.3) 100%)',
-              border: '1.5px solid #F59E0B',
+              background: 'rgba(255,153,51,0.18)',
+              border: '1.5px solid #FF9933',
               borderRadius: '20px',
               padding: '6px 12px',
-              color: '#FCD34D',
+              color: '#FF9933',
               fontSize: '12px',
               fontWeight: 800,
               cursor: 'pointer',
-              boxShadow: '0 0 12px rgba(245,158,11,0.25)',
+              boxShadow: '0 0 12px rgba(255,153,51,0.25)',
               transition: 'all 0.2s ease',
               whiteSpace: 'nowrap',
               fontFamily: 'Montserrat, system-ui, sans-serif',
               flexShrink: 0,
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.35) 0%, rgba(217,119,6,0.45) 100%)';
-              e.currentTarget.style.boxShadow = '0 0 16px rgba(245,158,11,0.5)';
+              e.currentTarget.style.background = 'rgba(255,153,51,0.3)';
+              e.currentTarget.style.boxShadow = '0 0 16px rgba(255,153,51,0.5)';
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(217,119,6,0.3) 100%)';
-              e.currentTarget.style.boxShadow = '0 0 12px rgba(245,158,11,0.25)';
+              e.currentTarget.style.background = 'rgba(255,153,51,0.18)';
+              e.currentTarget.style.boxShadow = '0 0 12px rgba(255,153,51,0.25)';
             }}
           >
             <span style={{ fontSize: '14px' }}>🎯</span> Guide
@@ -122,7 +122,7 @@ export default function WR_Header({ turnData, activeParty, handleSkipTurn, loadi
           <div style={{
             height: '100%',
             width: `${turnProgress}%`,
-            background: 'linear-gradient(90deg, #6C3AB5, #9B5DE5)',
+            background: 'linear-gradient(90deg, #FF9933, #FFB866)',
             borderRadius: '2px',
             transition: 'width 0.5s ease',
           }} />

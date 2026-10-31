@@ -81,12 +81,14 @@ export default function HowToPlay() {
         }
 
         .rules-banner-card {
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+          background: #0B2A6F;
           border-radius: 16px;
-          padding: 30px 24px;
+          padding: 30px 24px 34px;
           color: #ffffff;
-          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 10px 25px -5px rgba(11, 42, 111, 0.35);
           text-align: center;
+          position: relative;
+          overflow: hidden;
         }
 
         .rules-banner-icon {
@@ -114,7 +116,7 @@ export default function HowToPlay() {
         .rules-section-title {
           margin: 10px 0 15px 0;
           font-size: 20px;
-          color: var(--primary-dark);
+          color: #0B2A6F;
           display: flex;
           align-items: center;
           gap: 8px;
@@ -122,8 +124,8 @@ export default function HowToPlay() {
         }
 
         .rules-action-card {
-          background: #ffffff;
-          border: 1px solid var(--primary-border);
+          background: #FFFDF8;
+          border: 1.5px solid #CBD5E1;
           border-radius: 14px;
           padding: 20px;
           box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04);
@@ -135,7 +137,7 @@ export default function HowToPlay() {
         .rules-action-title {
           margin: 0;
           font-size: 17px;
-          color: var(--primary-dark);
+          color: #0B2A6F;
           font-weight: bold;
         }
 
@@ -236,6 +238,14 @@ export default function HowToPlay() {
           Welcome to Statecraft! Navigate a 60-turn campaign representing a dynamic election cycle. 
           Manage your core metrics—<strong>Coins</strong>, <strong>Morale</strong>, <strong>Corruption</strong>, and <strong>Media Image</strong>—to win the battle for the assembly.
         </p>
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          background: 'linear-gradient(to right, #FF9933 0%, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%, #138808 100%)'
+        }} />
       </div>
 
       {/* Grid Layout of the 7 actions */}

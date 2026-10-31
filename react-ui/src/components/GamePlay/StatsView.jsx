@@ -53,9 +53,9 @@ const calculateFactionYield = (f, p, projectDefs) => {
   let projectCorruption = 0;
   let projectSupport = 0;
   
-  const completedProjects = (p.projects || []).filter(proj => proj.progressPercent === 100 && proj.managingFactionKey === f.key);
+  const completedProjects = (p.projects || []).filter(proj => proj && proj.progressPercent === 100 && proj.managingFactionKey === f.key);
   completedProjects.forEach(proj => {
-    const def = projectDefs[proj.projectKey];
+    const def = (projectDefs || {})[proj.projectKey];
     if (def) {
       projectCoins += def.benefitCoins || 0;
       projectMorale += def.benefitMorale || 0;
@@ -259,9 +259,9 @@ export default function StatsView({
       {/* Defeat Warnings Section */}
       {(() => {
         const allWarnings = [];
-        turnData.parties.forEach(p => {
-          if (p.id !== myPartyId) return; // only warn for current player's party
-          const pWarns = checkDefeatWarnings(p);
+        (turnData?.parties || []).forEach(p => {
+          if (!p || p.id !== myPartyId) return; // only warn for current player's party
+          const pWarns = checkDefeatWarnings(p) || [];
           pWarns.forEach(w => allWarnings.push({ partyName: p.name, partyColor: getPartyColor(p), message: w }));
         });
 
@@ -631,7 +631,7 @@ export default function StatsView({
 
       {/* 3 Party Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '25px' }}>
-        {turnData.parties.map(party => {
+        {(turnData?.parties || []).map(party => {
           const stats = party.stats || {};
           const isPlayer = party.id === myPartyId;
           const isOtherHuman = !!(humanPlayerMap[party.id]) && !isPlayer;
@@ -660,7 +660,7 @@ export default function StatsView({
               boxShadow: isDefeated 
                 ? '0 4px 12px rgba(239, 68, 68, 0.1)' 
                 : (isPlayer ? `0 0 15px rgba(${theme.rgb}, 0.15)` : 'none'),
-              background: isDefeated ? '#f8fafc' : '#ffffff',
+              background: isDefeated ? '#f8fafc' : '#FFFDF8',
               opacity: isDefeated ? 0.85 : 1,
               overflow: 'hidden'
             }}>
@@ -803,7 +803,7 @@ export default function StatsView({
                         ⚡ Factions (Loyalty / Power)
                       </span>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        {party.factions.map(f => {
+                        {(party.factions || []).map(f => {
                           let label = getFactionDisplayName(party.name, f.key);
 
                           if (!f.active) {
@@ -1454,12 +1454,14 @@ export default function StatsView({
                   let netCorruption = 0;
                   let netMedia = 0;
 
-                  factionYields.forEach(fy => {
-                    netCoins += fy.yields.coins;
-                    rawSupport += fy.yields.support;
-                    netMorale += fy.yields.morale;
-                    netCorruption += fy.yields.corruption;
-                    netMedia += fy.yields.media;
+                  (factionYields || []).forEach(fy => {
+                    if (fy && fy.yields) {
+                      netCoins += fy.yields.coins || 0;
+                      rawSupport += fy.yields.support || 0;
+                      netMorale += fy.yields.morale || 0;
+                      netCorruption += fy.yields.corruption || 0;
+                      netMedia += fy.yields.media || 0;
+                    }
                   });
 
                   const netSupport = Math.ceil(rawSupport);
@@ -1539,9 +1541,9 @@ export default function StatsView({
 
                               {/* Collapsible details content */}
                               {expandedFactions[`${p.id}_${f.key || f.id}`] && (() => {
-                                const frozenPostsCount = f.frozenPosts ? Object.values(f.frozenPosts).filter(t => t > 0).length : 0;
-                                const frozenPatronageCount = f.frozenPatronageTurns ? f.frozenPatronageTurns.filter(t => t > 0).length : 0;
-                                const frozenProjectsCount = projects.filter(proj => proj.frozenTurnsRemaining > 0).length;
+                                const frozenPostsCount = (f.frozenPosts && typeof f.frozenPosts === 'object') ? Object.values(f.frozenPosts).filter(t => t > 0).length : 0;
+                                const frozenPatronageCount = Array.isArray(f.frozenPatronageTurns) ? f.frozenPatronageTurns.filter(t => t > 0).length : 0;
+                                const frozenProjectsCount = Array.isArray(projects) ? projects.filter(proj => proj && proj.frozenTurnsRemaining > 0).length : 0;
                                 const totalFrozenAssets = frozenPostsCount + frozenPatronageCount + frozenProjectsCount;
 
                                 return (
@@ -1579,8 +1581,8 @@ export default function StatsView({
                                       🛡️ <b>Patronage:</b> {f.patronage > 0 ? `${f.patronage} Point${f.patronage > 1 ? 's' : ''}` : 'None'}
                                     </div>
                                     <div>
-                                      🏗️ <b>Projects:</b> {projects.length === 0 ? 'None' : projects.map(proj => {
-                                        const def = projectDefs[proj.projectKey];
+                                      🏗️ <b>Projects:</b> {(!Array.isArray(projects) || projects.length === 0) ? 'None' : projects.map(proj => {
+                                        const def = (projectDefs || {})[proj.projectKey];
                                         return def ? def.name : proj.projectKey;
                                       }).join(', ')}
                                     </div>

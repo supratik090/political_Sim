@@ -1,0 +1,53 @@
+[
+  {
+    "scenarioKey": "default",
+    "factionKey": "youth",
+    "name": "Youth Wing",
+    "startingLoyalty": 60,
+    "startingInfluence": 35,
+    "satisfiedEffects": {
+      "coins": 1,
+      "morale": 2,
+      "media": 2
+    },
+    "rebelliousEffects": {
+      "morale": -3,
+      "corruption": 1
+    },
+    "id": "6a4b577122ca4e5ca360495f"
+  },
+  {
+    "scenarioKey": "default",
+    "factionKey": "veteran",
+    "name": "Veterans Faction",
+    "startingLoyalty": 85,
+    "startingInfluence": 45,
+    "satisfiedEffects": {
+      "coins": 2,
+      "morale": 1,
+      "media": 1
+    },
+    "rebelliousEffects": {
+      "morale": -2,
+      "corruption": 2
+    },
+    "id": "6a4b577122ca4e5ca360495e"
+  },
+  {
+    "scenarioKey": "default",
+    "factionKey": "trade",
+    "name": "Trade Unions",
+    "startingLoyalty": 70,
+    "startingInfluence": 20,
+    "satisfiedEffects": {
+      "coins": 3,
+      "morale": 1,
+      "media": 1
+    },
+    "rebelliousEffects": {
+      "morale": -1,
+      "corruption": 3
+    },
+    "id": "6a4b577122ca4e5ca3604960"
+  }
+]

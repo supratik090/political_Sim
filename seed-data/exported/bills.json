@@ -1,0 +1,397 @@
+[
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_state_highway_krishi_corridor",
+    "name": "State Highway & Krishi Corridor Act",
+    "description": "Construct high-speed state expressways and rural link roads to connect rural mandis with urban trading hubs.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 25,
+    "pointsFailed": -5,
+    "effectsPassed": {
+      "coins": 100,
+      "publicSupport": 5,
+      "mediaImage": 10,
+      "corruptionScore": -10
+    },
+    "effectsFailed": {
+      "partyMorale": -8,
+      "coins": -20,
+      "publicSupport": -2
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabb2"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_krishi_direct_income_support",
+    "name": "Krishi Samman Direct Income Subsidy Bill",
+    "description": "Provide direct DBT monetary transfers to farming households to offset high diesel and electricity costs.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 30,
+    "pointsFailed": -6,
+    "effectsPassed": {
+      "coins": 100,
+      "publicSupport": 5,
+      "partyMorale": 25
+    },
+    "effectsFailed": {
+      "partyMorale": -10,
+      "publicSupport": -2
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabb3"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_ease_of_doing_business_licensing",
+    "name": "State Trade & Inspector Raj Simplification Act",
+    "description": "Abolish complex municipal licensing fees and replace them with single-window digital clearances for local MSMEs.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 20,
+    "pointsFailed": -4,
+    "effectsPassed": {
+      "coins": 150,
+      "publicSupport": 5,
+      "corruptionScore": -10
+    },
+    "effectsFailed": {
+      "partyMorale": -5
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabb4"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_mohalla_rural_clinic_expansion",
+    "name": "Chief Minister\u2019s Rural Health & Basti Clinic Act",
+    "description": "Fund 500 new primary health sub-centers and free diagnostic clinics across under-served tribal and rural blocks.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 25,
+    "pointsFailed": -5,
+    "effectsPassed": {
+      "coins": 50,
+      "publicSupport": 5,
+      "mediaImage": 15
+    },
+    "effectsFailed": {
+      "partyMorale": -7
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabb5"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_state_board_school_upgradation",
+    "name": "State Board Model Schools Transformation Act",
+    "description": "Mandate strict infrastructure benchmarks, digital smartboards, and centralized tracking for all state-run schools.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 20,
+    "pointsFailed": -4,
+    "effectsPassed": {
+      "coins": 100,
+      "publicSupport": 5,
+      "partyMorale": 5
+    },
+    "effectsFailed": {
+      "partyMorale": -6
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabb6"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_mega_industrial_sez_land",
+    "name": "Mega Industrial Corridor & Land Allocation Bill",
+    "description": "Fast-track land acquisition and offer tax holidays to attract major auto and tech manufacturing hubs to the state.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 30,
+    "pointsFailed": -6,
+    "effectsPassed": {
+      "coins": 100,
+      "publicSupport": 10,
+      "mediaImage": 15,
+      "corruptionScore": -15
+    },
+    "effectsFailed": {
+      "partyMorale": -9,
+      "publicSupport": -5
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabb7"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_solar_pumpset_electrification",
+    "name": "Mukhyamantri Grameen Solar Urja Act",
+    "description": "Distribute heavily subsidized off-grid solar water pumps to farmers lacking reliable grid electricity.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 25,
+    "pointsFailed": -5,
+    "effectsPassed": {
+      "coins": 50,
+      "publicSupport": 3,
+      "mediaImage": 10
+    },
+    "effectsFailed": {
+      "partyMorale": -6
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabb8"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_gram_panchayat_high_speed_fiber",
+    "name": "State Digital Village Fiber Network Project",
+    "description": "Lay underground optic fiber cables to bring high-speed broadband to all Gram Panchayat offices and village centers.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 15,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "coins": 50,
+      "publicSupport": 3,
+      "mediaImage": 10
+    },
+    "effectsFailed": {
+      "partyMorale": -4
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabb9"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_unemployed_youth_bhatta",
+    "name": "Yuva Rozgar Unemployed Stipend Scheme",
+    "description": "Provide a temporary monthly cash allowance (Bhatta) to registered unemployed graduates undergoing skill training.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 30,
+    "pointsFailed": -6,
+    "effectsPassed": {
+      "coins": 100,
+      "publicSupport": 10,
+      "partyMorale": 10
+    },
+    "effectsFailed": {
+      "partyMorale": -8,
+      "publicSupport": -2
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabba"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_state_police_modernization",
+    "name": "State Police Force Modernization Bill",
+    "description": "Procure high-tech surveillance, advanced forensic kits, and tactical vehicles for state law enforcement units.",
+    "proposingRole": "GOVERNMENT",
+    "pointsPassed": 20,
+    "pointsFailed": -4,
+    "effectsPassed": {
+      "coins": 50,
+      "publicSupport": 2,
+      "partyMorale": 5,
+      "corruptionScore": -20
+    },
+    "effectsFailed": {
+      "partyMorale": -5
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabbb"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_judicial_lokayukta_probe",
+    "name": "Independent Lokayukta Anti-Corruption Probe Bill",
+    "description": "Empower the state Lokayukta with absolute judicial authority to directly raid and prosecute high-ranking state ministers.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 15,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "corruptionScore": -30,
+      "publicSupport": 10,
+      "partyMorale": 20,
+      "coins": 100
+    },
+    "effectsFailed": {
+      "partyMorale": -4
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabbc"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_e_tendering_transparency",
+    "name": "Mandatory E-Tendering & Public Contract Act",
+    "description": "Enforce strict live online bidding for all state PWD and municipal development contracts exceeding 10 Lakhs.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 10,
+    "pointsFailed": -2,
+    "effectsPassed": {
+      "corruptionScore": -15,
+      "publicSupport": 5,
+      "mediaImage": 15,
+      "coins": 50
+    },
+    "effectsFailed": {
+      "partyMorale": -3
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabbd"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_citizen_complaint_lokayukta",
+    "name": "Citizen-Led Lokayukta Empowerment Bill",
+    "description": "Enable local resident welfare associations and citizen panels to lodge institutional corruption charges directly.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 15,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "corruptionScore": -30,
+      "publicSupport": 5,
+      "partyMorale": 20,
+      "coins": 50
+    },
+    "effectsFailed": {
+      "partyMorale": -4
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabbe"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_marginalized_castes_welfare",
+    "name": "Scheduled Castes & Backwards Welfare Allocation Bill",
+    "description": "Enforce strict budgetary spending allocations and targeted business grants for marginalized communities.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 15,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "publicSupport": 15,
+      "mediaImage": 15,
+      "partyMorale": 15,
+      "coins": 150
+    },
+    "effectsFailed": {
+      "partyMorale": -3
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabbf"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_industrial_river_pollution_fines",
+    "name": "State Riverine & Industrial Effluent Control Act",
+    "description": "Impose hefty criminal fines and cancel factory licenses for industrial units discharging toxic waste into local rivers.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 10,
+    "pointsFailed": -2,
+    "effectsPassed": {
+      "publicSupport": 5,
+      "mediaImage": 15,
+      "corruptionScore": -20,
+      "coins": 100
+    },
+    "effectsFailed": {
+      "partyMorale": -2
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabc0"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_permanent_unemployment_allowance",
+    "name": "Berozgari Bhatta Guarantee Act",
+    "description": "Demand an institutionalized, legally-backed monthly pension scheme for all educated youth seeking employment.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 20,
+    "pointsFailed": -4,
+    "effectsPassed": {
+      "publicSupport": 10,
+      "partyMorale": 25,
+      "coins": 50
+    },
+    "effectsFailed": {
+      "partyMorale": -4
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabc1"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_essential_ration_price_cap",
+    "name": "Essential Ration & Fuel Price Regulation Act",
+    "description": "Force strict price controls on the open-market retail costs of mustard oil, pulses, rice, and life-saving drugs.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 15,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "publicSupport": 10,
+      "partyMorale": 15,
+      "coins": 50
+    },
+    "effectsFailed": {
+      "partyMorale": -3
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabc2"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_panchayati_raj_direct_funds",
+    "name": "Panchayati Raj Direct Financial Devolution Bill",
+    "description": "Bypass state secretariat red tape to transfer rural infrastructure budgets straight into Gram Panchayat bank accounts.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 15,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "publicSupport": 5,
+      "corruptionScore": -15,
+      "partyMorale": 20,
+      "coins": 100
+    },
+    "effectsFailed": {
+      "partyMorale": -4
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabc3"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_state_official_language_mandate",
+    "name": "Official State Language Administrative Use Act",
+    "description": "Mandate that all high court filings, local administration directives, and signs strictly prioritize the regional language.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 10,
+    "pointsFailed": -2,
+    "effectsPassed": {
+      "publicSupport": 10,
+      "mediaImage": 10,
+      "coins": 50
+    },
+    "effectsFailed": {
+      "partyMorale": -2
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabc4"
+  },
+  {
+    "scenarioKey": "default",
+    "billKey": "bill_vidhan_sabha_peaceful_assembly",
+    "name": "Protection of Democratic Protest & Assembly Act",
+    "description": "Prohibit state police from applying Section 144 or using preventive detentions against peaceful political agitators.",
+    "proposingRole": "OPPOSITION",
+    "pointsPassed": 15,
+    "pointsFailed": -3,
+    "effectsPassed": {
+      "publicSupport": 10,
+      "partyMorale": 20,
+      "mediaImage": 15,
+      "coins": 100
+    },
+    "effectsFailed": {
+      "partyMorale": -3
+    },
+    "active": true,
+    "id": "6a55176604753d39239dabc5"
+  }
+]

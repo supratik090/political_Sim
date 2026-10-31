@@ -146,17 +146,6 @@ export default function WR_Action2_News({ turnData, selectedNewsReactions, setSe
         localStorage.setItem(feedbackStorageKey, JSON.stringify(fbMap));
         localStorage.setItem(newsStorageKey,     JSON.stringify(reactionsSnapshot));
       } catch (_) {}
-
-      // Auto-scroll to next section
-      setTimeout(() => {
-        const assemblyEl = document.getElementById('wr-section-8');
-        if (assemblyEl && turnData?.proposedBillKeyThisTurn) {
-          assemblyEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        } else {
-          const footerEl = document.querySelector('.wr-end-turn-footer');
-          if (footerEl) footerEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 2000);
     } catch (err) {
       console.error('News auto-lock failed:', err);
       setFeedbackState('idle');

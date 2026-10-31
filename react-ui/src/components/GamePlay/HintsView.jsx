@@ -39,10 +39,10 @@ export default function HintsView({
     }}>
       {/* Main Container Card */}
       <div style={{
-        background: 'linear-gradient(145deg, #1e293b 0%, #0f172a 100%)',
+        background: '#0B2A6F',
         borderRadius: '16px',
-        border: '1px solid rgba(255,255,255,0.1)',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+        border: '1px solid rgba(255,255,255,0.12)',
+        boxShadow: '0 10px 30px rgba(11,42,111,0.35)',
         padding: '24px',
         color: '#f8fafc'
       }}>
@@ -54,7 +54,7 @@ export default function HintsView({
           alignItems: 'flex-start',
           flexWrap: 'wrap',
           gap: '12px',
-          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          borderBottom: '1px solid rgba(255,255,255,0.12)',
           paddingBottom: '16px',
           marginBottom: '20px'
         }}>
@@ -70,16 +70,16 @@ export default function HintsView({
             }}>
               💡 Tactical Campaign Hints
             </h2>
-            <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#94a3b8', lineHeight: '1.4' }}>
+            <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: '#CBD5E1', lineHeight: '1.4' }}>
               Turn {turnNumber} • Real-time strategic guidance customized to your party's political standing
             </p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{
-              background: 'rgba(59, 130, 246, 0.15)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              color: '#60a5fa',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              color: '#93c5fd',
               padding: '6px 12px',
               borderRadius: '20px',
               fontSize: '12px',
@@ -89,8 +89,8 @@ export default function HintsView({
             </span>
             {criticalCount > 0 && (
               <span style={{
-                background: 'rgba(239, 68, 68, 0.15)',
-                border: '1px solid rgba(239, 68, 68, 0.4)',
+                background: 'rgba(239, 68, 68, 0.2)',
+                border: '1px solid rgba(239, 68, 68, 0.5)',
                 color: '#f87171',
                 padding: '6px 12px',
                 borderRadius: '20px',
@@ -165,15 +165,15 @@ export default function HintsView({
                 <div
                   key={hint.id || idx}
                   style={{
-                    backgroundColor: '#0f172a',
+                    backgroundColor: '#071f54',
                     borderRadius: '14px',
                     padding: '18px',
-                    border: isCritical ? '1.5px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255,255,255,0.1)',
+                    border: isCritical ? '1.5px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255,255,255,0.12)',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
                     gap: '12px',
-                    boxShadow: isCritical ? '0 4px 20px rgba(239, 68, 68, 0.15)' : '0 4px 12px rgba(0,0,0,0.2)',
+                    boxShadow: isCritical ? '0 4px 20px rgba(239, 68, 68, 0.2)' : '0 4px 12px rgba(0,0,0,0.25)',
                     transition: 'transform 0.15s ease, box-shadow 0.15s ease'
                   }}
                 >

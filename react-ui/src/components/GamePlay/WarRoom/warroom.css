@@ -5,10 +5,10 @@
 
 /* ── Design Tokens ── */
 .wr-root {
-  /* Core surfaces — brightened from pitch-black for rich slate-navy contrast */
-  --wr-bg:            #151D2A;
-  --wr-surface:       #1E293B;
-  --wr-surface-2:     #28354A;
+  /* Core surfaces — Chakra Navy from Mockup */
+  --wr-bg:            #0B2A6F;
+  --wr-surface:       #071f54;
+  --wr-surface-2:     #0e307e;
   --wr-border:        rgba(255,255,255,0.16);
   --wr-border-strong: rgba(255,255,255,0.30);
 
@@ -18,13 +18,13 @@
   --wr-gov-from:        #0F766E;
   --wr-gov-to:          #10B981;
   --wr-eco-from:        #D97706;
-  --wr-eco-to:          #F59E0B;
+  --wr-eco-to:          #FF9933;
 
   /* Status */
-  --wr-done:    #16A34A;
-  --wr-pending: #F59E0B;
+  --wr-done:    #138808;
+  --wr-pending: #FF9933;
   --wr-danger:  #DC2626;
-  --wr-gold:    #F59E0B;
+  --wr-gold:    #FF9933;
   --wr-blue:    #2563EB;
 
   /* Card category gradients */

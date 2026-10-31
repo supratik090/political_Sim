@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useGameStore } from '../../store/gameStore';
-import { loginUser, registerUser, requestForgotPasswordOtp, resetPasswordWithOtp, fetchScenarios, getApiBaseUrl } from '../../api/apiClient';
+import {
+  loginUser,
+  registerUser,
+  getSecretQuestion,
+  resetPasswordWithSecretQuestion,
+  fetchScenarios,
+  getApiBaseUrl
+} from '../../api/apiClient';
+import { isAndroidApp } from '../../utils/platform';
+
+const PRESET_SECURITY_QUESTIONS = [
+  'What was the name of your first school?',
+  'What is your favorite book or movie?',
+  'What city were you born in?',
+  "What is your mother's maiden name?",
+  'What was your childhood nickname?'
+];
 
 export default function AuthScreen() {
   const [authMode, setAuthMode] = useState('LOGIN'); // 'LOGIN', 'REGISTER', 'FORGOT_STEP_1', 'FORGOT_STEP_2'
@@ -9,30 +25,38 @@ export default function AuthScreen() {
   const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Forgot Password flow states
-  const [otpCode, setOtpCode] = useState('');
+  // Security question state
+  const [selectedQuestion, setSelectedQuestion] = useState(PRESET_SECURITY_QUESTIONS[0]);
+  const [secretAnswer, setSecretAnswer] = useState('');
+  const [retrievedQuestion, setRetrievedQuestion] = useState('');
+
+  // Password reset state
   const [newPassword, setNewPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
-  const [generatedOtp, setGeneratedOtp] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [serverStatus, setServerStatus] = useState('CHECKING'); // 'ONLINE', 'OFFLINE', 'CHECKING'
+  const isAndroid = isAndroidApp();
+  const [serverStatus, setServerStatus] = useState(isAndroid ? 'ONLINE' : 'CHECKING');
   const [currentApiUrl, setCurrentApiUrl] = useState(getApiBaseUrl());
   const [showUrlModal, setShowUrlModal] = useState(false);
   const [customUrlInput, setCustomUrlInput] = useState(currentApiUrl);
   const login = useGameStore((state) => state.login);
 
   const checkConnection = () => {
+    if (isAndroid) {
+      setServerStatus('ONLINE');
+      return;
+    }
     setServerStatus('CHECKING');
     fetchScenarios()
       .then(() => {
         setServerStatus('ONLINE');
         setCurrentApiUrl(getApiBaseUrl());
       })
-      .catch(err => {
-        console.warn("Background server warmup call failed:", err);
+      .catch((err) => {
+        console.warn('Background server warmup call failed:', err);
         setServerStatus('OFFLINE');
         setCurrentApiUrl(getApiBaseUrl());
       });
@@ -61,12 +85,12 @@ export default function AuthScreen() {
     e.preventDefault();
     setError('');
     setSuccessMsg('');
-    
-    if (!email || !password || (authMode === 'REGISTER' && !name)) {
+
+    if (!email || !password || (authMode === 'REGISTER' && (!name || !secretAnswer))) {
       setError('Please fill out all fields.');
       return;
     }
-    
+
     const normalizedEmail = email.trim().toLowerCase();
     setLoading(true);
 
@@ -75,24 +99,30 @@ export default function AuthScreen() {
       if (authMode === 'LOGIN') {
         userData = await loginUser({ email: normalizedEmail, password });
       } else {
-        userData = await registerUser({ name: name.trim(), email: normalizedEmail, password });
+        userData = await registerUser({
+          name: name.trim(),
+          email: normalizedEmail,
+          password,
+          secretQuestion: selectedQuestion,
+          secretAnswer: secretAnswer.trim()
+        });
       }
       login(userData);
     } catch (err) {
       console.error('Authentication error:', err);
-      setError(err.message || 'Authentication failed. Please try again.');
+      setError(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSendOtp = async (e) => {
+  const handleFetchSecretQuestion = async (e) => {
     e.preventDefault();
     setError('');
     setSuccessMsg('');
 
     if (!email) {
-      setError('Please enter your email address.');
+      setError('Please enter your email address or user ID.');
       return;
     }
 
@@ -100,13 +130,12 @@ export default function AuthScreen() {
     setLoading(true);
 
     try {
-      const res = await requestForgotPasswordOtp({ email: normalizedEmail });
-      setGeneratedOtp(res.otp || '');
-      setSuccessMsg(`📩 OTP Code generated and sent to ${normalizedEmail}!`);
+      const res = await getSecretQuestion({ email: normalizedEmail });
+      setRetrievedQuestion(res.secretQuestion || PRESET_SECURITY_QUESTIONS[0]);
       setAuthMode('FORGOT_STEP_2');
     } catch (err) {
-      console.error('Forgot password OTP error:', err);
-      setError(err.message || 'Failed to generate OTP. Please check email address.');
+      console.error('Get secret question error:', err);
+      setError(err.message || 'No account found with this user ID or email.');
     } finally {
       setLoading(false);
     }
@@ -117,8 +146,8 @@ export default function AuthScreen() {
     setError('');
     setSuccessMsg('');
 
-    if (!otpCode || !newPassword) {
-      setError('Please enter both OTP code and your new password.');
+    if (!secretAnswer || !newPassword) {
+      setError('Please provide your secret answer and new password.');
       return;
     }
 
@@ -126,20 +155,19 @@ export default function AuthScreen() {
     setLoading(true);
 
     try {
-      const res = await resetPasswordWithOtp({
+      const res = await resetPasswordWithSecretQuestion({
         email: normalizedEmail,
-        otp: otpCode.trim(),
+        secretAnswer: secretAnswer.trim(),
         newPassword: newPassword
       });
       setSuccessMsg(res.message || '✅ Password reset successfully! You can now log in.');
       setPassword('');
-      setOtpCode('');
+      setSecretAnswer('');
       setNewPassword('');
-      setGeneratedOtp('');
       setAuthMode('LOGIN');
     } catch (err) {
       console.error('Reset password error:', err);
-      setError(err.message || 'Failed to reset password. Please verify OTP code.');
+      setError(err.message || 'Failed to reset password. Incorrect secret answer.');
     } finally {
       setLoading(false);
     }
@@ -149,59 +177,118 @@ export default function AuthScreen() {
   const isRegister = authMode === 'REGISTER';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '20px', background: 'linear-gradient(180deg, #FFE4C7 0%, #FFF8EC 48%, #DFF2DB 100%)' }}>
       
       {/* Banner */}
       <div style={{
-        background: 'var(--primary-border)',
-        padding: 'clamp(24px, 5vw, 40px) clamp(20px, 6vw, 50px)',
+        background: '#0B2A6F',
+        padding: '28px 20px',
         borderRadius: '16px',
-        border: '2px solid var(--primary-dark)',
         textAlign: 'center',
-        boxShadow: '0 10px 30px rgba(26,52,72,0.05)',
-        maxWidth: '600px',
+        boxShadow: '0 12px 30px rgba(11,42,111,0.25)',
+        maxWidth: '420px',
         width: '100%',
-        marginBottom: '28px',
+        marginBottom: '20px',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        <img src="/app-logo.png" alt="Statecraft Logo" style={{ width: '80px', height: '80px', marginBottom: '18px', borderRadius: '16px', boxShadow: '0 8px 25px rgba(0,0,0,0.3)' }} />
-        <h1 style={{ fontSize: 'clamp(22px, 5vw, 36px)', fontWeight: 900, color: '#ffffff', margin: 0, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+        {/* Subtle Ashoka Chakra watermark in background */}
+        <svg style={{ position: 'absolute', right: '-25px', top: '-25px', width: '160px', height: '160px', opacity: 0.12, pointerEvents: 'none' }} viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="#FFFFFF" strokeWidth="2.5" />
+          <circle cx="50" cy="50" r="8" fill="none" stroke="#FFFFFF" strokeWidth="2" />
+          {Array.from({ length: 24 }).map((_, i) => (
+            <line
+              key={i}
+              x1="50"
+              y1="50"
+              x2={50 + 46 * Math.cos((i * 15 * Math.PI) / 180)}
+              y2={50 + 46 * Math.sin((i * 15 * Math.PI) / 180)}
+              stroke="#FFFFFF"
+              strokeWidth="1.2"
+            />
+          ))}
+        </svg>
+
+        {/* Logo in rounded white square */}
+        <div style={{
+          backgroundColor: '#FFFFFF',
+          padding: '8px',
+          borderRadius: '14px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: '10px'
+        }}>
+          <img src="/app-logo.png" alt="Statecraft Logo" style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
+        </div>
+
+        <h1 style={{ fontSize: '26px', fontWeight: 900, color: '#ffffff', margin: 0, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
           Statecraft
         </h1>
+
+        {/* Tricolor accent stripe at bottom */}
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          background: 'linear-gradient(to right, #FF9933 0%, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%, #138808 100%)'
+        }} />
       </div>
 
       {/* Auth Form Container */}
-      <div className="unified-card" style={{ maxWidth: '400px', width: '100%' }}>
+      <div className="unified-card" style={{ maxWidth: '420px', width: '100%', backgroundColor: '#FFFDF8', border: '1.5px solid #CBD5E1', borderRadius: '16px', padding: '22px' }}>
         
         {/* Navigation Tabs for Sign In & Register */}
         {(isLogin || isRegister) && (
           <div style={{ display: 'flex', marginBottom: '20px', gap: '10px' }}>
             <button 
               type="button"
-              className={isLogin ? 'selected' : ''} 
               onClick={() => { setAuthMode('LOGIN'); setError(''); setSuccessMsg(''); }} 
-              style={{ flex: 1 }}
+              style={{
+                flex: 1,
+                backgroundColor: isLogin ? '#0B2A6F' : '#FFFFFF',
+                color: isLogin ? '#FFFFFF' : '#0B2A6F',
+                border: isLogin ? '1.5px solid #0B2A6F' : '1.5px solid #CBD5E1',
+                borderRadius: '8px',
+                fontWeight: 700,
+                fontSize: '14px',
+                padding: '9px 12px',
+                cursor: 'pointer'
+              }}
             >
               Sign In
             </button>
             <button 
               type="button"
-              className={isRegister ? 'selected' : ''} 
               onClick={() => { setAuthMode('REGISTER'); setError(''); setSuccessMsg(''); }} 
-              style={{ flex: 1 }}
+              style={{
+                flex: 1,
+                backgroundColor: isRegister ? '#0B2A6F' : '#FFFFFF',
+                color: isRegister ? '#FFFFFF' : '#0B2A6F',
+                border: isRegister ? '1.5px solid #0B2A6F' : '1.5px solid #CBD5E1',
+                borderRadius: '8px',
+                fontWeight: 700,
+                fontSize: '14px',
+                padding: '9px 12px',
+                cursor: 'pointer'
+              }}
             >
               Register
             </button>
           </div>
         )}
 
-        <h3 style={{ textAlign: 'center', marginTop: 0, marginBottom: '20px' }}>
+        <h3 style={{ textAlign: 'center', marginTop: 0, marginBottom: '20px', color: '#0B2A6F', fontSize: '20px', fontWeight: 800 }}>
           {isLogin && 'Welcome Back'}
           {isRegister && 'Create an Account'}
           {authMode === 'FORGOT_STEP_1' && '🔑 Reset Password (Step 1/2)'}
-          {authMode === 'FORGOT_STEP_2' && '🔐 Enter OTP & New Password'}
+          {authMode === 'FORGOT_STEP_2' && '🔐 Answer Question & Set Password'}
         </h3>
 
         {/* Success Message Banner */}
@@ -243,60 +330,38 @@ export default function AuthScreen() {
           </div>
         )}
 
-        {/* OTP Email Dispatch Confirmation Banner (Step 2) */}
-        {authMode === 'FORGOT_STEP_2' && (
-          <div style={{
-            background: 'rgba(59, 130, 246, 0.12)',
-            border: '1.5px solid #3b82f6',
-            color: '#1d4ed8',
-            padding: '12px 14px',
-            borderRadius: '10px',
-            marginBottom: '16px',
-            textAlign: 'center',
-            fontSize: '13px',
-            fontWeight: 700,
-            lineHeight: 1.4
-          }}>
-            📩 A 6-digit OTP code has been sent to your email:
-            <span style={{ display: 'block', fontSize: '14px', fontWeight: 900, color: '#1e40af', marginTop: '3px' }}>
-              {email}
-            </span>
-            <span style={{ display: 'block', fontSize: '11px', fontWeight: 500, color: 'var(--text-secondary)', marginTop: '4px' }}>
-              Please check your inbox (and spam folder) and enter the code below.
-            </span>
-          </div>
-        )}
-
         {/* LOGIN / REGISTER FORM */}
         {(isLogin || isRegister) && (
           <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             {isRegister && (
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>Full Name</label>
+                <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: '#0B2A6F' }}>Full Name</label>
                 <input 
                   type="text" 
-                  placeholder="Name" 
+                  placeholder="Player Name" 
                   value={name} 
                   onChange={(e) => setName(e.target.value)} 
+                  style={{ width: '100%', backgroundColor: '#FFFFFF', color: '#0F1C28', border: '1.5px solid #CBD5E1', borderRadius: '8px' }}
                 />
               </div>
             )}
             
             <div>
-              <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>
-                {isLogin ? 'Email Address or User ID' : 'Email'}
+              <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: '#0B2A6F' }}>
+                {isLogin ? 'Email Address or User ID' : 'User ID / Email'}
               </label>
               <input 
-                type={isLogin ? 'text' : 'email'} 
-                placeholder={isLogin ? 'Email, User ID, or Name' : 'you@example.com'} 
+                type="text" 
+                placeholder={isLogin ? 'Email or User ID' : 'player1 or you@example.com'} 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
+                style={{ width: '100%', backgroundColor: '#FFFFFF', color: '#0F1C28', border: '1.5px solid #CBD5E1', borderRadius: '8px' }}
               />
             </div>
 
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 700, margin: 0, color: 'var(--text-secondary)' }}>Password</label>
+                <label style={{ fontSize: '13px', fontWeight: 700, margin: 0, color: '#0B2A6F' }}>Password</label>
                 {isLogin && (
                   <button
                     type="button"
@@ -304,7 +369,7 @@ export default function AuthScreen() {
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: 'var(--primary-dark)',
+                      color: '#0B2A6F',
                       fontSize: '12px',
                       fontWeight: 700,
                       cursor: 'pointer',
@@ -322,7 +387,7 @@ export default function AuthScreen() {
                   placeholder="••••••••" 
                   value={password} 
                   onChange={(e) => setPassword(e.target.value)} 
-                  style={{ width: '100%', paddingRight: '42px', boxSizing: 'border-box' }}
+                  style={{ width: '100%', paddingRight: '42px', boxSizing: 'border-box', backgroundColor: '#FFFFFF', color: '#0F1C28', border: '1.5px solid #CBD5E1', borderRadius: '8px' }}
                 />
                 <button
                   type="button"
@@ -346,30 +411,79 @@ export default function AuthScreen() {
               </div>
             </div>
 
-            <button type="submit" disabled={loading} style={{ marginTop: '10px', width: '100%', minHeight: '42px', fontSize: '14px', fontWeight: '800', borderRadius: '8px' }}>
+            {/* Secret Question & Answer fields for Registration */}
+            {isRegister && (
+              <>
+                <div>
+                  <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: '#0B2A6F' }}>
+                    Security Question (for password recovery)
+                  </label>
+                  <select
+                    value={selectedQuestion}
+                    onChange={(e) => setSelectedQuestion(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', fontSize: '13px', borderRadius: '8px', border: '1.5px solid #CBD5E1', backgroundColor: '#FFFFFF', color: '#0F1C28' }}
+                  >
+                    {PRESET_SECURITY_QUESTIONS.map((q, idx) => (
+                      <option key={idx} value={q}>{q}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: '#0B2A6F' }}>
+                    Secret Answer
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Your secret answer"
+                    value={secretAnswer}
+                    onChange={(e) => setSecretAnswer(e.target.value)}
+                    style={{ width: '100%', backgroundColor: '#FFFFFF', color: '#0F1C28', border: '1.5px solid #CBD5E1', borderRadius: '8px' }}
+                  />
+                </div>
+              </>
+            )}
+
+            <button 
+              type="submit" 
+              disabled={loading} 
+              style={{ 
+                marginTop: '15px', 
+                width: '100%', 
+                minHeight: '46px', 
+                fontSize: '15px', 
+                fontWeight: '800', 
+                borderRadius: '10px',
+                backgroundColor: '#FF9933',
+                color: '#FFFFFF',
+                border: 'none',
+                boxShadow: '0 4px 14px rgba(255, 153, 51, 0.4)',
+                cursor: 'pointer'
+              }}
+            >
               {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Register')}
             </button>
           </form>
         )}
 
-        {/* FORGOT PASSWORD STEP 1 FORM */}
+        {/* FORGOT PASSWORD STEP 1 FORM (Find Account) */}
         {authMode === 'FORGOT_STEP_1' && (
-          <form onSubmit={handleSendOtp} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <form onSubmit={handleFetchSecretQuestion} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
-              Enter your registered email address. We will generate and send a 6-digit OTP code to reset your password.
+              Enter your registered User ID or Email to answer your security question and reset your password.
             </p>
             <div>
-              <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>Registered Email</label>
+              <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>User ID or Email</label>
               <input 
-                type="email" 
-                placeholder="you@example.com" 
+                type="text" 
+                placeholder="User ID or Email" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
               />
             </div>
 
             <button type="submit" disabled={loading} style={{ marginTop: '10px', width: '100%', minHeight: '42px', fontSize: '14px', fontWeight: '800', borderRadius: '8px' }}>
-              {loading ? 'Sending OTP...' : 'Send OTP Code'}
+              {loading ? 'Finding account...' : 'Next → Answer Security Question'}
             </button>
 
             <button 
@@ -382,18 +496,31 @@ export default function AuthScreen() {
           </form>
         )}
 
-        {/* FORGOT PASSWORD STEP 2 FORM */}
+        {/* FORGOT PASSWORD STEP 2 FORM (Answer Secret Question) */}
         {authMode === 'FORGOT_STEP_2' && (
           <form onSubmit={handleResetPassword} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div style={{
+              background: 'rgba(59, 130, 246, 0.1)',
+              border: '1.5px solid #3b82f6',
+              padding: '12px 14px',
+              borderRadius: '10px',
+              color: '#1d4ed8'
+            }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '4px' }}>
+                Security Question:
+              </span>
+              <span style={{ fontSize: '14px', fontWeight: 700 }}>
+                {retrievedQuestion || 'What is your security question?'}
+              </span>
+            </div>
+
             <div>
-              <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>6-Digit OTP Code</label>
+              <label style={{ fontSize: '13px', fontWeight: 700, marginBottom: '6px', display: 'block', color: 'var(--text-secondary)' }}>Your Answer</label>
               <input 
                 type="text" 
-                placeholder="123456" 
-                maxLength={6}
-                value={otpCode} 
-                onChange={(e) => setOtpCode(e.target.value)} 
-                style={{ letterSpacing: '4px', fontWeight: 900, textAlign: 'center', fontSize: '16px' }}
+                placeholder="Enter your answer" 
+                value={secretAnswer} 
+                onChange={(e) => setSecretAnswer(e.target.value)} 
               />
             </div>
 
@@ -444,8 +571,8 @@ export default function AuthScreen() {
         )}
       </div>
 
-      {/* URL Switcher Modal */}
-      {showUrlModal && (
+      {/* URL Switcher Modal (Only in web browser dev mode) */}
+      {!isAndroid && showUrlModal && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
@@ -460,17 +587,10 @@ export default function AuthScreen() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
               <button 
                 type="button"
-                onClick={() => setCustomUrlInput('http://192.168.29.219:7810')}
+                onClick={() => setCustomUrlInput('http://localhost:7810')}
                 style={{ textAlign: 'left', padding: '8px 12px', fontSize: '12px', background: 'rgba(0,0,0,0.03)', border: '1px solid var(--card-border)', borderRadius: '8px', cursor: 'pointer' }}
               >
-                📡 <strong>Local Wi-Fi IP:</strong> http://192.168.29.219:7810
-              </button>
-              <button 
-                type="button"
-                onClick={() => setCustomUrlInput('http://10.0.2.2:7810')}
-                style={{ textAlign: 'left', padding: '8px 12px', fontSize: '12px', background: 'rgba(0,0,0,0.03)', border: '1px solid var(--card-border)', borderRadius: '8px', cursor: 'pointer' }}
-              >
-                🤖 <strong>Android Emulator IP:</strong> http://10.0.2.2:7810
+                💻 <strong>Localhost:</strong> http://localhost:7810
               </button>
               <button 
                 type="button"
@@ -485,7 +605,7 @@ export default function AuthScreen() {
               type="text" 
               value={customUrlInput}
               onChange={(e) => setCustomUrlInput(e.target.value)}
-              placeholder="https://political-sim-279311597920.asia-south1.run.app"
+              placeholder="http://localhost:7810"
               style={{ width: '100%', padding: '10px 12px', fontSize: '13px', borderRadius: '8px', border: '1.5px solid var(--card-border)', marginBottom: '20px' }}
             />
 

@@ -1,33 +1,41 @@
 export const COLORS = {
+  // Indian National Palette from Mockup
+  saffron: '#FF9933',
+  white: '#FFFFFF',
+  green: '#138808',
+  chakraNavy: '#0B2A6F',
+  cardIvory: '#FFFDF8',
+  mapIdle: '#F7C48B',
+
   // Base App Theme
-  primaryBackground: '#E6E6FA', // Lavender
-  textPrimary: '#000000',
-  textSecondary: '#475569',
+  primaryBackground: 'linear-gradient(180deg, #FFE4C7 0%, #FFF8EC 48%, #DFF2DB 100%)',
+  textPrimary: '#0F1C28',
+  textSecondary: '#4A5568',
   
   // Primary Elements & Borders
-  primaryDark: '#213C51',       // Deep Blue
-  primaryBorder: '#6594B1',     // Steel Blue
+  primaryDark: '#0B2A6F',       // Chakra Navy
+  primaryBorder: '#9DBDD6',     // Border
   
   // Interactive Elements (Buttons, Inputs)
-  buttonBackground: '#213C51',
+  buttonBackground: '#FF9933',  // Saffron
   buttonText: '#ffffff',
-  buttonHoverBackground: '#192e3e',
-  buttonDisabledBackground: '#192e3e',
+  buttonHoverBackground: '#e68524',
+  buttonDisabledBackground: '#3A5469',
   buttonDisabledText: 'rgba(255, 255, 255, 0.6)',
   
   // Selected State
-  selectedHighlight: '#22c55e', // Green
+  selectedHighlight: '#FF9933', // Saffron
   
   // Unified Dashboard & Cards
-  cardBackground: '#ffffff',    // Clean White
-  cardBorder: '#6594B1',        // Steel Blue
-  cardText: '#213C51',          // Deep Blue
+  cardBackground: '#FFFDF8',    // Card Ivory
+  cardBorder: '#CBD5E1',        // Soft border
+  cardText: '#0B2A6F',          // Chakra Navy
 
-  // Specific Game Elements (Optional additions from Python UI)
-  success: '#22c55e',
+  // Specific Game Elements
+  success: '#138808',           // Green
   danger: '#be123c',
-  warning: '#ff9800',
-  info: '#00bcd4',
+  warning: '#FF9933',           // Saffron
+  info: '#0B2A6F',              // Chakra Navy
 };
 
 export const CATEGORY_COLORS = {

@@ -23,6 +23,9 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       include: ['react', 'react-dom', 'zustand']
     },
+    build: {
+      sourcemap: true
+    },
     server: {
       host: true,
       proxy: {

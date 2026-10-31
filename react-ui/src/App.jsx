@@ -65,12 +65,16 @@ function App() {
       <div style={{ display: currentScreen === 'HOW_TO_PLAY' ? 'block' : 'none' }}>
         <HowToPlay />
       </div>
-      <div style={{ display: currentScreen === 'JOIN_GAME' ? 'block' : 'none' }}>
-        <JoinGame />
-      </div>
-      <div style={{ display: currentScreen === 'LOBBY' ? 'block' : 'none' }}>
-        {currentScreen === 'LOBBY' && <Lobby />}
-      </div>
+      {!isAndroid && (
+        <>
+          <div style={{ display: currentScreen === 'JOIN_GAME' ? 'block' : 'none' }}>
+            <JoinGame />
+          </div>
+          <div style={{ display: currentScreen === 'LOBBY' ? 'block' : 'none' }}>
+            {currentScreen === 'LOBBY' && <Lobby />}
+          </div>
+        </>
+      )}
       {isAdmin && (
         <div style={{ display: currentScreen === 'ADMIN' ? 'block' : 'none' }}>
           <AdminConsole />

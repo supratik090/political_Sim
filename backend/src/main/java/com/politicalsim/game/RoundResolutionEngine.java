@@ -2067,6 +2067,9 @@ public class RoundResolutionEngine {
                 }
             }
             if (cards.isEmpty()) {
+                cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc("default");
+            }
+            if (cards.isEmpty()) {
                 cards = cardRepository.findByScenarioKeyOrderByCategoryAscNameAsc("west_bengal_2000");
             }
             return cards;

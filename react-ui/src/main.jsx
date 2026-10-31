@@ -3,9 +3,23 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
-// Register Service Worker for PWA support only in Production
+const isNativeApp = typeof window !== 'undefined' && (window.Capacitor?.isNativePlatform?.() || (window.location.protocol === 'https:' && window.location.hostname === 'localhost'));
+
+// Register Service Worker for PWA support only in Web Production
 if ('serviceWorker' in navigator) {
-  if (import.meta.env.PROD) {
+  if (isNativeApp) {
+    // Clear any service workers and caches inside Native Android webview
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister();
+      }
+    });
+    if (typeof caches !== 'undefined') {
+      caches.keys().then((names) => {
+        names.forEach((name) => caches.delete(name));
+      });
+    }
+  } else if (import.meta.env.PROD) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {

@@ -4,30 +4,38 @@
    DESIGN TOKENS
    ==================================================== */
 :root {
+  /* Indian National Palette from Mockup */
+  --saffron: #FF9933;
+  --white: #FFFFFF;
+  --green: #138808;
+  --chakra-navy: #0B2A6F;
+  --card-ivory: #FFFDF8;
+  --map-idle: #F7C48B;
+
   /* Base App Theme */
-  --primary-background: #EEF0F8;    /* Cooler lavender-white — cleaner on Android LCD */
+  --primary-background: linear-gradient(180deg, #FFE4C7 0%, #FFF8EC 48%, #DFF2DB 100%);
   --text-primary: #0F1C28;          /* Near-black — softer, rich contrast */
-  --text-secondary: #4A5568;        /* Warm slate — 5.1:1 contrast on bg */
+  --text-secondary: #4A5568;        /* Warm slate */
 
   /* Primary Elements & Borders */
-  --primary-dark: #1A3448;          /* Richer Deep Blue */
+  --primary-dark: #0B2A6F;          /* Chakra Navy */
   --primary-border: #9DBDD6;        /* Steel Blue */
 
   /* Interactive Elements (Buttons, Inputs) */
-  --button-bg: #1A3448;
+  --button-bg: #FF9933;             /* Saffron primary button */
   --button-text: #ffffff;
-  --button-hover-bg: #142839;
-  --button-disabled-bg: #3A5469;    /* Lighter disabled — better distinction */
+  --button-hover-bg: #e68524;
+  --button-disabled-bg: #3A5469;    /* Lighter disabled */
   --button-disabled-text: rgba(255, 255, 255, 0.45);
 
   /* Selected / Accent State */
-  --selected-highlight: #16A34A;        /* Slightly darker green — better contrast */
-  --selected-highlight-light: rgba(22, 163, 74, 0.12);
+  --selected-highlight: #FF9933;    /* Saffron highlight */
+  --selected-highlight-light: rgba(255, 153, 51, 0.15);
 
   /* Unified Dashboard & Cards */
-  --card-bg: #ffffff;
-  --card-border: #C5D8E8;           /* Softer border */
-  --card-text: #1A3448;
+  --card-bg: #FFFDF8;               /* Card Ivory */
+  --card-border: #CBD5E1;           /* Softer border */
+  --card-text: #0B2A6F;             /* Chakra Navy */
 
   /* Android Safe Area support */
   --safe-top:    env(safe-area-inset-top, 0px);
@@ -73,7 +81,8 @@
 html, body {
   margin: 0;
   padding: 0;
-  background-color: var(--primary-background);
+  background: linear-gradient(180deg, #FFE4C7 0%, #FFF8EC 48%, #DFF2DB 100%);
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -366,14 +375,26 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .game-title-banner {
-  background: var(--primary-border);
-  padding: 30px;
+  background: var(--chakra-navy);
+  padding: 24px 20px 28px;
   border-radius: 16px;
-  border: 2px solid var(--primary-dark);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   margin-bottom: 25px;
   text-align: center;
   color: #ffffff;
-  box-shadow: 0 10px 30px rgba(26, 52, 72, 0.1);
+  box-shadow: 0 10px 30px rgba(11, 42, 111, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.game-title-banner::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to right, #FF9933 0%, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%, #138808 100%);
 }
 
 .game-title-h1 {
@@ -391,6 +412,13 @@ input[type="range"]::-moz-range-thumb {
   color: #ffffff;
 }
 
+/* ── Tricolor Stripe Utility ── */
+.tricolor-stripe {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(to right, #FF9933 0%, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%, #138808 100%);
+}
+
 /* ── View Toggle ── */
 .view-toggle-bar {
   display: flex;
@@ -400,9 +428,23 @@ input[type="range"]::-moz-range-thumb {
 
 .view-toggle-button {
   flex: 1;
-  padding: 14px 10px;               /* Was 15px */
-  font-size: 15px;                  /* Was 16px */
-  min-height: 50px;
+  padding: 12px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  min-height: 46px;
+  background-color: var(--chakra-navy);
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(11, 42, 111, 0.2);
+  transition: all 0.2s ease;
+}
+
+.view-toggle-button.selected {
+  background-color: var(--chakra-navy);
+  color: #ffffff;
+  border: 2px solid var(--saffron);
+  box-shadow: 0 0 12px rgba(255, 153, 51, 0.4);
 }
 
 /* ── Cycle Reward Pane ── */
@@ -724,11 +766,21 @@ input[type="range"]::-moz-range-thumb {
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--primary-dark);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+    background: var(--chakra-navy);
+    border-top: none;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.35);
     z-index: 200;
     padding-bottom: var(--safe-bottom);
+  }
+  .android-bottom-nav::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3.5px;
+    background: linear-gradient(to right, #FF9933 0%, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%, #138808 100%);
+    z-index: 10;
   }
   .android-bottom-nav-item {
     flex: 1;
@@ -736,9 +788,9 @@ input[type="range"]::-moz-range-thumb {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 6px 2px 8px;
+    padding: 7px 2px 8px;
     min-height: 52px;
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.65);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -755,7 +807,7 @@ input[type="range"]::-moz-range-thumb {
   }
   .android-bottom-nav-item::after { display: none; }
   .android-bottom-nav-item:active { transform: none; opacity: 0.7; }
-  .android-bottom-nav-item.active { color: var(--selected-highlight); }
+  .android-bottom-nav-item.active { color: var(--saffron); }
   .android-bottom-nav-item .nav-icon { font-size: 18px; line-height: 1; }
 
   /* Push main content above tab bar */

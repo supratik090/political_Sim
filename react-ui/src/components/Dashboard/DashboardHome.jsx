@@ -29,6 +29,7 @@ function invalidateCache(userId) {
 
 export default function DashboardHome() {
   const { user, setScreen, setActiveGame, currentScreen, activeGameId } = useGameStore();
+  const isAndroid = isAndroidApp();
   const [view, setView] = useState('TABLE'); // TABLE, CREATE, LOAD
   const [games, setGames] = useState([]);
   const [scenarios, setScenarios] = useState([]);
@@ -57,27 +58,17 @@ export default function DashboardHome() {
   const [mapStartBtnHighlighted, setMapStartBtnHighlighted] = useState(false);
   const [createStartBtnHighlighted, setCreateStartBtnHighlighted] = useState(false);
 
-  // Auto-scroll to Start Campaign button when a state is selected on the map
   useEffect(() => {
     if (selectedStateName) {
       setMapStartBtnHighlighted(true);
-      const timer = setTimeout(() => {
-        startCampaignBtnRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 150);
-      return () => clearTimeout(timer);
     } else {
       setMapStartBtnHighlighted(false);
     }
   }, [selectedStateName]);
 
-  // Auto-scroll to Start Game button when view switches to CREATE
   useEffect(() => {
     if (view === 'CREATE') {
       setCreateStartBtnHighlighted(true);
-      const timer = setTimeout(() => {
-        startGameBtnRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 200);
-      return () => clearTimeout(timer);
     } else {
       setCreateStartBtnHighlighted(false);
     }
@@ -270,7 +261,7 @@ export default function DashboardHome() {
 
   const handleLoadGame = (gameId, status) => {
     setActiveGame(gameId);
-    if (status === 'LOBBY') {
+    if (status === 'LOBBY' && !isAndroid) {
         setScreen('LOBBY');
     } else {
         setScreen('GAME');
@@ -397,15 +388,23 @@ export default function DashboardHome() {
                   onChange={(e) => updatePartyConfig(idx, 'name', e.target.value)}
                   style={{ marginBottom: '10px' }} 
                 />
-                <select 
-                  value={partyConfigs[idx].controllerType}
-                  onChange={(e) => updatePartyConfig(idx, 'controllerType', e.target.value)}
-                  style={{ marginBottom: '10px' }}
-                >
-                  <option value="HUMAN">Human Controller</option>
-                  <option value="COMPUTER">AI</option>
-                </select>
-                {partyConfigs[idx].controllerType === 'COMPUTER' && (
+                {isAndroid ? (
+                  <div style={{ marginBottom: '10px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: idx === 0 ? 'var(--accent-teal)' : 'var(--text-secondary)' }}>
+                      {idx === 0 ? '👤 Human Player (You)' : '🤖 AI Controller'}
+                    </span>
+                  </div>
+                ) : (
+                  <select 
+                    value={partyConfigs[idx].controllerType}
+                    onChange={(e) => updatePartyConfig(idx, 'controllerType', e.target.value)}
+                    style={{ marginBottom: '10px' }}
+                  >
+                    <option value="HUMAN">Human Controller</option>
+                    <option value="COMPUTER">AI</option>
+                  </select>
+                )}
+                {(partyConfigs[idx].controllerType === 'COMPUTER' || (isAndroid && idx > 0)) && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     <label style={{ fontSize: '11px', fontWeight: '800', opacity: 0.8, textTransform: 'uppercase' }}>AI Style Profile</label>
                     <select 
@@ -458,7 +457,7 @@ export default function DashboardHome() {
   };
 
   const renderLoad = () => {
-    const activeGames = games.filter(game => game.status === 'ACTIVE' || game.status === 'LOBBY');
+    const activeGames = games.filter(game => game.status === 'ACTIVE' || (!isAndroid && game.status === 'LOBBY'));
 
     const handleRejoin = async () => {
       setRejoinError('');
@@ -466,7 +465,7 @@ export default function DashboardHome() {
       try {
         const data = await getGameByJoinCode(rejoinCode.trim());
         setActiveGame(data.id);
-        if (data.status === 'LOBBY') setScreen('LOBBY');
+        if (data.status === 'LOBBY' && !isAndroid) setScreen('LOBBY');
         else setScreen('GAME');
       } catch (err) {
         setRejoinError('Game not found. Check the join code.');
@@ -492,7 +491,7 @@ export default function DashboardHome() {
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => handleLoadGame(game.id, game.status)}>
-                  {game.status === 'LOBBY' ? 'Enter Lobby' : 'Load Game'}
+                  {game.status === 'LOBBY' && !isAndroid ? 'Enter Lobby' : 'Load Game'}
                 </button>
                 <button
                   onClick={() => setDeletingGameId(game.id)}
@@ -616,30 +615,55 @@ export default function DashboardHome() {
       );
     }
 
+    const eraScenarios = allScenarios.filter(s => s.startYear === selectedYear);
+    const hasEnabledStatesInEra = eraScenarios.some(s => s.status === 'AVAILABLE' || s.status === 'IN_PROGRESS' || s.status === 'WON');
+
     return (
       <div className="unified-card" style={{ display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid var(--primary-border)', paddingBottom: '10px' }}>
-          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary-dark)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', color: '#0B2A6F', fontWeight: 800 }}>
             🗺️ India Campaign Map
           </h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-secondary)' }}>ERA:</span>
+            <span style={{ fontSize: '11px', fontWeight: '800', color: '#0B2A6F' }}>ERA:</span>
             <select 
               value={selectedYear} 
               onChange={(e) => {
                 setSelectedYear(parseInt(e.target.value));
                 setSelectedStateName(null);
               }}
-              style={{ width: 'auto', padding: '6px 12px', fontSize: '13px', borderRadius: '6px', fontWeight: 'bold' }}
+              style={{ width: 'auto', padding: '6px 12px', fontSize: '13px', borderRadius: '6px', fontWeight: 'bold', backgroundColor: '#FFFFFF', color: '#0B2A6F', border: '1.5px solid #0B2A6F' }}
             >
-        {availableEras.map(year => (
-            <option key={year} value={year}>{year} Era</option>
-          ))}
+              {availableEras.map(year => (
+                <option key={year} value={year}>{year} Era</option>
+              ))}
             </select>
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', overflow: 'hidden', padding: '10px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid var(--primary-border)' }}>
+        {!hasEnabledStatesInEra && (
+          <div style={{
+            margin: '0 0 15px 0',
+            padding: '12px 16px',
+            backgroundColor: 'rgba(255, 153, 51, 0.12)',
+            border: '1.5px solid #FF9933',
+            borderRadius: '10px',
+            color: '#0B2A6F',
+            fontSize: '13px',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            lineHeight: 1.45
+          }}>
+            <span style={{ fontSize: '18px', flexShrink: 0 }}>🔒</span>
+            <span>
+              Winning a state unlocks the next era for that state.
+            </span>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', overflow: 'hidden', padding: '10px', backgroundColor: '#FFFDF8', borderRadius: '8px', border: '1px solid #CBD5E1' }}>
           <svg 
             width="100%"
             height={projection?.height || 550} 
@@ -653,24 +677,16 @@ export default function DashboardHome() {
                 s.startYear === selectedYear
               );
               
-              let fillColor = '#f1f5f9';
-              let strokeColor = '#94a3b8';
-              let strokeWidth = '0.5px';
+              let fillColor = '#F7C48B'; // Map idle / Not in this era
+              let strokeColor = '#FFFFFF';
+              let strokeWidth = '1px';
               let cursor = 'default';
-              let winningColor = null;
 
               if (scenario) {
                 if (scenario.status === 'LOCKED') {
-                  fillColor = '#94a3b8';
-                } else if (scenario.status === 'IN_PROGRESS') {
-                  fillColor = '#8b5cf6';
-                  cursor = 'pointer';
-                } else if (scenario.status === 'AVAILABLE') {
-                  fillColor = '#06b6d4';
-                  cursor = 'pointer';
-                } else if (scenario.status === 'WON') {
-                  winningColor = getWinnerColorForScenario(scenario.scenarioKey);
-                  fillColor = winningColor || '#3b82f6';
+                  fillColor = '#F7C48B';
+                } else if (scenario.status === 'IN_PROGRESS' || scenario.status === 'AVAILABLE' || scenario.status === 'WON') {
+                  fillColor = '#138808'; // Playable Green
                   cursor = 'pointer';
                 }
               }
@@ -682,8 +698,8 @@ export default function DashboardHome() {
                   key={idx}
                   d={getPathData(feature.geometry)}
                   fill={fillColor}
-                  stroke={isSelected ? '#0f172a' : strokeColor}
-                  strokeWidth={isSelected ? '2px' : strokeWidth}
+                  stroke={isSelected ? '#0B2A6F' : strokeColor}
+                  strokeWidth={isSelected ? '2.5px' : strokeWidth}
                   cursor={cursor}
                   onClick={() => {
                     if (scenario) {
@@ -694,8 +710,8 @@ export default function DashboardHome() {
                     if (scenario) {
                       e.target.style.fillOpacity = '0.85';
                       if (!isSelected) {
-                        e.target.style.stroke = '#213C51';
-                        e.target.style.strokeWidth = '1px';
+                        e.target.style.stroke = '#0B2A6F';
+                        e.target.style.strokeWidth = '1.5px';
                       }
                     }
                   }}
@@ -716,26 +732,14 @@ export default function DashboardHome() {
         </div>
 
         {/* Legend */}
-        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '15px', flexWrap: 'wrap', fontSize: '11px', fontWeight: 'bold', color: 'var(--primary-dark)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#06b6d4', borderRadius: '3px', border: '1px solid #94a3b8' }} />
-            <span>Available</span>
+        <div style={{ display: 'flex', gap: '18px', justifyContent: 'center', marginTop: '15px', flexWrap: 'wrap', fontSize: '12px', fontWeight: 'bold', color: '#0B2A6F' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '12px', height: '12px', backgroundColor: '#138808', borderRadius: '3px', border: '1px solid #138808' }} />
+            <span>Playable</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#8b5cf6', borderRadius: '3px', border: '1px solid #94a3b8' }} />
-            <span>In Progress</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#3b82f6', borderRadius: '3px', border: '1px solid #94a3b8' }} />
-            <span>Won (Party color)</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#94a3b8', borderRadius: '3px', border: '1px solid #94a3b8' }} />
-            <span>Locked</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: '12px', height: '12px', backgroundColor: '#f1f5f9', borderRadius: '3px', border: '1px solid #94a3b8' }} />
-            <span>No Campaign</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '12px', height: '12px', backgroundColor: '#F7C48B', borderRadius: '3px', border: '1px solid #e0aa6e' }} />
+            <span>Not in this era</span>
           </div>
         </div>
 
@@ -747,7 +751,7 @@ export default function DashboardHome() {
           );
           if (!scenario) return null;
 
-          const activeGame = games.find(g => g.scenarioKey === scenario.scenarioKey && (g.status === 'ACTIVE' || g.status === 'LOBBY'));
+          const activeGame = games.find(g => g.scenarioKey === scenario.scenarioKey && (g.status === 'ACTIVE' || (!isAndroid && g.status === 'LOBBY')));
 
           return (
             <div style={{
@@ -874,7 +878,7 @@ export default function DashboardHome() {
                     onClick={() => handleLoadGame(activeGame.id, activeGame.status)}
                     style={{ fontSize: '14px', padding: '10px 20px', fontWeight: 'bold', backgroundColor: 'var(--selected-highlight)', borderColor: 'var(--selected-highlight)' }}
                   >
-                    📂 {activeGame.status === 'LOBBY' ? 'Enter Lobby' : 'Resume Active Session'}
+                    📂 {activeGame.status === 'LOBBY' && !isAndroid ? 'Enter Lobby' : 'Resume Active Session'}
                   </button>
                 )}
               </div>
@@ -929,29 +933,47 @@ export default function DashboardHome() {
   return (
     <div>
       <div style={{
-        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-        padding: '30px',
+        background: '#0B2A6F',
+        padding: '24px 20px 28px',
         borderRadius: '16px',
         border: '1px solid rgba(255,255,255,0.08)',
-        marginBottom: '25px',
+        marginBottom: '22px',
         textAlign: 'center',
         color: '#ffffff',
-        boxShadow: '0 12px 30px -10px rgba(15,23,42,0.3)',
+        boxShadow: '0 12px 30px -10px rgba(11,42,111,0.3)',
         position: 'relative',
         overflow: 'hidden'
       }}>
-        <div style={{
-          position: 'absolute',
-          top: '-50%',
-          left: '-20%',
-          width: '300px',
-          height: '300px',
-          background: 'radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%)',
-          borderRadius: '50%'
-        }} />
-        <h1 style={{ fontSize: '28px', fontWeight: 900, margin: 0, letterSpacing: '-0.02em', color: '#ffffff', textTransform: 'uppercase' }}>
+        {/* Subtle Ashoka Chakra watermark in background */}
+        <svg style={{ position: 'absolute', right: '-25px', top: '-25px', width: '160px', height: '160px', opacity: 0.12, pointerEvents: 'none' }} viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="#FFFFFF" strokeWidth="2.5" />
+          <circle cx="50" cy="50" r="8" fill="none" stroke="#FFFFFF" strokeWidth="2" />
+          {Array.from({ length: 24 }).map((_, i) => (
+            <line
+              key={i}
+              x1="50"
+              y1="50"
+              x2={50 + 46 * Math.cos((i * 15 * Math.PI) / 180)}
+              y2={50 + 46 * Math.sin((i * 15 * Math.PI) / 180)}
+              stroke="#FFFFFF"
+              strokeWidth="1.2"
+            />
+          ))}
+        </svg>
+
+        <h1 style={{ fontSize: '24px', fontWeight: 900, margin: 0, letterSpacing: '0.04em', color: '#ffffff', textTransform: 'uppercase' }}>
           🏛️ Statecraft Dashboard
         </h1>
+
+        {/* Tricolor accent stripe at bottom */}
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          background: 'linear-gradient(to right, #FF9933 0%, #FF9933 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #138808 66.66%, #138808 100%)'
+        }} />
       </div>
 
       {loading && scenarios.length === 0 ? (
